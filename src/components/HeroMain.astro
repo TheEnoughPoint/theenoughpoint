@@ -1,0 +1,82 @@
+---
+// Homepage hero — replaces HeroSection/HeroSlider on the homepage only
+// (HeroSlider stays available for other uses). Image is the brand banner
+// graphic (also used in the footer), shown uncropped at full width.
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+
+interface StrategyItem {
+  icon:  string;
+  label: string;
+}
+
+interface Props {
+  subtitle?:      string;
+  primaryCta?:    { label: string; href: string };
+  secondaryCta?:  { label: string; href: string };
+  image?:         string;
+  imageAlt?:      string;
+  strategyTitle?: string;
+  strategyItems?: StrategyItem[];
+}
+
+const {
+  subtitle  = 'Practical personal finance and lifestyle insights for financially aware Singaporeans — invest better, build optional income, spend with value, and reach your own enough point.',
+  primaryCta   = { label: 'Start Your Freedom Roadmap', href: url('/build-enough') },
+  secondaryCta = { label: 'Explore Latest Articles', href: '#latest' },
+  image     = '/img/brand/banner-wide.jpg',
+  imageAlt  = 'TheEnoughPoint.com — reach your enough point, live your freedom',
+  strategyTitle = 'Build wealth with Singapore-smart strategies',
+  strategyItems = [
+    { icon: 'bi:bank',       label: 'CPF' },
+    { icon: 'bi:piggy-bank', label: 'SRS' },
+    { icon: 'bi:house-door', label: 'HDB' },
+    { icon: 'bi:graph-up',   label: 'T-bills' },
+    { icon: 'bi:airplane',   label: 'Miles & Cashback' },
+  ],
+} = Astro.props;
+---
+
+<div class="pt-6 lg:pt-10 pb-10 lg:pb-14">
+  <div class="max-w-2xl">
+    <h1 class="font-heading font-bold text-navy text-4xl sm:text-5xl leading-[1.15]">
+      Reach your <span class="text-forest">enough point</span>, live your <span class="text-gold">freedom</span>.
+    </h1>
+    <p class="text-muted text-base mt-5 max-w-md leading-relaxed">{subtitle}</p>
+    <div class="flex flex-wrap items-center gap-3 mt-7">
+      <a
+        href={primaryCta.href}
+        class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm px-5 py-3 rounded-full transition-colors"
+      >
+        {primaryCta.label}
+        <Icon name="bi:arrow-right" class="size-4" />
+      </a>
+      <a
+        href={secondaryCta.href}
+        class="inline-flex items-center gap-2 border border-navy text-navy hover:bg-navy hover:text-white font-semibold text-sm px-5 py-3 rounded-full transition-colors"
+      >
+        {secondaryCta.label}
+      </a>
+    </div>
+  </div>
+
+  <div class="relative mt-8">
+    <div class="rounded-2xl overflow-hidden bg-cream-dark">
+      <img src={url(image)} alt={imageAlt} class="w-full h-auto" />
+    </div>
+
+    <div class="relative lg:absolute lg:-bottom-8 lg:left-1/2 lg:-translate-x-1/2 mt-4 lg:mt-0 w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg border border-cream-dark px-5 py-4">
+      <p class="text-navy text-sm font-semibold text-center mb-3">{strategyTitle}</p>
+      <div class="flex items-center justify-between gap-2">
+        {strategyItems.map((item) => (
+          <div class="flex flex-col items-center gap-1.5 text-center">
+            <span class="flex items-center justify-center size-9 rounded-full bg-cream text-forest">
+              <Icon name={item.icon} class="size-4" />
+            </span>
+            <span class="text-[11px] text-muted leading-tight">{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>

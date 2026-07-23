@@ -1,0 +1,81 @@
+---
+// Compact sidebar newsletter card (see NewsletterArea.astro for the full-width band variant)
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  buttonLabel?: string;
+  action?: string;
+}
+
+const {
+  title       = 'Join 18,000+ readers',
+  subtitle    = 'Get weekly insights on investing, money, and living intentionally in Singapore.',
+  buttonLabel = 'Subscribe',
+  action      = '#',
+} = Astro.props;
+---
+
+<div
+  id="newsletter"
+  x-data="{
+    email:  '',
+    error:  '',
+    status: 'idle',
+
+    validate() {
+      this.error = '';
+      if (!this.email.trim()) this.error = 'Email is required.';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email))
+        this.error = 'Please enter a valid email.';
+      return !this.error;
+    },
+
+    async submit() {
+      if (!this.validate()) return;
+      this.status = 'sending';
+      await new Promise(r => setTimeout(r, 800));
+      this.status = 'sent';
+      this.email = '';
+    },
+  }"
+  class="bg-surface-alt border border-cream-dark rounded-lg p-5 scroll-mt-24"
+>
+  <div class="flex items-center gap-2 mb-2">
+    <Icon name="bi:envelope-fill" class="text-forest size-4" />
+    <p class="text-navy font-semibold text-sm">{title}</p>
+  </div>
+  <p class="text-muted text-xs leading-relaxed mb-4">{subtitle}</p>
+
+  <div
+    style="display:none"
+    x-show="status === 'sent'"
+    x-transition.duration.300ms
+    x-cloak
+    class="text-brand-700 text-sm font-medium"
+  >
+    ✓ Thanks for subscribing! Please check your inbox.
+  </div>
+
+  <form x-show="status !== 'sent'" @submit.prevent="submit()" method="post" action={action} class="flex flex-col gap-2">
+    <input
+      x-model="email"
+      :class="error ? 'border-red-300 focus:ring-red-400' : 'border-cream-dark focus:ring-brand-500'"
+      type="email"
+      name="email"
+      placeholder="Enter your email"
+      aria-label="Email address"
+      class="w-full px-3 py-2 rounded-md border text-sm bg-white text-navy placeholder:text-subtle focus:outline-none focus:ring-2 focus:border-transparent"
+    />
+    <span x-show="error" x-text="error" style="display:none" class="text-xs text-red-500"></span>
+    <button
+      type="submit"
+      :disabled="status === 'sending'"
+      class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      <span x-show="status === 'sending'" class="inline-block size-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+      <span x-text={`status === 'sending' ? 'Subscribing…' : '${buttonLabel}'`}></span>
+    </button>
+  </form>
+</div>

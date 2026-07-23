@@ -1,0 +1,42 @@
+---
+import { url } from '@src/utils/path';
+
+interface RelatedPost {
+  slug:  string;
+  title: string;
+  cover: string;
+  date:  string;
+}
+
+interface Props {
+  posts: RelatedPost[];
+  title?: string;
+}
+
+const { posts, title = 'Related Articles' } = Astro.props;
+
+if (!posts.length) return;
+
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString('en-US', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+}
+---
+
+<div class="py-8 border-t border-cream-dark">
+  <h3 class="text-navy text-xl font-heading font-bold mb-5">{title}</h3>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+    {posts.map((post) => (
+      <a href={url(`/${post.slug}`)} class="group block bg-white border border-cream-dark rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+        <div class="aspect-3/2 overflow-hidden bg-cream">
+          <img src={url(post.cover)} alt={post.title} loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        </div>
+        <div class="p-4">
+          <h4 class="text-navy font-semibold text-sm leading-snug line-clamp-2 group-hover:text-brand-600 transition-colors">{post.title}</h4>
+          <span class="text-subtle text-xs mt-2 block">{formatDate(post.date)}</span>
+        </div>
+      </a>
+    ))}
+  </div>
+</div>

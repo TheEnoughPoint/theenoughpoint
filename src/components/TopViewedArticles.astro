@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+
+interface Props {
+  title?: string;
+  limit?: number;
+}
+
+const { title = 'Popular Reads', limit = 4 } = Astro.props;
+
+const allPosts = (await getCollection('blog').catch(() => [])) ?? [];
+const posts = allPosts
+  .filter((p) => p?.data?.popular)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, limit);
+---
+
+{posts.length > 0 && (
+  <div class="bg-white border border-cream-dark rounded-lg">
+    <h3 class="px-5 py-3 border-b border-cream-dark text-navy font-semibold text-sm uppercase tracking-wide">{title}</h3>
+    <div class="flex flex-col divide-y divide-cream-dark">
+      {posts.map((post, i) => (
+        <a href={url(`/${post.id}`)} class="flex items-center gap-3 px-5 py-3 group">
+          <span class="shrink-0 flex items-center justify-center size-6 rounded-full bg-gold text-white text-xs font-bold">{i + 1}</span>
+          <span class="text-sm text-navy group-hover:text-brand-600 line-clamp-2 transition-colors">{post.data.title}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+)}

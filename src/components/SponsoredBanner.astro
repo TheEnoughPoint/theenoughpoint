@@ -1,0 +1,30 @@
+---
+import { Icon } from 'astro-icon/components';
+import { sponsoredDisclosure } from '@src/data/complianceData';
+
+interface Props {
+  sponsorName: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const { sponsorName, ctaLabel, ctaHref } = Astro.props;
+---
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gold-light border border-gold/40 rounded-lg px-5 py-4 my-6">
+  <div class="flex items-center gap-3">
+    <span class="shrink-0 inline-flex items-center gap-1.5 bg-gold text-white text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded">
+      <Icon name="bi:star-fill" class="size-3" />
+      Sponsored
+    </span>
+    <p class="text-sm text-navy">
+      This article is sponsored by <strong>{sponsorName}</strong>. {sponsoredDisclosure}
+    </p>
+  </div>
+  {ctaHref && (
+    <a href={ctaHref} class="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-forest hover:text-forest-dark whitespace-nowrap">
+      {ctaLabel ?? `Visit ${sponsorName}`}
+      <Icon name="bi:arrow-right" class="size-3.5" />
+    </a>
+  )}
+</div>

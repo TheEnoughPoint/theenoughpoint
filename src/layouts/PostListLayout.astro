@@ -1,18 +1,17 @@
 ---
 import MainLayout from '@src/layouts/MainLayout.astro';
-import HeroSection from '@src/components/HeroSection.astro';
-import BlockNews from '@src/components/BlockNews.astro';
-import BlockNewsOne from '@src/components/BlockNewsOne.astro';
-import BlockNewsTwo from '@src/components/BlockNewsTwo.astro';
-import BlockNewsPopular from '@src/components/BlockNewsPopular.astro';
-import BlockNewsScroll from '@src/components/BlockNewsScroll.astro';
-import SocialMediaWidget from '@src/components/SocialMediaWidget.astro';
-import AdsSidebar from '@src/components/AdsSidebar.astro';
-import NewsletterArea from '@src/components/NewsletterArea.astro';
+import HeroMain from '@src/components/HeroMain.astro';
+import PillarNav from '@src/components/PillarNav.astro';
 import PostCard from '@src/components/PostCard.astro';
+import BlockNewsScroll from '@src/components/BlockNewsScroll.astro';
+import RightSidebar from '@src/components/RightSidebar.astro';
+import RecommendedTools from '@src/components/RecommendedTools.astro';
 import Pagination from '@src/components/Pagination.astro';
-import FeaturedPostWidget from '@src/components/FeaturedPostWidget.astro';
+import CategoryWidget from '@src/components/CategoryWidget.astro';
 import TagsWidget from '@src/components/TagsWidget.astro';
+import NewsletterArea from '@src/components/NewsletterArea.astro';
+import { getCollection } from 'astro:content';
+import { pillars } from '@src/data/pillarsData';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -25,58 +24,75 @@ interface Props {
 const { posts, currentPage, totalPages, showHero = false } = Astro.props;
 
 const pageTitle = currentPage === 1
-  ? ' News magazine Astro Theme - Portal'
-  : ` Page ${currentPage} - Portal`;
+  ? 'TheEnoughPoint.com — Reach Your Enough Point'
+  : `TheEnoughPoint.com — Page ${currentPage}`;
 
 const pageDescription = currentPage === 1
-  ? 'Portal is a Astro news magazine theme. This demo is crafted specifically to exhibit the use of the theme as a news site.'
-  : `Browse all blog posts — page ${currentPage} of ${totalPages}.`;
+  ? 'Practical personal finance and lifestyle insights to help financially aware Singaporeans invest better, build optional income, spend with value, and reach their own enough point.'
+  : `Browse all articles — page ${currentPage} of ${totalPages}.`;
 
 const basePath = '/';
+
+let featuredPosts: CollectionEntry<'blog'>[] = [];
+if (showHero) {
+  const pillarIds = new Set(pillars.map((p) => p.id));
+  const allPosts = await getCollection('blog');
+  featuredPosts = allPosts
+    .filter((p) => pillarIds.has(p.data.category))
+    .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+    .slice(0, 4);
+}
 ---
 
 <MainLayout title={pageTitle} description={pageDescription}>
   <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">
-    {showHero && 
-    <HeroSection variant="fade" />
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 py-6 mb-12">
-      <!-- Post list -->
+    {showHero && (
+      <>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+          <div class="lg:col-span-2">
+            <HeroMain />
+          </div>
+          <aside class="lg:col-span-1 lg:ps-6 relative">
+            <div class="flex flex-col gap-4 lg:gap-6 lg:pt-6">
+              <RightSidebar />
+            </div>
+          </aside>
+        </div>
+
+        <PillarNav />
+
+        {featuredPosts.length > 0 && (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-4">
+            {featuredPosts.map((post) => (
+              <PostCard
+                variant="feature"
+                id={post.id}
+                title={post.data.title}
+                cover={post.data.cover}
+                date={post.data.date}
+                authorId={post.data.authorId}
+                excerpt={post.data.excerpt}
+                featured={post.data.featured}
+                sponsored={post.data.sponsored}
+                sponsorName={post.data.sponsorName}
+                lifeStage={post.data.lifeStage}
+              />
+            ))}
+          </div>
+        )}
+
+        <RecommendedTools ids={['ibkr', 'syfe', 'endowus', 'tiger', 'singsaver']} layout="row" />
+
+        <BlockNewsScroll title="Editor's Picks" typePost="trending" limit={6} />
+      </>
+    )}
+
+    <div id="latest" class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 py-6 scroll-mt-24">
       <div class="max-lg:mb-12 lg:col-span-2">
-        <BlockNews category="politics" />
-        <BlockNewsOne category="sports" />
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <BlockNewsTwo category="lifestyle" />
-          <BlockNewsTwo category="foods" />
-        </div>
-      </div>
-
-      <!-- Sidebar -->
-      <aside class="lg:col-span-1 lg:ps-6 relative">
-        <div class="flex flex-col gap-4 lg:gap-6 top-24 sticky">
-          <SocialMediaWidget />
-          <BlockNewsPopular typePost="trending" title="Trending Post" limit={5} />
-          <AdsSidebar />
-        </div>
-      </aside>
-    </div>
-
-    <BlockNewsScroll title="Featured Picks" typePost="featured" limit={6} />
-    }
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 py-6">
-      <div class="max-lg:mb-12 lg:col-span-2">
-        {showHero &&
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <BlockNewsTwo category="technology" />
-          <BlockNewsTwo category="entertainment" />
-        </div>
-        }
-
         <div class="relative">
           <!-- HeadingBlock -->
           <div class="flex items-center gap-3 justify-between">
-            <h2 class="ps-2 border-s-2 border-brand-600 text-lg capitalize font-medium"> {currentPage === 1 ? 'Latest Post' : `Latest Post — Page ${currentPage}`}</h2>
+            <h2 class="ps-2 border-s-2 border-brand-600 text-lg text-navy capitalize font-heading font-semibold">{currentPage === 1 ? 'Latest Articles' : `Latest Articles — Page ${currentPage}`}</h2>
           </div>
 
           <div class="flex flex-col">
@@ -101,12 +117,15 @@ const basePath = '/';
       </div>
       <aside class="lg:col-span-1 lg:ps-6 relative">
         <div class="flex flex-col gap-4 lg:gap-6 top-24 sticky">
-          <FeaturedPostWidget />
+          <CategoryWidget />
           <TagsWidget />
         </div>
       </aside>
     </div>
 
-    <NewsletterArea />
+    <NewsletterArea
+      title="Get the insights that matter to your money."
+      subtitle="Weekly, practical, Singapore-aware — no hype, no get-rich-quick language."
+    />
   </div>
 </MainLayout>

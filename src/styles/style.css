@@ -1,31 +1,50 @@
 @import "tailwindcss";
 @theme {
-    --color-primary:       oklch(72% 0.04 70);   /* warm sand    ≈ #c9b99a */
-    --color-primary-dark:  oklch(52% 0.05 70);   /* deep tan     ≈ #8a7560 */
-    --color-accent:        oklch(62% 0.09 45);   /* terracotta   ≈ #b07055 */
-    --color-accent-light:  oklch(86% 0.05 45);   /* blush        ≈ #e9cabb */
+    /* ── TheEnoughPoint brand kit ─────────────────────────────────────────
+       Deep Navy #0B1D33 · Forest Green #0E5A3F · Gold #C89A3C
+       Slate #6B7280 · Cream #F6F4EF                                       */
 
-    --color-brand-50: #fff7ed;
-    --color-brand-100: #ffedd5;
-    --color-brand-200: #fed7aa;
-    --color-brand-300: #fdba74;
-    --color-brand-400: #fb923c;
-    --color-brand-500: #f2600c;
-    --color-brand-600: #dc4d09;
-    --color-brand-700: #b6390a;
-    --color-brand-800: #922e10;
-    --color-brand-900: #782810;
-    --color-brand-950: #411105;
+    /* Gold — repurposed "primary" role: accent text, underlines, ring/tag hovers */
+    --color-primary:       #C89A3C;   /* gold           */
+    --color-primary-dark:  #9C7526;   /* gold, darker   */
+    --color-accent:        #9C7526;   /* gold, darker   */
+    --color-accent-light:  #F3E4C0;   /* gold, light tint */
 
-    --color-surface:       oklch(97% 0.010 80);  /* warm white   ≈ #f9f6f2 */
-    --color-surface-alt:   oklch(93% 0.015 75);  /* warm cream   ≈ #ede8e0 */
-    --color-dark:          oklch(22% 0.010 60);  /* charcoal     ≈ #2e2b27 */
-    --color-body:          oklch(38% 0.010 60);  /* body text    ≈ #5a5550 */
-    --color-muted:         oklch(58% 0.010 60);  /* muted        ≈ #918c87 */
-    --color-subtle:        oklch(76% 0.008 65);  /* subtle       ≈ #c1bcb7 */
-    --color-border:        oklch(88% 0.010 70);  /* warm border  ≈ #ddd8d0 */
-    --color-light:         oklch(96% 0.008 80);  /* near-white   ≈ #f5f2ee */
-    --color-gray:          oklch(60% 0.005 60);  /* neutral gray ≈ #969290 */
+    /* Explicit brand tokens for new components */
+    --color-navy:        #0B1D33;
+    --color-navy-dark:   #071322;
+    --color-navy-light:  #16304F;
+    --color-forest:      #0E5A3F;
+    --color-forest-dark: #093A29;
+    --color-gold:         #C89A3C;
+    --color-gold-dark:    #9C7526;
+    --color-gold-light:   #F3E4C0;
+    --color-cream:        #F6F4EF;
+    --color-cream-dark:   #EDE8DD;
+    --color-slate:        #6B7280;
+
+    /* brand-* scale — used pervasively for buttons/links/hovers, anchored on Forest Green */
+    --color-brand-50: #EAF3EF;
+    --color-brand-100: #D3E7DD;
+    --color-brand-200: #A8CFBB;
+    --color-brand-300: #7DB79A;
+    --color-brand-400: #4B9A78;
+    --color-brand-500: #227D5C;
+    --color-brand-600: #0E5A3F;
+    --color-brand-700: #0B4732;
+    --color-brand-800: #093A29;
+    --color-brand-900: #072D20;
+    --color-brand-950: #041A13;
+
+    --color-surface:       #F6F4EF;   /* cream page background */
+    --color-surface-alt:   #EDE8DD;   /* cream, darker (cards/alt sections) */
+    --color-dark:          #0B1D33;   /* deep navy — headings, prose text */
+    --color-body:          #33414F;   /* navy-tinted body text */
+    --color-muted:         #6B7280;   /* slate — secondary text */
+    --color-subtle:        #9AA1A9;   /* subtle slate */
+    --color-border:        #E3DDCF;   /* warm cream border */
+    --color-light:         #F0ECE2;   /* near-white cream — dividers, subtle bg */
+    --color-gray:          #6B7280;   /* slate */
 
     --font-heading: var(--font-heading);
     --font-body: var(--font-body);
@@ -146,7 +165,7 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 .form-input:focus {
     outline: none;
     border-color: var(--color-brand-600);
-    box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+    box-shadow: 0 0 0 3px rgba(14,90,63,.12);
 }
 
 /* Contact info card hover */
@@ -192,7 +211,7 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 .post-content {
   font-size: 16px;
   line-height: 1.85;
-  color: #334155;
+  color: var(--color-body);
 }
 
 /* Paragraphs */
@@ -245,7 +264,7 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 .post-content ul li {
   padding: 5px 0 5px 26px;
   position: relative;
-  color: #475569;
+  color: var(--color-body);
 }
 .post-content ul li::before {
   content: '';
@@ -269,7 +288,7 @@ h4.text-heading, h5.text-heading, h6.text-heading {
   counter-increment: ol-counter;
   padding: 5px 0 5px 32px;
   position: relative;
-  color: #475569;
+  color: var(--color-body);
 }
 .post-content ol li::before {
   content: counter(ol-counter);
@@ -357,10 +376,10 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 .post-content td {
   padding: 10px 14px;
   border-bottom: 1px solid var(--color-light);
-  color: #475569;
+  color: var(--color-body);
   vertical-align: top;
 }
-.post-content tr:nth-child(even) td { background: #f8fafc; }
+.post-content tr:nth-child(even) td { background: var(--color-cream); }
 /* Card hover */
 .article-card:hover .article-title { color: var(--color-brand-600); }
 .article-title { transition: color .2s; }

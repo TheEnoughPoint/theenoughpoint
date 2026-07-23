@@ -1,0 +1,86 @@
+---
+// Affiliate comparison table for review/comparison articles. Import and use
+// directly inside an .mdx article body:
+//   import ProductComparisonTable from '@src/components/ProductComparisonTable.astro';
+//   <ProductComparisonTable ids={['ibkr', 'syfe', 'endowus']} />
+import { Icon } from 'astro-icon/components';
+import { getPartners } from '@src/data/partnersData';
+import { affiliateDisclosure } from '@src/data/complianceData';
+
+interface Props {
+  ids: string[];
+  title?: string;
+}
+
+const { ids, title = 'How They Compare' } = Astro.props;
+const items = getPartners(ids);
+
+function stars(rating: number = 0) {
+  return Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
+}
+---
+
+<div class="my-8 not-prose">
+  {title && <h3 class="text-navy text-lg font-heading font-bold mb-4">{title}</h3>}
+
+  <!-- Desktop table -->
+  <div class="hidden md:block overflow-x-auto rounded-lg border border-cream-dark">
+    <table class="w-full text-sm border-collapse">
+      <thead>
+        <tr class="bg-navy text-white text-xs uppercase tracking-wide">
+          <th class="text-left px-4 py-3 font-semibold">Platform</th>
+          <th class="text-left px-4 py-3 font-semibold">Best For</th>
+          <th class="text-left px-4 py-3 font-semibold">Fees</th>
+          <th class="text-left px-4 py-3 font-semibold">Rating</th>
+          <th class="text-left px-4 py-3 font-semibold"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((p, i) => (
+          <tr class={i % 2 === 1 ? 'bg-cream' : 'bg-white'}>
+            <td class:list={['px-4 py-3 font-bold', p.wordmarkClass]}>{p.name}</td>
+            <td class="px-4 py-3 text-body">{p.bestFor ?? '—'}</td>
+            <td class="px-4 py-3 text-body">{p.fees ?? '—'}</td>
+            <td class="px-4 py-3">
+              <span class="inline-flex items-center gap-0.5">
+                {stars(p.rating).map((filled) => (
+                  <Icon name="bi:star-fill" class:list={['size-3', filled ? 'text-gold' : 'text-cream-dark']} />
+                ))}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <a href={p.ctaHref} class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-colors whitespace-nowrap">
+                {p.ctaLabel}
+              </a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile stacked cards -->
+  <div class="md:hidden flex flex-col gap-3">
+    {items.map((p) => (
+      <div class="border border-cream-dark rounded-lg p-4 bg-white">
+        <p class:list={['font-bold text-sm', p.wordmarkClass]}>{p.name}</p>
+        <dl class="mt-2 text-xs text-body grid grid-cols-2 gap-y-1">
+          <dt class="text-subtle">Best for</dt><dd>{p.bestFor ?? '—'}</dd>
+          <dt class="text-subtle">Fees</dt><dd>{p.fees ?? '—'}</dd>
+        </dl>
+        <div class="flex items-center justify-between mt-3">
+          <span class="inline-flex items-center gap-0.5">
+            {stars(p.rating).map((filled) => (
+              <Icon name="bi:star-fill" class:list={['size-3', filled ? 'text-gold' : 'text-cream-dark']} />
+            ))}
+          </span>
+          <a href={p.ctaHref} class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-colors">
+            {p.ctaLabel}
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <p class="text-subtle text-xs mt-3 leading-relaxed">{affiliateDisclosure}</p>
+</div>
