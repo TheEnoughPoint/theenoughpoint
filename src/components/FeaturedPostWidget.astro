@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+
+interface Props {
+  title?: string;
+  limit?: number;
+}
+
+const { title = 'Popular Post', limit = 5 } = Astro.props;
+
+const allPosts = (await getCollection('blog').catch(() => [])) ?? [];
+const featured = allPosts
+  .filter((p) => p?.data?.featured)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, limit);
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+}
+---
+
+<div class="bg-slate-50 border border-slate-200 rounded-lg">
+  <h3 class="w-full px-6 py-3 border-b border-slate-200">{title}</h3>
+  <div class="py-3 px-6 flex flex-col">
+    {featured.map((post) => (
+      <a href={url(`/${post.id}`)} class="flex gap-3 py-3 border-b last:border-b-0 border-slate-200">
+        <img src={url(post.data.cover)} alt={post.data.title} loading="lazy" class="bg-slate-100 size-16 object-cover rounded-sm shrink-0" />
+        <div class="flex flex-col gap-1">
+          <h4 class="text-sm font-medium capitalize hover:text-brand-600 line-clamp-2">{post.data.title}</h4>
+          <span class="text-slate-500 text-sm">{formatDate(post.data.date)}</span>
+        </div>
+      </a>
+    ))}
+  </div>
+</div>

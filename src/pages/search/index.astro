@@ -1,0 +1,227 @@
+---
+import MainLayout from '@src/layouts/MainLayout.astro';
+import HeroSearch from '@src/components/HeroSearch.astro';
+import CategoryWidget from '@src/components/CategoryWidget.astro';
+import FeaturedPostWidget from '@src/components/FeaturedPostWidget.astro';
+import TagsWidget from '@src/components/TagsWidget.astro';
+import { url } from '@src/utils/path';
+
+const initialQuery = Astro.url.searchParams.get('q') ?? '';
+
+const searchIndexUrl = url('/search/index.json');
+const authorBase     = url('/author/');
+const categoryBase   = url('/category/');
+const tagsBase       = url('/tags/');
+---
+
+<MainLayout
+  title="Search"
+  description="Search through all blog posts by title, excerpt, category, or tag."
+>
+  <div
+    x-data={`searchPage(${JSON.stringify(initialQuery)})`}
+    x-init="init()"
+  >
+    <HeroSearch query={initialQuery} />
+
+    <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 py-6 lg:py-12">
+        <!-- Search results -->
+        <div class="max-lg:mb-12 lg:col-span-2">
+          <!-- Heading -->
+          <h2 class="text-lg uppercase font-medium border-b border-slate-200 pb-2 flex items-center justify-between gap-3">
+            <span>
+              <span x-show="!query">All Posts</span>
+              <span x-show="query" x-cloak>
+                Results for "<span class="normal-case font-normal text-slate-600" x-text="query"></span>"
+              </span>
+            </span>
+            <span class="text-sm font-normal normal-case text-slate-400" x-show="query" x-cloak>
+              <span x-text="results.length"></span> found
+            </span>
+          </h2>
+
+          <!-- Loading -->
+          <div x-show="loading" class="flex justify-center py-16">
+            <svg class="animate-spin size-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+          </div>
+
+          <!-- No results -->
+          <div x-show="!loading && query && results.length === 0" x-cloak class="py-16 text-center text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-12 mx-auto mb-4 opacity-40" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
+            </svg>
+            <p class="text-lg">No posts found for "<span x-text="query" class="font-medium text-slate-600"></span>"</p>
+            <p class="text-sm mt-1">Try a different keyword.</p>
+          </div>
+
+          <!-- Results -->
+          <div x-show="!loading" class="flex flex-col">
+            <template x-for="post in displayPosts" :key="post.id">
+              <article class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 py-8 border-b border-slate-200 last:border-b-0">
+
+                <!-- Thumbnail -->
+                <div class="aspect-2/1 md:aspect-3/2 overflow-hidden w-full bg-slate-100">
+                  <a :href="post.url">
+                    <img :src="post.cover" :alt="post.title" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  </a>
+                </div>
+
+                <!-- Content -->
+                <div class="flex flex-col justify-start gap-2">
+                  <h3 class="text-xl capitalize">
+                    <a :href="post.url" class="hover:text-black" x-text="post.title"></a>
+                  </h3>
+
+                  <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                    <!-- Author — prefix dikirim dari server via define:vars -->
+                    <a :href="authorBase + post.authorId" rel="author" class="flex items-center gap-1 hover:text-black">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.03 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>
+                      <span x-text="post.authorId"></span>
+                    </a>
+                    <!-- Date -->
+                    <time :datetime="post.date" class="flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
+                      <span x-text="formatDate(post.date)"></span>
+                    </time>
+                    <!-- Category -->
+                    <a :href="categoryBase + slugify(post.category)" class="flex items-center gap-1 hover:text-black">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" fill="currentColor" viewBox="0 0 16 16"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/></svg>
+                      <span x-text="post.category"></span>
+                    </a>
+                    <!-- Read time -->
+                    <span class="flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
+                      <span x-text="`${post.readTime} min read`"></span>
+                    </span>
+                  </div>
+
+                  <!-- Excerpt -->
+                  <p class="text-slate-500 mb-2 line-clamp-3" x-html="highlight(post.excerpt)"></p>
+
+                  <!-- Tags -->
+                  <div x-show="post.tags && post.tags.length" class="flex flex-wrap gap-1.5">
+                    <template x-for="tag in post.tags" :key="tag">
+                      <a
+                        :href="tagsBase + slugify(tag)"
+                        class="text-xs py-0.5 px-2 bg-slate-100 hover:bg-slate-200 border border-slate-200"
+                        x-text="`#${tag}`"
+                      ></a>
+                    </template>
+                  </div>
+
+                  <div>
+                    <a :href="post.url" class="inline-flex py-2 px-4 bg-slate-100 hover:bg-slate-200/80 border border-slate-200">Read More</a>
+                  </div>
+                </div>
+
+              </article>
+            </template>
+          </div>
+
+          <!-- Load more -->
+          <div x-show="!query && hasMore" x-cloak class="flex justify-center pt-8">
+            <button @click="loadMore()" class="py-2 px-6 bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-sm">
+              Load More
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="lg:col-span-1 lg:ps-6 relative">
+          <div class="flex flex-col gap-4 lg:gap-6 top-24 sticky">
+            <CategoryWidget />
+            <FeaturedPostWidget />
+            <TagsWidget />
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<script define:vars={{ searchIndexUrl, initialQuery, authorBase, categoryBase, tagsBase }}>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('searchPage', (initQuery) => ({
+      query:        initQuery ?? '',
+      allPosts:     [],
+      results:      [],
+      page:         1,
+      perPage:      8,
+      loading:      true,
+      // URL prefixes — injected from server, stored as Alpine data so
+      // expressions like `:href="authorBase + post.authorId"` resolve via `this`
+      authorBase,
+      categoryBase,
+      tagsBase,
+
+      get displayPosts() {
+        if (this.query) return this.results;
+        return this.allPosts.slice(0, this.page * this.perPage);
+      },
+      get hasMore() {
+        return this.allPosts.length > this.page * this.perPage;
+      },
+
+      async init() {
+        try {
+          const res = await fetch(searchIndexUrl);
+          this.allPosts = await res.json();
+        } catch (e) {
+          console.error('Search index fetch failed', e);
+        } finally {
+          this.loading = false;
+        }
+        if (this.query) this.search();
+        this.$watch('query', (val) => {
+          this.updateUrl(val);
+          this.search();
+        });
+      },
+
+      search() {
+        const q = this.query.trim().toLowerCase();
+        if (!q) { this.results = []; return; }
+        this.results = this.allPosts.filter((post) =>
+          post.title.toLowerCase().includes(q)    ||
+          post.excerpt.toLowerCase().includes(q)  ||
+          post.category.toLowerCase().includes(q) ||
+          (post.tags ?? []).some((t) => t.toLowerCase().includes(q))
+        );
+      },
+
+      loadMore() { this.page++; },
+
+      updateUrl(q) {
+        const u = new URL(window.location.href);
+        if (q) u.searchParams.set('q', q);
+        else   u.searchParams.delete('q');
+        window.history.replaceState({}, '', u.toString());
+      },
+
+      formatDate(dateStr) {
+        return new Date(dateStr).toLocaleDateString('en-US', {
+          month: 'short', day: '2-digit', year: 'numeric',
+        });
+      },
+
+      slugify(str) {
+        return str.toLowerCase().replace(/\s+/g, '-');
+      },
+
+      highlight(text) {
+        const q = this.query.trim();
+        if (!q || !text) return text;
+        const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return text.replace(
+          new RegExp(`(${escaped})`, 'gi'),
+          '<mark class="bg-yellow-100 text-slate-800 rounded-sm px-0.5">$1</mark>'
+        );
+      },
+    }));
+  });
+</script>

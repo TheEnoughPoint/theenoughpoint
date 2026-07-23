@@ -1,0 +1,96 @@
+---
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  basePath?: string;
+  /** Pages shown around the current page */
+  siblingCount?: number;
+  /** Pages always shown at the start and end */
+  boundaryCount?: number;
+}
+
+const {
+  currentPage,
+  totalPages,
+  basePath      = '/',
+  siblingCount  = 1,
+  boundaryCount = 1,
+} = Astro.props;
+
+const base = basePath === '/' ? '' : basePath.replace(/\/$/, '');
+
+function pageUrl(page: number): string {
+  return url(page === 1 ? (base || '/') : `${base}/${page}`);
+}
+
+function range(start: number, end: number): number[] {
+  return start > end ? [] : Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
+
+// Merge boundary + sibling pages, then fill gaps with an ellipsis.
+// e.g. total=8, current=4, siblingCount=1, boundaryCount=1 -> 1 ... 3 4 5 ... 8
+function buildPages(current: number, total: number): (number | '...')[] {
+  const start  = range(1, Math.min(boundaryCount, total));
+  const end    = range(Math.max(total - boundaryCount + 1, boundaryCount + 1), total);
+  const middle = range(Math.max(current - siblingCount, 1), Math.min(current + siblingCount, total));
+
+  const pages = [...new Set([...start, ...middle, ...end])].sort((a, b) => a - b);
+
+  const result: (number | '...')[] = [];
+  pages.forEach((page, i) => {
+    if (i > 0 && page - pages[i - 1] > 1) result.push('...');
+    result.push(page);
+  });
+
+  return result;
+}
+
+const pages   = buildPages(currentPage, totalPages);
+const hasPrev = currentPage > 1;
+const hasNext = currentPage < totalPages;
+---
+
+{totalPages > 1 && (
+  <nav aria-label="Pagination" class="flex items-center justify-center gap-2 pt-8">
+
+    <!-- Prev -->
+    {hasPrev ? (
+      <a href={pageUrl(currentPage - 1)} aria-label="Previous page" class="flex items-center justify-center size-9 rounded-sm border border-slate-200 bg-white hover:bg-brand-600 hover:text-white transition-colors">
+        <Icon name="bi:chevron-left" class="size-3.5" />
+      </a>
+    ) : (
+      <span class="flex items-center justify-center size-9 rounded-sm border border-slate-200 text-slate-300 cursor-not-allowed">
+        <Icon name="bi:chevron-left" class="size-3.5" />
+      </span>
+    )}
+
+    <!-- Page numbers -->
+    {pages.map((p) =>
+      p === '...' ? (
+        <span class="flex items-center justify-center size-9 rounded-sm text-slate-400 select-none">…</span>
+      ) : p === currentPage ? (
+        <span aria-current="page" class="flex items-center justify-center size-9 rounded-sm border border-brand-800 bg-brand-600 text-white text-sm font-medium">
+          {p}
+        </span>
+      ) : (
+        <a href={pageUrl(p as number)} class="flex items-center justify-center size-9 rounded-sm border border-slate-200 bg-white hover:bg-brand-600 hover:text-white text-sm transition-colors">
+          {p}
+        </a>
+      )
+    )}
+
+    <!-- Next -->
+    {hasNext ? (
+      <a href={pageUrl(currentPage + 1)} aria-label="Next page" class="flex items-center justify-center size-9 rounded-sm border border-slate-200 bg-white hover:bg-brand-600 hover:text-white transition-colors">
+        <Icon name="bi:chevron-right" class="size-3.5" />
+      </a>
+    ) : (
+      <span class="flex items-center justify-center size-9 rounded-sm border border-slate-200 text-slate-300 cursor-not-allowed">
+        <Icon name="bi:chevron-right" class="size-3.5" />
+      </span>
+    )}
+  </nav>
+)}

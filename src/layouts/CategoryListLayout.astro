@@ -1,0 +1,87 @@
+---
+import MainLayout from '@src/layouts/MainLayout.astro';
+import HeroCategory from '@src/components/HeroCategory.astro';
+import PostCard from '@src/components/PostCard.astro';
+import Pagination from '@src/components/Pagination.astro';
+import CategoryWidget from '@src/components/CategoryWidget.astro';
+import FeaturedPostWidget from '@src/components/FeaturedPostWidget.astro';
+import TagsWidget from '@src/components/TagsWidget.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts:        CollectionEntry<'blog'>[];
+  currentPage:  number;
+  totalPages:   number;
+  categoryName: string;
+  categorySlug: string;
+  description?: string;
+}
+
+const {
+  posts,
+  currentPage,
+  totalPages,
+  categoryName,
+  categorySlug,
+  description = `Explore the latest articles, insights, and resources in the ${categoryName} category.
+Stay informed with expert perspectives, trends, and practical guides.`,
+} = Astro.props;
+
+const pageTitle = currentPage === 1
+  ? `${categoryName}`
+  : `${categoryName} · Page ${currentPage}`;
+
+const pageDescription = currentPage === 1
+  ? description
+  : `${categoryName} — page ${currentPage} of ${totalPages}.`;
+
+const basePath = `/category/${categorySlug}`;
+---
+
+<MainLayout title={pageTitle} description={pageDescription}>
+  <HeroCategory title={categoryName} description={description} />
+
+  <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 py-6 lg:py-12">
+      <!-- Post list -->
+      <div class="max-lg:mb-12 lg:col-span-2">
+        <h2 class="text-lg uppercase font-medium border-b border-slate-200 pb-2">
+          {categoryName}
+          {currentPage > 1 && <span class="text-slate-400 text-base font-normal normal-case"> — Page {currentPage}</span>}
+        </h2>
+
+        {posts.length > 0 ? (
+          <div class="flex flex-col">
+            {posts.map((post) => (
+              <PostCard
+                id={post.id}
+                title={post.data.title}
+                cover={post.data.cover}
+                date={post.data.date}
+                authorId={post.data.authorId}
+                excerpt={post.data.excerpt}
+              />
+            ))}
+          </div>
+        ) : (
+          <p class="py-12 text-center text-slate-400">No posts found in this category.</p>
+        )}
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          basePath={basePath}
+        />
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="lg:col-span-1 lg:ps-6 relative">
+        <div class="flex flex-col gap-4 lg:gap-6 sticky top-24">
+          <CategoryWidget />
+          <FeaturedPostWidget />
+          <TagsWidget />
+        </div>
+      </aside>
+    </div>
+  </div>
+</MainLayout>

@@ -1,0 +1,58 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  title: string;
+  pageUrl?: string;
+}
+
+const {
+  title,
+  pageUrl = Astro.url.href,
+} = Astro.props;
+
+const encoded = encodeURIComponent(pageUrl);
+const encodedTitle = encodeURIComponent(title);
+
+const shares = [
+  {
+    icon:  'bi:facebook',
+    label: 'Share on Facebook',
+    href:  `https://www.facebook.com/sharer/sharer.php?u=${encoded}`,
+  },
+  {
+    icon:  'bi:twitter-x',
+    label: 'Share on Twitter/X',
+    href:  `https://twitter.com/intent/tweet?url=${encoded}&text=${encodedTitle}`,
+  },
+  {
+    icon:  'bi:linkedin',
+    label: 'Share on LinkedIn',
+    href:  `https://www.linkedin.com/shareArticle?mini=true&url=${encoded}&title=${encodedTitle}`,
+  },
+  {
+    icon:  'bi:whatsapp',
+    label: 'Share on WhatsApp',
+    href:  `https://api.whatsapp.com/send?text=${encodedTitle}%20${encoded}`,
+  },
+  {
+    icon:  'bi:telegram',
+    label: 'Share on Telegram',
+    href:  `https://t.me/share/url?url=${encoded}&text=${encodedTitle}`,
+  },
+];
+---
+
+<div class="flex items-center gap-0.5">
+  {shares.map((s) => (
+    <a
+      href={s.href}
+      aria-label={s.label}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="p-2 hover:opacity-70 transition-opacity"
+    >
+      <Icon name={s.icon} class="size-4" />
+    </a>
+  ))}
+</div>

@@ -1,0 +1,129 @@
+---
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+
+interface Props {
+  id:            string;
+  title:         string;
+  cover:         string;
+  date:          string;
+  authorId:      string;
+  excerpt:       string;
+  variant?: 'default' | 'grid' | 'box' | 'list';
+}
+
+const {
+  id,
+  title,
+  cover,
+  date,
+  authorId,
+  excerpt,
+  variant       = 'default',
+} = Astro.props;
+
+const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  month: 'short',
+  day:   '2-digit',
+  year:  'numeric',
+});
+
+const postUrl   = url(`/${id}`);
+const authorUrl = url(`/author/${authorId}`);
+---
+
+{variant === 'default' && (
+  <article class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 py-8 border-b border-slate-200 last:border-b-0">
+    <div class="group aspect-2/1 md:aspect-3/2 lg:apect-16/10 overflow-hidden rounded-lg w-full bg-slate-100">
+      <a href={postUrl}>
+        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src={url(cover)} loading="lazy" alt={title} />
+      </a>
+    </div>
+    <div class="flex flex-col justify-start gap-2 lg:col-span-2">
+      <h3 class="text-lg font-bold capitalize">
+        <a href={postUrl} class="hover:text-brand-600">{title}</a>
+      </h3>
+      <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href={authorUrl} rel="author" class="flex items-center gap-1 hover:text-black">
+          <Icon name="bi:person" class="size-3.5" />{authorId}
+        </a>
+        <time datetime={date} class="flex items-center gap-1">
+          <Icon name="bi:calendar" class="size-3.5" />{formattedDate}
+        </time>
+      </div>
+      <p class="text-sm text-slate-500 line-clamp-3">{excerpt}</p>
+    </div>
+  </article>
+)}
+
+{variant === 'grid' && (
+  <article class="flex flex-col gap-3">
+    <div class="aspect-2/1 md:aspect-3/2 overflow-hidden w-full bg-slate-100">
+      <a href={postUrl}>
+        <img class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" src={url(cover)} loading="lazy" alt={title} />
+      </a>
+    </div>
+    <div class="flex flex-col justify-start gap-2">
+      <h3 class="text-xl capitalize">
+        <a href={postUrl} class="hover:text-black">{title}</a>
+      </h3>
+      <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href={authorUrl} rel="author" class="flex items-center gap-1 hover:text-black">
+          <Icon name="bi:person" class="size-3.5" />{authorId}
+        </a>
+        <time datetime={date} class="flex items-center gap-1">
+          <Icon name="bi:calendar" class="size-3.5" />{formattedDate}
+        </time>
+      </div>
+      <p class="text-slate-500 mb-2 line-clamp-3">{excerpt}</p>
+    </div>
+  </article>
+)}
+
+{variant === 'box' && (
+  <article class="flex flex-col">
+    <div class="aspect-2/1 md:aspect-3/2 overflow-hidden w-full bg-slate-100">
+      <a href={postUrl}>
+        <img class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" src={url(cover)} loading="lazy" alt={title} />
+      </a>
+    </div>
+    <div class="relative flex flex-col justify-start gap-2 py-6 px-6 bg-slate-50 border border-slate-200 rounded-lg mx-4 -mt-24 z-10">
+      <h3 class="text-xl capitalize">
+        <a href={postUrl} class="hover:text-black">{title}</a>
+      </h3>
+      <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href={authorUrl} rel="author" class="flex items-center gap-1 hover:text-black">
+          <Icon name="bi:person" class="size-3.5" />{authorId}
+        </a>
+        <time datetime={date} class="flex items-center gap-1">
+          <Icon name="bi:calendar" class="size-3.5" />{formattedDate}
+        </time>
+      </div>
+      <p class="text-slate-500 mb-2 line-clamp-3">{excerpt}</p>
+    </div>
+  </article>
+)}
+
+{variant === 'list' && (
+  <article class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 py-8 border-b border-slate-200 last:border-b-0">
+    <div class="aspect-2/1 md:aspect-3/2 overflow-hidden w-full bg-slate-100">
+      <a href={postUrl}>
+        <img class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" src={url(cover)} loading="lazy" alt={title} />
+      </a>
+    </div>
+    <div class="flex flex-col justify-start gap-2 md:col-span-2">
+      <h3 class="text-xl capitalize">
+        <a href={postUrl} class="hover:text-black">{title}</a>
+      </h3>
+      <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href={authorUrl} rel="author" class="flex items-center gap-1 hover:text-black">
+          <Icon name="bi:person" class="size-3.5" />{authorId}
+        </a>
+        <time datetime={date} class="flex items-center gap-1">
+          <Icon name="bi:calendar" class="size-3.5" />{formattedDate}
+        </time>
+      </div>
+      <p class="text-slate-500 mb-2 line-clamp-3">{excerpt}</p>
+    </div>
+  </article>
+)}

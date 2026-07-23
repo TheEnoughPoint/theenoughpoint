@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+
+interface Props {
+  /** Category slug to filter posts by, e.g. 'technology', 'business' */
+  category: string;
+  limit?: number;
+}
+
+const { category, limit = 3 } = Astro.props;
+
+const allPosts = await getCollection('blog').catch(() => []);
+
+const slugify = (value: string) => value.toLowerCase().replace(/\s+/g, '-');
+const categorySlug = slugify(category);
+
+const posts = (allPosts ?? [])
+  .filter((p) => p?.data?.category && slugify(p.data.category) === categorySlug)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, limit);
+
+function timeAgo(dateStr: string): string {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  const hours   = Math.floor(minutes / 60);
+  const days    = Math.floor(hours / 24);
+
+  if (minutes < 1)   return 'Just now';
+  if (minutes < 60)  return `${minutes}m ago`;
+  if (hours < 24)    return `${hours}h ago`;
+  if (days < 7)      return `${days}d ago`;
+
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+---
+<div class="flex flex-col gap-4 mb-12">
+    <!-- HeadingBlock -->
+    <div class="flex items-center gap-3 justify-between">
+        <h2 class="ps-2 border-s-2 border-brand-600 text-lg capitalize font-medium">{category}</h2>
+        <a href={url(`/${categorySlug}`)} class="capitalize font-medium text-sm text-slate-500 hover:text-brand-600 transition-colors">View all</a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    {posts.map((post) => (
+        <a href={url(`/${post.id}`)} class="group block">
+            <div class="flex sm:flex-col gap-3">
+                <div>
+                    <div class="max-sm:w-20 aspect-square sm:aspect-4/3 lg:aspect-16/10 overflow-hidden bg-slate-100 rounded-lg">
+                        <img
+                        src={url(post.data.cover)}
+                        alt={post.data.title}
+                        loading="lazy"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                    </div>
+                </div>
+                <div class="relative">
+                    <h3 class="font-display font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-600 transition-colors">
+                    {post.data.title}
+                    </h3>
+                    <p class="text-slate-400 text-xs mt-3">{timeAgo(post.data.date)}</p>
+                </div>
+            </div>
+        </a>
+    ))}
+    </div>
+</div>

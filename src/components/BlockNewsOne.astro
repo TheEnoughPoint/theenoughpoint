@@ -1,0 +1,103 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+import { getAuthor } from '@src/data/authorData';
+
+interface Props {
+  /** Category slug to filter posts by, e.g. 'technology', 'business' */
+  category: string;
+  limit?: number;
+}
+
+const { category, limit = 4 } = Astro.props;
+
+const allPosts = await getCollection('blog').catch(() => []);
+
+const slugify = (value: string) => value.toLowerCase().replace(/\s+/g, '-');
+const categorySlug = slugify(category);
+
+const matchedPosts = (allPosts ?? [])
+  .filter((p) => p?.data?.category && slugify(p.data.category) === categorySlug)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, limit);
+
+const categoryName = matchedPosts[0]?.data.category ?? category;
+const [featuredPost, ...listPosts] = matchedPosts;
+
+function timeAgo(dateStr: string): string {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  const hours   = Math.floor(minutes / 60);
+  const days    = Math.floor(hours / 24);
+
+  if (minutes < 1)   return 'Just now';
+  if (minutes < 60)  return `${minutes}m ago`;
+  if (hours < 24)    return `${hours}h ago`;
+  if (days < 7)      return `${days}d ago`;
+
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function toPost(p: (typeof matchedPosts)[number]) {
+  const author = getAuthor(p.data.authorId);
+  return {
+    href:     url(`/${p.id}`),
+    cover:    url(p.data.cover),
+    title:    p.data.title,
+    excerpt:  p.data.excerpt,
+    category: p.data.category,
+    author:   author?.name ?? '',
+    time:     timeAgo(p.data.date),
+  };
+}
+---
+
+<div class="flex flex-col gap-4 mb-12">
+  <!-- HeadingBlock -->
+  <div class="flex items-center gap-3 justify-between">
+      <h2 class="ps-2 border-s-2 border-brand-600 text-lg capitalize font-medium">{categoryName}</h2>
+      <a href={url(`/${categorySlug}`)} class="capitalize font-medium text-sm text-slate-500 hover:text-brand-600 transition-colors">View all</a>
+  </div>
+
+  <div>
+    {featuredPost && (() => {
+      const post = toPost(featuredPost);
+      return (
+        <article class="grid grid-cols-1 sm:grid-cols-[280px_1fr] gap-5 pb-6 border-b border-slate-100 group">
+          <a href={post.href} class="relative rounded-lg overflow-hidden aspect-4/3 sm:aspect-16/10 bg-slate-100">
+            <img src={post.cover} alt={post.title} loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          </a>
+          <div class="flex flex-col justify-center">
+            <p class="text-brand-600 text-xs font-bold uppercase tracking-wide">{post.category}</p>
+            <h2 class="font-display font-bold text-slate-900 text-xl leading-snug mt-2">
+              <a href={post.href} class="hover:text-brand-600 transition-colors">{post.title}</a>
+            </h2>
+            <p class="text-slate-500 text-sm mt-2 leading-relaxed">{post.excerpt}</p>
+            <div class="flex items-center gap-2 mt-4">
+              <span class="text-slate-400 text-xs">{post.author && `${post.author} · `}{post.time}</span>
+            </div>
+          </div>
+        </article>
+      );
+    })()}
+
+    {listPosts.map((p, i) => {
+      const post = toPost(p);
+      const isLast = i === listPosts.length - 1;
+      return (
+        <article class={`grid grid-cols-[120px_1fr] sm:grid-cols-[160px_1fr] gap-5 py-6 ${isLast ? '' : 'border-b border-slate-200'} group`}>
+          <a href={post.href} class="rounded-lg overflow-hidden aspect-4/3 lg:aspect-16/10">
+            <img src={post.cover} alt={post.title} loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          </a>
+          <div class="flex flex-col justify-center">
+            <h3 class="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
+              <a href={post.href} class="hover:text-brand-600 transition-colors">{post.title}</a>
+            </h3>
+            <p class="text-slate-500 text-sm mt-1.5 leading-relaxed hidden sm:block">{post.excerpt}</p>
+            <div class="flex items-center gap-2 text-slate-400 text-xs mt-2">{post.author && `${post.author} · `}{post.time} · <span class="capitalize">{post.category}</span></div>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+</div>

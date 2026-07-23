@@ -1,0 +1,39 @@
+---
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+import type { AuthorData } from '@src/data/authorData';
+
+interface Props {
+  author: AuthorData;
+}
+
+const { author } = Astro.props;
+---
+
+<div class="text-center border-b border-slate-200">
+  <div class="max-w-2xl mx-auto py-12 px-6">
+    <img
+      src={url(author.avatar)}
+      alt={author.fullName}
+      class="size-24 rounded-full mb-2 mx-auto object-cover"
+    />
+    <h2 class="text-2xl lg:text-3xl font-medium mb-6">{author.fullName}</h2>
+
+    <!-- divider -->
+    <div class="relative max-w-37.5 mx-auto mb-6">
+      <div class="h-1 border-b-2 border-slate-200 w-full"></div>
+      <div class="absolute inset-e-1/2 translate-x-2.5 -top-2.5 size-6 rounded-full bg-slate-100 border-2 border-slate-200"></div>
+    </div>
+
+    <p class="text-lg text-slate-500 mb-3">{author.bio}</p>
+
+    <!-- Social links -->
+    <div class="flex justify-center items-center">
+      {author.socials.map((s) => (
+        <a href={s.href} aria-label={s.label} class="p-2 hover:opacity-80">
+          <Icon name={s.icon} class="size-4" />
+        </a>
+      ))}
+    </div>
+  </div>
+</div>

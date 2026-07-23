@@ -1,0 +1,18 @@
+---
+// Single footer link column
+import { url } from '@src/utils/path';
+import type { FooterMenuData } from '@src/data/footerData';
+
+interface Props extends FooterMenuData {}
+
+const { title, links } = Astro.props;
+---
+
+<div>
+  <p class="font-display font-bold text-sm text-slate-900 mb-4">{title}</p>
+  <ul class="flex flex-col gap-3">
+    {links.map((link) => (
+      <li><a href={url(link.href)} class="text-slate-500 text-sm hover:text-brand-600 transition-colors">{link.label}</a></li>
+    ))}
+  </ul>
+</div>

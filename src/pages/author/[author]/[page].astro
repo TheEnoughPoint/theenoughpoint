@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import AuthorListLayout from '@src/layouts/AuthorListLayout.astro';
+import { authors, getAuthor } from '@src/data/authorData';
+
+export async function getStaticPaths() {
+  const PER_PAGE = 8;
+
+  const allPosts = (await getCollection('blog')).sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  const paths: {
+    params: { author: string; page: string };
+    props:  {
+      pagePosts:   typeof allPosts;
+      totalPages:  number;
+      currentPage: number;
+      authorId:    string;
+      basePath:    string;
+    };
+  }[] = [];
+
+  for (const author of authors) {
+    const authorPosts = allPosts.filter((p) => p.data.authorId === author.id);
+    const totalPages  = Math.ceil(authorPosts.length / PER_PAGE);
+
+    for (let page = 2; page <= totalPages; page++) {
+      const start = (page - 1) * PER_PAGE;
+      paths.push({
+        params: { author: author.id, page: String(page) },
+        props:  {
+          pagePosts:   authorPosts.slice(start, start + PER_PAGE),
+          totalPages,
+          currentPage: page,
+          authorId:    author.id,
+          basePath:    `/author/${author.id}`,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+interface Props {
+  pagePosts:   Awaited<ReturnType<typeof getCollection<'blog'>>>;
+  totalPages:  number;
+  currentPage: number;
+  authorId:    string;
+  basePath:    string;
+}
+
+const { pagePosts, totalPages, currentPage, authorId, basePath } = Astro.props;
+const author = getAuthor(authorId);
+---
+
+<AuthorListLayout
+  posts={pagePosts}
+  currentPage={currentPage}
+  totalPages={totalPages}
+  author={author}
+  basePath={basePath}
+/>

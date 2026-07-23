@@ -1,0 +1,41 @@
+---
+interface Props {
+  query?: string;
+}
+
+const { query = '' } = Astro.props;
+---
+
+<div class="text-center border-b border-slate-200">
+  <div class="max-w-2xl mx-auto py-12 px-6">
+    <h2 class="text-2xl lg:text-3xl font-medium mb-6">Search</h2>
+
+    <!-- divider -->
+    <div class="relative max-w-37.5 mx-auto mb-6">
+      <div class="h-1 border-b-2 border-slate-200 w-full"></div>
+      <div class="absolute inset-e-1/2 translate-x-2.5 -top-2.5 size-6 rounded-full bg-slate-100 border-2 border-slate-200"></div>
+    </div>
+
+    <p class="text-lg text-slate-500 mb-6">
+      Search through all posts by title, excerpt, category, or tag.
+    </p>
+
+    <!-- Search input — Alpine reads/writes x-model="query" defined in parent -->
+    <div class="max-w-lg mx-auto flex relative overflow-hidden">
+      <label for="search-hero-input" class="hidden">Search posts</label>
+      <input
+        id="search-hero-input"
+        type="text"
+        x-model.debounce.300ms="query"
+        placeholder="Type to search…"
+        autocomplete="off"
+        class="w-full h-12 leading-5 py-3 px-5 text-slate-800 bg-white border border-slate-200 overflow-x-auto focus:outline-none focus:border-slate-400 focus:ring-0 peer"
+      />
+      <span class="size-12 flex justify-center items-center absolute inset-e-0 top-0 border border-slate-200 bg-slate-100 peer-focus:border-slate-400 pointer-events-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-slate-500" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
+        </svg>
+      </span>
+    </div>
+  </div>
+</div>

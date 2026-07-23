@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "cover": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "tags": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "readTime": {
+      "type": "number"
+    },
+    "featured": {
+      "default": false,
+      "type": "boolean"
+    },
+    "trending": {
+      "default": false,
+      "type": "boolean"
+    },
+    "popular": {
+      "default": false,
+      "type": "boolean"
+    },
+    "authorId": {
+      "type": "string"
+    },
+    "excerpt": {
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "cover",
+    "date",
+    "category",
+    "readTime",
+    "authorId",
+    "excerpt"
+  ]
+}

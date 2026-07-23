@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import CategoryListLayout from '@src/layouts/CategoryListLayout.astro';
+
+export async function getStaticPaths() {
+  const PER_PAGE = 8;
+
+  const allPosts = (await getCollection('blog')).sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  const tagMap = new Map<string, typeof allPosts>();
+  for (const post of allPosts) {
+    for (const tag of post.data.tags ?? []) {
+      const slug = tag.toLowerCase().replace(/\s+/g, '-');
+      if (!tagMap.has(slug)) tagMap.set(slug, []);
+      tagMap.get(slug)!.push(post);
+    }
+  }
+
+  const paths: {
+    params: { tag: string; page: string };
+    props:  {
+      pagePosts:   typeof allPosts;
+      totalPages:  number;
+      currentPage: number;
+      tagName:     string;
+      basePath:    string;
+    };
+  }[] = [];
+
+  for (const [slug, posts] of tagMap.entries()) {
+    const totalPages = Math.ceil(posts.length / PER_PAGE);
+
+    const tagName =
+      posts.flatMap((p) => p.data.tags ?? [])
+           .find((t) => t.toLowerCase().replace(/\s+/g, '-') === slug) ?? slug;
+
+    for (let page = 2; page <= totalPages; page++) {
+      const start = (page - 1) * PER_PAGE;
+      paths.push({
+        params: { tag: slug, page: String(page) },
+        props:  {
+          pagePosts:   posts.slice(start, start + PER_PAGE),
+          totalPages,
+          currentPage: page,
+          tagName,
+          basePath:    `/tags/${slug}`,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+interface Props {
+  pagePosts:   Awaited<ReturnType<typeof getCollection<'blog'>>>;
+  totalPages:  number;
+  currentPage: number;
+  tagName:     string;
+  basePath:    string;
+}
+
+const { pagePosts, totalPages, currentPage, tagName, basePath } = Astro.props;
+---
+
+<CategoryListLayout
+  posts={pagePosts}
+  currentPage={currentPage}
+  totalPages={totalPages}
+  categoryName={`#${tagName}`}
+  categorySlug={basePath}
+  description={`Explore all posts tagged with "${tagName}".`}
+/>

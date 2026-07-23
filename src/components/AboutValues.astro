@@ -1,0 +1,28 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { AboutValue } from '@src/data/aboutData';
+
+interface Props {
+  values: AboutValue[];
+  title?: string;
+}
+
+const { values, title = 'What We Stand For' } = Astro.props;
+---
+
+<div class="py-8 border-b border-slate-200">
+  <h2 class="text-xl font-medium mb-6">{title}</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-8">
+    {values.map((value) => (
+      <div class="flex gap-4">
+        <span class="shrink-0 inline-flex items-center justify-center size-10 rounded-full bg-slate-100 text-slate-700">
+          <Icon name={value.icon} class="size-5" />
+        </span>
+        <div class="flex flex-col gap-1">
+          <h3 class="font-medium text-base">{value.title}</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">{value.description}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

@@ -1,0 +1,183 @@
+---
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+import { defaultHeaderData, type NavMenuItem } from '@src/data/headerData';
+
+interface Props {
+  navMenu?: NavMenuItem[];
+  copyright?: string;
+}
+
+const {
+  navMenu   = defaultHeaderData.navMenu,
+  copyright = defaultHeaderData.copyright,
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+
+function isActive(href?: string, children?: { href: string }[]): boolean {
+  if (href && (currentPath === href || currentPath === href + '/')) return true;
+  if (children?.length) return children.some((c) => currentPath === c.href || currentPath === c.href + '/');
+  return false;
+}
+
+function isChildActive(href: string): boolean {
+  return currentPath === href || currentPath === href + '/';
+}
+---
+
+<!-- Mobile backdrop, closes menu on outside click -->
+<div
+  x-show="navtoggle"
+  x-transition.opacity
+  @click="navtoggle = false"
+  class="lg:hidden fixed inset-0 top-16 bg-slate-900/40 z-40"
+></div>
+
+<nav class="max-lg:hidden static lg:z-auto lg:bg-transparent lg:border-0 lg:overflow-visible lg:transition-none lg:max-h-none">
+  <div class="container xl:max-w-7xl mx-auto px-4">
+    <ul class="relative flex lg:items-center gap-2 max-lg:flex-col text-sm capitalize font-medium">
+      {navMenu.map((item) => {
+        const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+        const active = isActive(item.href, item.children);
+
+        if (hasChildren) {
+          return (
+            <li x-data="{ dropdown: false }" class="relative lg:[&_>button]:hover:bg-brand-100">
+              <button
+                @click="dropdown = !dropdown"
+                :class="dropdown ? 'bg-brand-100' : ''"
+                class:list={[
+                  'capitalize w-full py-2 px-4 rounded-sm flex max-lg:justify-between gap-2 hover:text-brand-600 hover:bg-brand-100',
+                  active ? 'text-brand-600 bg-brand-100' : '',
+                ]}
+              >
+                {item.label}
+                <Icon
+                  name="bi:chevron-down"
+                  class="size-4 self-center transition duration-400"
+                  :class="dropdown ? '-rotate-180' : ''"
+                />
+              </button>
+
+              <ul
+                style="display:none"
+                x-show="dropdown"
+                x-transition.duration.300ms
+                @click.outside="dropdown = false"
+                class="capitalize lg:z-50 relative lg:absolute lg:top-full inset-e-0 lg:-inset-e-1/4 min-w-40 bg-white lg:border border-slate-200 lg:rounded-b-lg lg:overflow-hidden"
+              >
+                {item.children!.map((child) => (
+                  <li>
+                    <a
+                      href={url(child.href)}
+                      @click="navtoggle = false"
+                      class:list={[
+                        'flex px-4 py-1.5 hover:bg-brand-100',
+                        isChildActive(child.href) ? 'text-brand-600 bg-brand-100 font-medium' : '',
+                      ]}
+                    >
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          );
+        }
+
+        return (
+          <li class="relative">
+            <a
+              href={url(item.href!)}
+              @click="navtoggle = false"
+              class:list={[
+                'py-2 px-4 flex max-lg:justify-between gap-2 rounded-sm hover:text-brand-600 hover:bg-brand-100',
+                active ? 'text-brand-600 bg-brand-100' : '',
+              ]}
+            >
+              {item.label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</nav>
+
+<nav x-show="navtoggle" style="display:none"
+  id="target-nav"
+  class="fixed inset-x-0 top-16 z-50 max-lg:pt-3 bg-white border-t border-slate-200 overflow-y-auto transition-all duration-300 ease-in-out lg:hidden"
+  :class="navtoggle ? 'max-h-[calc(100vh-4rem)] opacity-100' : 'max-h-0 opacity-0 pointer-events-none lg:pointer-events-auto'"
+>
+  <div class="container xl:max-w-7xl mx-auto px-4">
+    <ul class="relative flex lg:items-center gap-2 max-lg:flex-col text-sm capitalize font-medium">
+      {navMenu.map((item) => {
+        const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+        const active = isActive(item.href, item.children);
+
+        if (hasChildren) {
+          return (
+            <li x-data="{ dropdown: false }" class="relative lg:[&_>button]:hover:bg-brand-100">
+              <button
+                @click="dropdown = !dropdown"
+                :class="dropdown ? 'bg-brand-100' : ''"
+                class:list={[
+                  'capitalize w-full py-2 px-4 rounded-sm flex max-lg:justify-between gap-2 hover:text-brand-600 hover:bg-brand-100',
+                  active ? 'text-brand-600 bg-brand-100' : '',
+                ]}
+              >
+                {item.label}
+                <Icon
+                  name="bi:chevron-down"
+                  class="size-4 self-center transition duration-400"
+                  :class="dropdown ? '-rotate-180' : ''"
+                />
+              </button>
+
+              <ul
+                style="display:none"
+                x-show="dropdown"
+                x-transition.duration.300ms
+                @click.outside="dropdown = false"
+                class="capitalize lg:z-50 relative lg:absolute lg:top-full inset-e-0 lg:-inset-e-1/4 min-w-40 bg-white lg:border border-slate-200 lg:rounded-b-lg lg:overflow-hidden"
+              >
+                {item.children!.map((child) => (
+                  <li>
+                    <a
+                      href={url(child.href)}
+                      @click="navtoggle = false"
+                      class:list={[
+                        'flex px-4 py-1.5 hover:bg-brand-100',
+                        isChildActive(child.href) ? 'text-brand-600 bg-brand-100 font-medium' : '',
+                      ]}
+                    >
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          );
+        }
+
+        return (
+          <li class="relative">
+            <a
+              href={url(item.href!)}
+              @click="navtoggle = false"
+              class:list={[
+                'py-2 px-4 flex max-lg:justify-between gap-2 rounded-sm hover:text-brand-600 hover:bg-brand-100',
+                active ? 'text-brand-600 bg-brand-100' : '',
+              ]}
+            >
+              {item.label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+
+    <div class="lg:hidden py-3 text-center text-slate-500 text-xs">{copyright}</div>
+  </div>
+</nav>

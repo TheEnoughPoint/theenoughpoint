@@ -1,0 +1,20 @@
+---
+import HeroSlider from './HeroSlider.astro';
+
+interface Props {
+  sliderLimit?: number;
+  autoplayInterval?: number;
+  /** 'fade' = opacity crossfade (default), 'slide' = horizontal slide */
+  variant?: 'fade' | 'slide';
+}
+
+const {
+  sliderLimit      = 3,
+  autoplayInterval = 4000,
+  variant          = 'fade',
+} = Astro.props;
+---
+
+<div class="relative pt-4 lg:pt-6 flex flex-col gap-4 lg:gap-6">
+  <HeroSlider limit={sliderLimit} autoplayInterval={autoplayInterval} variant={variant} />
+</div>

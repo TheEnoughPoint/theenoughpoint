@@ -1,0 +1,21 @@
+---
+import { url } from '@src/utils/path';
+
+interface Props {
+  src?: string;
+  alt?: string;
+  width?: number;
+  href?: string;
+}
+
+const {
+  src   = '/img/logo.png',
+  alt   = 'Logo',
+  width = 120,
+  href  = '/',
+} = Astro.props;
+---
+
+<a href={url(href)} class="py-4 min-h-16">
+  <img src={url(src)} width={width} height="auto" alt={alt} class="h-auto" style={`width:${width}px`} />
+</a>

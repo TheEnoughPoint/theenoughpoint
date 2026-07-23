@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "label": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "label",
+    "icon",
+    "date"
+  ]
+}

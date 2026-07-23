@@ -1,0 +1,149 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface ContactInfo {
+  icon: string;
+  label: string;
+  value: string;
+}
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  formTitle?: string;
+  formSubtitle?: string;
+  contactInfo?: ContactInfo[];
+  action?: string;
+}
+
+const {
+  title       = 'Contact Us',
+  subtitle    = 'Thank you for your interest in reaching out to us! We value your feedback, inquiries, and any other communication you may have. Whether you have questions about our content, collaborations, or simply want to say hello, our team is here to assist you.',
+  formTitle   = 'Send Message',
+  formSubtitle = 'We strive to respond to all emails promptly and ensure that your questions are answered thoroughly.',
+  contactInfo = [
+    { icon: 'bi:envelope',   label: 'Email',     value: 'support@example.com' },
+    { icon: 'bi:telephone',  label: 'Phone',     value: '(+123) 456 7890'     },
+    { icon: 'bi:whatsapp',   label: 'WhatsApp',  value: '(+123) 456 7890'     },
+    { icon: 'bi:skype',      label: 'Skype',     value: 'support@example.com' },
+  ],
+  action = '#',
+} = Astro.props;
+---
+
+<div
+  x-data="{
+    name:    '',
+    email:   '',
+    message: '',
+    errors:  {},
+    status:  'idle',
+
+    validate() {
+      this.errors = {};
+      if (!this.message.trim()) this.errors.message = 'Message is required.';
+      if (!this.name.trim())    this.errors.name    = 'Name is required.';
+      if (!this.email.trim())   this.errors.email   = 'Email is required.';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email))
+        this.errors.email = 'Please enter a valid email.';
+      return Object.keys(this.errors).length === 0;
+    },
+
+    async submit() {
+      if (!this.validate()) return;
+      this.status = 'sending';
+      // Simulasi async submit — ganti dengan fetch() ke endpoint nyata
+      await new Promise(r => setTimeout(r, 1200));
+      this.status = 'sent';
+      this.name = this.email = this.message = '';
+    },
+  }"
+>
+  <!-- Intro text -->
+  <p class="mb-4">{subtitle}</p>
+  <p class="mb-4">Feel free to get in touch with us through the following channels:</p>
+
+  <!-- Contact info -->
+  <div class="flex flex-col gap-2 mb-12">
+    {contactInfo.map((item) => (
+      <div class="flex items-center gap-2">
+        <Icon name={item.icon} class="size-4 shrink-0 text-slate-500" />
+        <span class="text-slate-500 text-sm">{item.label}:</span>
+        <span>{item.value}</span>
+      </div>
+    ))}
+  </div>
+
+  <!-- Form section -->
+  <div id="contact-form">
+    <h4 class="text-xl leading-normal mb-2">{formTitle}</h4>
+    <p class="mb-6">{formSubtitle}</p>
+
+    <!-- Success message -->
+    <div
+     style="display:none"
+      x-show="status === 'sent'"
+      x-transition.duration.300ms
+      x-cloak
+      class="mb-6 py-4 px-5 bg-slate-50 border border-slate-300 text-slate-700"
+    >
+      ✓ Your message has been sent. We'll get back to you shortly!
+    </div>
+
+    <!-- Form -->
+    <div x-show="status !== 'sent'">
+      <div class="flex flex-col gap-6">
+        <!-- Message -->
+        <div class="flex flex-col gap-1">
+          <textarea
+            x-model="message"
+            :class="errors.message ? 'border-red-300 focus:border-red-400' : 'border-slate-300 focus:border-brand-500'"
+            class="w-full leading-5 py-3 px-5 text-slate-800 bg-white border rounded-sm overflow-x-auto focus:outline-none focus:ring-0 resize-none"
+            placeholder="Message"
+            aria-label="Message"
+            rows="4"
+          ></textarea>
+          <span x-show="errors.message" x-text="errors.message" class="text-xs text-red-500 mt-0.5"></span>
+        </div>
+
+        <!-- Name -->
+        <div class="flex flex-col gap-1">
+          <input
+            x-model="name"
+            :class="errors.name ? 'border-red-300 focus:border-red-400' : 'border-slate-300 focus:border-brand-500'"
+            class="w-full leading-5 py-3 px-5 text-slate-800 bg-white border rounded-sm overflow-x-auto focus:outline-none focus:ring-0"
+            placeholder="Name"
+            aria-label="Name"
+            type="text"
+          />
+          <span x-show="errors.name" x-text="errors.name" class="text-xs text-red-500 mt-0.5"></span>
+        </div>
+
+        <!-- Email -->
+        <div class="flex flex-col gap-1">
+          <input
+            x-model="email"
+            :class="errors.email ? 'border-red-300 focus:border-red-400' : 'border-slate-300 focus:border-brand-500'"
+            class="w-full leading-5 py-3 px-5 text-slate-800 bg-white border rounded-sm overflow-x-auto focus:outline-none focus:ring-0"
+            placeholder="Email"
+            aria-label="Email"
+            type="email"
+          />
+          <span x-show="errors.email" x-text="errors.email" class="text-xs text-red-500 mt-0.5"></span>
+        </div>
+
+        <!-- Submit -->
+        <div>
+          <button
+            @click="submit()"
+            :disabled="status === 'sending'"
+            class="flex items-center gap-2 py-3 px-5 leading-5 text-slate-100 bg-black hover:bg-slate-900 rounded-sm focus:outline-none focus:ring-0 disabled:opacity-60 disabled:cursor-not-allowed transition-opacity"
+          >
+            <span x-show="status === 'sending'" class="inline-block size-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <span x-text="status === 'sending' ? 'Sending…' : 'Send Message'"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

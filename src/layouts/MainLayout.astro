@@ -1,0 +1,56 @@
+---
+import Header from '@src/components/Header.astro';
+import Footer from '@src/components/Footer.astro';
+import BackToTop from '@src/components/BackToTop.astro';
+import { Font } from "astro:assets";
+import type { HeaderData } from '@src/data/headerData';
+import type { FooterData } from '@src/data/footerData';
+import '@src/styles/style.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  headerData?: Partial<HeaderData>;
+  footerData?: Partial<FooterData>;
+}
+
+const {
+  title       = 'Portal - Astro News Magazine Theme',
+  description = 'Portal is a Astro news magazine theme. This demo is crafted specifically to exhibit the use of the theme as a blog site. Visit our main page for more demos.',
+  headerData  = {},
+  footerData  = {},
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={Astro.url?.href || 'https://portal.madethemes.com'} />
+    <link rel="icon" type="image/x-icon" href="/img/favicon.png" />
+    
+    <slot name="head" />
+    <Font cssVariable="--font-heading" preload />
+    <Font cssVariable="--font-body" preload />
+  </head>
+  <body class="text-slate-700 font-sans" x-data="{ navtoggle: false }">
+    <Header data={headerData} />
+    <main>
+      <slot />
+    </main>
+    <Footer data={footerData} />
+    <BackToTop />
+    <script>
+      import Alpine from 'alpinejs';
+      declare global {
+        interface Window { Alpine: typeof Alpine; }
+      }
+      window.Alpine = Alpine;
+      Alpine.start();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,356 @@
+---
+title: "Documentation"
+label: "Documentation"
+icon: "bi:book"
+date: "2026-07-10"
+description: "Complete guide to getting started with the Portal News Magazine theme — installation, configuration, customization, and deployment."
+---
+
+*Version 1.1.0 · Last updated: June 26, 2026*
+
+---
+
+## Introduction
+
+**Portal** is a minimal, fast, and fully-featured blog theme built with [Astro](https://astro.build), [Tailwind CSS v4](https://tailwindcss.com), and [Alpine.js](https://alpinejs.dev). It is designed for personal blogs, travel journals, and content-first websites.
+
+### What's included
+
+- Hero slider + category grid on the homepage
+- Blog post pages with fullwidth and sidebar variants
+- Category, tag, and author archive pages with pagination
+- Search page with instant client-side filtering
+- About, Contact, Privacy, Terms, and Cookie pages
+- Reusable sidebar widgets (author, categories, tags, gallery)
+- Footer with dynamic latest and featured posts
+- Back-to-top button, social share, and related posts
+
+---
+
+## Requirements
+
+Before you begin, make sure you have the following installed:
+
+- **Node.js** 18.17.1 or higher (LTS recommended) — [nodejs.org](https://nodejs.org)
+- **npm** 9+ or **pnpm** 8+ or **yarn** 1.22+
+- A code editor — [VS Code](https://code.visualstudio.com) with the official [Astro extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode) is recommended
+
+Verify your Node version:
+
+```bash
+node -v
+```
+
+---
+
+## Installation
+
+### 1. Clone or extract the theme
+
+If you downloaded the theme as a ZIP file, extract it to your project folder:
+
+```bash
+cd my-blog
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+This will install all required packages including:
+
+- `astro` — the core framework
+- `tailwindcss` + `@tailwindcss/vite` — styling
+- `@tailwindcss/typography` — prose styling for blog content
+- `alpinejs` — lightweight interactivity
+- `astro-icon` + `@iconify-json/bi` — Bootstrap Icons
+
+### 3. Start the development server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:4321](http://localhost:4321) in your browser. The site hot-reloads automatically when you edit files.
+
+---
+
+## Project Structure
+
+```
+portall-astro/
+├── public/
+│   └── img/                    # Static images (blog covers, avatar)
+│       ├── news/
+│       └── personal/
+├── src/
+│   ├── components/             # Reusable Astro components
+│   ├── content/
+│   │   ├── blog/               # Blog posts (.mdx)
+│   │   └── pages/              # Static pages (.mdx)
+│   ├── data/                   # Site configuration data
+│   │   ├── authorData.ts
+│   │   ├── headerData.ts
+│   │   ├── footerData.ts
+│   │   ├── heroData.ts
+│   │   └── aboutData.ts
+│   ├── layouts/                # Page layout templates
+│   ├── pages/                  # Astro route pages
+│   ├── styles/
+│   │   └── style.css           # Global styles + Tailwind entry
+│   └── utils/
+│       └── path.ts             # URL helper
+├── astro.config.mjs
+├── content.config.ts           # Content collection schemas
+└── tsconfig.json
+```
+
+---
+
+## Writing Blog Posts
+
+All blog posts live in `src/content/blog/` as `.mdx` files.
+
+### Create a new post
+
+Create a file: `src/content/blog/my-first-post.mdx`
+
+```mdx
+---
+title: "My First Post"
+cover: "/img/blogs/my-cover.jpg"
+date: "2026-06-01"
+category: "Travel"
+tags: ["travel", "tips", "adventure"]
+readTime: 5
+featured: false
+trending: false
+popular: false
+authorId: "jesicca"
+excerpt: "A short description shown in post cards and meta tags."
+---
+
+Your post content goes here. You can use **bold**, *italic*, and all standard Markdown.
+
+## A Heading
+
+Regular paragraph text.
+
+> A blockquote looks like this.
+
+- List item one
+- List item two
+```
+
+### Frontmatter fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | ✓ | Post title |
+| `cover` | string | ✓ | Cover image path from `/public/` |
+| `date` | string | ✓ | ISO date: `"2026-06-01"` |
+| `category` | string | ✓ | Single category label |
+| `tags` | string[] | — | Array of tag strings |
+| `readTime` | number | ✓ | Estimated minutes to read |
+| `featured` | boolean | — | Shows in hero slider + featured widgets |
+| `trending` | boolean | — | Shows in gallery widgets |
+| `popular` | boolean | — | Shows in popular post widgets |
+| `authorId` | string | ✓ | Must match an `id` in `authorData.ts` |
+| `excerpt` | string | ✓ | Short description (150–200 chars) |
+
+### Post URL
+
+The post URL is derived from the filename. `my-first-post.mdx` becomes `/my-first-post`.
+
+---
+
+## Site Configuration
+
+All site-wide data is stored in `src/data/`. Edit these files to customize the theme.
+
+### Header — `headerData.ts`
+
+Controls the top bar links, navigation menu, social icons, and logo:
+
+```ts
+export const defaultHeaderData: HeaderData = {
+  topMenu: [
+    { label: 'Home',    href: '/'        },
+    { label: 'About',   href: '/about'   },
+    { label: 'Contact', href: '/contact' },
+  ],
+  logo: {
+    src:   '/img/logo.png',
+    alt:   'My Blog',
+    width: 160,
+  },
+  navMenu: [
+    { label: 'Home',    href: '/'    },
+    { label: 'Travel',  href: '/category/travel'  },
+    {
+      label: 'Pages',
+      children: [
+        { label: 'About',   href: '/about'   },
+        { label: 'Contact', href: '/contact' },
+      ],
+    },
+  ],
+  socialLinks: [
+    { icon: 'bi:instagram', href: 'https://instagram.com/yourhandle', label: 'Instagram' },
+    { icon: 'bi:twitter-x', href: 'https://twitter.com/yourhandle',   label: 'Twitter'   },
+  ],
+  copyright: 'Copyright 2026',
+};
+```
+
+### Footer — `footerData.ts`
+
+Controls the about text, contact info, and copyright links:
+
+```ts
+export const defaultFooterData: FooterData = {
+  info: {
+    title:       'About Us',
+    description: 'Your blog description here.',
+    address:     'Your city, Country',
+    phone:       '+(000) 000-0000',
+    email:       'hello@yourdomain.com',
+  },
+  copyright: {
+    links: [
+      { label: 'Privacy', href: '/privacy' },
+      { label: 'Terms',   href: '/terms'   },
+    ],
+    text: 'Copyright 2026 Your Name',
+  },
+};
+```
+
+### Author — `authorData.ts`
+
+Add or edit authors. The `id` must match the `authorId` in your MDX posts:
+
+```ts
+export const authors: AuthorData[] = [
+  {
+    id:       'your-id',
+    name:     'Your Name',
+    fullName: 'Your Full Name',
+    avatar:   '/img/personal/avatar.jpg',
+    bio:      'Short bio shown in sidebar and author page.',
+    href:     '/author/your-id',
+    website:  'https://yourwebsite.com',
+    socials: [
+      { icon: 'bi:instagram', href: 'https://instagram.com/yourhandle', label: 'Instagram' },
+    ],
+  },
+];
+```
+
+## Static Pages (MDX)
+
+Pages in `src/content/pages/` are used for `/privacy`, `/terms`, and `/cookies`. To add a new page:
+
+**1.** Create `src/content/pages/about-us.mdx`:
+
+```mdx
+---
+title: "About Us"
+label: "About Us"
+icon: "bi:info-circle"
+date: "2026-01-01"
+description: "Learn more about our team."
+---
+
+Your page content here.
+```
+
+## Adding Icons
+
+This theme uses **Bootstrap Icons** via `astro-icon`. To add a new icon, first add it to `astro.config.mjs`:
+
+```js
+icon({
+  include: {
+    bi: [
+      // existing icons...
+      'star',       // ← add new icon name here
+    ],
+  },
+}),
+```
+
+Then use it in any component:
+
+```astro
+---
+import { Icon } from 'astro-icon/components';
+---
+<Icon name="bi:star" class="size-4" />
+```
+
+Browse all Bootstrap Icons at [icons.getbootstrap.com](https://icons.getbootstrap.com).
+
+---
+
+## Sub-path Deployment
+
+If your site is deployed to a sub-path (e.g. `yourdomain.com/`), set `BASE_URL` in your environment or update `src/utils/path.ts`:
+
+```ts
+const BASE = '/blog'; // your sub-path
+```
+
+All `href` and `src` attributes in this theme use the `url()` helper, so every link will automatically pick up the prefix.
+
+---
+
+## Build & Deploy
+
+### Build for production
+
+```bash
+npm run build
+```
+
+Output is generated in `dist/`. Preview locally with:
+
+```bash
+npm run preview
+```
+
+### Deploy to Netlify
+
+```bash
+npm install -g netlify-cli
+netlify deploy --prod --dir=dist
+```
+
+### Deploy to Vercel
+
+```bash
+npm install -g vercel
+vercel --prod
+```
+
+### Deploy to GitHub Pages
+
+Add to `astro.config.mjs`:
+
+```js
+export default defineConfig({
+  site: 'https://yourusername.github.io',
+  base: '/your-repo-name',
+  // ...
+});
+```
+
+Then push to the `gh-pages` branch or use the official [Astro GitHub Pages guide](https://docs.astro.build/en/guides/deploy/github/).
+
+---
+
+## Support & License
+
+For questions contact **lightestcode@gmail.com**.

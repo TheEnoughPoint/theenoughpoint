@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+
+interface Props {
+  title?: string;
+  limit?: number;
+  /** Which boolean flag on the post frontmatter to filter by */
+  typePost?: 'featured' | 'trending' | 'popular';
+}
+
+const { title = 'Popular Post', limit = 5, typePost = 'featured' } = Astro.props;
+
+const allPosts = (await getCollection('blog').catch(() => [])) ?? [];
+const featured = allPosts
+  .filter((p) => p?.data?.[typePost])
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, limit);
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+}
+---
+
+<div class="bg-slate-50 border border-slate-200 rounded-lg">
+  <h3 class="w-full px-6 py-3 border-b border-slate-200">{title}</h3>
+  <div class="py-3 px-6 flex flex-col">
+    {featured.map((post, i) => (
+      <a href={url(`/${post.id}`)} class="flex gap-3 py-3 border-b last:border-b-0 border-slate-200">
+        <span class="size-8 shrink-0 rounded-full bg-slate-900 text-white text-sm font-semibold flex items-center justify-center">{i + 1}</span>
+        <div class="flex flex-col gap-1">
+          <h4 class="text-sm font-medium capitalize hover:text-brand-600 line-clamp-2">{post.data.title}</h4>
+          <span class="text-slate-500 text-sm">{formatDate(post.data.date)}</span>
+        </div>
+      </a>
+    ))}
+  </div>
+</div>

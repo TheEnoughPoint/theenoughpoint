@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+
+interface Props {
+  /** Category slug to filter posts by, e.g. 'technology', 'business' */
+  category: string;
+  limit?: number;
+}
+
+const { category, limit = 4 } = Astro.props;
+
+const allPosts = await getCollection('blog').catch(() => []);
+
+const slugify = (value: string) => value.toLowerCase().replace(/\s+/g, '-');
+const categorySlug = slugify(category);
+
+const matchedPosts = (allPosts ?? [])
+  .filter((p) => p?.data?.category && slugify(p.data.category) === categorySlug)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, limit);
+
+const categoryName = matchedPosts[0]?.data.category ?? category;
+const [featuredPost, ...listPosts] = matchedPosts;
+---
+
+<div class="flex flex-col gap-4">
+  <!-- HeadingBlock -->
+  <div class="flex items-center gap-3 justify-between">
+      <h2 class="ps-2 border-s-2 border-brand-600 text-lg capitalize font-medium">{categoryName}</h2>
+      <a href={url(`/${categorySlug}`)} class="capitalize font-medium text-sm text-slate-500 hover:text-brand-600 transition-colors">View all</a>
+  </div>
+  
+  <div class="flex flex-col gap-4">
+    {featuredPost && (
+      <a href={url(`/${featuredPost.id}`)} class="block group">
+        <div class="rounded-lg overflow-hidden aspect-16/10 bg-slate-100">
+          <img
+            src={url(featuredPost.data.cover)}
+            alt={featuredPost.data.title}
+            loading="lazy"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+        <h3 class="font-display font-bold text-slate-900 text-base leading-snug mt-3 hover:text-brand-600 transition-colors">
+          {featuredPost.data.title}
+        </h3>
+        <p class="text-slate-500 text-sm mt-2 leading-relaxed">
+          {featuredPost.data.excerpt}
+        </p>
+      </a>
+    )}
+
+    {listPosts.length > 0 && (
+      <ul class="flex flex-col">
+        {listPosts.map((post) => (
+          <li class="py-3 border-t border-slate-100">
+            <a href={url(`/${post.id}`)} class="text-slate-800 text-sm font-semibold leading-snug hover:text-brand-600 transition-colors">
+              {post.data.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</div>

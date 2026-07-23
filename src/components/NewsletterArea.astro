@@ -1,0 +1,96 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  icon?: string;
+  title?: string;
+  subtitle?: string;
+  placeholder?: string;
+  buttonLabel?: string;
+  action?: string;
+}
+
+const {
+  icon        = 'bi:envelope-fill',
+  title       = 'Get the stories that matter to you.',
+  subtitle    = 'Breaking news, in-depth analysis, and expert opinions.',
+  placeholder = 'Enter your email address',
+  buttonLabel = 'Subscribe',
+  action      = '#',
+} = Astro.props;
+---
+
+<div
+  x-data="{
+    email:  '',
+    error:  '',
+    status: 'idle',
+
+    validate() {
+      this.error = '';
+      if (!this.email.trim()) this.error = 'Email is required.';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email))
+        this.error = 'Please enter a valid email.';
+      return !this.error;
+    },
+
+    async submit() {
+      if (!this.validate()) return;
+      this.status = 'sending';
+      // Simulated async submit — replace with a real fetch() call to your endpoint
+      await new Promise(r => setTimeout(r, 1000));
+      this.status = 'sent';
+      this.email = '';
+    },
+  }"
+  class="flex flex-col md:flex-row md:items-center md:justify-between gap-5 bg-slate-50 border border-slate-200 rounded-lg p-6 mb-12"
+>
+  <div class="flex items-center gap-4">
+    <span class="shrink-0 inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-50 text-brand-500">
+      <Icon name={icon} class="text-xl" />
+    </span>
+    <div>
+      <p class="font-display font-bold text-slate-900 text-base">{title}</p>
+      <p class="text-slate-500 text-sm mt-0.5">{subtitle}</p>
+    </div>
+  </div>
+
+  <!-- Success message -->
+  <div style="display: none;"
+    x-show="status === 'sent'"
+    x-transition.duration.300ms
+    x-cloak
+    class="w-full md:w-auto text-sm text-brand-600 font-medium">
+    ✓ Thanks for subscribing! Please check your inbox.
+  </div>
+
+  <!-- Form -->
+  <form
+    x-show="status !== 'sent'"
+    @submit.prevent="submit()"
+    method="post"
+    action={action}
+    class="flex flex-col sm:flex-row gap-3 w-full md:w-auto"
+  >
+    <div class="flex flex-col gap-1 w-full sm:w-72">
+      <input
+        x-model="email"
+        :class="error ? 'border-red-300 focus:ring-red-400' : 'border-slate-200 focus:ring-brand-500'"
+        type="email"
+        name="email"
+        placeholder={placeholder}
+        aria-label="Email address"
+        class="w-full px-4 py-2.5 rounded-md border text-sm bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:border-transparent"
+      />
+      <span x-show="error" x-text="error" class="text-xs text-red-500"></span>
+    </div>
+    <button
+      type="submit"
+      :disabled="status === 'sending'"
+      class="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-6 py-2.5 rounded-md transition-colors whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      <span x-show="status === 'sending'" class="inline-block size-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+      <span x-text={`status === 'sending' ? 'Subscribing…' : '${buttonLabel}'`}></span>
+    </button>
+  </form>
+</div>

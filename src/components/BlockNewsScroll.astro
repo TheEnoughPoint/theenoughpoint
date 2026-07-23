@@ -1,0 +1,75 @@
+---
+import { Icon } from 'astro-icon/components';
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+
+interface Props {
+  title?: string;
+  limit?: number;
+  /** Which boolean flag on the post frontmatter to filter by */
+  typePost?: 'featured' | 'trending' | 'popular';
+}
+
+const {
+  title    = 'Trending Stories',
+  limit    = 5,
+  typePost = 'trending',
+} = Astro.props;
+
+const allPosts = await getCollection('blog').catch(() => []);
+
+const posts = (allPosts ?? [])
+  .filter((p) => p?.data?.[typePost])
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, limit);
+
+function timeAgo(dateStr: string): string {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  const hours   = Math.floor(minutes / 60);
+  const days    = Math.floor(hours / 24);
+
+  if (minutes < 1)   return 'Just now';
+  if (minutes < 60)  return `${minutes}m ago`;
+  if (hours < 24)    return `${hours}h ago`;
+  if (days < 7)      return `${days}d ago`;
+
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+---
+
+<div x-data="{ scroll(dir){ const el=$refs.track; el.scrollBy({left: dir*300, behavior:'smooth'}); } }" class="mb-14">
+  <div class="flex items-center justify-between mb-5">
+    <h2 class="inline-flex items-center gap-2 font-display font-bold text-lg text-slate-900">
+      <Icon name="bi:lightning-charge-fill" class="text-brand-500" />{title}
+    </h2>
+    <div class="flex items-center gap-2">
+      <button @click="scroll(-1)" aria-label="Previous" class="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-brand-100 transition-colors">
+        <Icon name="bi:chevron-left" class="text-sm" />
+      </button>
+      <button @click="scroll(1)" aria-label="Next" class="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-brand-100 transition-colors">
+        <Icon name="bi:chevron-right" class="text-sm" />
+      </button>
+    </div>
+  </div>
+
+  <div x-ref="track" class="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
+    {posts.map((post, i) => (
+      <a href={url(`/${post.id}`)} class="group relative shrink-0 snap-start w-65 sm:w-67.5 rounded-lg overflow-hidden aspect-4/5 bg-slate-950">
+        <img
+          src={url(post.data.cover)}
+          alt={post.data.title}
+          loading="lazy"
+          class="w-full h-full object-cover opacity-80 group-hover:opacity-90 transition-opacity"
+        />
+        <div class="absolute inset-0 bg-linear-to-t from-slate-950/95 via-slate-950/30 to-transparent"></div>
+        <span class="absolute top-3 left-3 bg-brand-500 text-white text-xs font-bold px-2.5 py-1 rounded">{String(i + 1).padStart(2, '0')}</span>
+        <div class="absolute bottom-0 left-0 right-0 p-5">
+          <p class="text-brand-400 text-[10px] font-bold uppercase tracking-wide">{post.data.category}</p>
+          <h3 class="font-display font-bold text-white text-base leading-snug mt-2">{post.data.title}</h3>
+          <p class="text-slate-400 text-xs mt-3">{timeAgo(post.data.date)}</p>
+        </div>
+      </a>
+    ))}
+  </div>
+</div>

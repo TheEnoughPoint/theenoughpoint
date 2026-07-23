@@ -1,0 +1,12 @@
+---
+import { getCollection, render } from 'astro:content';
+import PageLayout from '@src/layouts/PageLayout.astro';
+
+const pages = await getCollection('pages');
+const page  = pages.find((p) => p.id === 'cookies');
+if (!page) throw new Error('MDX page "cookies" not found in src/content/pages/');
+
+const { Content } = await render(page);
+---
+
+<PageLayout page={page} Content={Content} />

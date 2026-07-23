@@ -1,0 +1,50 @@
+---
+import { getCollection } from 'astro:content';
+import CategoryListLayout from '@src/layouts/CategoryListLayout.astro';
+
+export async function getStaticPaths() {
+  const PER_PAGE = 8;
+
+  const allPosts = (await getCollection('blog')).sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  const categoryMap = new Map<string, typeof allPosts>();
+
+  for (const post of allPosts) {
+    const slug = post.data.category.toLowerCase().replace(/\s+/g, '-');
+    if (!categoryMap.has(slug)) categoryMap.set(slug, []);
+    categoryMap.get(slug)!.push(post);
+  }
+
+  return [...categoryMap.entries()].map(([slug, posts]) => {
+    const totalPages = Math.ceil(posts.length / PER_PAGE);
+    return {
+      params: { category: slug },
+      props: {
+        pagePosts:    posts.slice(0, PER_PAGE),
+        totalPages,
+        categoryName: posts[0].data.category,
+        categorySlug: slug,
+      },
+    };
+  });
+}
+
+interface Props {
+  pagePosts:    Awaited<ReturnType<typeof getCollection<'blog'>>>;
+  totalPages:   number;
+  categoryName: string;
+  categorySlug: string;
+}
+
+const { pagePosts, totalPages, categoryName, categorySlug } = Astro.props;
+---
+
+<CategoryListLayout
+  posts={pagePosts}
+  currentPage={1}
+  totalPages={totalPages}
+  categoryName={categoryName}
+  categorySlug={categorySlug}
+/>

@@ -1,0 +1,14 @@
+---
+import { url } from '@src/utils/path';
+
+interface Props {
+  link?: string;
+  image?: string;
+}
+const { link='', image='img/ads-300.png' } = Astro.props;
+---
+<div class="relative mb-8">
+    <a href={link} target="_blank" rel="noopener noreferrer">
+        <img src={url(image)} alt="Advertisement" class="w-full" />
+    </a>
+</div>

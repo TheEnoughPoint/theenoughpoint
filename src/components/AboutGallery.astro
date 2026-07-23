@@ -1,0 +1,29 @@
+---
+import { url } from '@src/utils/path';
+import type { AboutGalleryItem } from '@src/data/aboutData';
+
+interface Props {
+  gallery: AboutGalleryItem[];
+  title?: string;
+}
+
+const { gallery, title = 'Inside the Newsroom' } = Astro.props;
+---
+
+<div class="py-8 border-b border-slate-200">
+  <h2 class="text-xl font-medium mb-6">{title}</h2>
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+    {gallery.map((item) => (
+      <div class="relative overflow-hidden aspect-square bg-slate-100 group">
+        <img
+          src={url(item.image)}
+          alt={item.alt}
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-end p-3 opacity-0 group-hover:opacity-100">
+          <p class="text-white text-xs leading-snug">{item.alt}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

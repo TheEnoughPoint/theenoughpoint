@@ -1,0 +1,39 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface SocialLink {
+  icon:  string;
+  label: string;
+  href:  string;
+}
+
+interface Props {
+  title?: string;
+  socials?: SocialLink[];
+}
+
+const defaultSocials: SocialLink[] = [
+  { icon: 'bi:facebook',   label: 'Facebook',  href: '#' },
+  { icon: 'bi:twitter-x',  label: 'Twitter',   href: '#' },
+  { icon: 'bi:instagram',  label: 'Instagram', href: '#' },
+  { icon: 'bi:youtube',    label: 'Youtube',   href: '#' },
+  { icon: 'bi:linkedin',   label: 'Linkedin',  href: '#' },
+  { icon: 'bi:telegram',   label: 'Telegram',  href: '#' },
+];
+
+const { title = 'Follow Us', socials = defaultSocials } = Astro.props;
+---
+
+<div class="bg-slate-50 border border-slate-200 rounded-lg">
+  <h3 class="w-full px-6 py-3 border-b border-slate-200">{title}</h3>
+  <div class="relative grid grid-cols-2 gap-2 py-4 px-6">
+    {socials.map((s) => (
+      <a href={s.href} class="group">
+        <div class="flex items-center group-hover:text-brand-600 gap-2 font-medium">
+          <Icon name={s.icon} />
+          <span>{s.label}</span>
+        </div>
+      </a>
+    ))}
+  </div>
+</div>

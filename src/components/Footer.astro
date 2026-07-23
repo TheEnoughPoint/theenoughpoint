@@ -1,0 +1,30 @@
+---
+// Main footer, composes all footer sections
+import FooterAbout from './FooterAbout.astro';
+import FooterMenu from './FooterMenu.astro';
+import FooterApp from './FooterApp.astro';
+import FooterCopyright from './FooterCopyright.astro';
+import { defaultFooterData, type FooterData } from '@src/data/footerData';
+
+interface Props {
+  data?: Partial<FooterData>;
+}
+
+const { data = {} } = Astro.props;
+const merged: FooterData = { ...defaultFooterData, ...data };
+---
+
+<footer class="bg-slate-50 border-t border-slate-200 pt-14 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-10">
+      <FooterAbout about={merged.about} />
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 lg:col-span-3">
+        {merged.menus.map((menu) => <FooterMenu {...menu} />)}
+      </div>
+    </div>
+
+    <FooterApp app={merged.app} />
+    <FooterCopyright copyright={merged.copyright} />
+  </div>
+</footer>

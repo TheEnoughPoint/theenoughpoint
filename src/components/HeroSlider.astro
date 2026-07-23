@@ -1,0 +1,201 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+import { getAuthor } from '@src/data/authorData';
+
+interface Props {
+  autoplayInterval?: number;
+  limit?: number;
+  /** 'fade' = opacity crossfade (default), 'slide' = horizontal slide */
+  variant?: 'fade' | 'slide';
+}
+
+const {
+  autoplayInterval = 4000,
+  limit            = 3,
+  variant          = 'fade',
+} = Astro.props;
+
+const allPosts = await getCollection('blog').catch(() => []);
+
+const featuredPosts = (allPosts ?? [])
+  .filter((p) => p?.data?.featured)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, limit);
+
+const slidesJson = JSON.stringify(
+  featuredPosts.map((p) => {
+    const author = getAuthor(p.data.authorId);
+    return {
+      image:        url(p.data.cover ?? ''),
+      imageAlt:     p.data.title ?? '',
+      date:         new Date(p.data.date).toLocaleDateString('en-US', {
+                      month: 'long', day: 'numeric', year: 'numeric',
+                    }),
+      title:        p.data.title ?? '',
+      excerpt:      p.data.excerpt ?? '',
+      href:         url(`/${p.id}`),
+      category:     p.data.category ?? 'Article',
+      author:       author?.name ?? '',
+      authorAvatar: author?.avatar ? url(author.avatar) : '',
+    };
+  })
+);
+---
+
+{variant === 'fade' ? (
+  <div
+    x-data={`heroSlider(${slidesJson}, ${autoplayInterval})`}
+    x-init="init()"
+    @mouseenter="pauseAutoplay()"
+    @mouseleave="resumeAutoplay()"
+    @touchstart.passive="onTouchStart($event)"
+    @touchend.passive="onTouchEnd($event)"
+    class="relative overflow-hidden group"
+  >
+    <div class="relative aspect-square sm:aspect-video lg:aspect-21/9 rounded-lg bg-slate-100 overflow-hidden">
+      <template x-for="(slide, i) in slides" :key="i">
+        <div
+          x-show="current === i"
+          x-transition:enter="transition-opacity duration-500"
+          x-transition:enter-start="opacity-0"
+          x-transition:enter-end="opacity-100"
+          x-transition:leave="transition-opacity duration-500"
+          x-transition:leave-start="opacity-100"
+          x-transition:leave-end="opacity-0"
+          class="w-full absolute inset-0"
+          :class="current === i ? 'relative' : 'pointer-events-none'"
+        >
+          <a :href="slide.href" class="group relative block w-full h-full aspect-square sm:aspect-video lg:aspect-21/9">
+            <img :src="slide.image" :alt="slide.imageAlt" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-linear-to-t from-slate-950/85 via-slate-950/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+              <span x-show="slide.category" x-text="slide.category" class="inline-flex items-center gap-1.5 bg-brand-600 text-white text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded"></span>
+              <h2 class="font-display font-extrabold text-white text-xl sm:text-2xl lg:text-3xl leading-tight mt-3 max-w-2xl" x-text="slide.title"></h2>
+              <div class="flex items-center gap-2 mt-4">
+                <img x-show="slide.authorAvatar" :src="slide.authorAvatar" :alt="slide.author" class="w-7 h-7 rounded-full object-cover" />
+                <span class="text-slate-300 text-sm">
+                  <span x-show="slide.author" x-text="slide.author"></span>
+                  <span x-show="slide.author"> · </span>
+                  <span x-text="slide.date"></span>
+                </span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </template>
+    </div>
+
+    <!-- Arrows -->
+    <button @click="prev()" aria-label="Previous slide" class="opacity-0 rounded-lg group-hover:opacity-100 absolute left-2 top-1/2 -translate-y-1/2 z-10 size-9 flex items-center justify-center bg-white/80 hover:bg-white border border-slate-200 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+    </button>
+    <button @click="next()" aria-label="Next slide" class="opacity-0 rounded-lg group-hover:opacity-100 absolute right-2 top-1/2 -translate-y-1/2 z-10 size-9 flex items-center justify-center bg-white/80 hover:bg-white border border-slate-200 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+    </button>
+
+    <!-- Dots -->
+    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
+      <template x-for="(_, i) in slides" :key="i">
+        <button @click="goTo(i)" :aria-label="`Go to slide ${i + 1}`" :class="current === i ? 'bg-brand-600 w-4' : 'bg-slate-300 w-2'" class="h-2 rounded-full transition-all duration-300"></button>
+      </template>
+    </div>
+  </div>
+) : (
+  <div
+    x-data={`heroSlider(${slidesJson}, ${autoplayInterval})`}
+    x-init="init()"
+    @mouseenter="pauseAutoplay()"
+    @mouseleave="resumeAutoplay()"
+    @touchstart.passive="onTouchStart($event)"
+    @touchend.passive="onTouchEnd($event)"
+    class="relative overflow-hidden group"
+  >
+    <!-- Track: flex strip, moves via translateX -->
+    <div
+      class="flex transition-transform duration-500 ease-in-out"
+      :style="`transform: translateX(-${current * 100}%)`"
+    >
+      <template x-for="(slide, i) in slides" :key="i">
+        <a :href="slide.href" class="group relative block w-full shrink-0 aspect-square sm:aspect-video lg:aspect-21/9 rounded-lg bg-slate-100 overflow-hidden">
+          <img :src="slide.image" :alt="slide.imageAlt" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-linear-to-t from-slate-950/85 via-slate-950/10 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+            <span x-show="slide.category" x-text="slide.category" class="inline-flex items-center gap-1.5 bg-brand-500 text-white text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded"></span>
+            <h2 class="font-display font-extrabold text-white text-xl sm:text-2xl lg:text-3xl leading-tight mt-3 max-w-2xl" x-text="slide.title"></h2>
+            <div class="flex items-center gap-2 mt-4">
+              <img x-show="slide.authorAvatar" :src="slide.authorAvatar" :alt="slide.author" class="w-7 h-7 rounded-full object-cover" />
+              <span class="text-slate-300 text-sm">
+                <span x-show="slide.author" x-text="slide.author"></span>
+                <span x-show="slide.author"> · </span>
+                <span x-text="slide.date"></span>
+              </span>
+            </div>
+          </div>
+        </a>
+      </template>
+    </div>
+
+    <!-- Arrows -->
+    <button @click="prev()" aria-label="Previous slide" class="opacity-0 rounded-lg group-hover:opacity-100 absolute left-2 top-1/2 -translate-y-1/2 z-10 size-9 flex items-center justify-center bg-white/80 hover:bg-white border border-slate-200 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+    </button>
+    <button @click="next()" aria-label="Next slide" class="opacity-0 rounded-lg group-hover:opacity-100 absolute right-2 top-1/2 -translate-y-1/2 z-10 size-9 flex items-center justify-center bg-white/80 hover:bg-white border border-slate-200 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+    </button>
+
+    <!-- Dots -->
+    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
+      <template x-for="(_, i) in slides" :key="i">
+        <button @click="goTo(i)" :aria-label="`Go to slide ${i + 1}`" :class="current === i ? 'bg-brand-600 w-4' : 'bg-slate-300 w-2'" class="h-2 rounded-full transition-all duration-300"></button>
+      </template>
+    </div>
+  </div>
+)}
+
+<script>
+  import Alpine from 'alpinejs';
+
+  Alpine.data('heroSlider', (slides: any[], interval: number) => ({
+    slides:     slides ?? [],
+    current:    0,
+    timer:      null as ReturnType<typeof setInterval> | null,
+    touchStartX: 0,
+    touchStartY: 0,
+
+    init() {
+      if (this.slides.length) this.resumeAutoplay();
+    },
+
+    goTo(index: number) {
+      this.current = (index + this.slides.length) % this.slides.length;
+    },
+    next() { this.goTo(this.current + 1); },
+    prev() { this.goTo(this.current - 1); },
+
+    pauseAutoplay() {
+      if (this.timer) { clearInterval(this.timer); this.timer = null; }
+    },
+    resumeAutoplay() {
+      this.pauseAutoplay();
+      this.timer = setInterval(() => this.next(), interval);
+    },
+
+    // ── Swipe support ──────────────────────────────────────────────────────
+    onTouchStart(e: TouchEvent) {
+      this.touchStartX = e.changedTouches[0].clientX;
+      this.touchStartY = e.changedTouches[0].clientY;
+    },
+    onTouchEnd(e: TouchEvent) {
+      const dx = e.changedTouches[0].clientX - this.touchStartX;
+      const dy = e.changedTouches[0].clientY - this.touchStartY;
+
+      // Only trigger if horizontal swipe is dominant (> 40px, and more horizontal than vertical)
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+
+      this.pauseAutoplay();
+      if (dx < 0) this.next(); else this.prev();
+      this.resumeAutoplay();
+    },
+  }));
+</script>

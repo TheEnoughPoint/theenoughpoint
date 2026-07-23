@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '@src/utils/path';
+
+interface Props {
+  title?: string;
+  limit?: number;
+}
+
+const { title = 'Tags', limit = 15 } = Astro.props;
+
+const posts = await getCollection('blog');
+
+// Count tag frequency across all posts
+const countMap = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags ?? []) {
+    countMap.set(tag, (countMap.get(tag) ?? 0) + 1);
+  }
+}
+
+// Sort by count desc, cap at limit
+const tags = [...countMap.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, limit)
+  .map(([tag]) => tag);
+
+function tagSlug(tag: string) {
+  return tag.toLowerCase().replace(/\s+/g, '-');
+}
+---
+
+<div class="bg-slate-50 border border-slate-200 rounded-lg">
+  <h3 class="w-full px-6 py-3 border-b border-slate-200">{title}</h3>
+  <div class="p-6">
+    <ul class="flex flex-wrap items-center gap-2 text-sm">
+      {tags.map((tag) => (
+        <li>
+          <a
+            href={url(`/tags/${tagSlug(tag)}`)}
+            class="flex py-1 px-3 rounded-sm bg-white hover:bg-brand-100 border border-slate-200 hover:border-brand-200 hover:text-brand-700"
+          >
+            {tag}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>

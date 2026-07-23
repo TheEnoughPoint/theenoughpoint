@@ -1,0 +1,26 @@
+---
+// Logo, description and social links block
+import { Icon } from 'astro-icon/components';
+import Logo from './Logo.astro';
+import { defaultFooterData, type FooterAboutData } from '@src/data/footerData';
+
+interface Props {
+  about?: FooterAboutData;
+}
+
+const { about = defaultFooterData.about } = Astro.props;
+---
+
+<div class="lg:col-span-2">
+  <Logo src={about.logoSrc} alt={about.logoAlt} />
+
+  <p class="text-slate-500 text-sm mt-4 leading-relaxed max-w-[220px]">{about.description}</p>
+
+  <div class="flex items-center gap-3 mt-5">
+    {about.socials.map((s) => (
+      <a href={s.href} aria-label={s.label} class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-brand-600 hover:border-brand-300 transition-colors">
+        <Icon name={s.icon} class="text-sm" />
+      </a>
+    ))}
+  </div>
+</div>
