@@ -42,6 +42,24 @@
     "excerpt": {
       "type": "string"
     },
+    "sponsored": {
+      "default": false,
+      "type": "boolean"
+    },
+    "sponsorName": {
+      "type": "string"
+    },
+    "showDisclosure": {
+      "default": false,
+      "type": "boolean"
+    },
+    "lifeStage": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "$schema": {
       "type": "string"
     }
