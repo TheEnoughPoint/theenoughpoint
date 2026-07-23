@@ -16,6 +16,10 @@ const blog = defineCollection({
     popular: z.boolean().optional().default(false),
     authorId: z.string(),
     excerpt: z.string(),
+    sponsored: z.boolean().optional().default(false),
+    sponsorName: z.string().optional(),
+    showDisclosure: z.boolean().optional().default(false),
+    lifeStage: z.array(z.string()).optional().default([]),
   }),
 });
 

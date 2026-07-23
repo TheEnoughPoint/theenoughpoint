@@ -65,6 +65,20 @@ export default defineConfig({
           'shield-check',   // privacy policy
           'file-text',      // terms of use
           'cookie',         // cookie policy
+
+          // ── Brand / finance components ───────────────────────
+          'compass',              // Freedom Roadmap pillar, footer trust badge
+          'flask',                // Business Experiments pillar
+          'bank',                 // CPF strategy icon
+          'piggy-bank',           // SRS strategy icon
+          'house-door',           // HDB strategy icon
+          'graph-up',             // T-bills strategy icon
+          'graph-up-arrow',       // footer trust badge
+          'airplane',             // Miles & Cashback strategy icon
+          'gift',                 // Partner Offers heading
+          'star-fill',            // comparison table ratings
+          'arrow-right',          // CTA / read more links
+          'trophy',               // footer trust badge
         ],
       },
     }),

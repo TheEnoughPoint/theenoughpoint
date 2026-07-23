@@ -23,33 +23,16 @@ export interface HeaderData {
 
 // ─── Default Data ─────────────────────────────────────────────────────────────
 
+import { pillars } from './pillarsData';
+
 export const defaultHeaderData: HeaderData = {
   logo: {
     src:   '/img/logo.png',
-    alt:   'Logo',
+    alt:   'TheEnoughPoint.com',
     width: 120,
   },
 
-  navMenu: [
-    { label: 'Home',          href: '/'         },
-    { label: 'Business',      href: '/business'    },
-    { label: 'Sports',        href: '/sports'    },
-    { label: 'Travel',        href: '/travel'    },
-    { label: 'Politics',      href: '/politics'     },
-    { label: 'Lifestyle',     href: '/lifestyle' },
-    { label: 'Technology',    href: '/technology'    },
-    {
-      label: 'More',
-      children: [
-        { label: 'Foods',         href: '/foods'             },
-        { label: 'Science',       href: '/science'          },
-        { label: 'Entertainment',     href: '/entertainment'           },
-        { label: 'News',          href: '/news'           },
-        { label: 'Health',        href: '/health'             },
-        { label: 'Finance',       href: '/finance'              },
-      ],
-    },
-  ],
+  navMenu: pillars.map((p) => ({ label: p.navLabel, href: `/${p.id}` })),
 
-  copyright: 'Copyright 2026',
+  copyright: 'Copyright 2026 TheEnoughPoint.com',
 };

@@ -1,0 +1,64 @@
+---
+// Partner/affiliate cards — 'list' for the sidebar "Partner Offers" block,
+// 'row' for the homepage "Recommended Platforms" strip. Reads from
+// src/data/partnersData.ts so partner info is defined once.
+import { Icon } from 'astro-icon/components';
+import { getPartners } from '@src/data/partnersData';
+
+interface Props {
+  ids:      string[];
+  layout?:  'list' | 'row';
+  title?:   string;
+}
+
+const { ids, layout = 'list', title = 'Recommended Platforms' } = Astro.props;
+const items = getPartners(ids);
+---
+
+{layout === 'list' ? (
+  <div class="bg-white border border-cream-dark rounded-lg">
+    <h3 class="flex items-center gap-2 px-5 py-3 border-b border-cream-dark text-navy font-semibold text-sm">
+      <Icon name="bi:gift" class="text-gold size-4" />
+      Partner Offers
+    </h3>
+    <div class="flex flex-col divide-y divide-cream-dark">
+      {items.map((p) => (
+        <div class="px-5 py-4">
+          <p class:list={['font-bold text-sm', p.wordmarkClass]}>{p.name}</p>
+          <p class="text-muted text-xs mt-1 leading-relaxed">{p.blurb}</p>
+          <div class="flex items-center justify-between mt-3">
+            <a href={p.ctaHref} class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-colors">
+              {p.ctaLabel}
+            </a>
+            <span class="text-subtle text-[11px]">T&amp;Cs apply</span>
+          </div>
+        </div>
+      ))}
+    </div>
+    <a href="#" class="block text-center text-sm text-forest hover:text-forest-dark font-medium px-5 py-3 border-t border-cream-dark">
+      View more partner offers →
+    </a>
+  </div>
+) : (
+  <div>
+    <div class="flex items-center justify-between mb-1">
+      <h3 class="text-navy font-semibold text-base flex items-center gap-2">
+        <Icon name="bi:gift" class="text-gold size-4" />
+        {title}
+      </h3>
+      <a href="#" class="text-sm text-forest hover:text-forest-dark font-medium whitespace-nowrap">View all platforms →</a>
+    </div>
+    <p class="text-muted text-xs mb-4">Tools & platforms we use and trust. Links are affiliate links.</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      {items.map((p) => (
+        <div class="bg-white border border-cream-dark rounded-lg p-4">
+          <p class:list={['font-bold text-sm', p.wordmarkClass]}>{p.name}</p>
+          <p class="text-muted text-xs mt-1.5 leading-relaxed line-clamp-2">{p.blurb}</p>
+          <a href={p.ctaHref} class="inline-flex items-center gap-1 text-forest hover:text-forest-dark text-xs font-semibold mt-3">
+            {p.ctaLabel} <Icon name="bi:arrow-right" class="size-3" />
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+)}

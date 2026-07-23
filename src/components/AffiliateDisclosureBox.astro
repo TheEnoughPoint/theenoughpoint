@@ -1,0 +1,19 @@
+---
+import { Icon } from 'astro-icon/components';
+import { affiliateDisclosure } from '@src/data/complianceData';
+
+interface Props {
+  text?: string;
+  title?: string;
+}
+
+const { text = affiliateDisclosure, title = 'Disclosure' } = Astro.props;
+---
+
+<div class="flex gap-3 bg-cream border border-cream-dark rounded-lg p-5">
+  <Icon name="bi:shield-check" class="size-5 text-gold shrink-0 mt-0.5" />
+  <div>
+    <p class="text-navy text-sm font-semibold uppercase tracking-wide mb-1">{title}</p>
+    <p class="text-muted text-sm leading-relaxed">{text}</p>
+  </div>
+</div>

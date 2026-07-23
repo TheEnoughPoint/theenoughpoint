@@ -9,7 +9,12 @@ interface Props {
   date:          string;
   authorId:      string;
   excerpt:       string;
-  variant?: 'default' | 'grid' | 'box' | 'list';
+  variant?: 'default' | 'grid' | 'box' | 'list' | 'feature';
+  /** 'feature' variant only */
+  featured?:     boolean;
+  sponsored?:    boolean;
+  sponsorName?:  string;
+  lifeStage?:    string[];
 }
 
 const {
@@ -20,6 +25,10 @@ const {
   authorId,
   excerpt,
   variant       = 'default',
+  featured      = false,
+  sponsored     = false,
+  sponsorName   = '',
+  lifeStage     = [],
 } = Astro.props;
 
 const formattedDate = new Date(date).toLocaleDateString('en-US', {
@@ -124,6 +133,43 @@ const authorUrl = url(`/author/${authorId}`);
         </time>
       </div>
       <p class="text-slate-500 mb-2 line-clamp-3">{excerpt}</p>
+    </div>
+  </article>
+)}
+
+{variant === 'feature' && (
+  <article class="flex flex-col bg-white border border-cream-dark rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+    <div class="relative aspect-3/2 overflow-hidden bg-cream">
+      <a href={postUrl}>
+        <img class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" src={url(cover)} loading="lazy" alt={title} />
+      </a>
+      {featured && (
+        <span class="absolute top-3 left-3 bg-navy text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded">Featured</span>
+      )}
+      {sponsored && (
+        <span class="absolute top-3 left-3 bg-gold text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded">Sponsored</span>
+      )}
+    </div>
+    <div class="flex flex-col gap-2 p-4">
+      <h3 class="text-navy font-heading font-bold text-base leading-snug">
+        <a href={postUrl} class="hover:text-brand-600">{title}</a>
+      </h3>
+      <p class="text-muted text-sm line-clamp-2">{excerpt}</p>
+      <a href={postUrl} class="inline-flex items-center gap-1 text-forest hover:text-forest-dark text-xs font-semibold">
+        Read more
+        <Icon name="bi:arrow-right" class="size-3" />
+      </a>
+    </div>
+    <div class="px-4 pb-4">
+      {sponsored ? (
+        <span class="text-subtle text-xs">Sponsored by {sponsorName}</span>
+      ) : lifeStage.length > 0 && (
+        <ul class="flex flex-wrap gap-1.5">
+          {lifeStage.map((stage) => (
+            <li class="text-[11px] text-muted border border-cream-dark rounded-full px-2.5 py-1">{stage}</li>
+          ))}
+        </ul>
+      )}
     </div>
   </article>
 )}

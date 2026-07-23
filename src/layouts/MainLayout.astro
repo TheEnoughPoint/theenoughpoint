@@ -30,9 +30,18 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href={Astro.url?.href || 'https://portal.madethemes.com'} />
-    <link rel="icon" type="image/x-icon" href="/img/favicon.png" />
-    
+    <link rel="canonical" href={Astro.url?.href || 'https://theenoughpoint.com'} />
+    <link rel="icon" type="image/png" href="/img/favicon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL('/img/brand/og-image.jpg', Astro.site ?? Astro.url).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL('/img/brand/og-image.jpg', Astro.site ?? Astro.url).href} />
+
     <slot name="head" />
     <Font cssVariable="--font-heading" preload />
     <Font cssVariable="--font-body" preload />

@@ -1,0 +1,17 @@
+---
+// Standard right-column sidebar: Popular Reads → Newsletter → Disclosure.
+// Used on the homepage and article pages. Page-specific widgets (e.g. TagsWidget,
+// CategoryWidget) are appended as siblings by the caller, or via the default slot.
+// Partner Offers (RecommendedTools) is temporarily removed from this sidebar —
+// still used standalone in the homepage's "Recommended Platforms" strip.
+import NewsletterBox from './NewsletterBox.astro';
+import TopViewedArticles from './TopViewedArticles.astro';
+import AffiliateDisclosureBox from './AffiliateDisclosureBox.astro';
+---
+
+<div class="flex flex-col gap-6">
+  <TopViewedArticles />
+  <NewsletterBox />
+  <AffiliateDisclosureBox />
+  <slot />
+</div>

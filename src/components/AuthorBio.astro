@@ -1,0 +1,64 @@
+---
+// Replaces PostProfile.astro. Renders a gold-monogram avatar when the author
+// has no photo — the natural fit for the anonymous FI/RE identities — and
+// falls back to a real photo otherwise.
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+import type { AuthorData } from '@src/data/authorData';
+
+interface Props {
+  author: AuthorData;
+}
+
+const { author } = Astro.props;
+const initial = author.name.charAt(0).toUpperCase();
+---
+
+<div class="flex flex-col sm:flex-row sm:items-center gap-5 py-6 md:py-8 border-t border-cream-dark">
+  <!-- Avatar -->
+  <div class="shrink-0">
+    {author.avatar ? (
+      <a href={url(author.href)}>
+        <img src={url(author.avatar)} alt={author.fullName} class="size-20 rounded-full object-cover" />
+      </a>
+    ) : (
+      <a href={url(author.href)} class="flex items-center justify-center size-20 rounded-full bg-navy border-2 border-gold">
+        <span class="text-gold text-2xl font-heading font-bold">{initial}</span>
+      </a>
+    )}
+  </div>
+
+  <!-- Info -->
+  <div>
+    <h4 class="text-lg font-heading font-bold">
+      <a href={url(author.href)} class="text-navy hover:text-brand-600">{author.fullName}</a>
+    </h4>
+
+    {author.role && (
+      <p class="text-forest text-xs font-semibold uppercase tracking-wide mt-0.5">{author.role}</p>
+    )}
+
+    <p class="text-muted text-sm mt-2 max-w-xl leading-relaxed">{author.bio}</p>
+
+    {author.socials?.length > 0 && (
+      <div class="mt-4">
+        <ul class="flex items-center gap-3">
+          {author.socials.map((s) => (
+            <li>
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                title={s.label}
+                class="text-muted hover:text-brand-600 transition-colors"
+              >
+                <Icon name={s.icon} class="size-4" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</div>

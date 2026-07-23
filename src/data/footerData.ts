@@ -23,17 +23,14 @@ export interface FooterMenuData {
   links: FooterMenuLink[];
 }
 
-export interface FooterAppButton {
-  icon:     string;
-  caption:  string;
-  label:    string;
-  href:     string;
+export interface FooterTrustItem {
+  icon:        string;
+  label:       string;
+  description: string;
 }
 
 export interface FooterAppData {
-  title:       string;
-  description: string;
-  buttons:     FooterAppButton[];
+  items: FooterTrustItem[];
 }
 
 export interface FooterCopyrightLink {
@@ -55,16 +52,18 @@ export interface FooterData {
 
 // ─── Default Data ─────────────────────────────────────────────────────────────
 
+import { pillars } from './pillarsData';
+
 export const defaultFooterData: FooterData = {
   about: {
     logoSrc:     '/img/logo.png',
-    logoAlt:     'Logo',
-    description: 'Delivering accurate, balanced, and timely news from every corner of the world.',
+    logoAlt:     'TheEnoughPoint.com',
+    description: 'Practical personal finance and lifestyle insights to help Singaporeans reach their own enough point.',
     socials: [
       { icon: 'bi:facebook',  label: 'Facebook',  href: '#' },
       { icon: 'bi:twitter-x', label: 'X',         href: '#' },
       { icon: 'bi:instagram', label: 'Instagram', href: '#' },
-      { icon: 'bi:youtube',   label: 'YouTube',   href: '#' },
+      { icon: 'bi:telegram',  label: 'Telegram',  href: '#' },
       { icon: 'bi:linkedin',  label: 'LinkedIn',  href: '#' },
     ],
   },
@@ -72,52 +71,39 @@ export const defaultFooterData: FooterData = {
   menus: [
     {
       title: 'Explore',
-      links: [
-        { label: 'News',          href: '/news' },
-        { label: 'Travel',        href: '/travel' },
-        { label: 'Technology',    href: '/technology' },
-        { label: 'Business',      href: '/business' },
-        { label: 'Entertainment', href: '/entertainment' },
-        { label: 'Sports',        href: '/sports' },
-        { label: 'Lifestyle',     href: '/lifestyle' },
-      ],
+      links: pillars.map((p) => ({ label: p.navLabel, href: `/${p.id}` })),
     },
     {
       title: 'Resources',
       links: [
         { label: 'About Us',    href: '/about' },
         { label: 'Contact Us',  href: '/contact' },
-        { label: 'Newsletter',  href: '#' },
-        { label: 'Sitemap',     href: '#' },
-        { label: 'Advertise',   href: '#' },
-        { label: 'Careers',     href: '#' },
-        { label: 'Press Room',  href: '#' },
+        { label: 'FI',          href: '/author/fi' },
+        { label: 'RE',          href: '/author/re' },
       ],
     },
     {
-      title: 'Services',
+      title: 'Compliance',
       links: [
-        { label: 'Video',       href: '#' },
-        { label: 'Podcasts',    href: '#' },
-        { label: 'E-Paper',     href: '#' },
-        { label: 'Archive',     href: '#' },
-        { label: 'RSS Feeds',   href: '#' },
-        { label: 'Mobile App',  href: '#' },
+        { label: 'Privacy Policy',  href: '/privacy' },
+        { label: 'Terms of Use',    href: '/terms' },
+        { label: 'Cookie Policy',   href: '/cookies' },
+        { label: 'Editorial Policy', href: '/docs' },
       ],
     },
   ],
 
   app: {
-    title:       'Top Stories in Your Inbox',
-    description: 'Join thousands of readers and never miss important news.',
-    buttons: [
-      { icon: 'bi:apple',       caption: 'Download on the', label: 'App Store',   href: '#' },
-      { icon: 'bi:google-play', caption: 'GET IT ON',       label: 'Google Play', href: '#' },
+    items: [
+      { icon: 'bi:shield-check',    label: 'Financial Freedom', description: 'Build wealth with confidence.' },
+      { icon: 'bi:graph-up-arrow',  label: 'Smart Growth',      description: 'Make informed decisions.' },
+      { icon: 'bi:compass',         label: 'Purposeful Path',   description: 'Stay focused on what matters.' },
+      { icon: 'bi:trophy',          label: 'Live Your Freedom', description: 'Design the life you want.' },
     ],
   },
 
   copyright: {
-    text: '© 2026 Portal. All rights reserved.',
+    text: '© 2026 TheEnoughPoint.com. All rights reserved.',
     links: [
       { label: 'Privacy Policy', href: '/privacy' },
       { label: 'Terms of Use',   href: '/terms'   },

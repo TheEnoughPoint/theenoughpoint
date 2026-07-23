@@ -1,21 +1,13 @@
 ---
-// App promo block with store buttons
-import ButtonApp from './ButtonApp.astro';
-import { defaultFooterData, type FooterAppData } from '@src/data/footerData';
-
-interface Props {
-  app?: FooterAppData;
-}
-
-const { app = defaultFooterData.app } = Astro.props;
+// Brand-kit banner — the real designed wordmark + tagline + trust-values strip
+import { url } from '@src/utils/path';
 ---
 
-<div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 items-start border-t border-slate-200 pt-10 pb-10">
-  <div>
-    <p class="font-display font-bold text-sm text-slate-900">{app.title}</p>
-    <p class="text-slate-500 text-sm mt-2 leading-relaxed max-w-md">{app.description}</p>
-  </div>
-  <div class="flex items-center gap-3">
-    {app.buttons.map((btn) => <ButtonApp {...btn} />)}
-  </div>
+<div class="rounded-lg overflow-hidden mb-10">
+  <img
+    src={url('/img/brand/banner-wide.jpg')}
+    alt="TheEnoughPoint.com — Reach your enough point, live your freedom. Financial Freedom · Smart Choices · A Better Tomorrow"
+    class="w-full h-auto"
+    loading="lazy"
+  />
 </div>

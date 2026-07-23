@@ -14,7 +14,7 @@ const { data = {} } = Astro.props;
 const merged: FooterData = { ...defaultFooterData, ...data };
 ---
 
-<footer class="bg-slate-50 border-t border-slate-200 pt-14 pb-8">
+<footer class="bg-cream border-t border-cream-dark pt-14 pb-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-10">
       <FooterAbout about={merged.about} />

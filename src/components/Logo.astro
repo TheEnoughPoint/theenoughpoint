@@ -6,16 +6,28 @@ interface Props {
   alt?: string;
   width?: number;
   href?: string;
+  /** 'image' renders the src img; 'wordmark' renders the inline brand lockup */
+  variant?: 'image' | 'wordmark';
 }
 
 const {
-  src   = '/img/logo.png',
-  alt   = 'Logo',
-  width = 120,
-  href  = '/',
+  src     = '/img/logo.png',
+  alt     = 'Logo',
+  width   = 120,
+  href    = '/',
+  variant = 'image',
 } = Astro.props;
 ---
 
-<a href={url(href)} class="py-4 min-h-16">
-  <img src={url(src)} width={width} height="auto" alt={alt} class="h-auto" style={`width:${width}px`} />
+<a href={url(href)} class="py-4 min-h-16 flex items-center gap-2 shrink-0">
+  {variant === 'wordmark' ? (
+    <>
+      <img src={url('/img/brand/logo-icon-96.png')} width="32" height="32" alt="" class="size-8 shrink-0 rounded-full" />
+      <span class="leading-none whitespace-nowrap font-heading">
+        <span class="text-lg sm:text-xl font-bold text-navy">TheEnoughPoint</span><span class="text-lg sm:text-xl font-bold text-forest">.com</span>
+      </span>
+    </>
+  ) : (
+    <img src={url(src)} width={width} height="auto" alt={alt} class="h-auto" style={`width:${width}px`} />
+  )}
 </a>

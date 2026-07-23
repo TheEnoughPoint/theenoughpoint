@@ -13,22 +13,30 @@ const { data = {} } = Astro.props;
 
 const merged: HeaderData = { ...defaultHeaderData, ...data };
 ---
-<header class="sticky top-0 bg-white lg:border-y border-slate-200 z-70">
+<header class="sticky top-0 bg-cream/95 backdrop-blur-sm lg:border-y border-cream-dark z-70">
   <div class="container xl:max-w-7xl mx-auto px-4 flex items-center gap-3 justify-between">
     <!-- Hamburger -->
-    <button @click="navtoggle = !navtoggle" class="size-10 text-2xl lg:hidden" aria-label="Toggle navigation">
+    <button @click="navtoggle = !navtoggle" class="size-10 text-2xl lg:hidden text-navy" aria-label="Toggle navigation">
       <Icon name="bi:x-lg" x-show="navtoggle" class="size-4" style="display:none" />
       <Icon name="bi:list" x-show="!navtoggle" class="size-5" />
     </button>
 
-    <Logo src={merged.logo.src} alt={merged.logo.alt} width={merged.logo.width} />
-    
-    <div class="flex items-center gap-3">
+    <Logo variant="wordmark" href="/" />
+
+    <div class="flex items-center gap-2 sm:gap-3">
       <!-- Navigation -->
       <NavMenu navMenu={merged.navMenu} copyright={merged.copyright} />
-      <!-- Mobile search toggle -->
-      <a href={url('/search')} class="flex items-center justify-center size-10 text-xl" aria-label="Open search">
+      <!-- Search -->
+      <a href={url('/search')} class="flex items-center justify-center size-10 text-xl text-navy hover:text-brand-600 transition-colors" aria-label="Open search">
         <Icon name="bi:search" class="size-4" />
+      </a>
+      <!-- Newsletter CTA -->
+      <a
+        href="#newsletter"
+        class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors whitespace-nowrap"
+      >
+        <Icon name="bi:envelope-fill" class="size-3.5" />
+        Join 18,000+ readers
       </a>
     </div>
   </div>
