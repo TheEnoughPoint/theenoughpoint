@@ -2,9 +2,10 @@ import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 import mdx from '@astrojs/mdx';
+import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://portal.madethemes.com',
+  site: 'https://theenoughpoint.com',
   vite: {
     plugins: [tailwindcss()],
   },
