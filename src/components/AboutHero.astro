@@ -11,20 +11,20 @@ const { about } = Astro.props;
 ---
 
 <!-- Hero intro -->
-<div class="flex flex-col items-center text-center gap-8 md:gap-12 py-8 md:py-12 border-b border-slate-200">
+<div class="flex flex-col items-center text-center gap-8 md:gap-12 py-8 md:py-12 border-b border-cream-dark">
   <!-- Logo + name -->
   <div class="flex flex-col items-center gap-4">
-    <img src={url(about.logo)} alt={about.name} class="h-16 w-auto object-contain" />
+    <img src={url(about.logo)} alt={about.name} class="h-16 w-auto object-contain rounded-full" />
     <div>
-      <h1 class="text-2xl md:text-3xl font-medium hidden">{about.name}</h1>
-      <p class="text-slate-500 mt-1">{about.tagline}</p>
+      <h1 class="text-2xl md:text-3xl font-heading font-bold text-navy">{about.name}</h1>
+      <p class="text-muted mt-1">{about.tagline}</p>
     </div>
 
     <!-- Social links -->
     <div class="flex items-center text-center mx-auto gap-1">
       {about.socials.map((s) => (
         <a href={s.href} aria-label={s.label} target="_blank" rel="noopener noreferrer"
-           class="p-2 hover:opacity-70 transition-opacity">
+           class="p-2 text-muted hover:text-brand-600 transition-colors">
           <Icon name={s.icon} class="size-4" />
         </a>
       ))}
@@ -32,17 +32,17 @@ const { about } = Astro.props;
   </div>
 
   <!-- Intro paragraphs -->
-  <div class="flex flex-col gap-4 text-slate-600 leading-relaxed text-left">
+  <div class="flex flex-col gap-4 text-body leading-relaxed text-left max-w-3xl">
     {about.intro.map((para) => <p>{para}</p>)}
   </div>
 </div>
 
 <!-- Stats row -->
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-8 border-b border-slate-200">
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-8 border-b border-cream-dark">
   {about.stats.map((stat) => (
     <div class="flex flex-col items-center text-center gap-1 py-4">
-      <span class="text-3xl font-medium">{stat.value}</span>
-      <span class="text-sm text-slate-500 uppercase tracking-wide">{stat.label}</span>
+      <span class="text-3xl font-heading font-bold text-navy">{stat.value}</span>
+      <span class="text-sm text-muted uppercase tracking-wide">{stat.label}</span>
     </div>
   ))}
 </div>
