@@ -8,7 +8,15 @@
 // .ee-handoff, .ee-rate, .ee-src, .ee-foot) so the MDX stays prose-first.
 // The script binds page-wide ids (d-us, hk-tax, tbl) that live in those blocks;
 // lookups are null-guarded so removing a block never breaks the calculator.
+//
+// The FX rate is resolved at build time by src/utils/fxRate.ts (MAS daily
+// series → Fed H.10 → stored constant); the site rebuilds on every push, so
+// the rate refreshes itself whenever anything ships.
 import { Font } from 'astro:assets';
+import { getSgdPerUsd } from '@src/utils/fxRate';
+
+const fx = await getSgdPerUsd();
+const usdPerSgd = (1 / fx.sgdPerUsd).toFixed(4);
 ---
 
 <Font cssVariable="--font-mono" />
@@ -41,7 +49,7 @@ import { Font } from 'astro:assets';
     </div>
 
     <div class="fxline">
-      Converted at <b class="num" id="fx-disp">—</b> · <span id="fx-asof">—</span>
+      Converted at <b class="num">S$1 = US${usdPerSgd}</b> · rate as at {fx.asOf} · {fx.source}
     </div>
   </div>
 
@@ -229,7 +237,7 @@ import { Font } from 'astro:assets';
 }
 </style>
 
-<script is:inline>
+<script is:inline define:vars={{ SGD_PER_USD: fx.sgdPerUsd }}>
 /* IRC Chapter 11 Table A — Unified Rate Schedule.
    Verified against IRS Instructions for Form 706 (rev. 09/2025) on 2026-07-18.
    [over, notOver, taxOnColumnA, rateOnExcess] */
@@ -240,21 +248,12 @@ const BRACKETS=[[0,10000,0,.18],[10000,20000,1800,.20],[20000,40000,3800,.22],
 [500000,750000,155800,.37],[750000,1000000,248300,.39],[1000000,null,345800,.40]];
 const CREDIT=13000;   // Form 706-NA: maximum unified credit for a non-resident non-citizen
 
-/* ---------------------------------------------------------------
-   FX — a single stated constant, not a user input. The tax itself is
-   assessed in US dollars, so the rate only affects the S$ presentation;
-   making the reader tune it would imply a precision that does not exist.
-
-   Refresh whenever this page is materially updated. The preferred source
-   is the MAS daily series (mas.gov.sg/statistics/exchange-rates), which
-   was unavailable on both attempts (2026-07-18 and 2026-07-24 — site
-   maintenance). This rate is from the US Federal Reserve's H.10 weekly
-   release of 20 July 2026, the official US series, quoted for 17 July.
-   --------------------------------------------------------------- */
-const SGD_PER_USD = 1.2911;                       // Federal Reserve H.10, 17 Jul 2026
-const FX_ASOF     = '17 July 2026';
-const FX_SOURCE   = 'US Federal Reserve H.10 weekly release';
-const FX = 1 / SGD_PER_USD;                       // US$ per S$1 ≈ 0.7745
+/* SGD_PER_USD is injected at build time via define:vars — a single stated
+   constant, not a user input. The tax itself is assessed in US dollars, so
+   the rate only affects the S$ presentation; making the reader tune it would
+   imply a precision that does not exist. Sourcing and the fetch chain live
+   in src/utils/fxRate.ts; the visible rate line is server-rendered. */
+const FX = 1 / SGD_PER_USD;                       // US$ per S$1
 
 const $=id=>document.getElementById(id);
 /* Ids d-us, hk-tax and tbl live in the article body, not in this component —
@@ -272,8 +271,6 @@ function estateTax(us){ return Math.max(0, tentative(us)-CREDIT); }
 
 function update(){
   const exposedSgd = numOf($('us')), fx = FX;
-  $('fx-disp').textContent = 'S$1 = US$'+FX.toFixed(4);
-  $('fx-asof').textContent = 'rate as at '+FX_ASOF+' · '+FX_SOURCE;
   const exposedUsd = exposedSgd*fx;
   const taxUsd = estateTax(exposedUsd);
   const taxSgd = fx>0 ? taxUsd/fx : 0;
