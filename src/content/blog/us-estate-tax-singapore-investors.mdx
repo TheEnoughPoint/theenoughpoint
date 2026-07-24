@@ -1,0 +1,118 @@
+---
+title: "Your Family Will Have the Password. That Is Not the Same as Inheriting the Shares."
+cover: "/img/legal.jpg"
+date: "2026-07-24"
+category: "invest-better"
+tags:
+  - Investing
+  - Singapore
+  - EstatePlanning
+  - USShares
+readTime: 7
+authorId: "fi"
+excerpt: |
+  Singapore abolished estate duty in 2008, but US shares and US-domiciled funds above US$60,000 remain exposed to US estate tax of up to 40% — even in a Singapore brokerage account. An interactive look at how the rule works, and what changes it.
+---
+
+import EstateExposureTool from '@src/components/EstateExposureTool.astro';
+
+Singapore abolished estate duty in 2008, so this feels like someone else's problem. It is not. The American exemption stops at **US$60,000** — about S$77,000 of shares — and Singapore, unlike Australia, Japan or the UK, has no treaty to soften it.
+
+<EstateExposureTool />
+
+## But my broker is in Singapore. Does that not protect me?
+
+No — and this is the first thing almost everyone assumes, so it is worth settling before anything else. The exposure attaches to the **asset**, not to the account it sits in. Moving the same American shares between platforms changes the custodian and the login, not what you own. A Singapore-incorporated, MAS-regulated broker holding US shares on your behalf is a Singapore company holding US-situated assets. The assets are still American.
+
+<div class="ee-flow">
+  <div class="row">
+    <div class="box"><b>Your account</b>Singapore broker</div>
+    <div class="arr">→</div>
+    <div class="box"><b>What you own</b>Shares in a US-incorporated company</div>
+    <div class="arr">→</div>
+    <div class="v bad">US-situated · exposed</div>
+  </div>
+  <div class="row">
+    <div class="box"><b>Your account</b>Singapore broker</div>
+    <div class="arr">→</div>
+    <div class="box"><b>What you own</b>A fund domiciled outside the US, holding the same companies</div>
+    <div class="arr">→</div>
+    <div class="v ok">Not US-situated</div>
+  </div>
+</div>
+
+<p class="ee-quiet">Same broker in both rows. The account is not what the rule looks at.</p>
+
+> "Generally, no matter where stock certificates are physically located, stock of corporations organized in or under U.S. law is property located in the United States."
+>
+> — the Internal Revenue Service (IRS), the United States tax authority, in its own filing instructions
+
+<div class="ee-freeze">
+  <div class="n">Yes<span>and that is the trap</span></div>
+  <div>
+    <h4>"Then can my family just sell it and move the money out?"</h4>
+    <p class="story">Picture a father who put a modest sum into Nvidia years ago, long before anyone at his table had heard of the name, and simply held on. He was never wealthy. The holding is worth around S$250,000 today. It sits in a brokerage account and his face unlocks it. One night he dies in his sleep, peacefully, at home. The family knows about the shares. The login still works. Nothing appears to be wrong at all — until they try to put those shares in their own names.</p>
+    <p>Practically, they can often sell. An account does not lock itself, and the IRS does not reach into your brokerage. That is what most people quietly assume, and it is why this is worth understanding before you rely on it.</p>
+    <p>It does not make the bill disappear. The tax is assessed on the value at the <b>date of death</b>, so it crystallised before anyone logged in. And under US law a person who receives assets passing outside probate — which is what a brokerage account normally does — can be held <b>personally liable</b> for the unpaid estate tax, up to the value of what they received. Where such an asset is liquidated without the tax being paid, that liability falls on the recipient, and a lien can attach to their own property.</p>
+    <p>So the plan does not remove the problem. It moves it onto your family, personally, in a foreign jurisdiction, at the worst imaginable moment. Separately, once a broker is notified of a death it can ask for a <b>transfer certificate</b> before releasing anything — and the IRS states that takes <b>12 to 18 months</b>.</p>
+  </div>
+</div>
+
+## The same exposure, held two ways
+
+This is the part that surprises people. The underlying companies can be identical — the difference is a legal fact about the security you hold, not about the businesses inside it.
+
+<div class="ee-cards">
+  <div class="card exposed">
+    <h4>Held through US-domiciled securities</h4>
+    <div class="val num" id="d-us">—</div>
+    <p>Shares in US-incorporated companies, and funds domiciled in the United States, are US-situated property. Your estate may owe tax above the US$60,000 threshold.</p>
+  </div>
+  <div class="card clean">
+    <h4>Held through non-US-domiciled funds</h4>
+    <div class="val num" id="d-nonus">S$0</div>
+    <p>A fund domiciled outside the United States is not US-situated property, even when it holds the very same American companies. What you own is a share in a non-US entity.</p>
+  </div>
+</div>
+
+<div class="ee-note"><b>This is not a free lever.</b> Domicile also changes dividend withholding, fund running costs, what your platform carries, and whether the holding is eligible for SRS or CPF — which for many Singaporeans is the binding constraint, not the tax. Some of those differences will favour a change and some will not, and for a small exposed balance the estate question may be the least important of them. This tool prices one thing. It is not the whole decision, and it does not tell you what to buy.</div>
+
+## What changes your exposure
+
+Three mechanisms. None of them is a recommendation, and each carries trade-offs that this tool does not price.
+
+<div class="ee-mech"><b>Where the security is domiciled.</b> A fund is a company, and it is incorporated somewhere. That domicile is a legal fact stated in its documentation, and it determines the treatment — not the nationality of the companies the fund holds, and not where you bought it.</div>
+
+<div class="ee-mech"><b>What kind of asset it is.</b> The situs rules — where US law treats property as located — differentiate. US corporate stock is US-situated wherever it is held. US bank deposits, by contrast, are treated as located outside the United States where they are not connected with a US trade or business. "American" is not one category.</div>
+
+<div class="ee-mech"><b>How it is held.</b> Ownership structures can change the analysis. They also carry cost, complexity and consequences far beyond this one tax, which is why they belong in a conversation with a professional rather than in a calculator.</div>
+
+<div class="ee-handoff">
+  <h3>So what would it cost to hold this differently?</h3>
+  <p>Removing that <b class="num" id="hk-tax">—</b> exposure means holding the same companies through a fund domiciled outside the United States. But that also moves annual cost, dividend withholding, which platforms carry it, and whether it can sit in your SRS or CPF at all — some in your favour, some not. Worth seeing the whole picture rather than optimising for the scariest number on this page.</p>
+</div>
+
+## Why US$60,000, and why the rate climbs
+
+There is no separately legislated US$60,000 allowance. A non-resident estate gets a unified credit of **US$13,000** — and US$13,000 happens to be exactly the tax the schedule produces on US$60,000. The threshold is the arithmetic consequence of the credit meeting the rate table, which is why it has never moved with inflation.
+
+<table class="ee-rate">
+  <thead><tr><th>US-situated assets</th><th>Estate tax</th><th>Effective rate</th></tr></thead>
+  <tbody id="tbl"></tbody>
+</table>
+
+<p class="ee-quiet">Computed from the statutory rate schedule, less the US$13,000 credit. Assumes no deductions and no treaty relief. The row nearest your own holdings is highlighted.</p>
+
+<div class="ee-src">
+  <b>Sources — all primary, verified 18 July 2026.</b><br />
+  Filing threshold (US$60,000, not indexed), the US$13,000 unified credit, the nine-month filing deadline and the quoted situs rule: <a href="https://www.irs.gov/instructions/i706na">IRS, Instructions for Form 706-NA</a>. Rate schedule (Table A, 18% rising to a 40% top marginal rate): <a href="https://www.irs.gov/instructions/i706">IRS, Instructions for Form 706</a>. Treaty position: Singapore does not appear on the <a href="https://www.irs.gov/businesses/small-businesses-self-employed/estate-gift-tax-treaties-international">IRS list of estate and gift tax treaty countries</a>, so no treaty relief is available.<br /><br />
+  Transfer certificate and its 12-to-18-month processing time: <a href="https://www.irs.gov/businesses/small-businesses-self-employed/transfer-certificate-filing-requirements-for-the-estates-of-nonresidents-not-citizens-of-the-united-states">IRS, Transfer certificate filing requirements</a>. Personal liability of a recipient of non-probate assets under IRC §6324(a)(2), and the lien that can attach to their own property: <a href="https://www.irs.gov/irm/part5/irm_05-017-014">IRM 5.17.14</a> and <a href="https://www.irs.gov/irm/part8/irm_08-007-005">IRM 8.7.5</a>.<br /><br />
+  Exchange rate: <a href="https://www.federalreserve.gov/releases/h10/">US Federal Reserve, H.10 Foreign Exchange Rates</a>, release of 20 July 2026 — S$ figures use the rate for 17 July 2026.<br /><br />
+  <b>Deliberately not claimed:</b> we do not assert that a broker will or will not release assets without a transfer certificate — the IRS pages do not address a custodian's obligations. The treatment of <b>jointly held accounts</b>, and the duration of the §6324(a) lien, are likewise unverified and therefore not modelled.
+</div>
+
+<div class="ee-foot">
+  <b>Why this is worth an hour of your time.</b> Not because the tax is enormous — for many people the exposed balance is small and the answer is to do nothing. It is because the people who deal with it will be your family, in a foreign system, in the worst month of their lives, working from whatever you left them. Knowing the number now, and telling someone where the account is, costs you an evening. Finding out the way the family above did costs considerably more.<br /><br />
+  Any company named on this page is an illustrative example of a US-situated asset, used to explain the rule. It is not a recommendation to buy, hold or sell anything, and nothing here should be read as a view on that company.<br /><br />
+  General information and education only: this is not financial, tax or legal advice, and it takes no account of your objectives, situation or needs. It names no funds and recommends no products by design. Estate matters interact with wills, with assets in other countries, and with rules that change — this is an area where a qualified tax adviser or private client lawyer genuinely earns their fee, and a large exposed balance is a reason to have that conversation rather than defer it. Figures are computed from the sources above; verify the current position before relying on them.
+</div>
