@@ -1,0 +1,346 @@
+---
+// Interactive US estate-tax exposure calculator for the "your family will have
+// the password" article. Import into MDX and render <EstateExposureTool /> where
+// the calculator card should sit.
+//
+// This component also carries the styles and the script for the article's
+// companion blocks (.ee-flow, .ee-freeze, .ee-cards, .ee-note, .ee-mech,
+// .ee-handoff, .ee-rate, .ee-src, .ee-foot) so the MDX stays prose-first.
+// The script binds page-wide ids (d-us, hk-tax, tbl) that live in those blocks;
+// lookups are null-guarded so removing a block never breaks the calculator.
+//
+// The FX rate is resolved at build time by src/utils/fxRate.ts (MAS daily
+// series → Fed H.10 → stored constant); the site rebuilds on every push, so
+// the rate refreshes itself whenever anything ships.
+import { Font } from 'astro:assets';
+import { getSgdPerUsd } from '@src/utils/fxRate';
+
+const fx = await getSgdPerUsd();
+const usdPerSgd = (1 / fx.sgdPerUsd).toFixed(4);
+---
+
+<Font cssVariable="--font-mono" />
+
+<div class="ee-tool">
+  <div class="ee-head">
+    <span class="ee-lbl">Your exposure</span>
+    <span class="ee-lbl accent">Interactive</span>
+  </div>
+  <div class="ee-body">
+    <div class="f">
+      <div class="f-top">
+        <label for="us">How much do you hold in US shares and US-domiciled funds?</label>
+        <div class="f-val"><span class="pre">S$</span><input type="text" id="us" value="250,000" inputmode="numeric" /></div>
+      </div>
+      <!-- Default S$250,000: a plausible US holding for the mid-career reader this is
+           written for, NOT a maximal one. The pre-computed state is what most readers
+           see and never change, so it frames the whole argument — and the standfirst's
+           claim is that this catches ordinary holdings, so the default has to be one.
+           It yields ~S$51,000 of tax: unmistakably material, without being a
+           rich-person illustration that contradicts the copy above it.
+
+           The slider is EASED, not linear (see posToVal below). A linear track over a
+           range this wide wastes its resolution: the informative part of the curve is
+           the low end, where the threshold and the graduated brackets do surprising
+           things, while above ~US$1m the marginal rate is a flat 40% and the line goes
+           straight. Easing gives fine control under S$500k and still reaches S$5m. -->
+      <input type="range" id="us-r" min="0" max="1000" step="1" value="224" aria-label="US-situated holdings" />
+      <div class="f-hint">The one number that matters — read it straight off your statement. Only US-incorporated companies and US-domiciled funds count. Not sure which yours are? <a href="#what-changes-your-exposure">How to tell →</a></div>
+    </div>
+
+    <div class="fxline">
+      Converted at <b class="num">S$1 = US${usdPerSgd}</b> · rate as at {fx.asOf} · {fx.source}
+    </div>
+  </div>
+
+  <div class="out">
+    <div class="out-row">
+      <div>
+        <div class="out-l">The US tax authority could take</div>
+        <div class="out-v num" id="tax">—</div>
+      </div>
+      <div style="text-align:right">
+        <div class="out-l">Leaving your family</div>
+        <div class="out-v sm num" id="keep">—</div>
+      </div>
+    </div>
+    <div class="out-s" id="sub">—</div>
+    <div class="out-fine" id="fine">—</div>
+  </div>
+
+  <div class="split">
+    <div class="split-bar">
+      <div class="sp-keep" id="sp-keep"></div>
+      <div class="sp-tax" id="sp-tax"></div>
+    </div>
+    <div class="split-l">
+      <i><span class="ee-dot keep"></span>Reaches your family</i>
+      <i><span class="ee-dot tax"></span>Goes to the US tax authority</i>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+/* ── Estate-tool styling ─────────────────────────────────────────────────────
+   Shared tokens for the calculator card and the article's companion blocks.
+   Colors map to the brand tokens in src/styles/style.css. Semantic discipline:
+   green = retained/gain, red = lost/negative — the tax taken is a LOSS.
+   Rules that must beat the theme's .post-content element styles are prefixed
+   with .post-content for specificity; everything else is new-class-only.     */
+.ee-tool, .ee-flow, .ee-freeze, .ee-cards, .ee-note, .ee-mech, .ee-handoff,
+.ee-rate, .ee-src, .ee-foot, .ee-quiet{
+  --ee-bg2:#ffffff;
+  --ee-bg3:var(--color-surface);
+  --ee-bg4:var(--color-surface-alt);
+  --ee-bd:var(--color-border);
+  --ee-bd2:#D5CDBB;
+  --ee-t1:var(--color-dark);
+  --ee-t2:var(--color-body);
+  --ee-t3:var(--color-muted);
+  --ee-g:var(--color-brand-600);   --ee-g-text:var(--color-brand-700);
+  --ee-g-bg:rgba(14,90,63,0.07);   --ee-g-bg2:rgba(14,90,63,0.16);
+  --ee-r:#c0392b; --ee-r-text:#a93226;
+  --ee-r-bg:rgba(192,57,43,0.07);  --ee-r-bg2:rgba(192,57,43,0.14);
+  --ee-a-text:#7A5A1D;             --ee-a-bg:rgba(200,154,60,0.10);
+  --ee-deep:var(--color-navy);     --ee-on-deep:#8FA0B5;
+  --ee-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  --ee-shadow-sm:0 1px 2px rgba(0,0,0,0.04);
+  --ee-shadow-md:0 4px 6px rgba(0,0,0,0.05),0 2px 4px rgba(0,0,0,0.04);
+  --ee-radius:8px; --ee-radius-lg:12px;
+}
+.num{font-family:var(--ee-mono);font-variant-numeric:tabular-nums}
+.ee-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ee-t3)}
+.ee-lbl.accent{color:var(--ee-g-text)}
+
+/* calculator card */
+.ee-tool{background:var(--ee-bg2);border:1px solid var(--ee-bd);border-radius:var(--ee-radius-lg);box-shadow:var(--ee-shadow-md);overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--ee-t1)}
+.ee-head{padding:14px 22px;background:var(--ee-bg3);border-bottom:1px solid var(--ee-bd);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ee-body{padding:18px 22px 20px}
+.ee-tool .f{margin-bottom:0}
+.ee-tool .f-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:7px}
+.ee-tool .f-top label{font-size:14px;font-weight:500;color:var(--ee-t2)}
+.ee-tool .f-val{display:flex;align-items:baseline;font-family:var(--ee-mono);font-size:16px;font-weight:600}
+.ee-tool .f-val .pre{color:var(--ee-t3);margin-right:2px}
+.ee-tool .f-val input{font-family:var(--ee-mono);font-size:16px;font-weight:600;color:var(--ee-t1);background:none;border:none;border-bottom:1px dashed var(--ee-bd2);text-align:right;width:9.5ch;padding:0 0 1px}
+.ee-tool .f-val input:focus{outline:none;border-bottom:1px solid var(--ee-g);color:var(--ee-g-text);box-shadow:none}
+.ee-tool input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--ee-bg4);border-radius:999px;outline:none;cursor:pointer;padding:0;border:none}
+.ee-tool input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--ee-deep);border:2px solid var(--ee-bg2);box-shadow:var(--ee-shadow-sm);cursor:grab}
+.ee-tool input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--ee-deep);border:2px solid var(--ee-bg2)}
+.ee-tool .f-hint{font-size:12px;color:var(--ee-t3);margin-top:6px}
+.ee-tool .f-hint a{color:var(--ee-g-text)}
+.ee-tool .fxline{margin-top:16px;padding-top:12px;border-top:1px solid var(--ee-bd);font-size:12px;color:var(--ee-t3)}
+.ee-tool .fxline b{font-family:var(--ee-mono);color:var(--ee-t2);font-weight:600}
+
+/* result band — deep navy, the site's own dark surface */
+.ee-tool .out{background:var(--ee-deep);color:#fff;padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.ee-tool .out-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.ee-tool .out-l{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ee-on-deep)}
+/* Numbers are monospaced with tabular figures so digits do not jump while the
+   slider drags. Mono is wider per glyph, hence 38px. */
+.ee-tool .out-v{font-family:var(--ee-mono);font-variant-numeric:tabular-nums;font-size:38px;font-weight:600;line-height:1.05;letter-spacing:-1.5px;color:#fff}
+.ee-tool .out-v.sm{font-size:22px;letter-spacing:-0.8px}
+/* the plain-English line does the explaining, in sans so it reads as a sentence;
+   the USD detail is demoted to fine print because the reader thinks in SGD */
+.ee-tool .out-s{font-size:14px;line-height:1.55;color:#D8DEE8;width:100%}
+.ee-tool .out-s b{font-family:var(--ee-mono);font-weight:600;color:#fff}
+.ee-tool .out-fine{font-family:var(--ee-mono);font-size:11px;color:var(--ee-on-deep);width:100%;margin-top:-4px}
+
+/* split bar: what reaches heirs vs what does not */
+.ee-tool .split{padding:16px 22px;background:var(--ee-bg3);border-top:1px solid var(--ee-bd)}
+.ee-tool .split-bar{display:flex;height:26px;border-radius:var(--ee-radius);overflow:hidden;background:var(--ee-bg4);font-size:11px;font-weight:600}
+.ee-tool .split-bar>div{display:grid;place-items:center;color:#fff;white-space:nowrap;transition:width .25s ease;overflow:hidden}
+.ee-tool .sp-keep{background:var(--ee-g)}
+.ee-tool .sp-tax{background:var(--ee-r)}
+.ee-tool .split-l{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;font-size:12px;color:var(--ee-t3)}
+.ee-tool .split-l i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
+.ee-dot{width:9px;height:9px;border-radius:2px;flex:none;position:static;animation:none;opacity:1}
+.ee-dot.keep{background:var(--ee-g)}
+.ee-dot.tax{background:var(--ee-r)}
+
+/* mechanism diagram — HTML/CSS rather than SVG, so text never rescales inside
+   a viewBox and it reflows on a phone */
+.ee-flow{margin:18px 0 6px}
+.ee-flow .row{display:grid;grid-template-columns:1fr auto 1.2fr auto auto;gap:10px;align-items:center;padding:14px 0;border-bottom:1px solid var(--ee-bd)}
+.ee-flow .row:last-child{border-bottom:none}
+.ee-flow .box{background:var(--ee-bg3);border:1px solid var(--ee-bd);border-radius:var(--ee-radius);padding:9px 12px;font-size:13px;line-height:1.35;color:var(--ee-t2)}
+.ee-flow .box b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--ee-t3);font-weight:700;margin-bottom:2px}
+.ee-flow .arr{color:var(--ee-t3);font-size:15px}
+.ee-flow .v{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding:5px 11px;border-radius:999px;white-space:nowrap;border:1px solid}
+.ee-flow .v.bad{background:var(--ee-r-bg);color:var(--ee-r-text);border-color:var(--ee-r-bg2)}
+.ee-flow .v.ok{background:var(--ee-g-bg);color:var(--ee-g-text);border-color:var(--ee-g-bg2)}
+
+.post-content .ee-quiet{font-size:13px;color:var(--ee-t3);margin-top:4px}
+
+/* the fact that reframes the whole question */
+.ee-freeze{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;background:var(--ee-r-bg);border:1px solid var(--ee-r-bg2);border-radius:var(--ee-radius-lg);padding:18px 20px;margin:22px 0}
+.ee-freeze .n{font-family:var(--font-heading);font-size:30px;font-weight:700;line-height:0.95;color:var(--ee-r-text);white-space:nowrap;text-align:center}
+.ee-freeze .n span{display:block;font-family:var(--font-body);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+.post-content .ee-freeze h4{font-size:18px;font-weight:600;color:var(--ee-t1);letter-spacing:0;margin:0 0 7px}
+.post-content .ee-freeze p{font-size:14px;color:var(--ee-t2);line-height:1.6;margin:0 0 9px}
+.post-content .ee-freeze .story{font-size:15px;color:var(--ee-t1);line-height:1.65;border-left:2px solid var(--ee-r-bg2);padding-left:14px;margin-bottom:12px}
+.post-content .ee-freeze p:last-child{margin-bottom:0}
+.ee-freeze b{color:var(--ee-t1);font-weight:600}
+
+/* domicile comparison */
+.ee-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 16px}
+.ee-cards .card{border:1px solid var(--ee-bd);border-radius:var(--ee-radius);padding:15px 16px;background:var(--ee-bg2)}
+.ee-cards .card.exposed{border-color:rgba(192,57,43,0.35);background:var(--ee-r-bg)}
+.ee-cards .card.clean{border-color:var(--ee-g-bg2);background:var(--ee-g-bg)}
+.post-content .ee-cards h4{font-size:14px;font-weight:600;color:var(--ee-t1);letter-spacing:0;margin:0 0 4px}
+.ee-cards .val{font-family:var(--ee-mono);font-size:22px;font-weight:600;letter-spacing:-0.5px;margin:6px 0 4px}
+.ee-cards .card.exposed .val{color:var(--ee-r-text)}
+.ee-cards .card.clean .val{color:var(--ee-g-text)}
+.post-content .ee-cards p{font-size:12px;color:var(--ee-t2);line-height:1.5;margin:0}
+
+/* amber caution note */
+.ee-note{background:var(--ee-a-bg);border:1px solid rgba(156,117,38,0.25);border-radius:var(--ee-radius);padding:14px 16px;font-size:14px;line-height:1.6;margin:16px 0;color:var(--ee-t2)}
+.ee-note b{color:var(--ee-a-text)}
+
+/* mechanism list items */
+.ee-mech{border-left:3px solid var(--ee-bd2);padding:2px 0 2px 16px;margin:14px 0;font-size:15px;color:var(--ee-t2);line-height:1.6}
+.ee-mech b{font-weight:600;color:var(--ee-t1)}
+
+/* handoff */
+.ee-handoff{background:var(--ee-g-bg);border:1px solid var(--ee-g-bg2);border-radius:var(--ee-radius-lg);padding:20px 22px;margin:26px 0}
+.post-content .ee-handoff h3{margin:0 0 7px}
+.post-content .ee-handoff p{font-size:14px;color:var(--ee-t2);line-height:1.6;margin:0}
+
+/* rate table refinements on top of the theme's .post-content table styling */
+.post-content .ee-rate th:not(:first-child),
+.post-content .ee-rate td:not(:first-child){text-align:right}
+.post-content .ee-rate td:not(:first-child){font-family:var(--ee-mono);font-variant-numeric:tabular-nums}
+.post-content table.ee-rate tbody tr.hl td{background:var(--color-brand-100);font-weight:600;color:var(--ee-t1)}
+
+/* sources + fine print */
+.post-content .ee-src{font-size:13px;color:var(--ee-t3);line-height:1.7;border-top:1px solid var(--ee-bd);padding-top:18px;margin-top:34px}
+.post-content .ee-foot{padding:20px 0 0;font-size:12px;color:var(--ee-t3);line-height:1.65}
+.ee-src b,.ee-foot b{color:var(--ee-t2)}
+
+@media(max-width:720px){
+  .ee-flow .row{grid-template-columns:1fr;gap:7px;text-align:left}
+  .ee-flow .arr{display:none}
+  .ee-flow .v{justify-self:start}
+}
+@media(max-width:700px){
+  .ee-cards{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .ee-tool .out-v{font-size:31px}
+  .ee-tool .out-v.sm{font-size:19px}
+  .ee-freeze{grid-template-columns:1fr;gap:10px}
+}
+@media(pointer:coarse){
+  .ee-tool input[type=range]{height:6px;padding:14px 0;background-clip:content-box}
+}
+@media(prefers-reduced-motion:reduce){
+  .ee-tool *{transition:none!important}
+}
+</style>
+
+<script is:inline define:vars={{ SGD_PER_USD: fx.sgdPerUsd }}>
+/* IRC Chapter 11 Table A — Unified Rate Schedule.
+   Verified against IRS Instructions for Form 706 (rev. 09/2025) on 2026-07-18.
+   [over, notOver, taxOnColumnA, rateOnExcess] */
+(function(){
+const BRACKETS=[[0,10000,0,.18],[10000,20000,1800,.20],[20000,40000,3800,.22],
+[40000,60000,8200,.24],[60000,80000,13000,.26],[80000,100000,18200,.28],
+[100000,150000,23800,.30],[150000,250000,38800,.32],[250000,500000,70800,.34],
+[500000,750000,155800,.37],[750000,1000000,248300,.39],[1000000,null,345800,.40]];
+const CREDIT=13000;   // Form 706-NA: maximum unified credit for a non-resident non-citizen
+
+/* SGD_PER_USD is injected at build time via define:vars — a single stated
+   constant, not a user input. The tax itself is assessed in US dollars, so
+   the rate only affects the S$ presentation; making the reader tune it would
+   imply a precision that does not exist. Sourcing and the fetch chain live
+   in src/utils/fxRate.ts; the visible rate line is server-rendered. */
+const FX = 1 / SGD_PER_USD;                       // US$ per S$1
+
+const $=id=>document.getElementById(id);
+/* Ids d-us, hk-tax and tbl live in the article body, not in this component —
+   guard them so the calculator still works if a block is edited out. */
+const setText=(id,v)=>{const el=$(id); if(el) el.textContent=v};
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+function numOf(el){const n=parseFloat(String(el.value).replace(/[^\d.]/g,''));return isFinite(n)?n:0}
+
+function tentative(a){
+  for(const [lo,hi,base,rate] of BRACKETS){ if(hi===null||a<=hi) return base+rate*(a-lo); }
+  return 0;
+}
+/* Tax floors at zero — the credit fully shelters anything at or below US$60,000. */
+function estateTax(us){ return Math.max(0, tentative(us)-CREDIT); }
+
+function update(){
+  const exposedSgd = numOf($('us')), fx = FX;
+  const exposedUsd = exposedSgd*fx;
+  const taxUsd = estateTax(exposedUsd);
+  const taxSgd = fx>0 ? taxUsd/fx : 0;
+
+  $('tax').textContent = 'S$'+fmt(taxSgd);
+  $('keep').textContent = 'S$'+fmt(exposedSgd-taxSgd);
+  setText('d-us','S$'+fmt(taxSgd));
+  setText('hk-tax', taxSgd>0 ? 'S$'+fmt(taxSgd) : 'estate-tax');
+  const effOnExposed = exposedSgd>0 ? taxUsd/exposedUsd*100 : 0;
+  if (exposedSgd<=0){
+    $('sub').textContent = 'Nothing held in US-situated assets — nothing to compute.';
+    $('fine').textContent = '';
+  } else if (taxUsd<=0){
+    $('sub').innerHTML = 'You are under the US$60,000 threshold, so nothing is owed. The '
+      + 'US$13,000 credit covers a holding this size entirely.';
+    $('fine').textContent = 'You hold US$'+fmt(exposedUsd)+' of US-situated assets.';
+  } else {
+    // one plain sentence carrying all three figures in relation to each other
+    $('sub').innerHTML = 'That is <b>'+effOnExposed.toFixed(0)+'%</b> of the <b>S$'+fmt(exposedSgd)
+      + '</b> you hold in US shares — settled before your family receives anything.';
+    $('fine').textContent = 'Assessed in US dollars: US$'+fmt(taxUsd)+' on US$'+fmt(exposedUsd)+'.';
+  }
+
+  // split bar — proportion of the EXPOSED holdings
+  const taxPct = exposedSgd>0 ? Math.min(taxSgd/exposedSgd*100,100) : 0;
+  $('sp-keep').style.width=(100-taxPct)+'%';
+  $('sp-tax').style.width=taxPct+'%';
+  $('sp-keep').textContent = taxPct<88 ? (100-taxPct).toFixed(0)+'%' : '';
+  $('sp-tax').textContent  = taxPct>7 ? taxPct.toFixed(0)+'%' : '';
+
+  // reference table in the article body, with the reader's own band highlighted
+  const tbl = $('tbl');
+  if (tbl){
+    const rows=[60000,100000,250000,500000,1000000,1500000,2000000,3000000];
+    let near=null, best=Infinity;
+    for(const r of rows){ const d=Math.abs(r-exposedUsd); if(d<best){best=d;near=r} }
+    tbl.innerHTML = rows.map(r=>{
+      const t=estateTax(r);
+      return '<tr'+(r===near&&exposedUsd>0?' class="hl"':'')+'><td>US$'+fmt(r)+'</td><td>US$'+fmt(t)+'</td><td>'+(t/r*100).toFixed(1)+'%</td></tr>';
+    }).join('');
+  }
+}
+
+/* Two-way binding, house numeral rules: grouped >= 1,000, so text inputs not number. */
+/* ---------------------------------------------------------------
+   Eased slider. The track carries positions 0..1000; value = SLIDER_MAX *
+   (pos/1000)^2. Squaring puts roughly a quarter of the track under S$300,000,
+   which is where the answer is least obvious, while still reaching S$5m at the
+   far end. Typing is unbounded — anything larger computes correctly and simply
+   pins the thumb, so the cap constrains the drag, never the arithmetic.
+   Rounding is adaptive so dragging yields readable figures, not S$247,830.
+   --------------------------------------------------------------- */
+const SLIDER_MAX = 5000000, CURVE = 2;
+function roundNice(v){
+  const step = v < 100000 ? 1000 : v < 1000000 ? 5000 : 25000;
+  return Math.round(v/step)*step;
+}
+const posToVal = p => roundNice(SLIDER_MAX * Math.pow(p/1000, CURVE));
+const valToPos = v => Math.round(1000 * Math.pow(Math.min(v, SLIDER_MAX)/SLIDER_MAX, 1/CURVE));
+
+function init(){
+  const t = $('us'), r = $('us-r');
+  r.addEventListener('input', () => { t.value = fmt(posToVal(+r.value)); update(); });
+  t.addEventListener('input', () => { r.value = valToPos(numOf(t)); update(); });
+  t.addEventListener('blur',  () => { t.value = fmt(numOf(t)); update(); });
+  update();   // pre-computed on first paint
+}
+/* This script renders mid-article, before the rate table and domicile cards
+   exist in the DOM — wait for the full parse. */
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+})();
+</script>
