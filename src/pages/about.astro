@@ -1,11 +1,11 @@
 ---
 import MainLayout from '@src/layouts/MainLayout.astro';
 import AboutHero from '@src/components/AboutHero.astro';
+import AboutMission from '@src/components/AboutMission.astro';
 import AboutValues from '@src/components/AboutValues.astro';
 import AboutTimeline from '@src/components/AboutTimeline.astro';
 import AboutGallery from '@src/components/AboutGallery.astro';
-import CategoryWidget from '@src/components/CategoryWidget.astro';
-import FeaturedPostWidget from '@src/components/FeaturedPostWidget.astro';
+import RightSidebar from '@src/components/RightSidebar.astro';
 import TagsWidget from '@src/components/TagsWidget.astro';
 import { defaultAboutData } from '@src/data/aboutData';
 
@@ -21,16 +21,16 @@ const about = defaultAboutData;
       <!-- Main content -->
       <div class="max-lg:mb-12 lg:col-span-2">
         <AboutHero about={about} />
+        <AboutMission mission={about.mission} />
         <AboutValues values={about.values} />
         <AboutTimeline timeline={about.timeline} />
-        <AboutGallery gallery={about.gallery} />
+        {about.gallery.length > 0 && <AboutGallery gallery={about.gallery} />}
       </div>
 
       <!-- Sidebar -->
       <aside class="lg:col-span-1 lg:ps-6">
         <div class="flex flex-col gap-4 lg:gap-6 sticky top-24">
-          <CategoryWidget />
-          <FeaturedPostWidget />
+          <RightSidebar />
           <TagsWidget />
         </div>
       </aside>

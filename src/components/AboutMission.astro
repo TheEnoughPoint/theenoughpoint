@@ -1,0 +1,23 @@
+---
+import type { AboutMission } from '@src/data/aboutData';
+
+interface Props {
+  mission: AboutMission;
+}
+
+const { mission } = Astro.props;
+---
+
+<div class="py-8 border-b border-cream-dark">
+  <h2 class="text-xl font-heading font-bold text-navy mb-6">{mission.title}</h2>
+
+  <div class="flex flex-col gap-4 text-body leading-relaxed">
+    {mission.paragraphs.map((para) => <p>{para}</p>)}
+  </div>
+
+  <blockquote class="my-6 px-6 py-5 bg-cream border-l-4 border-gold rounded-r-lg">
+    <p class="text-navy text-lg font-heading font-semibold italic leading-snug">{mission.question}</p>
+  </blockquote>
+
+  <p class="text-body leading-relaxed">{mission.closing}</p>
+</div>
