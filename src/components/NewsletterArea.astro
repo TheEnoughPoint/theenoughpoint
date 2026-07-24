@@ -7,7 +7,6 @@ interface Props {
   subtitle?: string;
   placeholder?: string;
   buttonLabel?: string;
-  action?: string;
 }
 
 const {
@@ -16,33 +15,11 @@ const {
   subtitle    = 'Breaking news, in-depth analysis, and expert opinions.',
   placeholder = 'Enter your email address',
   buttonLabel = 'Subscribe',
-  action      = '#',
 } = Astro.props;
 ---
 
 <div
-  x-data="{
-    email:  '',
-    error:  '',
-    status: 'idle',
-
-    validate() {
-      this.error = '';
-      if (!this.email.trim()) this.error = 'Email is required.';
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email))
-        this.error = 'Please enter a valid email.';
-      return !this.error;
-    },
-
-    async submit() {
-      if (!this.validate()) return;
-      this.status = 'sending';
-      // Simulated async submit — replace with a real fetch() call to your endpoint
-      await new Promise(r => setTimeout(r, 1000));
-      this.status = 'sent';
-      this.email = '';
-    },
-  }"
+  x-data="newsletterAreaForm()"
   class="flex flex-col md:flex-row md:items-center md:justify-between gap-5 bg-surface-alt border border-cream-dark rounded-lg p-6 mb-12"
 >
   <div class="flex items-center gap-4">
@@ -60,18 +37,24 @@ const {
     x-show="status === 'sent'"
     x-transition.duration.300ms
     x-cloak
-    class="w-full md:w-auto text-sm text-brand-600 font-medium">
-    ✓ Thanks for subscribing! Please check your inbox.
+    class="w-full md:w-auto text-sm text-brand-600 font-medium"
+    x-text="message || 'Thanks for subscribing! Please check your inbox.'">
   </div>
 
   <!-- Form -->
   <form
     x-show="status !== 'sent'"
     @submit.prevent="submit()"
-    method="post"
-    action={action}
     class="flex flex-col sm:flex-row gap-3 w-full md:w-auto"
   >
+    <input
+      x-model="firstName"
+      type="text"
+      name="firstName"
+      placeholder="First name"
+      aria-label="First name"
+      class="w-full sm:w-36 px-4 py-2.5 rounded-md border border-cream-dark text-sm bg-white text-navy placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+    />
     <div class="flex flex-col gap-1 w-full sm:w-72">
       <input
         x-model="email"
@@ -94,3 +77,40 @@ const {
     </button>
   </form>
 </div>
+
+<script>
+  import Alpine from 'alpinejs';
+  import { subscribeToMailchimp } from '@src/utils/mailchimp';
+
+  Alpine.data('newsletterAreaForm', () => ({
+    firstName: '',
+    email:     '',
+    error:     '',
+    message:   '',
+    status:    'idle',
+
+    validate() {
+      this.error = '';
+      if (!this.firstName.trim()) this.error = 'First name is required.';
+      else if (!this.email.trim()) this.error = 'Email is required.';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email))
+        this.error = 'Please enter a valid email.';
+      return !this.error;
+    },
+
+    async submit() {
+      if (!this.validate()) return;
+      this.status = 'sending';
+      const result = await subscribeToMailchimp(this.email, this.firstName);
+      if (result.success) {
+        this.status    = 'sent';
+        this.message   = result.message;
+        this.email     = '';
+        this.firstName = '';
+      } else {
+        this.status = 'idle';
+        this.error  = result.message || 'Something went wrong. Please try again.';
+      }
+    },
+  }));
+</script>

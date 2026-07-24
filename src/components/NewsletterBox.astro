@@ -6,40 +6,18 @@ interface Props {
   title?: string;
   subtitle?: string;
   buttonLabel?: string;
-  action?: string;
 }
 
 const {
   title       = 'Join 18,000+ readers',
   subtitle    = 'Get weekly insights on investing, money, and living intentionally in Singapore.',
   buttonLabel = 'Subscribe',
-  action      = '#',
 } = Astro.props;
 ---
 
 <div
   id="newsletter"
-  x-data="{
-    email:  '',
-    error:  '',
-    status: 'idle',
-
-    validate() {
-      this.error = '';
-      if (!this.email.trim()) this.error = 'Email is required.';
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email))
-        this.error = 'Please enter a valid email.';
-      return !this.error;
-    },
-
-    async submit() {
-      if (!this.validate()) return;
-      this.status = 'sending';
-      await new Promise(r => setTimeout(r, 800));
-      this.status = 'sent';
-      this.email = '';
-    },
-  }"
+  x-data="newsletterForm()"
   class="bg-surface-alt border border-cream-dark rounded-lg p-5 scroll-mt-24"
 >
   <div class="flex items-center gap-2 mb-2">
@@ -54,11 +32,18 @@ const {
     x-transition.duration.300ms
     x-cloak
     class="text-brand-700 text-sm font-medium"
-  >
-    ✓ Thanks for subscribing! Please check your inbox.
-  </div>
+    x-text="message || 'Thanks for subscribing! Please check your inbox.'"
+  ></div>
 
-  <form x-show="status !== 'sent'" @submit.prevent="submit()" method="post" action={action} class="flex flex-col gap-2">
+  <form x-show="status !== 'sent'" @submit.prevent="submit()" class="flex flex-col gap-2">
+    <input
+      x-model="firstName"
+      type="text"
+      name="firstName"
+      placeholder="First name"
+      aria-label="First name"
+      class="w-full px-3 py-2 rounded-md border border-cream-dark text-sm bg-white text-navy placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+    />
     <input
       x-model="email"
       :class="error ? 'border-red-300 focus:ring-red-400' : 'border-cream-dark focus:ring-brand-500'"
@@ -79,3 +64,40 @@ const {
     </button>
   </form>
 </div>
+
+<script>
+  import Alpine from 'alpinejs';
+  import { subscribeToMailchimp } from '@src/utils/mailchimp';
+
+  Alpine.data('newsletterForm', () => ({
+    firstName: '',
+    email:     '',
+    error:     '',
+    message:   '',
+    status:    'idle',
+
+    validate() {
+      this.error = '';
+      if (!this.firstName.trim()) this.error = 'First name is required.';
+      else if (!this.email.trim()) this.error = 'Email is required.';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email))
+        this.error = 'Please enter a valid email.';
+      return !this.error;
+    },
+
+    async submit() {
+      if (!this.validate()) return;
+      this.status = 'sending';
+      const result = await subscribeToMailchimp(this.email, this.firstName);
+      if (result.success) {
+        this.status    = 'sent';
+        this.message   = result.message;
+        this.email     = '';
+        this.firstName = '';
+      } else {
+        this.status = 'idle';
+        this.error  = result.message || 'Something went wrong. Please try again.';
+      }
+    },
+  }));
+</script>
