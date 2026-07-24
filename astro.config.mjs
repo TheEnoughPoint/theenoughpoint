@@ -2,7 +2,6 @@ import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 import mdx from '@astrojs/mdx';
-import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   site: 'https://theenoughpoint.com',
@@ -96,6 +95,15 @@ export default defineConfig({
       name: 'Inter',
       cssVariable: '--font-body',
       weights: ['400', '500', '600', '700'],
+    },
+    {
+      // Loaded only on pages that render <Font cssVariable="--font-mono" />
+      // (currently the estate-tax tool) — figures are monospaced so digits
+      // do not jump while sliders drag.
+      provider: fontProviders.google(),
+      name: 'JetBrains Mono',
+      cssVariable: '--font-mono',
+      weights: ['400', '600'],
     },
   ],
 });
