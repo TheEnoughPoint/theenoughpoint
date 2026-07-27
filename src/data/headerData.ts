@@ -32,7 +32,11 @@ export const defaultHeaderData: HeaderData = {
     width: 120,
   },
 
-  navMenu: pillars.map((p) => ({ label: p.navLabel, href: `/${p.id}` })),
+  navMenu: pillars.map((p) =>
+    p.children.length > 0
+      ? { label: p.navLabel, children: p.children.map((c) => ({ label: c.label, href: `/${c.id}` })) }
+      : { label: p.navLabel, href: `/${p.id}` }
+  ),
 
   copyright: 'Copyright 2026 TheEnoughPoint.com',
 };

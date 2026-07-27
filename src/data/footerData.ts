@@ -71,7 +71,11 @@ export const defaultFooterData: FooterData = {
   menus: [
     {
       title: 'Explore',
-      links: pillars.map((p) => ({ label: p.navLabel, href: `/${p.id}` })),
+      links: pillars.flatMap((p) =>
+        p.children.length > 0
+          ? p.children.map((c) => ({ label: c.label, href: `/${c.id}` }))
+          : [{ label: p.navLabel, href: `/${p.id}` }]
+      ),
     },
     {
       title: 'Resources',
