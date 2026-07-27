@@ -80,3 +80,6 @@ Use anonymous author identities:
 - Do not hardcode repeated article lists if they can be driven from frontmatter or data files.
 - Keep styling centralised in Tailwind/CSS variables.
 - Make all changes through branches and pull requests unless asked otherwise.
+- Automated deployment may not work, use the following 2 lines manually
+-  npm run build
+-  npx wrangler pages deploy dist --project-name=theenoughpoint --branch=main
