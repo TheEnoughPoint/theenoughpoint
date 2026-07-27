@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import CategoryListLayout from '@src/layouts/CategoryListLayout.astro';
+import { leafCategories } from '@src/data/pillarsData';
 
 export async function getStaticPaths() {
   const PER_PAGE = 8;
@@ -24,11 +25,13 @@ export async function getStaticPaths() {
       currentPage:  number;
       categoryName: string;
       categorySlug: string;
+      description?: string;
     };
   }[] = [];
 
   for (const [slug, posts] of categoryMap.entries()) {
     const totalPages = Math.ceil(posts.length / PER_PAGE);
+    const known = leafCategories.find((c) => c.id === slug);
 
     for (let page = 2; page <= totalPages; page++) {
       const start = (page - 1) * PER_PAGE;
@@ -38,8 +41,9 @@ export async function getStaticPaths() {
           pagePosts:    posts.slice(start, start + PER_PAGE),
           totalPages,
           currentPage:  page,
-          categoryName: posts[0].data.category,
+          categoryName: known?.label ?? posts[0].data.category,
           categorySlug: slug,
+          description:  known?.description,
         },
       });
     }
@@ -54,9 +58,10 @@ interface Props {
   currentPage:  number;
   categoryName: string;
   categorySlug: string;
+  description?: string;
 }
 
-const { pagePosts, totalPages, currentPage, categoryName, categorySlug } = Astro.props;
+const { pagePosts, totalPages, currentPage, categoryName, categorySlug, description } = Astro.props;
 ---
 
 <CategoryListLayout
@@ -65,4 +70,5 @@ const { pagePosts, totalPages, currentPage, categoryName, categorySlug } = Astro
   totalPages={totalPages}
   categoryName={categoryName}
   categorySlug={categorySlug}
+  description={description}
 />

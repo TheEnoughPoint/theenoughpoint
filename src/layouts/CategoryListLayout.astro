@@ -35,7 +35,7 @@ const pageDescription = currentPage === 1
   ? description
   : `${categoryName} — page ${currentPage} of ${totalPages}.`;
 
-const basePath = `/category/${categorySlug}`;
+const basePath = `/${categorySlug}`;
 ---
 
 <MainLayout title={pageTitle} description={pageDescription}>

@@ -43,22 +43,33 @@ function isChildActive(href: string): boolean {
 
         if (hasChildren) {
           return (
-            <li x-data="{ dropdown: false }" class="relative lg:[&_>button]:hover:bg-brand-100">
-              <button
-                @click="dropdown = !dropdown"
+            <li x-data="{ dropdown: false }" class="relative">
+              <div
                 :class="dropdown ? 'bg-brand-100' : ''"
                 class:list={[
-                  'capitalize w-full py-2 px-4 rounded-sm flex max-lg:justify-between gap-2 hover:text-brand-600 hover:bg-brand-100',
+                  'flex items-center rounded-sm hover:bg-brand-100 transition-colors',
                   active ? 'text-brand-600 bg-brand-100' : '',
                 ]}
               >
-                {item.label}
-                <Icon
-                  name="bi:chevron-down"
-                  class="size-4 self-center transition duration-400"
-                  :class="dropdown ? '-rotate-180' : ''"
-                />
-              </button>
+                <a
+                  href={url(item.href!)}
+                  @click="navtoggle = false"
+                  class="capitalize py-2 ps-4 pe-1 hover:text-brand-600"
+                >
+                  {item.label}
+                </a>
+                <button
+                  @click="dropdown = !dropdown"
+                  aria-label={`Toggle ${item.label} submenu`}
+                  class="py-2 ps-1 pe-4 hover:text-brand-600"
+                >
+                  <Icon
+                    name="bi:chevron-down"
+                    class="size-4 self-center transition duration-400"
+                    :class="dropdown ? '-rotate-180' : ''"
+                  />
+                </button>
+              </div>
 
               <ul
                 style="display:none"
@@ -118,22 +129,33 @@ function isChildActive(href: string): boolean {
 
         if (hasChildren) {
           return (
-            <li x-data="{ dropdown: false }" class="relative lg:[&_>button]:hover:bg-brand-100">
-              <button
-                @click="dropdown = !dropdown"
+            <li x-data="{ dropdown: false }" class="relative">
+              <div
                 :class="dropdown ? 'bg-brand-100' : ''"
                 class:list={[
-                  'capitalize w-full py-2 px-4 rounded-sm flex max-lg:justify-between gap-2 hover:text-brand-600 hover:bg-brand-100',
+                  'flex items-center justify-between rounded-sm hover:bg-brand-100 transition-colors',
                   active ? 'text-brand-600 bg-brand-100' : '',
                 ]}
               >
-                {item.label}
-                <Icon
-                  name="bi:chevron-down"
-                  class="size-4 self-center transition duration-400"
-                  :class="dropdown ? '-rotate-180' : ''"
-                />
-              </button>
+                <a
+                  href={url(item.href!)}
+                  @click="navtoggle = false"
+                  class="capitalize w-full py-2 ps-4 pe-1 hover:text-brand-600"
+                >
+                  {item.label}
+                </a>
+                <button
+                  @click="dropdown = !dropdown"
+                  aria-label={`Toggle ${item.label} submenu`}
+                  class="py-2 ps-1 pe-4 hover:text-brand-600"
+                >
+                  <Icon
+                    name="bi:chevron-down"
+                    class="size-4 self-center transition duration-400"
+                    :class="dropdown ? '-rotate-180' : ''"
+                  />
+                </button>
+              </div>
 
               <ul
                 style="display:none"

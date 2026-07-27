@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import CategoryListLayout from '@src/layouts/CategoryListLayout.astro';
+import { leafCategories } from '@src/data/pillarsData';
 
 export async function getStaticPaths() {
   const PER_PAGE = 8;
@@ -17,15 +18,23 @@ export async function getStaticPaths() {
     categoryMap.get(slug)!.push(post);
   }
 
+  // Every pillar sub-category gets a real page even with zero posts yet,
+  // rather than 404ing until the first article is published under it.
+  for (const cat of leafCategories) {
+    if (!categoryMap.has(cat.id)) categoryMap.set(cat.id, []);
+  }
+
   return [...categoryMap.entries()].map(([slug, posts]) => {
     const totalPages = Math.ceil(posts.length / PER_PAGE);
+    const known = leafCategories.find((c) => c.id === slug);
     return {
       params: { category: slug },
       props: {
         pagePosts:    posts.slice(0, PER_PAGE),
         totalPages,
-        categoryName: posts[0].data.category,
+        categoryName: known?.label ?? posts[0]?.data.category ?? slug,
         categorySlug: slug,
+        description:  known?.description,
       },
     };
   });
@@ -36,9 +45,10 @@ interface Props {
   totalPages:   number;
   categoryName: string;
   categorySlug: string;
+  description?: string;
 }
 
-const { pagePosts, totalPages, categoryName, categorySlug } = Astro.props;
+const { pagePosts, totalPages, categoryName, categorySlug, description } = Astro.props;
 ---
 
 <CategoryListLayout
@@ -47,4 +57,5 @@ const { pagePosts, totalPages, categoryName, categorySlug } = Astro.props;
   totalPages={totalPages}
   categoryName={categoryName}
   categorySlug={categorySlug}
+  description={description}
 />
