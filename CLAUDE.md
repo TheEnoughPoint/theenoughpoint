@@ -80,6 +80,14 @@ Use anonymous author identities:
 - Do not hardcode repeated article lists if they can be driven from frontmatter or data files.
 - Keep styling centralised in Tailwind/CSS variables.
 - Make all changes through branches and pull requests unless asked otherwise.
-- Automated deployment may not work, use the following 2 lines manually
--  npm run build
--  npx wrangler pages deploy dist --project-name=theenoughpoint --branch=main
+- Deployment is automatic: merging a PR into `main` triggers GitHub Actions,
+  which builds and deploys to Cloudflare Pages via `cloudflare/wrangler-action`
+  (see `.github/workflows/deploy.yml`), authenticated with the
+  `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` repo secrets. No manual step
+  needed for normal publishing. Cloudflare's own "Automatic deployments" is
+  paused on the project to avoid two systems deploying the same push.
+- Emergency fallback only, if the Actions deploy ever fails: run these two
+  lines locally from an up-to-date `main` (needs `wrangler login` or a
+  `CLOUDFLARE_API_TOKEN` env var with Cloudflare Pages: Edit permission):
+  - `npm run build`
+  - `npx wrangler pages deploy dist --project-name=theenoughpoint --branch=main`
