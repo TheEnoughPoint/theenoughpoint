@@ -56,7 +56,7 @@ import { pillars } from './pillarsData';
 
 export const defaultFooterData: FooterData = {
   about: {
-    logoSrc:     '/img/logo.png',
+    logoSrc:     '/img/brand/logo-icon-96.png',
     logoAlt:     'TheEnoughPoint.com',
     description: 'Practical personal finance and lifestyle insights to help Singaporeans reach their own enough point.',
     socials: [

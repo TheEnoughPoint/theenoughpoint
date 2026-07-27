@@ -27,7 +27,7 @@ import { pillars } from './pillarsData';
 
 export const defaultHeaderData: HeaderData = {
   logo: {
-    src:   '/img/logo.png',
+    src:   '/img/brand/logo-icon-96.png',
     alt:   'TheEnoughPoint.com',
     width: 120,
   },
