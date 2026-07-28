@@ -22,22 +22,24 @@ const rates = { BSD_BANDS, SSD_BANDS, ABSD, CPF_OA_RATE };
   <div class="rs-body">
     <div class="rs-grid">
       <div class="rs-col">
-        <p class="rs-legend">The property you would sell</p>
+        <p class="rs-legend">The home you would sell</p>
 
         <label class="rs-f">
-          <span>Expected sale price</span>
+          <span>What you think it would sell for</span>
           <span class="rs-in"><i>S$</i><input type="text" id="rs-sale" value="1,700,000" inputmode="numeric"></span>
         </label>
 
         <label class="rs-f">
-          <span>Outstanding mortgage</span>
+          <span>Mortgage still owing</span>
           <span class="rs-in"><i>S$</i><input type="text" id="rs-loan" value="0" inputmode="numeric"></span>
         </label>
 
         <label class="rs-f">
-          <span>CPF principal used so far</span>
+          <span>CPF you have put into it</span>
           <span class="rs-in"><i>S$</i><input type="text" id="rs-cpf" value="180,000" inputmode="numeric"></span>
         </label>
+        <p class="rs-hint">Not sure? It is on your CPF statement, under the property — the total you
+        have withdrawn for this home. A rough figure is fine for now.</p>
 
         <label class="rs-f">
           <span>Years you have owned it</span>
@@ -50,7 +52,7 @@ const rates = { BSD_BANDS, SSD_BANDS, ABSD, CPF_OA_RATE };
         <p class="rs-legend">The flat you would buy</p>
 
         <label class="rs-f">
-          <span>Resale flat price</span>
+          <span>Price of the flat</span>
           <span class="rs-in"><i>S$</i><input type="text" id="rs-flat" value="650,000" inputmode="numeric"></span>
         </label>
 
@@ -65,16 +67,16 @@ const rates = { BSD_BANDS, SSD_BANDS, ABSD, CPF_OA_RATE };
         </label>
 
         <label class="rs-f">
-          <span>Agent fees, both legs</span>
+          <span>Agent fees, selling and buying</span>
           <span class="rs-in"><i>S$</i><input type="text" id="rs-agent" value="34,000" inputmode="numeric"></span>
         </label>
 
         <label class="rs-f">
-          <span>Legal and valuation, both legs</span>
+          <span>Lawyer and valuation fees</span>
           <span class="rs-in"><i>S$</i><input type="text" id="rs-legal" value="6,000" inputmode="numeric"></span>
         </label>
-        <p class="rs-hint">Agent and legal fees are negotiated, not gazetted — these are your
-        assumptions, not official rates. Stamp duties below are computed from the published schedules.</p>
+        <p class="rs-hint">Agent and lawyer fees are negotiated, so these two are your own estimates.
+        The stamp duties below are the official rates, worked out for you.</p>
       </div>
     </div>
   </div>
@@ -114,15 +116,14 @@ const rates = { BSD_BANDS, SSD_BANDS, ABSD, CPF_OA_RATE };
   </div>
 
   <div class="rs-notes">
-    <p><b>Two conditions this calculator cannot check for you.</b></p>
-    <p><b>An HDB housing loan changes everything.</b> The wait-out was removed only for
-    purchases made <i>without</i> one. Take an HDB loan — or buy a subsidised flat — and the
-    separate 30-month wait after disposing of private property still applies.</p>
-    <p><b>CPF usage depends on the flat's remaining lease.</b> CPF savings can only be used
-    where the remaining lease is at least 20 years, and full usage requires the lease to cover
-    the youngest buyer to age 95. Below that, usage is pro-rated by a formula CPF does not
-    publish, so this tool does not estimate it — check your specific flat on CPF's own
-    calculator.</p>
+    <p><b>Two things this calculator cannot check for you.</b></p>
+    <p><b>Whether you need an HDB loan.</b> The waiting rule was only dropped for people paying
+    with cash, CPF or a bank loan. If you need an HDB loan, or you are buying a new subsidised
+    flat, the old 30-month wait still applies to you and none of this changes.</p>
+    <p><b>How old the flat is.</b> You cannot use CPF at all on a flat with under 20 years left on
+    its lease, and to use CPF fully the lease has to last until the youngest buyer turns 95. In
+    between, you get a reduced amount worked out by a formula CPF does not publish — so this tool
+    does not guess at it. Check your flat on CPF's own calculator.</p>
   </div>
 </div>
 
@@ -289,30 +290,30 @@ function update(){
 
   // SSD hint
   $('rs-ssd-hint').innerHTML = ssdR > 0
-    ? '<b style="color:var(--rs-r-text)">Seller’s Stamp Duty applies at ' + (ssdR*100).toFixed(0)
-      + '%</b> — the four-year window runs to your sale date, and the six-month disposal deadline may land inside it.'
-    : 'Held more than four years, so no Seller’s Stamp Duty.';
+    ? '<b style="color:var(--rs-r-text)">Selling this soon costs you ' + (ssdR*100).toFixed(0)
+      + '% in Seller’s Stamp Duty</b> — it applies for the first four years, and the six-month deadline could force the sale inside that window.'
+    : 'Owned more than four years, so no Seller’s Stamp Duty to pay.';
 
   // risk panel
   $('rs-risk-v').textContent = fmt(absdRisk);
   $('rs-risk-p').innerHTML = absdRisk > 0
-    ? 'Buying the flat before selling means Additional Buyer’s Stamp Duty is remitted upfront '
-      + 'on the condition that you dispose of the private property within six months of completion. '
-      + 'Miss it and this becomes payable.'
-    : 'No additional duty is at stake on this profile once the private property is disposed of.';
+    ? 'Because you are buying the flat before selling, the extra stamp duty on owning two homes is '
+      + 'waived from the start — but only if you sell within six months of getting the keys. '
+      + 'Miss that, and you owe this.'
+    : 'Nothing extra is at stake here once your current home is sold.';
 
   // ledger
   const rows = [
-    ['Sale price', sale, false],
-    ['Outstanding mortgage repaid', -loan, true],
-    ["Seller’s Stamp Duty" + (ssdR > 0 ? ' at ' + (ssdR*100).toFixed(0) + '%' : ''), -ssd, true],
-    ['Agent fees, both legs', -agent, true],
-    ['Legal and valuation', -legal, true],
-    ['CPF refund — principal ' + fmt(cpfP) + ' plus accrued interest ' + fmt(ai), -cpfBack, true],
-    ['Flat price', -flat, true],
-    ["Buyer’s Stamp Duty on the flat", -flatBsd, true],
-    ['Additional Buyer’s Stamp Duty payable now', -absdNow, true],
-    ['CPF applied to the purchase', fromCpf, false],
+    ['What the sale brings in', sale, false],
+    ['Paying off what you still owe', -loan, true],
+    ["Seller’s Stamp Duty" + (ssdR > 0 ? ' — sold within 4 years, at ' + (ssdR*100).toFixed(0) + '%' : ''), -ssd, true],
+    ['Agent fees', -agent, true],
+    ['Lawyer and valuation', -legal, true],
+    ['Back into your CPF — ' + fmt(cpfP) + ' you used, plus ' + fmt(ai) + ' interest', -cpfBack, true],
+    ['Buying the flat', -flat, true],
+    ['Stamp duty on the flat', -flatBsd, true],
+    ['Extra stamp duty due now', -absdNow, true],
+    ['CPF put towards the flat', fromCpf, false],
   ];
   $('rs-rows').innerHTML = rows.map(([label, val, neg]) =>
     '<tr><td>' + label + '</td><td' + (neg && val !== 0 ? ' class="rs-neg"' : '') + '>'
@@ -321,9 +322,9 @@ function update(){
   + '<tr class="total"><td>Cash in hand at the end</td><td>' + fmt(cashLeft) + '</td></tr>'
   + '<tr class="total"><td>Left inside CPF</td><td>' + fmt(cpfLeft) + '</td></tr>';
 
-  $('rs-ledger-note').textContent = 'Accrued interest estimated at '
-    + (rates.CPF_OA_RATE*100).toFixed(1) + '% a year on the principal — replace it with the exact '
-    + 'figure from your CPF statement before relying on this.';
+  $('rs-ledger-note').textContent = 'The CPF interest is estimated at '
+    + (rates.CPF_OA_RATE*100).toFixed(1) + '% a year. Your CPF statement has the exact figure — '
+    + 'use that before making any real decision.';
 }
 
 function init(){
