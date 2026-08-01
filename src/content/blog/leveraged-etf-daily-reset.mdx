@@ -94,7 +94,33 @@ Three months is not a rounding error against that. At 30% volatility, the daily 
 
 The Korea episode settles it. The 3× fund fell **74%** from its June peak while the index fell **26%**, and that took about eight weeks. Anyone holding "just a quarter" held through the whole thing.
 
-One honest complication, in the other direction. On the way down the machine works in reverse: as the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times a 26% drop would have been 79%, and the fund lost 74%. The daily reset is not simply "worse" — it is a **volatility cost, not a direction cost**. What it punishes is chop, and chop is what markets mostly do.
+## Where this argument cuts against us
+
+Two honest complications, and they matter.
+
+**The machine also works in reverse on the way down.** As the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times a 26% drop would have been 79%; the fund lost 74%.
+
+**And in a calm, rising market the same machine helps.** Buying more after every up day is exactly the right move if the market keeps going up. Run our own numbers: an index compounding at 25% a year with only 15% volatility hands a 3× holder about **83%** — more than the 75% that "three times" implies. The reset is not a tax. It is a bet that tomorrow looks like today, and it pays when that is true.
+
+So this is a **volatility cost, not a direction cost**. What it punishes is chop. The catch is that the volatility at which the maths turns against you is low: at a 10% index return, a 3× fund beats the naive multiple only while volatility stays under about **9%** — calmer than almost any real equity market, and far calmer than the single-country and single-stock markets these products are usually sold on.
+
+## Singapore has its own version, and it goes to seven times
+
+None of this is a distant American problem.
+
+The Singapore Exchange has listed **Daily Leverage Certificates** since 2017 — the first market in Asia to do so. They offer fixed daily leverage of **2, 3, 5 and 7 times**, long or short, on indices and on single stocks. The single-stock list includes American names like Apple, Nvidia and Tesla, Hong Kong names like Tencent and Alibaba, and Singapore's own: DBS, OCBC, UOB, Singtel, Singapore Airlines.
+
+They work the same way, and the exchange says so plainly:
+
+> "The performance of the underlying asset and the DLC is reset at the end of each trading day… Over the period of more than one day, the profits or losses are thus compounded."
+
+To its credit, SGX publishes worked examples that include the uncomfortable case — a three-day sequence where the underlying finishes higher and the certificate finishes down. The information is there for anyone who looks.
+
+These products carry an extra feature ordinary leveraged funds do not: an **air bag**, which suspends trading when the underlying moves sharply against the certificate — 10% for a 5× or 7× index product, 15% for a 5× single stock. It limits the damage from one violent session. It also, in the issuer's own words, leaves the certificate with "a reduced exposure… thereby reducing its ability to recover losses" if the market turns back in your favour afterwards.
+
+**What stands between an ordinary investor and 7× leverage on a single bank stock is one form.** These are classified as Specified Investment Products, so a broker must run a Customer Account Review first. You pass by holding a relevant qualification, or three years of relevant work experience, or six such trades in the past three years — or by passing a free online quiz.
+
+Worth knowing: on 15 May 2026 the Monetary Authority concluded a consultation that would **remove the mandatory financial-advice requirement** for complex products, replacing it with alerts and learning modules. The legislation has not been drafted yet, so today's rules still stand. But the direction is toward fewer gates, not more, which puts rather more weight on the arithmetic above.
 
 ## The question worth sitting with
 
@@ -106,7 +132,11 @@ So the question is not whether you are right about the market. It is whether the
 
 ---
 
-**Where these numbers come from.** Fund objective, warning language, expense ratio and standardised returns: [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) product pages, NAV basis, as of 30 June 2026. Swap notional, holdings and financing rates: the fund's Form N-PORT filed with the US Securities and Exchange Commission for the period ending 30 April 2026, the most recent public filing. The 1.8% credited back for interest on collateral is our estimate, not a disclosed figure — the filing shows the cash position but not the income earned on it, so treat the 11% all-in cost as an approximation with the working shown rather than a reported number. Price-path figures computed by us from split-adjusted public closing prices, 1 July 2024 to 30 July 2026. The calculator's derivation is documented in the code. Checked 28 July 2026.
+**Where these numbers come from.** Fund objective, warning language, expense ratio and standardised returns: [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) product pages, NAV basis, as of 30 June 2026. Swap notional, holdings and financing rates: the fund's Form N-PORT filed with the US Securities and Exchange Commission for the period ending 30 April 2026, the most recent public filing. The 1.8% credited back for interest on collateral is our estimate, not a disclosed figure — the filing shows the cash position but not the income earned on it, so treat the 11% all-in cost as an approximation with the working shown rather than a reported number. It also omits a third, smaller drag: the trading costs the fund incurs turning over its own book every day, which no filing separates out.
+
+Singapore products, leverage factors, the daily-reset and air-bag wording: [SGX's Daily Leverage Certificates page](https://www.sgx.com/DLC) and the issuer's own handbook. The Customer Account Review criteria: [MoneySense](https://www.moneysense.gov.sg/investments/understanding-specified-investment-products/), the MAS-run consumer portal. The consultation outcome: [MAS media release, 15 May 2026](https://www.mas.gov.sg/news/media-releases/2026/mas-concludes-consultation-on-enhancements-to-phs-and-streamlined-framework-for-complex-products).
+
+**Wider evidence.** Our figures come from one fund over specific windows, which is a fair thing to be suspicious of. The underlying relationship is not ours and is not new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes depend on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result we show above. Price-path figures computed by us from split-adjusted public closing prices, 1 July 2024 to 30 July 2026. The calculator's derivation is documented in the code. Checked 28 July 2026.
 
 **What we are not doing.** We are not telling you to buy or avoid anything, and we name these two funds only because the arithmetic needs a real example — the mechanism applies to every daily-reset product, whichever issuer runs it. We have no commercial relationship with any fund manager, carry no advertising, and earn nothing from links.
 
