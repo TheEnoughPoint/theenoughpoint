@@ -38,9 +38,12 @@ import { Font } from 'astro:assets';
         </span>
       </label>
 
+      <!-- Default one year, not five. Five invites "nobody holds these that long"
+           and lets the reader dismiss the result. One year is a holding period a
+           real person defends, and the fund still loses money in a rising market. -->
       <label class="ld-f">
         <span>You hold it for</span>
-        <span class="ld-in"><input type="text" id="ld-yrs" value="5" inputmode="decimal"><i>yrs</i></span>
+        <span class="ld-in"><input type="text" id="ld-yrs" value="1" inputmode="decimal"><i>yrs</i></span>
       </label>
 
       <label class="ld-f">

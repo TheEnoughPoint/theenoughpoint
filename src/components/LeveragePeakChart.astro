@@ -1,0 +1,113 @@
+---
+// The peak divergence, drawn. Both series indexed to 100 on 1 May 2026 so they
+// share ONE axis — the originating idea for this piece came from a chart with the
+// 3x fund on the left axis and the index on the right, which is a dual-axis chart
+// and makes any two lines look however you scaled them. Indexing to a common base
+// is the honest version, and it is the only way the crossover reads as real.
+//
+// Window chosen deliberately: May to July 2026, around the peak. Over the longer
+// 2024-26 run the 3x fund outperformed, so a chart of that period would argue the
+// opposite of the article. This window shows the mechanism, not a verdict.
+//
+// Daily adjusted closes, split-adjusted, from a free public price API. Values are
+// the historical record; nothing here is modelled.
+const LEV = [100.0,103.2,121.4,139.2,127.5,156.3,163.1,126.3,148.3,152.6,124.7,118.4,114.5,126.2,139.2,129.5,168.4,162.4,182.5,180.9,209.9,203.2,198.6,174.2,101.2,117.7,114.8,104.4,139.7,136.9,165.8,152.5,151.7,181.0,180.6,116.1,123.0,137.6,122.5,122.5,129.6,99.6,89.8,103.6,90.4,91.8,94.6,92.4,69.6,79.9,72.6,61.9,60.6,61.1,72.1,68.9,73.0,59.2,57.1,47.0,40.1,54.0,49.7];
+const IDX = [100.0,101.0,107.1,112.3,109.1,117.4,119.0,110.2,116.4,117.6,110.4,108.7,107.4,111.2,115.1,112.4,123.9,122.4,127.4,127.1,133.8,132.4,131.5,125.9,108.1,114.6,113.6,110.2,122.8,121.9,130.5,127.1,126.6,135.3,135.2,118.6,121.8,126.5,121.8,121.9,124.6,114.5,111.2,117.2,111.9,112.8,114.0,113.3,103.7,109.2,106.0,100.8,100.3,100.5,106.7,105.2,107.3,100.6,99.5,93.5,89.0,99.5,97.0];
+
+const W = 680, H = 260, PAD_L = 34, PAD_R = 14, PAD_T = 16, PAD_B = 26;
+const LO = 30, HI = 220;                       // y range, indexed points
+const n = LEV.length;
+const x = (i: number) => PAD_L + (i / (n - 1)) * (W - PAD_L - PAD_R);
+const y = (v: number) => PAD_T + (1 - (v - LO) / (HI - LO)) * (H - PAD_T - PAD_B);
+const path = (a: number[]) => a.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+
+const LEV_PEAK = 20, IDX_PEAK = 33;            // 1 June and 18 June 2026
+const TICKS = [{ i: 0, t: 'May' }, { i: 20, t: 'Jun' }, { i: 41, t: 'Jul' }];
+const GRID = [50, 100, 150, 200];
+---
+
+<figure class="pk">
+  <figcaption class="pk-cap">
+    <h4>The 3&times; fund topped out seventeen days before the market did</h4>
+    <p>Both rebased to 100 on 1 May 2026, so they share one scale. Daily closing prices.</p>
+  </figcaption>
+
+  <div class="pk-legend">
+    <span class="pk-key"><i class="pk-sw idx"></i>The index</span>
+    <span class="pk-key"><i class="pk-sw lev"></i>The 3&times; fund</span>
+  </div>
+
+  <div class="pk-wrap">
+    <svg viewBox={`0 0 ${W} ${H}`} class="pk-svg" role="img"
+         aria-label="Indexed to 100 on 1 May 2026, the 3x fund peaks at 210 on 1 June then falls to 50 by 31 July, while the index peaks later at 135 on 18 June and ends near 97.">
+      {GRID.map((g) => (
+        <>
+          <line x1={PAD_L} x2={W - PAD_R} y1={y(g)} y2={y(g)} class={g === 100 ? 'pk-base' : 'pk-grid'} />
+          <text x={PAD_L - 7} y={y(g) + 3.5} class="pk-ylab">{g}</text>
+        </>
+      ))}
+      {TICKS.map((t) => <text x={x(t.i)} y={H - 8} class="pk-xlab">{t.t}</text>)}
+
+      <path d={path(IDX)} class="pk-line idx" />
+      <path d={path(LEV)} class="pk-line lev" />
+
+      <line x1={x(LEV_PEAK)} x2={x(LEV_PEAK)} y1={y(LEV[LEV_PEAK])} y2={H - PAD_B} class="pk-drop lev" />
+      <line x1={x(IDX_PEAK)} x2={x(IDX_PEAK)} y1={y(IDX[IDX_PEAK])} y2={H - PAD_B} class="pk-drop idx" />
+
+      <circle cx={x(LEV_PEAK)} cy={y(LEV[LEV_PEAK])} r="4.5" class="pk-dot lev" />
+      <circle cx={x(IDX_PEAK)} cy={y(IDX[IDX_PEAK])} r="4.5" class="pk-dot idx" />
+
+      <text x={x(LEV_PEAK) + 8} y={y(LEV[LEV_PEAK]) - 5} class="pk-note lev">1 Jun &mdash; 3&times; fund peaks</text>
+      <text x={x(IDX_PEAK) + 8} y={y(IDX[IDX_PEAK]) - 6} class="pk-note idx">18 Jun &mdash; index peaks</text>
+    </svg>
+  </div>
+
+  <p class="pk-foot">In the seventeen days between those two points the index rose a further
+  <b>1.2%</b>. Over exactly the same stretch the 3&times; fund fell <b>13.8%</b>.</p>
+</figure>
+
+<style is:global>
+.pk{
+  --pk-idx:#1A8754; --pk-lev:#2563EB;
+  --pk-rule:var(--color-border); --pk-ink:var(--color-dark);
+  --pk-body:var(--color-body); --pk-muted:var(--color-muted);
+  --pk-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--pk-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){
+  .pk{ --pk-idx:#2FA87A; --pk-lev:#4E86DD; }
+}
+.post-content .pk-cap{margin:0 0 13px;padding:0;text-align:left}
+.post-content .pk-cap h4{margin:0 0 3px;font-size:15px;font-weight:700;color:var(--pk-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .pk-cap p{margin:0;font-size:12.5px;color:var(--pk-muted);line-height:1.5}
+.pk-legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:10px}
+.pk-key{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--pk-body)}
+.pk-sw{width:11px;height:11px;border-radius:3px;flex:none}
+.pk-sw.idx{background:var(--pk-idx)}
+.pk-sw.lev{background:var(--pk-lev)}
+.pk-wrap{overflow-x:auto}
+.pk-svg{width:100%;min-width:420px;height:auto;display:block}
+.pk-grid{stroke:var(--pk-rule);stroke-width:1}
+.pk-base{stroke:var(--pk-rule);stroke-width:1;stroke-dasharray:3 3}
+.pk-ylab,.pk-xlab{font-family:var(--pk-mono);font-size:9.5px;fill:var(--pk-muted)}
+.pk-ylab{text-anchor:end}
+.pk-xlab{text-anchor:middle}
+.pk-line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.pk-line.idx{stroke:var(--pk-idx)}
+.pk-line.lev{stroke:var(--pk-lev)}
+.pk-drop{stroke-width:1;stroke-dasharray:2 3;opacity:.55}
+.pk-drop.idx{stroke:var(--pk-idx)}
+.pk-drop.lev{stroke:var(--pk-lev)}
+.pk-dot{stroke:#fff;stroke-width:2}
+@media (prefers-color-scheme: dark){ .pk-dot{stroke:#101E31} }
+.pk-dot.idx{fill:var(--pk-idx)}
+.pk-dot.lev{fill:var(--pk-lev)}
+.pk-note{font-family:var(--font-body);font-size:10.5px;font-weight:600}
+.pk-note.idx{fill:var(--pk-idx)}
+.pk-note.lev{fill:var(--pk-lev)}
+.post-content .pk-foot{font-size:13px;color:var(--pk-body);line-height:1.55;margin:10px 0 0}
+.pk-foot b{font-family:var(--pk-mono);color:var(--pk-ink)}
+@media(max-width:560px){ .pk{padding:16px 14px 13px} }
+</style>
