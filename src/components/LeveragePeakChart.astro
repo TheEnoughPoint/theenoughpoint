@@ -65,8 +65,8 @@ const sign = (v: number) => (v > 0 ? '+' : '') + Math.round(v) + '%';
       <circle cx={x(LP)} cy={y(lev[LP])} r="5" class="pk-dot lev" />
       <circle cx={x(IP)} cy={y(idx[IP])} r="5" class="pk-dot idx" />
 
-      <text x={x(LP) - 8} y={y(lev[LP]) - 9} class="pk-peak lev">peaks 1 Jun</text>
-      <text x={x(IP) + 9} y={y(idx[IP]) - 8} class="pk-peak idx">peaks 18 Jun</text>
+      <text x={x(LP) - 9} y={y(lev[LP]) - 9} class="pk-peak lev">3&times; fund peaks 1 Jun</text>
+      <text x={x(IP) + 10} y={y(idx[IP]) - 9} class="pk-peak idx">index peaks 18 Jun</text>
 
       <text x={W - PAD_R + 7} y={y(lev[n - 1]) - 5} class="pk-end lev">3&times; fund</text>
       <text x={W - PAD_R + 7} y={y(lev[n - 1]) + 15} class="pk-endval lev">{sign(lev[n - 1])}</text>
