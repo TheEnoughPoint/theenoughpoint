@@ -20,9 +20,9 @@ import LeveragePeakChart from '@src/components/LeveragePeakChart.astro';
 
 Suppose you had been right about Korea.
 
-You watched the AI and memory trade building through 2024, decided Korean equities were the way to play it, and you were correct. Between July 2024 and July 2026, the main Korea ETF that foreign investors use rose about **144%**.
+You watched the AI and memory trade building through 2024, decided Korean equities were the way to play it, and you were correct. Between July 2024 and July 2026, the main Korea ETF that foreign investors use rose about **138%**.
 
-Now suppose you had wanted more of it, and bought a fund promising three times the daily move of the same market. You would have made 286%, not the 431% that "three times" implies.
+Now suppose you had wanted more of it, and bought a fund promising three times the daily move of the same market. You would have made about 256%, not the 413% that "three times" implies.
 
 And if you had held that fund for five years instead of two, you would have done worse than the people who simply bought the ordinary index and forgot about it.
 
@@ -92,13 +92,13 @@ That defence is right, and much stricter than most people realise. The fund's ow
 
 Three months is not a rounding error against that. At 30% volatility, the daily rebalancing costs around 6.5% over a quarter and the borrowing adds roughly 2.6% more — so about **9% disappears in three months before the index does anything.**
 
-The Korea episode settles it. The 3× fund fell **74%** from its June peak while the index fell **26%**, and that took about eight weeks. Anyone holding "just a quarter" held through the whole thing.
+The Korea episode settles it. The 3× fund fell **76%** from its June peak while the index fell **28%**, and that took about eight weeks. Anyone holding "just a quarter" held through the whole thing.
 
 ## Where this argument cuts against us
 
 Two honest complications, and they matter.
 
-**The machine also works in reverse on the way down.** As the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times a 26% drop would have been 79%; the fund lost 74%.
+**The machine also works in reverse on the way down.** As the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times a 28% drop would have been 85%; the fund lost 76%.
 
 **And in a calm, rising market the same machine helps.** Buying more after every up day is exactly the right move if the market keeps going up. Run our own numbers: an index compounding at 25% a year with only 15% volatility hands a 3× holder about **83%** — more than the 75% that "three times" implies. The reset is not a tax. It is a bet that tomorrow looks like today, and it pays when that is true.
 
@@ -130,14 +130,22 @@ But it is worth being clear about which risk you are taking. If you borrow to in
 
 So the question is not whether you are right about the market. It is whether the thing you are holding can survive being right slowly.
 
----
+<div class="post-notes">
 
-**Where these numbers come from.** Fund objective, warning language, expense ratio and standardised returns: [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) product pages, NAV basis, as of 30 June 2026. Swap notional, holdings and financing rates: the fund's Form N-PORT filed with the US Securities and Exchange Commission for the period ending 30 April 2026, the most recent public filing. The 1.8% credited back for interest on collateral is our estimate, not a disclosed figure — the filing shows the cash position but not the income earned on it, so treat the 11% all-in cost as an approximation with the working shown rather than a reported number. It also omits a third, smaller drag: the trading costs the fund incurs turning over its own book every day, which no filing separates out.
+#### Sources
 
-Singapore products, leverage factors, the daily-reset and air-bag wording: [SGX's Daily Leverage Certificates page](https://www.sgx.com/DLC) and the issuer's own handbook. The Customer Account Review criteria: [MoneySense](https://www.moneysense.gov.sg/investments/understanding-specified-investment-products/), the MAS-run consumer portal. The consultation outcome: [MAS media release, 15 May 2026](https://www.mas.gov.sg/news/media-releases/2026/mas-concludes-consultation-on-enhancements-to-phs-and-streamlined-framework-for-complex-products).
+Fund objective, warning language, expense ratio and standardised returns: [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) product pages, NAV basis, as of 30 June 2026. Swap notional, holdings and financing rates: the fund's Form N-PORT filed with the US Securities and Exchange Commission for the period ending 30 April 2026, the most recent public filing. Price paths computed by us from split-adjusted public closing prices, 1 July 2024 to 31 July 2026.
 
-**Wider evidence.** Our figures come from one fund over specific windows, which is a fair thing to be suspicious of. The underlying relationship is not ours and is not new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes depend on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result we show above. Price-path figures computed by us from split-adjusted public closing prices, 1 July 2024 to 30 July 2026. The calculator's derivation is documented in the code. Checked 28 July 2026.
+Singapore products, leverage factors, and the daily-reset and air-bag wording: [SGX's Daily Leverage Certificates page](https://www.sgx.com/DLC) and the issuer's handbook. Customer Account Review criteria: [MoneySense](https://www.moneysense.gov.sg/investments/understanding-specified-investment-products/), the MAS-run consumer portal. Consultation outcome: [MAS media release, 15 May 2026](https://www.mas.gov.sg/news/media-releases/2026/mas-concludes-consultation-on-enhancements-to-phs-and-streamlined-framework-for-complex-products). All checked 2 August 2026; the calculator's derivation is documented in its source code.
 
-**What we are not doing.** We are not telling you to buy or avoid anything, and we name these two funds only because the arithmetic needs a real example — the mechanism applies to every daily-reset product, whichever issuer runs it. We have no commercial relationship with any fund manager, carry no advertising, and earn nothing from links.
+#### Where our numbers are soft
 
-*General information and education only. This is not financial advice and takes no account of your objectives, situation or needs. Leveraged products can lose value rapidly, including in markets that eventually move your way. Past returns describe the past. Check current fund documents before relying on anything here.*
+The 1.8% credited back for interest on collateral is **our estimate, not a disclosed figure** — the filing shows the cash position but not the income earned on it. Treat the 11% all-in cost as an approximation with its working shown rather than a reported number. It also leaves out a third, smaller drag: the trading costs the fund incurs turning over its own book each day, which no filing separates out.
+
+Our figures also come from one fund over particular windows, which is a fair thing to be suspicious of. The underlying relationship is neither ours nor new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes turn on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result above.
+
+<p class="note-aside">A note on what this is not. We are not telling you to buy or avoid anything, and we name these funds only because the arithmetic needs a real example — the mechanism belongs to every daily-reset product, whichever issuer runs it. We have no commercial relationship with any fund manager or exchange, carry no advertising, and earn nothing from any link on this page.</p>
+
+<p class="note-legal">General information and education only. This is not financial advice and takes no account of your objectives, situation or needs. Leveraged products can lose value rapidly, including in markets that eventually move your way. Past returns describe the past. Check current fund documents before relying on anything here.</p>
+
+</div>
