@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Three times the daily return does not equal three times your return">
+  <!-- Cover for the daily-reset leverage piece. House system: navy field, gold figure,
+       forest/red for the two paths. The motif is the identity that fails.
+       Safe zone: square thumbnail crops to x 300-900. -->
+  <defs>
+    <radialGradient id="bg3" cx="50%" cy="44%" r="76%">
+      <stop offset="0%" stop-color="#10233D"/>
+      <stop offset="100%" stop-color="#081627"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bg3)"/>
+
+  <text x="600" y="146" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700"
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.6">DAILY-RESET LEVERAGED FUNDS</text>
+
+  <!-- the identity that fails -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="96">
+    <text x="432" y="300" text-anchor="middle" fill="#C89A3C">3&#215; daily</text>
+    <text x="600" y="300" text-anchor="middle" fill="#C0392B" font-size="74">&#8800;</text>
+    <text x="768" y="300" text-anchor="middle" fill="#5C6B7E">3&#215; yours</text>
+  </g>
+
+  <line x1="380" y1="352" x2="820" y2="352" stroke="#24384F" stroke-width="1"/>
+
+  <text x="600" y="404" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="27"
+        fill="#F6F4EF" opacity="0.82">the gap is not a fee. it is arithmetic.</text>
+
+  <!-- two paths, same destination, different outcomes -->
+  <g fill="none" stroke-width="3" stroke-linecap="round">
+    <path d="M400 500 L460 470 L520 495 L580 462 L640 490 L700 455 L760 484 L800 470" stroke="#4B9A78"/>
+    <path d="M400 500 L460 452 L520 505 L580 448 L640 508 L700 452 L760 520 L800 516" stroke="#C0392B"/>
+  </g>
+  <text x="830" y="474" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#7DB79A">index</text>
+  <text x="830" y="521" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#E08074">3&#215;</text>
+</svg>

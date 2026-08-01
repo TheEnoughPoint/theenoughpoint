@@ -1,0 +1,98 @@
+---
+title: "You Can Be Right About the Market and Still Lose With a 3× Fund"
+cover: "/img/brand/cover-leverage-decay.svg"
+date: "2026-07-28"
+category: "invest-better"
+tags:
+  - Investing
+  - ETFs
+  - Leverage
+  - Risk
+readTime: 6
+authorId: "fi"
+excerpt: |
+  A fund promising three times the daily move of an index returned less than the index itself over five years — and over ten. That is not a fee, a scandal, or bad luck. It is arithmetic, and the fund's manufacturer prints a warning about it.
+---
+
+import LeverageDecayTool from '@src/components/LeverageDecayTool.astro';
+
+Suppose you had been right about Korea.
+
+You watched the AI and memory trade building through 2024, decided Korean equities were the way to play it, and you were correct. Between July 2024 and July 2026, the main Korea ETF that foreign investors use rose about **144%**.
+
+Now suppose you had wanted more of it, and bought a fund promising three times the daily move of the same market. Three times the conviction. You were right about direction, right about the country, right about the timing.
+
+You would have made **286%**, not the 431% that "three times" implies.
+
+And if you had held that fund for five years instead of two, you would have done worse than the people who simply bought the ordinary index and forgot about it.
+
+## The numbers the fund manager publishes
+
+These are not our estimates. They are the standardised returns each fund publishes, on the same date, 30 June 2026.
+
+| Annualised return | The 3× fund | The ordinary index fund |
+|---|---|---|
+| 1 year | +874.6% | +188.5% |
+| 3 years | +108.3% | +50.9% |
+| **5 years** | **+13.8%** | **+19.1%** |
+| **10 years** | **+14.4%** | **+16.7%** |
+
+Read the bottom two rows again. Over five years and over ten, the leveraged fund returned **less than the plain one**. Not less than three times as much. Less.
+
+Triple the exposure. Triple the drawdowns. A lower return than owning the index outright.
+
+## This is not a scandal, and the manufacturer says so
+
+The fund is doing exactly what it promised. The promise is just narrower than most people read it as.
+
+Printed on the fund's own page, directly above the price: it "seeks a return that is 300% of the return of its benchmark index **for a single day**", and "should not be expected to provide three times the return of the benchmark's cumulative return for periods greater than a day."
+
+That sentence is the entire product. Three times *today*. Not three times your year.
+
+## Why one day does not add up to one year
+
+Here is the whole mechanism in two days of trading.
+
+An index starts at 100, rises 10%, then falls 10%. It ends at 99 — down 1%, because the fall applies to the bigger number.
+
+The 3× fund rises 30% to 130, then falls 30% to 91. It ends down **9%**.
+
+Three times the index's 1% loss would have been 3%. The fund lost 9%. Nobody took the difference — no fee was charged, no one made a mistake. The fund reset its exposure at the end of day one, so day two's fall applied to a larger position.
+
+Repeat that across hundreds of trading days and the effect compounds. Every up-and-down cycle takes a bite. The more the market bounces around, the bigger the bite — and it happens whether the market ends up or down.
+
+There is a detail from the Korea episode that shows this without any arithmetic at all. The 3× fund peaked on **1 June 2026**. The index it tracks peaked on **18 June**, seventeen days later. The market went on making new highs the leveraged fund never saw again.
+
+## Work out the bite on your own assumptions
+
+<LeverageDecayTool />
+
+The number to pay attention to is the last one.
+
+At 30% volatility — roughly a single-country market — the index has to compound at about **14.5% a year** before a 3× fund merely draws level with owning that index outright. At 40% volatility, closer to a hot sector, it needs **27% a year**. Below that, the daily reset costs more than the leverage adds, no matter how right you were.
+
+## Two different things both called leverage
+
+This matters because the risk people prepare for is usually the other one.
+
+If you borrow to invest — a margin loan, or a loan against your property — the danger is that the market falls and the debt does not. Painful, and widely understood. But that loan does not care what route the price took. Down 20% then up 25% leaves you where you started.
+
+A daily-reset fund does care. Its risk is that **the path itself charges you**, so you can be right about where the market ends up over your holding period and still lose money getting there.
+
+Two failure modes, routinely spoken of as one. Understanding the first tells you very little about the second.
+
+## The question worth sitting with
+
+None of this makes these funds wrong. They do what the label says, and for a trader holding for a day or a week the arithmetic above barely registers.
+
+The question is simply whether the thing you are holding is the thing you think you are holding. If the plan involves a view that plays out over months, a product engineered to deliver on a single day is not a stronger version of that plan.
+
+So before the conviction, the arithmetic: at the volatility of the market you are looking at, what does the index have to do before the leverage is worth having?
+
+---
+
+**Where these numbers come from.** Fund objective, warning language, expense ratio and standardised returns: [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) product pages, NAV basis, as of 30 June 2026. Price-path figures computed by us from split-adjusted public closing prices, 1 July 2024 to 30 July 2026. The calculator models the compounding cost of daily rebalancing only; its derivation is documented in the code. Checked 28 July 2026.
+
+**What we are not doing.** We are not telling you to buy or avoid anything, and we name these two funds only because the arithmetic needs a real example — the mechanism applies to every daily-reset product, whichever issuer runs it. We have no commercial relationship with any fund manager, carry no advertising, and earn nothing from links.
+
+*General information and education only. This is not financial advice and takes no account of your objectives, situation or needs. Leveraged products can lose value rapidly, including in markets that eventually move your way. Past returns describe the past. Check current fund documents before relying on anything here.*
