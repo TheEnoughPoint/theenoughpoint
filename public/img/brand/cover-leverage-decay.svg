@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Three times the daily return does not equal three times your return">
+  <!-- Cover for the daily-reset leverage piece. House system: navy field, gold figure.
+       Stacked rather than set on one line — at this type size the three elements
+       collided horizontally. Text extents verified with getBBox after rendering.
+       Safe zone: square thumbnail crops to x 300-900. -->
+  <defs>
+    <radialGradient id="bg3" cx="50%" cy="42%" r="76%">
+      <stop offset="0%" stop-color="#10233D"/>
+      <stop offset="100%" stop-color="#081627"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bg3)"/>
+
+  <text x="600" y="126" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">DAILY-RESET LEVERAGED FUNDS</text>
+
+  <text x="600" y="248" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="82"
+        fill="#C89A3C">3&#215; daily</text>
+
+  <text x="600" y="318" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="46"
+        fill="#C0392B">&#8800;</text>
+
+  <text x="600" y="412" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="82"
+        fill="#6B7C91">3&#215; yours</text>
+
+  <line x1="470" y1="458" x2="730" y2="458" stroke="#24384F" stroke-width="1"/>
+
+  <text x="600" y="508" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="26"
+        fill="#F6F4EF" opacity="0.8">the gap is not a fee. it is arithmetic.</text>
+</svg>

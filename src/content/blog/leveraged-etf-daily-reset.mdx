@@ -1,0 +1,151 @@
+---
+title: "Why 3× ETFs Lose Money Even in a Rising Market"
+cover: "/img/brand/cover-leverage-decay.svg"
+date: "2026-07-28"
+category: "invest-better"
+tags:
+  - Investing
+  - ETFs
+  - Leverage
+  - Risk
+readTime: 5
+authorId: "fi"
+excerpt: |
+  A fund promising three times the daily move of an index returned less than the index itself over five years — and over ten. Two things eat the difference: a machine that buys high and sells low every day, and a borrowing bill you cannot see in the fee.
+---
+
+import LeverageDecayTool from '@src/components/LeverageDecayTool.astro';
+import LeverageGrowthChart from '@src/components/LeverageGrowthChart.astro';
+import LeveragePeakChart from '@src/components/LeveragePeakChart.astro';
+
+Suppose you had been right about Korea.
+
+You watched the AI and memory trade building through 2024, decided Korean equities were the way to play it, and you were correct. Between July 2024 and July 2026, the main Korea ETF that foreign investors use rose about **138%**.
+
+Now suppose you had wanted more of it, and bought a fund promising three times the daily move of the same market. You would have made about 256%, not the 413% that "three times" implies.
+
+And if you had held that fund for five years instead of two, you would have done worse than the people who simply bought the ordinary index and forgot about it.
+
+<LeverageGrowthChart />
+
+Those are not our estimates. They come from the standardised returns each fund publishes, on the same date, 30 June 2026 — where the leveraged fund shows **13.8% a year over five years against the plain fund's 19.1%**, and 14.4% against 16.7% over ten.
+
+Triple the exposure. Triple the drawdowns. A lower return than owning the index outright.
+
+One caveat before going further, because it cuts against us. Those figures are measured to 30 June 2026, three weeks after the fund fell by three quarters. Measured to the end of May instead, the same comparison would have flattered the leveraged fund enormously. **The performance table depends on when you look.** What follows does not — the two forces below operate on every path, in every window, and they are the reason a long run of good years can still end here.
+
+## The first: a machine that buys high and sells low, every day
+
+The fund promises three times the move of the index **for a single day**. That is its own wording, printed above its own price. Not three times your year.
+
+Here is why one day does not add up to one year.
+
+You put in $100. To give you 3× exposure, the fund holds $300 of the market.
+
+**Day one, the market rises 10%.** That $300 becomes $330, so you have gained $30. Your money is now $130 — and to keep you at 3×, the fund must hold $390. It buys another $60 of the market. *After it has gone up.*
+
+**Day two, the market falls 10%.** But now the fall applies to $390, not $330. You lose $39. You are left with $91.
+
+Meanwhile the index went up 10% and down 10%, which leaves it at 99 — down 1%.
+
+Three times a 1% loss should be 3%. You lost **9%**. No fee was charged and nobody made a mistake. The fund simply had to buy more at the top of day one to keep its promise, and that larger position met the fall on day two.
+
+That is the machine. Every day the market rises, it buys more. Every day the market falls, it sells. It is required to, because the promise is defined against whatever the fund is worth *today*. In a market that goes up and down — which is most markets — it is buying high and selling low, over and over, by design.
+
+The Korea episode shows it happening. The 3× fund peaked on **1 June 2026**. The index it tracks kept climbing, and peaked on **18 June** — seventeen days later. The market went on making new highs the leveraged fund never saw again.
+
+<LeveragePeakChart />
+
+Those seventeen days are the whole argument in miniature, so they are worth slowing down on.
+
+The index finished the stretch **1.2% higher**. To get there it moved an average of **4.6% every single day** — one session up 11.5%, another down 14.1%, nine down days against four up days. Add up all those daily moves regardless of direction and the market travelled **59%** in order to end up 1.2% ahead.
+
+The fund had to respond to every one of those moves. Up 11.5%? Buy more, at the top. Down 14.1%? Sell, at the bottom. Thirteen times in a row, mechanically, because its promise is defined against whatever it is worth that morning.
+
+The index kept 1.2%. The fund lost **13.8%**.
+
+That is the clearest statement of what these products cost: not a fee, not a fall in the market, but the price of being made to trade in and out of a market that could not make up its mind.
+
+## The second: a borrowing bill you cannot see
+
+The fund's published fee is 1.32% a year. That number is true and close to irrelevant.
+
+To hold $300 of market for your $100, it has to get the other $200 somewhere. It rents it, through contracts with investment banks, and pays them a short-term interest rate plus a spread — around 4.5% a year in mid-2026, on the borrowed portion.
+
+None of that is in the 1.32%. The fund's own fee agreement excludes "swap financing and related costs", then adds, in its own words: **"If these expenses were included, the expense ratio would be higher."**
+
+How much higher is public record. Its regulatory filing for 30 April 2026 lists swaps with a face value of **US$3.86 billion** against **US$1.55 billion** of fund assets, at rates between 4.34% and 5.34%. That is roughly **US$176 million a year — about 11% of everything in the fund.**
+
+Some of that comes back. The same filing shows about half the fund's assets held directly in the ordinary index fund, which implies the other half sits in cash as collateral. If that cash earns something close to the same short-term rate, it returns roughly 1.8%, bringing the financing bill down to about **9.5%**.
+
+Add the published fee and the real cost of holding is near **11% a year**, of which the headline 1.32% is roughly an eighth. Not a scandal. That is simply what borrowing costs. But it means the fund starts each year eleven points behind.
+
+## Work out the bite on your own assumptions
+
+<LeverageDecayTool />
+
+The number to watch is the last one. At 30% volatility — roughly a single-country market — the index must compound at about **13.5% a year, or 3.2% a quarter,** before a 3× holder makes anything at all. Below that, you lose money in a rising market.
+
+## "But these are for short-term trading"
+
+That defence is right, and much stricter than most people realise. The fund's own horizon is not "short term". It is **one day**.
+
+Three months is not a rounding error against that. At 30% volatility, the daily rebalancing costs around 6.5% over a quarter and the borrowing adds roughly 2.6% more — so about **9% disappears in three months before the index does anything.**
+
+The Korea episode settles it. The 3× fund fell **76%** from its June peak while the index fell **28%**, and that took about eight weeks. Anyone holding "just a quarter" held through the whole thing.
+
+## Where this argument cuts against us
+
+Two honest complications, and they matter.
+
+**The machine also works in reverse on the way down.** As the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times a 28% drop would have been 85%; the fund lost 76%.
+
+**And in a calm, rising market the same machine helps.** Buying more after every up day is exactly the right move if the market keeps going up. Run our own numbers: an index compounding at 25% a year with only 15% volatility hands a 3× holder about **83%** — more than the 75% that "three times" implies. The reset is not a tax. It is a bet that tomorrow looks like today, and it pays when that is true.
+
+So this is a **volatility cost, not a direction cost**. What it punishes is chop. The catch is that the volatility at which the maths turns against you is low: at a 10% index return, a 3× fund beats the naive multiple only while volatility stays under about **9%** — calmer than almost any real equity market, and far calmer than the single-country and single-stock markets these products are usually sold on.
+
+## Singapore has its own version, and it goes to seven times
+
+None of this is a distant American problem.
+
+The Singapore Exchange has listed **Daily Leverage Certificates** since 2017 — the first market in Asia to do so. They offer fixed daily leverage of **2, 3, 5 and 7 times**, long or short, on indices and on single stocks. The single-stock list includes American names like Apple, Nvidia and Tesla, Hong Kong names like Tencent and Alibaba, and Singapore's own: DBS, OCBC, UOB, Singtel, Singapore Airlines.
+
+They work the same way, and the exchange says so plainly:
+
+> "The performance of the underlying asset and the DLC is reset at the end of each trading day… Over the period of more than one day, the profits or losses are thus compounded."
+
+To its credit, SGX publishes worked examples that include the uncomfortable case — a three-day sequence where the underlying finishes higher and the certificate finishes down. The information is there for anyone who looks.
+
+These products carry an extra feature ordinary leveraged funds do not: an **air bag**, which suspends trading when the underlying moves sharply against the certificate — 10% for a 5× or 7× index product, 15% for a 5× single stock. It limits the damage from one violent session. It also, in the issuer's own words, leaves the certificate with "a reduced exposure… thereby reducing its ability to recover losses" if the market turns back in your favour afterwards.
+
+**What stands between an ordinary investor and 7× leverage on a single bank stock is one form.** These are classified as Specified Investment Products, so a broker must run a Customer Account Review first. You pass by holding a relevant qualification, or three years of relevant work experience, or six such trades in the past three years — or by passing a free online quiz.
+
+Worth knowing: on 15 May 2026 the Monetary Authority concluded a consultation that would **remove the mandatory financial-advice requirement** for complex products, replacing it with alerts and learning modules. The legislation has not been drafted yet, so today's rules still stand. But the direction is toward fewer gates, not more, which puts rather more weight on the arithmetic above.
+
+## The question worth sitting with
+
+None of this makes these funds wrong. They do what the label says, and for someone holding a day or a week, the arithmetic above barely registers.
+
+But it is worth being clear about which risk you are taking. If you borrow to invest, the danger is that the market falls and the debt does not — painful, and widely understood. That loan does not care what route the price took: down 20% then up 25% leaves you where you started. A daily-reset fund does care, because the rebalancing happens whether you like it or not, and every swing takes a bite on the way.
+
+So the question is not whether you are right about the market. It is whether the thing you are holding can survive being right slowly.
+
+<div class="post-notes">
+
+#### Sources
+
+Fund objective, warning language, expense ratio and standardised returns: [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) product pages, NAV basis, as of 30 June 2026. Swap notional, holdings and financing rates: the fund's Form N-PORT filed with the US Securities and Exchange Commission for the period ending 30 April 2026, the most recent public filing. Price paths computed by us from split-adjusted public closing prices, 1 July 2024 to 31 July 2026.
+
+Singapore products, leverage factors, and the daily-reset and air-bag wording: [SGX's Daily Leverage Certificates page](https://www.sgx.com/DLC) and the issuer's handbook. Customer Account Review criteria: [MoneySense](https://www.moneysense.gov.sg/investments/understanding-specified-investment-products/), the MAS-run consumer portal. Consultation outcome: [MAS media release, 15 May 2026](https://www.mas.gov.sg/news/media-releases/2026/mas-concludes-consultation-on-enhancements-to-phs-and-streamlined-framework-for-complex-products). All checked 2 August 2026; the calculator's derivation is documented in its source code.
+
+#### Where our numbers are soft
+
+The 1.8% credited back for interest on collateral is **our estimate, not a disclosed figure** — the filing shows the cash position but not the income earned on it. Treat the 11% all-in cost as an approximation with its working shown rather than a reported number. It also leaves out a third, smaller drag: the trading costs the fund incurs turning over its own book each day, which no filing separates out.
+
+Our figures also come from one fund over particular windows, which is a fair thing to be suspicious of. The underlying relationship is neither ours nor new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes turn on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result above.
+
+<p class="note-aside">A note on what this is not. We are not telling you to buy or avoid anything, and we name these funds only because the arithmetic needs a real example — the mechanism belongs to every daily-reset product, whichever issuer runs it. We have no commercial relationship with any fund manager or exchange, carry no advertising, and earn nothing from any link on this page.</p>
+
+<p class="note-legal">General information and education only. This is not financial advice and takes no account of your objectives, situation or needs. Leveraged products can lose value rapidly, including in markets that eventually move your way. Past returns describe the past. Check current fund documents before relying on anything here.</p>
+
+</div>

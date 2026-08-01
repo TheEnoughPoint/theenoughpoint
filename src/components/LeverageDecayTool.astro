@@ -1,0 +1,257 @@
+---
+// Daily-reset leverage calculator — what a 2x or 3x fund actually delivers over a
+// holding period, versus the "2x/3x the return" that people assume.
+//
+// The arithmetic and its derivation live in src/utils/leverageDecay.ts. The script
+// below mirrors that module so the page works without a client bundle; if you change
+// one, change both. The derivation is documented in the module, not here.
+import { Font } from 'astro:assets';
+---
+
+<Font cssVariable="--font-mono" />
+
+<div class="ld">
+  <div class="ld-head">
+    <span class="ld-lbl">The gap, on your own assumptions</span>
+    <span class="ld-lbl accent">Interactive</span>
+  </div>
+
+  <div class="ld-body">
+    <div class="ld-grid">
+      <label class="ld-f">
+        <span>The index returns, per year</span>
+        <span class="ld-in"><input type="text" id="ld-ret" value="10" inputmode="decimal"><i>%</i></span>
+      </label>
+
+      <label class="ld-f">
+        <span>How much it bounces around <em>(volatility)</em></span>
+        <span class="ld-in"><input type="text" id="ld-vol" value="30" inputmode="decimal"><i>%</i></span>
+      </label>
+
+      <label class="ld-f">
+        <span>The fund resets to</span>
+        <span class="ld-in">
+          <select id="ld-lev">
+            <option value="2">2&times; daily</option>
+            <option value="3" selected>3&times; daily</option>
+          </select>
+        </span>
+      </label>
+
+      <!-- Default one year, not five. Five invites "nobody holds these that long"
+           and lets the reader dismiss the result. One year is a holding period a
+           real person defends, and the fund still loses money in a rising market. -->
+      <label class="ld-f">
+        <span>You hold it for</span>
+        <span class="ld-in"><input type="text" id="ld-yrs" value="1" inputmode="decimal"><i>yrs</i></span>
+      </label>
+
+      <label class="ld-f">
+        <span>Published expense ratio</span>
+        <span class="ld-in"><input type="text" id="ld-exp" value="1.32" inputmode="decimal"><i>%</i></span>
+      </label>
+
+      <label class="ld-f">
+        <span>Rate it pays to borrow <em>(short rate + spread)</em></span>
+        <span class="ld-in"><input type="text" id="ld-fin" value="4.55" inputmode="decimal"><i>%</i></span>
+      </label>
+    </div>
+    <p class="ld-hint">Volatility is how much the index swings from day to day, annualised. A broad
+    developed market sits near 15%. A single country or sector runs 25&ndash;40%. A single stock can
+    be far higher. The borrowing rate is a short-term benchmark plus the bank&rsquo;s spread —
+    around 4.5% in mid-2026 — and a fund that gives you 3&times; is financing two of those three
+    units.</p>
+    <p class="ld-cost" id="ld-cost-line">—</p>
+  </div>
+
+  <div class="ld-bars">
+    <div class="ld-bar">
+      <div class="ld-bar-l"><span>Just owning the index</span><b class="num" id="ld-u">—</b></div>
+      <div class="ld-track"><div class="ld-fill u" id="ld-u-bar"></div></div>
+    </div>
+    <div class="ld-bar">
+      <div class="ld-bar-l"><span>What people assume the fund does</span><b class="num" id="ld-n">—</b></div>
+      <div class="ld-track"><div class="ld-fill n" id="ld-n-bar"></div></div>
+    </div>
+    <div class="ld-bar">
+      <div class="ld-bar-l"><span>What the daily-reset fund delivers</span><b class="num" id="ld-a">—</b></div>
+      <div class="ld-track"><div class="ld-fill a" id="ld-a-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="ld-out">
+    <div class="ld-out-s" id="ld-say">—</div>
+  </div>
+
+  <div class="ld-be">
+    <div class="ld-be-n num" id="ld-be">—</div>
+    <div>
+      <h4>What the index must return for the leveraged fund to merely match it</h4>
+      <p id="ld-be-p">—</p>
+    </div>
+  </div>
+
+  <div class="ld-notes">
+    <p><b>What this is.</b> A model of one thing: the cost of resetting exposure every day in a
+    market that moves. It answers what this structure does to a path with these characteristics,
+    not what any particular fund will return.</p>
+    <p><b>What it leaves out.</b> Gap risk, borrowing costs that change, tracking error and tax.
+    Real markets are also not as well behaved as the model assumes — in practice the drag tends to
+    be worse than this, not better.</p>
+  </div>
+</div>
+
+<style is:global>
+.ld{
+  --ld-bg2:var(--color-surface); --ld-bd:var(--color-border); --ld-bd2:#D5CDBB;
+  --ld-t1:var(--color-dark); --ld-t2:var(--color-body); --ld-t3:var(--color-muted);
+  --ld-g:var(--color-brand-600); --ld-g2:var(--color-brand-700);
+  --ld-r:#c0392b; --ld-r-text:#a93226; --ld-r-bg:rgba(192,57,43,0.07); --ld-r-bd:rgba(192,57,43,0.22);
+  --ld-a-text:#7A5A1D; --ld-a-bg:rgba(200,154,60,0.10); --ld-a-bd:rgba(156,117,38,0.25);
+  --ld-gold:var(--color-gold);
+  --ld-deep:var(--color-navy); --ld-on-deep:#8FA0B5;
+  --ld-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--ld-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--ld-t1)
+}
+.ld .num{font-family:var(--ld-mono);font-variant-numeric:tabular-nums}
+.ld-head{padding:14px 22px;background:var(--ld-bg2);border-bottom:1px solid var(--ld-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ld-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ld-t3)}
+.ld-lbl.accent{color:var(--ld-g2)}
+.ld-body{padding:18px 22px 16px}
+.ld-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 26px}
+.ld-f{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0}
+.ld-f > span:first-child{font-size:14px;color:var(--ld-t2);line-height:1.35}
+.ld-f em{font-style:normal;color:var(--ld-t3)}
+.ld-in{display:inline-flex;align-items:baseline;font-family:var(--ld-mono);font-size:15px;font-weight:600}
+.ld-in i{font-style:normal;color:var(--ld-t3);margin-left:3px;font-size:13px}
+.ld-in input{font-family:var(--ld-mono);font-size:15px;font-weight:600;color:var(--ld-t1);
+  background:none;border:none;border-bottom:1px dashed var(--ld-bd2);text-align:right;
+  width:4.5ch;padding:0 0 1px}
+.ld-in input:focus{outline:none;border-bottom:1px solid var(--ld-g);color:var(--ld-g2);box-shadow:none}
+.ld-in select{font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ld-t1);
+  background:#fff;border:1px solid var(--ld-bd);border-radius:5px;padding:3px 6px}
+.post-content .ld-hint{font-size:12px;color:var(--ld-t3);line-height:1.5;margin:12px 0 0}
+.post-content .ld-cost{font-size:13px;color:var(--ld-t2);line-height:1.55;margin:11px 0 0;
+  padding:10px 12px;background:var(--ld-a-bg);border:1px solid var(--ld-a-bd);border-radius:6px}
+.ld-cost b{font-family:var(--ld-mono);color:var(--ld-a-text)}
+
+.ld-bars{padding:4px 22px 18px;display:flex;flex-direction:column;gap:13px}
+.ld-bar-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:5px}
+.ld-bar-l span{font-size:13.5px;color:var(--ld-t2)}
+.ld-bar-l b{font-family:var(--ld-mono);font-size:15px;font-weight:600;color:var(--ld-t1)}
+.ld-track{height:10px;background:var(--color-surface-alt);border-radius:999px;overflow:hidden}
+.ld-fill{height:100%;border-radius:999px;transition:width .3s ease;min-width:2px}
+.ld-fill.u{background:var(--ld-g)}
+.ld-fill.n{background:var(--ld-gold)}
+.ld-fill.a{background:var(--ld-r)}
+
+.ld-out{background:var(--ld-deep);color:#fff;padding:17px 22px}
+.ld-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.ld-out-s b{font-family:var(--ld-mono);font-weight:600;color:#fff}
+
+.ld-be{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;
+  padding:16px 22px;background:var(--ld-a-bg);border-top:1px solid var(--ld-bd)}
+.ld-be-n{font-size:27px;font-weight:700;color:var(--ld-a-text);white-space:nowrap;letter-spacing:-.5px}
+.post-content .ld-be h4{font-size:13.5px;font-weight:700;color:var(--ld-t1);margin:0 0 3px;letter-spacing:0}
+.post-content .ld-be p{font-size:13px;color:var(--ld-t2);line-height:1.5;margin:0}
+
+.ld-notes{padding:15px 22px 17px;border-top:1px solid var(--ld-bd);background:var(--ld-bg2)}
+.post-content .ld-notes p{font-size:12.5px;line-height:1.55;color:var(--ld-t3);margin:0 0 7px}
+.post-content .ld-notes p:last-child{margin-bottom:0}
+.ld-notes b{color:var(--ld-t2)}
+
+@media(max-width:640px){
+  .ld-grid{grid-template-columns:1fr;gap:10px}
+  .ld-be{grid-template-columns:1fr;gap:7px}
+}
+@media(prefers-reduced-motion:reduce){.ld *{transition:none!important}}
+</style>
+
+<script is:inline>
+(function(){
+const $ = id => document.getElementById(id);
+const pct = (n, d) => (n*100).toFixed(d === undefined ? 1 : d) + '%';
+const numOf = el => { const n = parseFloat(String(el.value).replace(/[^\d.\-]/g,'')); return isFinite(n) ? n : 0; };
+
+/* Mirrors src/utils/leverageDecay.ts — see that file for the derivation.
+   leveraged CAGR = (1+g)^L * exp(-L(L-1)s^2/2) - 1, then net of all-in costs,
+   where all-in = expense ratio + (L-1) x the rate the fund pays to borrow. */
+function computeDecay(g, s, L, t, e, f){
+  const underlyingTotal = Math.pow(1+g, t) - 1;
+  const dragFactor = Math.exp(-L*(L-1)*s*s/2);
+  const financingCostPerYear = (L-1)*f;
+  const allInCostPerYear = e + financingCostPerYear;
+  const costFactor = 1 - allInCostPerYear;
+  const leveragedCagrGross = Math.pow(1+g, L)*dragFactor - 1;
+  const leveragedCagr = (1+leveragedCagrGross)*costFactor - 1;
+  return {
+    underlyingTotal,
+    naiveTotal: L*underlyingTotal,
+    leveragedTotal: Math.pow(1+leveragedCagr, t) - 1,
+    volatilityDragPerYear: 1 - dragFactor,
+    financingCostPerYear,
+    allInCostPerYear,
+    breakEvenCagr: Math.pow(1/(dragFactor*costFactor), 1/L) - 1,
+  };
+}
+
+function update(){
+  const g = numOf($('ld-ret'))/100;
+  const s = Math.max(0, numOf($('ld-vol'))/100);
+  const L = parseFloat($('ld-lev').value);
+  const t = Math.max(0, numOf($('ld-yrs')));
+  const e = numOf($('ld-exp'))/100;
+  const f = numOf($('ld-fin'))/100;
+
+  const r = computeDecay(g, s, L, t, e, f);
+
+  $('ld-cost-line').innerHTML = 'All-in cost of holding it: <b>' + pct(r.allInCostPerYear)
+    + ' a year</b> — the ' + pct(e) + ' expense ratio plus ' + pct(r.financingCostPerYear)
+    + ' of financing on the borrowed ' + (L-1) + ' units. Only the first figure appears in the '
+    + 'fund&rsquo;s headline fee.';
+
+  $('ld-u').textContent = pct(r.underlyingTotal);
+  $('ld-n').textContent = pct(r.naiveTotal);
+  $('ld-a').textContent = pct(r.leveragedTotal);
+
+  // bars scale to the largest positive figure so the shortfall is visible at a glance
+  const scale = Math.max(r.naiveTotal, r.underlyingTotal, r.leveragedTotal, 0.0001);
+  const w = v => Math.max(0, Math.min(100, v/scale*100)) + '%';
+  $('ld-u-bar').style.width = w(r.underlyingTotal);
+  $('ld-n-bar').style.width = w(r.naiveTotal);
+  $('ld-a-bar').style.width = w(r.leveragedTotal);
+
+  const gap = r.naiveTotal - r.leveragedTotal;
+  if (t <= 0){
+    $('ld-say').textContent = 'Enter a holding period to see the gap.';
+  } else if (r.leveragedTotal < r.underlyingTotal){
+    $('ld-say').innerHTML = 'Over ' + t + (t === 1 ? ' year' : ' years') + ', the ' + L
+      + '&times; fund returns <b>' + pct(r.leveragedTotal) + '</b> — less than the <b>'
+      + pct(r.underlyingTotal) + '</b> from simply owning the index, and <b>'
+      + pct(gap) + '</b> short of what ' + L + '&times; sounds like it promises.';
+  } else {
+    $('ld-say').innerHTML = 'Over ' + t + (t === 1 ? ' year' : ' years') + ', the ' + L
+      + '&times; fund returns <b>' + pct(r.leveragedTotal) + '</b> against <b>'
+      + pct(r.underlyingTotal) + '</b> for the index itself — but still <b>'
+      + pct(gap) + '</b> short of the ' + L + '&times; people expect.';
+  }
+
+  $('ld-be').textContent = pct(r.breakEvenCagr);
+  $('ld-be-p').innerHTML = 'At ' + pct(s, 0) + ' volatility and ' + pct(r.allInCostPerYear)
+    + ' of annual cost, the index has to compound at <b>' + pct(r.breakEvenCagr) + ' a year</b> — '
+    + 'about ' + pct(Math.pow(1 + r.breakEvenCagr, 0.25) - 1) + ' a quarter — for the ' + L
+    + '&times; fund to return anything at all. Below that it loses money in a rising market.';
+}
+
+function init(){
+  ['ld-ret','ld-vol','ld-yrs','ld-exp','ld-fin'].forEach(id => $(id).addEventListener('input', update));
+  $('ld-lev').addEventListener('change', update);
+  update();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+})();
+</script>

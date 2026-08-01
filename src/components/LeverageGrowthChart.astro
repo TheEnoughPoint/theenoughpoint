@@ -1,0 +1,107 @@
+---
+// "What S$10,000 became" — the immediate version of the performance table.
+//
+// WHY BARS AND NOT A TIME SERIES. The obvious visual is the two funds' price
+// lines. Over the window people have in mind (the 2024–26 Korea run) that chart
+// argues the OPPOSITE of the finding: the 3x fund returned +286% against the
+// index's +144%, so it looks like the winner. The decay only becomes visible
+// against a third, hypothetical "3x the cumulative return" line, which is a
+// harder read. Over five and ten years the ranking actually inverts, and two
+// bars carry that instantly.
+//
+// Values are compounded from each issuer's published annualised NAV returns
+// (Direxion and iShares, as of 30 June 2026) — 10,000 x (1 + CAGR)^n. Nothing
+// here is modelled or estimated.
+//
+// Palette validated with the dataviz palette checker in both modes: green/blue
+// clears the lightness band, chroma floor, CVD separation and contrast on both
+// surfaces. Gold was rejected — too close to green in hue for the dark band —
+// and red was rejected deliberately: colouring the leveraged fund as "bad"
+// would be an editorial verdict on a named product.
+const PERIODS = [
+  { label: 'After 5 years',  index: 23944, lev: 19077 },
+  { label: 'After 10 years', index: 46930, lev: 38427 },
+];
+const MAX = 46930;
+const fmt = (n: number) => 'S$' + n.toLocaleString('en-US');
+---
+
+<figure class="lg">
+  <figcaption class="lg-cap">
+    <h4>What S$10,000 became</h4>
+    <p>Compounded from the annualised returns each fund publishes, as of 30 June 2026.</p>
+  </figcaption>
+
+  <div class="lg-legend">
+    <span class="lg-key"><i class="lg-sw idx"></i>The ordinary index fund</span>
+    <span class="lg-key"><i class="lg-sw lev"></i>The 3&times; fund</span>
+  </div>
+
+  <div class="lg-plot">
+    {PERIODS.map((p) => (
+      <div class="lg-group">
+        <div class="lg-glabel">{p.label}</div>
+        <div class="lg-rows">
+          <div class="lg-row" title={`Index fund: ${fmt(p.index)}`}>
+            <div class="lg-bar idx" style={`width:${(p.index / MAX) * 100}%`}></div>
+            <span class="lg-val">{fmt(p.index)}</span>
+          </div>
+          <div class="lg-row" title={`3x fund: ${fmt(p.lev)}`}>
+            <div class="lg-bar lev" style={`width:${(p.lev / MAX) * 100}%`}></div>
+            <span class="lg-val">{fmt(p.lev)}</span>
+          </div>
+        </div>
+        <div class="lg-gap">
+          {fmt(p.index - p.lev)} less, from three times the exposure
+        </div>
+      </div>
+    ))}
+  </div>
+</figure>
+
+<style is:global>
+.lg{
+  --lg-idx:#1A8754;          /* validated light-mode pair */
+  --lg-lev:#2563EB;
+  --lg-surface:#fff;
+  --lg-rule:var(--color-border);
+  --lg-ink:var(--color-dark);
+  --lg-body:var(--color-body);
+  --lg-muted:var(--color-muted);
+  --lg-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 18px;background:var(--lg-surface);
+  border:1px solid var(--lg-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){
+  .lg{ --lg-idx:#2FA87A; --lg-lev:#4E86DD; }   /* validated dark-mode steps, not a flip */
+}
+.post-content .lg-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .lg-cap h4{margin:0 0 3px;font-size:15px;font-weight:700;color:var(--lg-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .lg-cap p{margin:0;font-size:12.5px;color:var(--lg-muted);line-height:1.5}
+
+.lg-legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px}
+.lg-key{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--lg-body)}
+.lg-sw{width:11px;height:11px;border-radius:3px;flex:none}
+.lg-sw.idx{background:var(--lg-idx)}
+.lg-sw.lev{background:var(--lg-lev)}
+
+.lg-plot{display:flex;flex-direction:column;gap:18px}
+.lg-glabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
+  color:var(--lg-muted);margin-bottom:7px}
+/* 2px surface gap between adjacent bars */
+.lg-rows{display:flex;flex-direction:column;gap:2px}
+.lg-row{display:flex;align-items:center;gap:10px}
+.lg-bar{height:22px;border-radius:0 4px 4px 0;transition:width .4s ease;min-width:3px}
+.lg-bar.idx{background:var(--lg-idx)}
+.lg-bar.lev{background:var(--lg-lev)}
+.lg-val{font-family:var(--lg-mono);font-variant-numeric:tabular-nums;font-size:13.5px;
+  font-weight:600;color:var(--lg-ink);white-space:nowrap}
+.lg-gap{margin-top:7px;font-size:12.5px;color:var(--lg-muted);padding-left:1px}
+
+@media(max-width:560px){
+  .lg{padding:16px 16px 14px}
+  .lg-val{font-size:12.5px}
+}
+@media(prefers-reduced-motion:reduce){ .lg-bar{transition:none} }
+</style>
