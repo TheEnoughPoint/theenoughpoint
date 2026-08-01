@@ -45,8 +45,18 @@ export interface DecayInputs {
   leverage: number;
   /** Holding period in years. */
   years: number;
-  /** All-in annual cost of the leveraged fund (expense ratio + financing), decimal. */
-  annualCost: number;
+  /** The fund's published expense ratio, as a decimal (0.0132 = 1.32%). */
+  expenseRatio: number;
+  /**
+   * All-in annual financing rate the fund pays on its borrowed exposure —
+   * a short-term benchmark plus the counterparty spread (0.0455 = 4.55%).
+   *
+   * This is the cost the published expense ratio does NOT contain. Direxion's
+   * own expense-limitation agreement excludes "swap financing and related
+   * costs" and states plainly: "If these expenses were included, the expense
+   * ratio would be higher."
+   */
+  financingRate: number;
 }
 
 export interface DecayResult {
@@ -60,33 +70,48 @@ export interface DecayResult {
   leveragedTotal: number;
   /** Annual drag from the daily reset alone, as a decimal. */
   volatilityDragPerYear: number;
+  /** Annual financing cost on the borrowed exposure, (L-1) x financingRate. */
+  financingCostPerYear: number;
+  /** Expense ratio plus financing — the cost that actually applies. */
+  allInCostPerYear: number;
   /** Leveraged fund's compound annual growth rate, after costs. */
   leveragedCagr: number;
-  /** Underlying CAGR the fund needs just to match the UNLEVERAGED fund, before costs. */
+  /** Underlying CAGR at which the leveraged fund merely breaks even, after all costs. */
   breakEvenCagr: number;
 }
 
 export function computeDecay(input: DecayInputs): DecayResult {
-  const { underlyingCagr: g, volatility: s, leverage: L, years: t, annualCost: c } = input;
+  const { underlyingCagr: g, volatility: s, leverage: L, years: t,
+          expenseRatio: e, financingRate: f } = input;
 
   const underlyingTotal = Math.pow(1 + g, t) - 1;
   const naiveTotal = L * underlyingTotal;
 
   // exp(−L(L−1)σ²/2) — the daily-reset drag, per year
   const dragFactor = Math.exp(-L * (L - 1) * s * s / 2);
-  const volatilityDragPerYear = 1 - dragFactor;
+
+  // The fund holds L units of exposure against 1 unit of investor equity, so it
+  // finances (L−1). KORU's own filings show swap notional running a little above
+  // that (2.49x for a 3x fund), which makes this model conservative rather than
+  // alarmist.
+  const financingCostPerYear = (L - 1) * f;
+  const allInCostPerYear = e + financingCostPerYear;
+  const costFactor = 1 - allInCostPerYear;
 
   const leveragedCagrGross = Math.pow(1 + g, L) * dragFactor - 1;
-  const leveragedCagr = (1 + leveragedCagrGross) * (1 - c) - 1;
+  const leveragedCagr = (1 + leveragedCagrGross) * costFactor - 1;
 
   return {
     underlyingTotal,
     naiveTotal,
     leveragedTotalGross: Math.pow(1 + leveragedCagrGross, t) - 1,
     leveragedTotal: Math.pow(1 + leveragedCagr, t) - 1,
-    volatilityDragPerYear,
+    volatilityDragPerYear: 1 - dragFactor,
+    financingCostPerYear,
+    allInCostPerYear,
     leveragedCagr,
-    // Setting leveraged CAGR = underlying CAGR and solving gives g* = exp(Lσ²/2) − 1
-    breakEvenCagr: Math.exp(L * s * s / 2) - 1,
+    // Break-even: the underlying CAGR at which the leveraged fund returns zero,
+    // i.e. (1+g)^L · dragFactor · costFactor = 1.
+    breakEvenCagr: Math.pow(1 / (dragFactor * costFactor), 1 / L) - 1,
   };
 }
