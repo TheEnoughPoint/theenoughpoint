@@ -91,9 +91,14 @@ export function computeDecay(input: DecayInputs): DecayResult {
   const dragFactor = Math.exp(-L * (L - 1) * s * s / 2);
 
   // The fund holds L units of exposure against 1 unit of investor equity, so it
-  // finances (L−1). KORU's own filings show swap notional running a little above
-  // that (2.49x for a 3x fund), which makes this model conservative rather than
-  // alarmist.
+  // finances (L−1).
+  //
+  // Checked against KORU's Form N-PORT for 30 April 2026: swap notional ran at
+  // 2.49x NAV (not 2x), costing 11.31% of NAV gross — but roughly 49% of assets
+  // sat in cash as collateral, which at a similar short rate returns about 1.78%.
+  // Net financing was therefore ~9.54%, and this model returns 9.10% on the same
+  // inputs. The simple form lands within half a point of the filing precisely
+  // because the extra notional above 2x is offset by the collateral yield.
   const financingCostPerYear = (L - 1) * f;
   const allInCostPerYear = e + financingCostPerYear;
   const costFactor = 1 - allInCostPerYear;
