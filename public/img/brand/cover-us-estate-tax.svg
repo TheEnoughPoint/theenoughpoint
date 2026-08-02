@@ -42,4 +42,8 @@
   <text x="890" y="505" text-anchor="end"
         font-family="Arial, Helvetica, sans-serif" font-size="15" letter-spacing="0.5"
         fill="#E08074">US estate tax</text>
+
+  <text x="600" y="572" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700"
+        letter-spacing="2.6" fill="#C89A3C" opacity="0.72">THEENOUGHPOINT.COM</text>
 </svg>

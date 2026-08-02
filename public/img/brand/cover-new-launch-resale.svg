@@ -4,7 +4,10 @@
        cover is the one place a reader cannot be asked to learn a unit — so the same
        finding is shown in money. S$3,817 is our annualised 2011-2021 gap compounded
        over six years on S$1.5m; rounded down on the cover, exact in the article.
-       Stacked, following cover-leverage-decay.
+       Stacked, following cover-leverage-decay. The two bars are the finding's
+       own proportion: S$3,800 of advantage against S$44,600 of stamp duty on the
+       same purchase, drawn to scale on a 500px track so the picture and the
+       numbers cannot disagree.
        Safe zone: square thumbnail crops to x 300-900. -->
   <defs>
     <radialGradient id="bgNLR" cx="50%" cy="42%" r="76%">
@@ -29,10 +32,28 @@
 
   <line x1="450" y1="386" x2="750" y2="386" stroke="#C89A3C" stroke-width="1.5" opacity="0.5"/>
 
-  <text x="600" y="436" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" font-size="27"
-        fill="#F6F4EF" opacity="0.86">on a S$1.5m home held six years.</text>
-  <text x="600" y="476" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" font-size="27"
-        fill="#F6F4EF" opacity="0.86">The stamp duty is S$44,600.</text>
+  <text x="600" y="428" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="26"
+        fill="#F6F4EF" opacity="0.86">on a S$1.5m home held six years</text>
+
+  <!-- to scale: 3,800 against 44,600 on a 500px track -->
+  <text x="336" y="486" text-anchor="end"
+        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600"
+        fill="#F6F4EF" opacity="0.72">the advantage</text>
+  <rect x="350" y="472" width="43" height="18" rx="3" fill="#C89A3C"/>
+  <text x="405" y="486"
+        font-family="Georgia, 'Times New Roman', serif" font-size="19"
+        fill="#C89A3C">S$3,800</text>
+
+  <text x="336" y="522" text-anchor="end"
+        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600"
+        fill="#F6F4EF" opacity="0.72">the stamp duty</text>
+  <rect x="350" y="508" width="500" height="18" rx="3" fill="#8FA0B5" opacity="0.8"/>
+  <text x="862" y="522"
+        font-family="Georgia, 'Times New Roman', serif" font-size="19"
+        fill="#F6F4EF" opacity="0.86">S$44,600</text>
+
+  <text x="600" y="572" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700"
+        letter-spacing="2.6" fill="#C89A3C" opacity="0.72">THEENOUGHPOINT.COM</text>
 </svg>
