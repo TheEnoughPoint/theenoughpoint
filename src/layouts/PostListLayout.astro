@@ -48,7 +48,10 @@ if (showHero) {
   <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">
     {showHero && (
       <>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+        <!-- items-start: without it the grid stretches the hero column to match
+             the sidebar, which is taller, leaving dead space under the banner.
+             It was hidden while a card overhung the banner's bottom edge. -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 lg:items-start">
           <div class="lg:col-span-2">
             <HeroMain />
           </div>
