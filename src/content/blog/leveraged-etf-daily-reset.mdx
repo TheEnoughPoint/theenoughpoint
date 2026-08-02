@@ -17,7 +17,7 @@ excerpt: |
 import LeverageDecayTool from '@src/components/LeverageDecayTool.astro';
 import LeverageSpreadChart from '@src/components/LeverageSpreadChart.astro';
 import KoreaCrashChart from '@src/components/KoreaCrashChart.astro';
-import NvidiaGapChart from '@src/components/NvidiaGapChart.astro';
+import NvidiaPathChart from '@src/components/NvidiaPathChart.astro';
 
 On 27 May 2026, Korea did something no market had done before: it listed leveraged funds on **single stocks**. Two, specifically — Samsung Electronics and SK Hynix, the only names large enough to qualify. Each promised twice the daily move.
 
@@ -51,7 +51,9 @@ The 2× fund in that opening chart is not the Korean one. It is run by CSOP, lis
 
 But the clearest warning in CSOP's range is not a memory stock at all.
 
-<NvidiaGapChart />
+<NvidiaPathChart />
+
+**That round trip is what does the damage.** A holder who looked in May saw a gain of nearly 40% and a decision to make. The same holder looking on 30 June had six months of nothing, in a stock that went up.
 
 The SK Hynix fund carries the opposite lesson at the same time. Bought in January and held, it returned roughly **798%** against the stock's 307% — where twice the stock would have been 614%. It beat the multiple printed on its own label, because a market that keeps going one way compounds leverage in your favour. That is exactly why people keep buying these.
 
@@ -153,6 +155,8 @@ If you cannot write both down, you have your answer. And if you can, keep them s
 All standardised returns are each issuer's own published figures, NAV basis, as of 30 June 2026: [ProShares](https://www.proshares.com/our-etfs/leveraged-and-inverse/tqqq) for TQQQ and UPRO, [Direxion](https://www.direxion.com/product/daily-semiconductor-bull-bear-3x-etfs) for SOXL, TNA and KORU, [Invesco](https://www.invesco.com/qqq-etf/en/performance.html) for QQQ, [iShares](https://www.ishares.com/us/products/239705/ishares-phlx-semiconductor-etf) for SOXX, IWM and EWY, and [State Street](https://www.ssga.com/us/en/individual/etfs/spdr-sp-500-etf-trust-spy) for SPY. Those published figures are **average annual returns, not cumulative ones**, for every period of a year or longer — the issuers say so in their own fact sheets ("returns for performance under one year are cumulative, not annualized"). The outcome multiples are ours, computed by compounding those annual averages over ten years; the underlying figures sit in the table so the arithmetic can be checked. We compare each leveraged fund against the ordinary *fund* tracking the same market rather than against the index itself, because an index cannot be bought — which also makes the comparison slightly more conservative than using the index would. SOXL and SOXX track the same benchmark, the NYSE Semiconductor Index, which makes that the cleanest pair in the set. Fund objective and warning language: the [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) Korea product pages. Price paths, drawdowns and time-underwater computed by us from split-adjusted public closing prices, July 2010 to July 2026.
 
 Hong Kong products, holdings, year-to-date returns, cost disclosures and the "not intended for holding longer than one day" wording: [CSOP Asset Management's own product pages and key facts statements](https://www.csopasset.com/en/products/hk-skhy-2l) for the SK Hynix 2× (7709.HK), Samsung Electronics 2× (7747.HK) and Nvidia 2× (7788.HK), with returns as at 30 June 2026 and assets as at 31 July 2026. The report that the SK Hynix product peaked above US$20 billion before falling 70–80% is from secondary press rather than an issuer or exchange statement — we have flagged it as such rather than dropping it, because the direction is corroborated by the fund's own published performance.
+
+The Nvidia chart is built from daily closing prices for NVDA and 7788.HK, 31 December 2025 to 30 June 2026, rebased by us so both begin at zero. **These are traded prices, not net asset values**, and the distinction is not cosmetic: CSOP's published year-to-date figure for the fund is −0.49% on a NAV basis, while its traded price ended the same period 5.06% down. We show the traded price because that is what an investor buys and sells at, and we print both rather than choose the flattering one. Note also that the fund is listed in Hong Kong and the stock trades in New York, so the Hong Kong session closes before the American one opens — the fund's move on any given day reflects the stock's move the day before. We checked this rather than assumed it: fund returns correlate 0.77 with the previous day's Nvidia return and only 0.17 with the same day's.
 
 Korean single-stock leveraged funds — listing date, products and issuers: [Samsung Asset Management's own KODEX product pages](https://www.samsungfund.com/etf/product/view.do?id=2ETFV6) and [KED Global](https://www.kedglobal.com/korean-stock-market/newsView/ked202605270003). Asset growth and the retail share: Korean financial press including [Financial Today](https://www.ftoday.co.kr/news/articleView.html?idxno=360769) and [Seoul Economic Daily](https://en.sedaily.com/finance/2026/07/18/samsung-hynix-single-stock-leverage-etfs-draw-7-trillion). The underlying stocks' drawdown: [market data via Yahoo Finance](https://finance.yahoo.com/markets/article/micron-samsung-sk-hynix-just-dragged-memory-stocks-into-a-bear-market-154549356.html). Regulatory response and deposit change: [Korea JoongAng Daily](https://www.koreajoongangdaily.com/opinion/the-dilemma-of-singlestock-leveraged-etfs/12773384).
 
