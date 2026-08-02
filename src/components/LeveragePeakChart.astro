@@ -36,8 +36,9 @@ const sign = (v: number) => (v > 0 ? '+' : '') + Math.round(v) + '%';
 
 <figure class="pk">
   <figcaption class="pk-cap">
-    <h4>The 3&times; fund topped out seventeen days before the market did</h4>
-    <p>Change since 1 May 2026. Daily closing prices, both on the same scale.</p>
+    <h4>The index fell 3%. The 3&times; fund fell 50%.</h4>
+    <p>1 May to 31 July 2026, Korea. The 3&times; fund against the index it tracks, both on the
+    same scale.</p>
   </figcaption>
 
   <div class="pk-wrap">
@@ -75,8 +76,9 @@ const sign = (v: number) => (v > 0 ? '+' : '') + Math.round(v) + '%';
     </svg>
   </div>
 
-  <p class="pk-foot">In those seventeen days the index rose a further <b>1.2%</b>. Over exactly the
-  same stretch the 3&times; fund fell <b>13.8%</b>.</p>
+  <p class="pk-foot">Three times a 3% fall is a <b>9%</b> fall. Holders of the 3&times; fund lost <b>50%</b> &mdash; roughly <b>sixteen times</b> the index&rsquo;s loss, not three. The multiple on the label describes a single day; over three months it described nothing that happened.</p>
+
+  <p class="pk-note">It also topped out on <b>1 June</b>, seventeen days before the index peaked on <b>18 June</b>: over that stretch the index rose a further 1.2% while the fund lost 13.8%, falling while the market it tracks was still setting highs.</p>
 </figure>
 
 <style is:global>
@@ -124,6 +126,8 @@ const sign = (v: number) => (v > 0 ? '+' : '') + Math.round(v) + '%';
 .pk-endval{font-family:var(--pk-mono);font-size:12.5px;font-weight:600;text-anchor:start}
 .pk-endval.idx{fill:var(--pk-idx)}
 .pk-endval.lev{fill:var(--pk-lev)}
+.post-content .pk-note{font-size:11.5px;color:var(--pk-muted);line-height:1.55;margin:9px 0 0}
+.pk-note b{font-family:var(--pk-mono);color:var(--pk-body);font-weight:600}
 .post-content .pk-foot{font-size:13px;color:var(--pk-body);line-height:1.55;margin:10px 0 0}
 .pk-foot b{font-family:var(--pk-mono);color:var(--pk-ink)}
 @media(max-width:560px){ .pk{padding:16px 14px 13px} }

@@ -19,6 +19,7 @@ import LeverageDecayTool from '@src/components/LeverageDecayTool.astro';
 import LeverageSpreadChart from '@src/components/LeverageSpreadChart.astro';
 import KoreaCrashChart from '@src/components/KoreaCrashChart.astro';
 import NvidiaPathChart from '@src/components/NvidiaPathChart.astro';
+import LeveragePeakChart from '@src/components/LeveragePeakChart.astro';
 import SocialShare from '@src/components/SocialShare.astro';
 
 On 27 May 2026, Korea did something no market had done before: it listed leveraged funds on **single stocks**. Two, specifically — Samsung Electronics and SK Hynix, the only names large enough to qualify. Each promised twice the daily move.
@@ -53,11 +54,7 @@ But the clearest warning in CSOP's range is not a memory stock at all.
 
 <NvidiaPathChart />
 
-**That round trip is what does the damage.** A holder who looked in May saw a gain of nearly 40% and a decision to make. The same holder looking on 30 June had six months of nothing, in a stock that went up.
-
-The SK Hynix fund carries the opposite lesson at the same time. Bought in January and held, it returned roughly **798%** against the stock's 307% — where twice the stock would have been 614%. It beat the multiple printed on its own label, because a market that keeps going one way compounds leverage in your favour. That is exactly why people keep buying these.
-
-Enter six months later, at the June peak, and you got the opening chart instead. Same fund, same calendar year, opposite lives.
+**Nobody holds a chart, they hold a position.** In May this one was up nearly 40%, which is a gain with a decision attached. By 30 June there was nothing left to decide.
 
 The issuer is admirably direct about why. From CSOP's own key facts statement:
 
@@ -74,6 +71,8 @@ None of that makes these products a trap. Look at the same structure elsewhere.
 A holder of the 3× semiconductor fund ended the decade with roughly **seven times** what an ordinary semiconductor fund holder had. The 3× Nasdaq fund averaged **45.5% a year**. These are not near-misses, and anyone who tells you these products are simply a scam has not looked at them.
 
 On other markets the same design did the opposite: 3× small caps and 3× Korea both left their holders with **less than the plain index** over the same period.
+
+It cuts both ways inside a single year, too. The very same SK Hynix 2× that produced the opening chart had returned about **798%** in the six months before it — comfortably more than twice the stock's own 307%.
 
 **Same structure, same decade, outcomes from seven times the index down to below it.** So the product is not the variable. Something inside it produced both results — and it takes two minutes to see, because once you have it, every number above explains itself.
 
@@ -95,9 +94,11 @@ Three times a 1% loss should be 3%. You lost **9%**. No fee was charged and nobo
 
 That is the machine. Every day the market rises, it buys more. Every day the market falls, it sells. It is required to, because the promise is defined against whatever the fund is worth *today*.
 
-**Which explains both halves of the chart above.** In a market that climbs steadily, buying more after every up day is exactly the right move, and the machine hands you more than three times the index — that is the semiconductor and Nasdaq decade. In a market that lurches up and down without going anywhere, the same machine buys high and sells low, over and over, by design. That is small caps, and that is Korea.
+That is the arithmetic. Here is what it did to a real market over three months.
 
-It is not only arithmetic. In Korea this June the 3× country fund peaked on **1 June**, while the index it tracks kept climbing until **18 June**. Over those seventeen days the index ended **1.2%** higher — and the fund, forced to trade into every lurch along the way, lost **13.8%**.
+<LeveragePeakChart />
+
+**Which explains both halves of the chart earlier.** In a market that climbs steadily, buying more after every up day is exactly the right move, and the machine hands you more than three times the index — that is the semiconductor and Nasdaq decade. In a market that lurches up and down without going anywhere, the same machine buys high and sells low, over and over, by design. That is small caps, and that is Korea.
 
 One point in the machine's favour, since it is owed. On the way down it works in reverse: as the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times Korea's 28% drop would have been 85%, and the fund lost 76%. The daily reset is not simply a penalty — it is a **volatility cost, not a direction cost.** What it punishes is chop.
 
