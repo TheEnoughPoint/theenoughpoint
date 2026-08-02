@@ -1,0 +1,105 @@
+---
+// Three marks, one axis, no crash required.
+//
+// What the stock did, what "2x" sounds like it promises, and what the 2x fund
+// actually delivered — over the same six months. The middle bar is the reader's
+// assumption made visible; the gap between it and the bottom bar is the article.
+//
+// Figures are CSOP's own published year-to-date returns to 30 June 2026 for the
+// Nvidia Daily (2x) Leveraged Product, alongside the stock's return on the same
+// page. The "2x implies" figure is ours: simply twice the stock's return, which
+// is what the label leads people to expect and is not what the product promises.
+const STOCK = 7.29;
+const NAIVE = 14.58;
+const FUND = -0.49;
+
+const LO = -4, HI = 16;                       // percentage points
+const ZERO = ((0 - LO) / (HI - LO)) * 100;
+const pos = (v: number) => ((v - LO) / (HI - LO)) * 100;
+const ROWS = [
+  { label: 'Nvidia shares', note: 'the stock itself', v: STOCK, kind: 'stock' },
+  { label: 'What "2×" implies', note: 'twice the stock — the assumption', v: NAIVE, kind: 'naive' },
+  { label: 'The 2× fund', note: 'CSOP Nvidia Daily (2×)', v: FUND, kind: 'fund' },
+];
+const fmt = (v: number) => (v > 0 ? '+' : '−') + Math.abs(v).toFixed(2) + '%';
+---
+
+<figure class="nv">
+  <figcaption class="nv-cap">
+    <h4>Right about Nvidia. Still down.</h4>
+    <p>The first six months of 2026, to 30 June. No crash, no drama — the stock simply rose.</p>
+  </figcaption>
+
+  <div class="nv-plot">
+    {ROWS.map((r) => (
+      <div class:list={['nv-row', `is-${r.kind}`]}>
+        <div class="nv-name"><b>{r.label}</b><span>{r.note}</span></div>
+        <div class="nv-track">
+          <div class="nv-scale">
+            <div class="nv-zero" style={`left:${ZERO}%`}></div>
+            {r.v >= 0
+              ? <div class="nv-bar" style={`left:${ZERO}%;width:${pos(r.v) - ZERO}%`}></div>
+              : <div class="nv-bar neg" style={`right:${100 - ZERO}%;width:${ZERO - pos(r.v)}%`}></div>}
+            {r.v >= 0
+              ? <span class="nv-val" style={`left:calc(${pos(r.v)}% + 8px)`}>{fmt(r.v)}</span>
+              : <span class="nv-val neg" style={`right:calc(${100 - pos(r.v)}% + 8px)`}>{fmt(r.v)}</span>}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <p class="nv-foot">You were right about the most discussed company on earth, you held the
+  product built to double it, and you finished <b>slightly behind where you started</b>.</p>
+</figure>
+
+<style is:global>
+.nv{
+  --nv-stock:#1A8754; --nv-naive:#9AA6B2; --nv-fund:#A93226;
+  --nv-rule:var(--color-border); --nv-ink:var(--color-dark);
+  --nv-body:var(--color-body); --nv-muted:var(--color-muted);
+  --nv-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--nv-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .nv{ --nv-stock:#2FA87A; --nv-naive:#7C8A99; --nv-fund:#E08074; } }
+.post-content .nv-cap{margin:0 0 18px;padding:0;text-align:left}
+.post-content .nv-cap h4{margin:0 0 3px;font-size:16px;font-weight:700;color:var(--nv-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .nv-cap p{margin:0;font-size:12.5px;color:var(--nv-muted);line-height:1.5}
+
+.nv-plot{display:flex;flex-direction:column;gap:12px}
+.nv-row{display:grid;grid-template-columns:168px 1fr;gap:12px;align-items:center}
+.nv-name{display:flex;flex-direction:column;line-height:1.25}
+.nv-name b{font-size:13.5px;color:var(--nv-ink);font-weight:700}
+.nv-name span{font-size:11px;color:var(--nv-muted)}
+/* Bars and labels position against .nv-scale, which sits inside the track's
+   reserved right margin. Positioning them against the padded track let the
+   longest label run outside the card on narrow screens. */
+.nv-track{position:relative;height:22px;padding-right:62px}
+.nv-scale{position:relative;height:100%;width:100%}
+.nv-zero{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--nv-muted);opacity:.5}
+.nv-bar{position:absolute;top:3px;height:16px;border-radius:0 3px 3px 0;transition:width .4s ease;min-width:2px}
+.nv-bar.neg{border-radius:3px 0 0 3px}
+.is-stock .nv-bar{background:var(--nv-stock)}
+.is-naive .nv-bar{background:var(--nv-naive);opacity:.55}
+.is-fund .nv-bar{background:var(--nv-fund)}
+.nv-val{position:absolute;top:3px;font-family:var(--nv-mono);font-variant-numeric:tabular-nums;
+  font-size:13px;font-weight:600;white-space:nowrap;line-height:16px}
+.is-stock .nv-val{color:var(--nv-stock)}
+.is-naive .nv-val{color:var(--nv-muted)}
+.is-fund .nv-val{color:var(--nv-fund)}
+
+.post-content .nv-foot{font-size:14px;color:var(--nv-body);line-height:1.6;margin:14px 0 0;
+  padding-top:13px;border-top:1px solid var(--nv-rule)}
+.nv-foot b{color:var(--nv-ink);font-weight:600}
+
+@media(max-width:600px){
+  .nv{padding:16px 13px 13px}
+  .nv-row{grid-template-columns:118px 1fr;gap:9px}
+  .nv-name b{font-size:12.5px}
+  .nv-name span{font-size:10.5px}
+  .nv-track{padding-right:56px}
+  .nv-val{font-size:12px}
+}
+</style>
