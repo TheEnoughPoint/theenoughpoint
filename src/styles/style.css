@@ -333,7 +333,10 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 }
 
 /* Strong / em */
-.post-content strong { font-weight: 600; color: var(--color-dark); }
+/* 700, not 600. Against 400-weight body text, Inter's semibold is close to
+   invisible at 16px — bolded sentences meant to guide a skimmer simply did not
+   register as bold. The jump to 700 is what makes the emphasis do its job. */
+.post-content strong { font-weight: 700; color: var(--color-dark); }
 .post-content em { font-style: italic; color: var(--color-muted); }
 
 /* Horizontal rule */
