@@ -34,6 +34,11 @@ export default defineConfig({
           'apple',
           'google-play',
 
+          // ── Article sharing ──────────────────────────────────
+          'share-fill',     // native OS share sheet button
+          'link-45deg',     // copy link
+          'check-lg',       // copy confirmation
+
           // ── Post Meta ────────────────────────────────────────
           'person',         // author
           'calendar',       // date
