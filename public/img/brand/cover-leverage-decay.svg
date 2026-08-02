@@ -1,36 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Three times the daily return does not equal three times your return">
-  <!-- Cover for the daily-reset leverage piece. House system: navy field, gold figure.
-       Stacked rather than set on one line — at this type size the three elements
-       collided horizontally. Text extents verified with getBBox after rendering.
-       Safe zone: square thumbnail crops to x 300-900. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="S$10,000 in a 2x fund on SK Hynix became S$1,351 in five weeks, while the shares themselves kept S$4,529">
+  <!-- Cover for the daily-reset leverage piece.
+       House system: navy field, gold figure, small-caps kicker, wordmark at foot.
+
+       Was "3x daily is not equal to 3x yours". True and on-thesis, but abstract —
+       and abstraction loses in a feed. The two sibling covers lead with money
+       (S$3,800, US$60,000) and stop a thumb; this one now does too, using the
+       figure the article itself opens on.
+
+       The two bars are the article's own opening chart in miniature: what
+       S$10,000 was worth at the low on 30 July, in the shares against the 2x
+       fund on them. Widths are proportional to 45.3% and 13.5% of a 500px
+       track, so the picture cannot disagree with the numbers printed beside it.
+
+       Safe zone: the figure, both bars and their values sit inside x 300-900.
+       The two bar labels do not, so a square crop loses them — that crop is only
+       used for an 80px mobile thumbnail where no label is legible anyway. Every
+       other crop on the site is 4:3 or wider and keeps them. The wordmark is
+       centred so it survives every crop. -->
   <defs>
-    <radialGradient id="bg3" cx="50%" cy="42%" r="76%">
+    <radialGradient id="bgLD" cx="50%" cy="40%" r="76%">
       <stop offset="0%" stop-color="#10233D"/>
       <stop offset="100%" stop-color="#081627"/>
     </radialGradient>
   </defs>
 
-  <rect width="1200" height="600" fill="url(#bg3)"/>
+  <rect width="1200" height="600" fill="url(#bgLD)"/>
 
-  <text x="600" y="126" text-anchor="middle"
+  <text x="600" y="100" text-anchor="middle"
         font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
-        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">DAILY-RESET LEVERAGED FUNDS</text>
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">LEVERAGED ETFS &#183; WHAT THE RIDE COSTS</text>
 
-  <text x="600" y="248" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" font-size="82"
-        fill="#C89A3C">3&#215; daily</text>
+  <text x="600" y="252" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="124"
+        fill="#C89A3C">S$1,351</text>
 
-  <text x="600" y="318" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" font-size="46"
-        fill="#C0392B">&#8800;</text>
+  <text x="600" y="302" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600"
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.9">what S$10,000 became in five weeks</text>
 
-  <text x="600" y="412" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" font-size="82"
-        fill="#6B7C91">3&#215; yours</text>
+  <!-- the shares: 45.3% of the starting sum survived -->
+  <text x="336" y="379" text-anchor="end"
+        font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600"
+        fill="#F6F4EF" opacity="0.72">the shares</text>
+  <rect x="350" y="364" width="226" height="20" rx="3" fill="#8FA0B5" opacity="0.85"/>
+  <text x="590" y="380"
+        font-family="Georgia, 'Times New Roman', serif" font-size="21"
+        fill="#F6F4EF" opacity="0.86">S$4,529</text>
 
-  <line x1="470" y1="458" x2="730" y2="458" stroke="#24384F" stroke-width="1"/>
+  <!-- the 2x fund on the same stock, bought the same day: 13.5% survived -->
+  <text x="336" y="437" text-anchor="end"
+        font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600"
+        fill="#F6F4EF" opacity="0.72">the 2&#215; fund</text>
+  <rect x="350" y="422" width="68" height="20" rx="3" fill="#C0392B"/>
+  <text x="432" y="438"
+        font-family="Georgia, 'Times New Roman', serif" font-size="21"
+        fill="#E08074">S$1,351</text>
 
-  <text x="600" y="508" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="26"
-        fill="#F6F4EF" opacity="0.8">the gap is not a fee. it is arithmetic.</text>
+  <line x1="450" y1="492" x2="750" y2="492" stroke="#C89A3C" stroke-width="1.5" opacity="0.42"/>
+
+  <text x="600" y="530" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="25"
+        fill="#F6F4EF" opacity="0.8">The stock merely halved.</text>
+
+  <text x="600" y="572" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700"
+        letter-spacing="2.6" fill="#C89A3C" opacity="0.72">THEENOUGHPOINT.COM</text>
 </svg>
