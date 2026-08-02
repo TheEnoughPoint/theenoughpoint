@@ -58,6 +58,13 @@ const maxSqft = Math.max(...SEGMENTS.map((s) => DEFAULT_BUDGET / s.psf));
       />
     </div>
   </div>
+  {/* The slider is EASED, not linear. A linear track from S$300k to S$5m spends most
+      of its travel above S$2.5m, where almost nobody is shopping, and gives coarse
+      control across S$1m–S$2m, where most of this market actually sits. The square
+      curve puts roughly S$1.5m at the midpoint. Same approach as EstateExposureTool. */}
+  <input class="eg-range" type="range" id="eg-range" min="0" max="1000" step="1"
+         value="505" aria-label="Budget" />
+  <div class="eg-ticks" aria-hidden="true"><span>S$300k</span><span>S$1.5m</span><span>S$5m</span></div>
 
   <div class="eg-rows">
     {SEGMENTS.map((s) => {
@@ -155,9 +162,20 @@ const maxSqft = Math.max(...SEGMENTS.map((s) => DEFAULT_BUDGET / s.psf));
 .eg-field i{font-style:normal;font-size:13px;color:var(--eg-muted)}
 /* type=text + inputmode, not type=number: the spec requires a valid floating-point
    number, so a comma makes the value invalid and the browser silently discards it. */
-.eg-field input{border:0;outline:0;background:none;width:8.5ch;font-family:var(--eg-mono);
+.eg-field input{border:0;outline:0;background:none;width:10ch;font-family:var(--eg-mono);
   font-variant-numeric:tabular-nums;font-size:14.5px;font-weight:600;color:var(--eg-ink)}
 .eg-field:focus-within{border-color:var(--eg-resale);box-shadow:0 0 0 2px rgba(37,99,235,.12)}
+
+.eg-range{-webkit-appearance:none;appearance:none;width:100%;height:4px;
+  background:var(--eg-rule);border-radius:999px;outline:none;cursor:pointer;
+  padding:0;border:none;margin:0 0 6px;display:block}
+.eg-range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--eg-resale);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.18);cursor:grab}
+.eg-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+  background:var(--eg-resale);border:2px solid #fff}
+.eg-range:focus-visible{outline:2px solid var(--eg-resale);outline-offset:4px}
+.eg-ticks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--eg-muted);
+  font-family:var(--eg-mono);margin-bottom:16px}
 
 .eg-rows{display:flex;flex-direction:column;gap:14px}
 .eg-row{display:grid;grid-template-columns:140px 1fr 84px;gap:14px;align-items:center;
@@ -210,6 +228,8 @@ const maxSqft = Math.max(...SEGMENTS.map((s) => DEFAULT_BUDGET / s.psf));
   .eg-key{font-size:10px}
   .eg-val{font-size:11.5px}
   .eg-diff b{font-size:14px}
+  /* a 4px track is hard to grab on a phone; pad the hit area without moving the line */
+  .eg-range{height:6px;padding:14px 0;background-clip:content-box}
 }
 @media(prefers-reduced-motion:reduce){ .eg-bar{transition:none} }
 </style>
@@ -221,12 +241,26 @@ const maxSqft = Math.max(...SEGMENTS.map((s) => DEFAULT_BUDGET / s.psf));
     var input = root.querySelector('#eg-budget');
     var rows = Array.prototype.slice.call(root.querySelectorAll('.eg-row'));
 
+    var range = root.querySelector('#eg-range');
+    var MIN = 300000, MAX = 5000000, CURVE = 2;
+
     // Every read goes through this: +"1,500,000" is NaN.
     function numOf(v) {
       var n = parseFloat(String(v).replace(/[^0-9.]/g, ''));
       return isFinite(n) ? n : 0;
     }
     var fmt = function (n) { return Math.round(n).toLocaleString('en-SG'); };
+
+    // Snap to figures a person would actually say out loud.
+    function roundNice(v) {
+      var step = v < 1000000 ? 10000 : 25000;
+      return Math.round(v / step) * step;
+    }
+    function posToVal(p) { return roundNice(MIN + (MAX - MIN) * Math.pow(p / 1000, CURVE)); }
+    function valToPos(v) {
+      var c = Math.min(Math.max(v, MIN), MAX);
+      return Math.round(1000 * Math.pow((c - MIN) / (MAX - MIN), 1 / CURVE));
+    }
 
     function render() {
       var budget = numOf(input.value);
@@ -247,7 +281,14 @@ const maxSqft = Math.max(...SEGMENTS.map((s) => DEFAULT_BUDGET / s.psf));
       });
     }
 
-    input.addEventListener('input', render);
+    range.addEventListener('input', function () {
+      input.value = fmt(posToVal(+range.value));
+      render();
+    });
+    input.addEventListener('input', function () {
+      range.value = valToPos(numOf(input.value));
+      render();
+    });
     input.addEventListener('blur', function () {
       var n = numOf(input.value);
       input.value = n ? fmt(n) : '';
