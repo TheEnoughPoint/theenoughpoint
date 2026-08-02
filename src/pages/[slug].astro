@@ -121,8 +121,8 @@ function tagSlug(t: string) {
             <Content />
           </div>
 
-          <!-- Tags + Share -->
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 py-4 border-y border-slate-200 mt-8">
+          <!-- Tags -->
+          <div class="flex flex-wrap items-center gap-3 py-4 border-y border-slate-200 mt-8">
             <ul class="flex flex-wrap items-center gap-2 text-sm">
               <li><Icon name="bi:tags" class="size-4 text-slate-400" /></li>
               {tags.map((tag) => (
@@ -131,8 +131,11 @@ function tagSlug(t: string) {
                 </li>
               ))}
             </ul>
-            <SocialShare title={title} pageUrl={Astro.url.href} />
           </div>
+
+          <!-- Share gets its own block: sharing competes badly for attention
+               when it sits in the same row as the tag list. -->
+          <SocialShare title={title} pageUrl={Astro.url.href} />
 
           <AuthorBio author={author} />
           <RelatedArticles posts={related} />
@@ -181,8 +184,8 @@ function tagSlug(t: string) {
             <Content />
           </div>
 
-          <!-- Tags + Share -->
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 py-4 border-y border-cream-dark mt-8">
+          <!-- Tags -->
+          <div class="flex flex-wrap items-center gap-3 py-4 border-y border-cream-dark mt-8">
             <ul class="flex flex-wrap items-center gap-2 text-sm">
               <li><Icon name="bi:tags" class="size-4 text-subtle" /></li>
               {tags.map((tag) => (
@@ -191,8 +194,11 @@ function tagSlug(t: string) {
                 </li>
               ))}
             </ul>
-            <SocialShare title={title} pageUrl={Astro.url.href} />
           </div>
+
+          <!-- Share gets its own block: sharing competes badly for attention
+               when it sits in the same row as the tag list. -->
+          <SocialShare title={title} pageUrl={Astro.url.href} />
 
           <AuthorBio author={author} />
           <RelatedArticles posts={related} />

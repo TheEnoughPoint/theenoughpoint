@@ -4,11 +4,16 @@ import { Icon } from 'astro-icon/components';
 interface Props {
   title: string;
   pageUrl?: string;
+  prompt?: string;
 }
 
 const {
   title,
   pageUrl = Astro.url.href,
+  // A labelled ask, not a bare row of glyphs. Unlabelled icons in a corner read
+  // as page furniture and get skipped; naming the action is the single biggest
+  // difference between a share row that gets used and one that does not.
+  prompt = 'Found this useful? Pass it on.',
 } = Astro.props;
 
 const encoded = encodeURIComponent(pageUrl);
@@ -66,57 +71,87 @@ const shares = [
 ---
 
 <div class="ts-share" data-share data-share-url={pageUrl} data-share-title={title}>
-  <span class="sr-only">Share this article</span>
+  <p class="ts-prompt">{prompt}</p>
 
-  {/* Native OS share sheet. Hidden until the script confirms support, because
-      on iOS and Android it is the only route to Instagram, Messages, AirDrop
-      and whatever else the reader actually has installed. */}
-  <button type="button" class="ts-btn ts-native" data-share-native aria-label="Share…">
-    <Icon name="bi:share-fill" class="size-4" />
-  </button>
+  <div class="ts-row">
+    {/* Native OS share sheet. Hidden until the script confirms support, because
+        on iOS and Android it is the only route to Instagram, Messages, AirDrop
+        and whatever else the reader actually has installed. */}
+    <button type="button" class="ts-btn ts-native" data-share-native aria-label="Share…">
+      <Icon name="bi:share-fill" class="size-5" />
+    </button>
 
-  {shares.map((s) => (
-    <a
-      href={s.href}
-      aria-label={s.label}
-      title={s.label}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="ts-btn"
-    >
-      <Icon name={s.icon} class="size-4" />
-    </a>
-  ))}
+    {shares.map((s) => (
+      <a
+        href={s.href}
+        aria-label={s.label}
+        title={s.label}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="ts-btn"
+      >
+        <Icon name={s.icon} class="size-5" />
+      </a>
+    ))}
 
-  {/* Copy link is the most-used share action in practice and needs no platform. */}
-  <button type="button" class="ts-btn ts-copy" data-share-copy aria-label="Copy link">
-    <Icon name="bi:link-45deg" class="size-4 ts-ico-idle" />
-    <Icon name="bi:check-lg" class="size-4 ts-ico-done" />
-  </button>
+    {/* Copy link is the most-used share action in practice and needs no platform. */}
+    <button type="button" class="ts-btn ts-copy" data-share-copy aria-label="Copy link">
+      <Icon name="bi:link-45deg" class="size-5 ts-ico-idle" />
+      <Icon name="bi:check-lg" class="size-5 ts-ico-done" />
+    </button>
 
-  <span class="ts-toast" data-share-toast role="status" aria-live="polite"></span>
+    <span class="ts-toast" data-share-toast role="status" aria-live="polite"></span>
+  </div>
 </div>
 
 <style>
+  /* Its own block on a tinted card, not a right-aligned afterthought sharing a
+     row with the tag list. At the end of a long read this is the moment the
+     reader decides whether to pass it on, so it gets the weight of a call to
+     action rather than of a footer. */
   .ts-share {
     display: flex;
     align-items: center;
-    gap: 2px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin: 28px 0;
+    padding: 16px 20px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+  }
+  .ts-prompt {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-dark);
+    line-height: 1.4;
+  }
+  .ts-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     flex-wrap: wrap;
   }
   .ts-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
-    border: none;
-    background: none;
-    color: inherit;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--color-border);
+    background: #fff;
+    color: var(--color-navy);
     cursor: pointer;
-    border-radius: 6px;
-    transition: opacity .15s ease, background-color .15s ease;
+    border-radius: 999px;
+    transition: color .15s ease, background-color .15s ease, border-color .15s ease;
   }
-  .ts-btn:hover { opacity: .7; background: rgba(0, 0, 0, .04); }
+  .ts-btn:hover {
+    background: var(--color-brand-600);
+    border-color: var(--color-brand-600);
+    color: #fff;
+  }
   .ts-btn:focus-visible { outline: 2px solid var(--color-brand-600); outline-offset: 1px; }
 
   /* 32px is fine for a mouse and too small for a thumb — these sit shoulder to
@@ -124,7 +159,14 @@ const shares = [
      type rather than width, since that is the actual constraint. Eight targets
      at 44px still fit a 375px screen, and wrap if they ever do not. */
   @media (pointer: coarse) {
-    .ts-btn { min-width: 44px; min-height: 44px; }
+    .ts-btn { width: 44px; height: 44px; }
+  }
+
+  /* On a phone the prompt and the row each take the full width rather than
+     competing for one line. */
+  @media (max-width: 560px) {
+    .ts-share { flex-direction: column; align-items: flex-start; padding: 14px 14px 16px; }
+    .ts-prompt { font-size: 14.5px; }
   }
 
   /* Scoped, so this beats the utility classes and the button cannot flash
