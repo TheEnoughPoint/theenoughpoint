@@ -14,6 +14,8 @@ excerpt: |
   Half the property internet says good resale beats a new launch. The other half says new launches are the sure win. Both can point at real transaction data from the same source, and neither is making anything up — the answer reverses depending on where you start counting. Put both sides on the same basis and the whole advantage comes to about S$3,800 on a S$1.5 million home, against a S$44,600 stamp duty bill. Here is what is actually worth comparing instead.
 ---
 
+import WindowFlipTool from '@src/components/WindowFlipTool.astro';
+import NestedWindowsChart from '@src/components/NestedWindowsChart.astro';
 import EntryGapTool from '@src/components/EntryGapTool.astro';
 import SocialShare from '@src/components/SocialShare.astro';
 
@@ -29,13 +31,7 @@ They cannot both be right. And yet both sides can point at real transaction data
 
 The most thorough public attempt at this question — [Stacked Homes, "Are New Launches A 'Sure Win'?"](https://stackedhomes.com/editorial/are-new-launches-a-sure-win/) — matched **152,948** pairs of transactions, the same unit bought and later sold, identified by address including the unit number, out of more than 450,000 URA records going back to 1995. That is far better than the two-projects-side-by-side comparisons the genre usually runs on.
 
-All figures in this table are Stacked Homes' computation (Sean Goh, 12 May 2021). We have not reproduced them. The **per year** columns are ours.
-
-| Window | Launch, total gain | Resale, total gain | Launch, per year | Resale, per year |
-| --- | --- | --- | --- | --- |
-| 1 Jan 1995 – 31 Mar 2021 | 27.1% | 34.7% | 2.83% | **5.18%** |
-| 14 Jan 2011 – 31 Mar 2021 | 7.9% | 6.9% | **1.20%** | 1.16% |
-| 1 Jan 2015 – 31 Mar 2021 | 11.8% | 10.6% | *not published* | *not published* |
+<WindowFlipTool />
 
 Quote the first window and resale wins. Quote either of the others and new launch wins.
 
@@ -49,13 +45,9 @@ The third window cannot be annualised at all, because no holding period was publ
 
 ## Why the window decides it
 
-Here is the part that is easy to miss. Those three windows are not three different periods. **They all end on the same day** — 31 March 2021. They differ only in how far back they reach.
+Here is the part that is easy to miss. Those three windows are not three different periods. **They all end on the same day** — 31 March 2021.
 
-| Starts | Reaches back | Verdict, on the same annual basis |
-| --- | --- | --- |
-| 1995 | 26.2 years | Resale clearly ahead |
-| 2011 | 10.2 years | New launch ahead by ~S$3,800 on S$1.5m |
-| 2015 | 6.2 years | Cannot be compared |
+<NestedWindowsChart />
 
 Nobody has to be lying. Two Singapore rules put the two groups on different parts of the market cycle: Seller's Stamp Duty penalises an early exit, and a new launch is not a building yet.
 
