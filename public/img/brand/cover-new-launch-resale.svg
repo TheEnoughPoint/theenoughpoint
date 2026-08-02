@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="The entire measured advantage is about three thousand eight hundred dollars, on a home where stamp duty alone is forty four thousand six hundred">
+  <!-- Cover for the new-launch-versus-resale piece. House system: navy field, gold figure.
+       The figure was "0.04pp" in the first draft. Percentage points are jargon, and a
+       cover is the one place a reader cannot be asked to learn a unit — so the same
+       finding is shown in money. S$3,817 is our annualised 2011-2021 gap compounded
+       over six years on S$1.5m; rounded down on the cover, exact in the article.
+       Stacked, following cover-leverage-decay.
+       Safe zone: square thumbnail crops to x 300-900. -->
+  <defs>
+    <radialGradient id="bgNLR" cx="50%" cy="42%" r="76%">
+      <stop offset="0%" stop-color="#10233D"/>
+      <stop offset="100%" stop-color="#081627"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bgNLR)"/>
+
+  <text x="600" y="126" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">NEW LAUNCH VERSUS RESALE</text>
+
+  <text x="600" y="278" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="128"
+        fill="#C89A3C">S$3,800</text>
+
+  <text x="600" y="336" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600"
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.9">the entire measured advantage</text>
+
+  <line x1="450" y1="386" x2="750" y2="386" stroke="#C89A3C" stroke-width="1.5" opacity="0.5"/>
+
+  <text x="600" y="436" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">on a S$1.5m home held six years.</text>
+  <text x="600" y="476" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">The stamp duty is S$44,600.</text>
+</svg>

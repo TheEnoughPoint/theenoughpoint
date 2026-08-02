@@ -5,19 +5,12 @@
 import { Icon } from 'astro-icon/components';
 import { url } from '@src/utils/path';
 
-interface StrategyItem {
-  icon:  string;
-  label: string;
-}
-
 interface Props {
   subtitle?:      string;
   primaryCta?:    { label: string; href: string };
   secondaryCta?:  { label: string; href: string };
   image?:         string;
   imageAlt?:      string;
-  strategyTitle?: string;
-  strategyItems?: StrategyItem[];
 }
 
 const {
@@ -26,14 +19,6 @@ const {
   secondaryCta = { label: 'Explore Latest Articles', href: '#latest' },
   image     = '/img/brand/banner-wide.jpg',
   imageAlt  = 'TheEnoughPoint.com — reach your enough point, live your freedom',
-  strategyTitle = 'Build wealth with Singapore-smart strategies',
-  strategyItems = [
-    { icon: 'bi:bank',       label: 'CPF' },
-    { icon: 'bi:piggy-bank', label: 'SRS' },
-    { icon: 'bi:house-door', label: 'HDB' },
-    { icon: 'bi:graph-up',   label: 'T-bills' },
-    { icon: 'bi:airplane',   label: 'Miles & Cashback' },
-  ],
 } = Astro.props;
 ---
 
@@ -60,23 +45,12 @@ const {
     </div>
   </div>
 
-  <div class="relative mt-8">
+  <!-- The banner carries its own four-pillar row and tagline strip along the
+       bottom. A floating strategy card used to sit on top of them and hid three
+       of the four, so the artwork now stands on its own. -->
+  <div class="mt-8">
     <div class="rounded-2xl overflow-hidden bg-cream-dark">
       <img src={url(image)} alt={imageAlt} class="w-full h-auto" />
-    </div>
-
-    <div class="relative lg:absolute lg:-bottom-8 lg:left-1/2 lg:-translate-x-1/2 mt-4 lg:mt-0 w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg border border-cream-dark px-5 py-4">
-      <p class="text-navy text-sm font-semibold text-center mb-3">{strategyTitle}</p>
-      <div class="flex items-center justify-between gap-2">
-        {strategyItems.map((item) => (
-          <div class="flex flex-col items-center gap-1.5 text-center">
-            <span class="flex items-center justify-center size-9 rounded-full bg-cream text-forest">
-              <Icon name={item.icon} class="size-4" />
-            </span>
-            <span class="text-[11px] text-muted leading-tight">{item.label}</span>
-          </div>
-        ))}
-      </div>
     </div>
   </div>
 </div>

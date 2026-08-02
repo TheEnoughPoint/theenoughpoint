@@ -1,0 +1,262 @@
+---
+// The article's central claim, made operable: the reader picks the measurement
+// window and watches the winner change, on the same data and the same method.
+//
+// Two bases are shown at once because that IS the finding. "As published" is the
+// study's own total gain per transaction. "Per year" is ours, annualised at the
+// study's own average holding periods — launch buyers held far longer than resale
+// buyers, so the totals were never like-for-like. The second window's famous
+// "new launch wins" only survives on the first basis.
+//
+// The arithmetic runs HERE, once, at build time, and every state is serialised
+// into the markup. The script only swaps pre-computed values. This is deliberately
+// unlike LeverageDecayTool, which mirrors its module in a client script and carries
+// a "change one, change both" warning — there is nothing to keep in sync here.
+//
+// Colour follows the entity across the whole article: blue is resale, amber is new
+// launch, in this chart and in EntryGapTool. Validated categorical pair, both surfaces.
+interface Win {
+  id: string; short: string; from: string;
+  launch: number; resale: number;
+  lh: number | null; rh: number | null;
+}
+
+const WINDOWS: Win[] = [
+  { id: '1 Jan 1995 – 31 Mar 2021',  short: 'From 1995', from: '1995', launch: 27.1, resale: 34.7, lh: 8.6,  rh: 5.9 },
+  { id: '14 Jan 2011 – 31 Mar 2021', short: 'From 2011', from: '2011', launch: 7.9,  resale: 6.9,  lh: 6.4,  rh: 5.8 },
+  // No holding period was published for this window, so it cannot be annualised
+  // by us or by anyone. The component says so rather than quietly omitting the row.
+  { id: '1 Jan 2015 – 31 Mar 2021',  short: 'From 2015', from: '2015', launch: 11.8, resale: 10.6, lh: null, rh: null },
+];
+
+const MAX_TOTAL = 40;   // fixed across windows, so switching also shows returns shrinking
+const MAX_ANNUAL = 6;
+
+const cagr = (gain: number, yrs: number) => (Math.pow(1 + gain / 100, 1 / yrs) - 1) * 100;
+
+const states = WINDOWS.map((w) => {
+  const hasAnnual = w.lh !== null && w.rh !== null;
+  const lc = hasAnnual ? cagr(w.launch, w.lh as number) : null;
+  const rc = hasAnnual ? cagr(w.resale, w.rh as number) : null;
+  return {
+    ...w,
+    hasAnnual,
+    lc, rc,
+    winner: w.launch > w.resale ? 'New launch' : 'Resale',
+    totalGap: Math.abs(w.launch - w.resale),
+    annualGap: hasAnnual ? Math.abs((lc as number) - (rc as number)) : null,
+    annualLead: hasAnnual ? ((lc as number) > (rc as number) ? 'New launch' : 'Resale') : null,
+  };
+});
+const f1 = (n: number) => n.toFixed(1);
+const f2 = (n: number) => n.toFixed(2);
+---
+
+<figure class="wf" data-wf>
+  <figcaption class="wf-cap">
+    <h4>Pick a measurement window. Watch the answer change.</h4>
+    <p>152,948 matched pairs of transactions, the same unit bought and later sold.
+    Totals are <b>Stacked Homes&rsquo; computation</b> (Sean Goh, 12 May 2021); the per-year
+    figures are ours.</p>
+  </figcaption>
+
+  <div class="wf-pills" role="radiogroup" aria-label="Measurement window">
+    {states.map((s, i) => (
+      <>
+        <input type="radio" name="wf-win" id={`wf-${i}`} class="wf-radio" checked={i === 0}
+               data-i={i}
+               data-launch={f1(s.launch)} data-resale={f1(s.resale)}
+               data-lc={s.lc === null ? '' : f2(s.lc)} data-rc={s.rc === null ? '' : f2(s.rc)}
+               data-winner={s.winner} data-total-gap={f1(s.totalGap)} data-id={s.id}
+               data-annual-gap={s.annualGap === null ? '' : f2(s.annualGap)}
+               data-annual-lead={s.annualLead ?? ''} />
+        <label for={`wf-${i}`}>{s.short}</label>
+      </>
+    ))}
+  </div>
+
+  <div class="wf-basis">
+    <div class="wf-blabel">As published &mdash; total gain per transaction</div>
+    <div class="wf-row">
+      <span class="wf-key"><i class="wf-sw new"></i>Bought at launch</span>
+      <div class="wf-track"><div class="wf-bar new" data-bar="launch"></div></div>
+      <span class="wf-val" data-val="launch">&mdash;</span>
+    </div>
+    <div class="wf-row">
+      <span class="wf-key"><i class="wf-sw resale"></i>Bought resale</span>
+      <div class="wf-track"><div class="wf-bar resale" data-bar="resale"></div></div>
+      <span class="wf-val" data-val="resale">&mdash;</span>
+    </div>
+    <div class="wf-scale"><span>0%</span><span>20%</span><span>40%</span></div>
+  </div>
+
+  <div class="wf-basis">
+    <div class="wf-blabel">Per year, on the same holding basis <em>our calculation</em></div>
+    <div data-annual>
+      <div class="wf-row">
+        <span class="wf-key"><i class="wf-sw new"></i>Bought at launch</span>
+        <div class="wf-track"><div class="wf-bar new" data-bar="lc"></div></div>
+        <span class="wf-val" data-val="lc">&mdash;</span>
+      </div>
+      <div class="wf-row">
+        <span class="wf-key"><i class="wf-sw resale"></i>Bought resale</span>
+        <div class="wf-track"><div class="wf-bar resale" data-bar="rc"></div></div>
+        <span class="wf-val" data-val="rc">&mdash;</span>
+      </div>
+      <div class="wf-scale"><span>0%</span><span>3%</span><span>6% a year</span></div>
+    </div>
+    <p class="wf-none" data-none hidden>The study publishes no holding period for this
+    window, so it cannot be put on an annual basis at all &mdash; by us or by anyone.</p>
+  </div>
+
+  <div class="wf-verdict" aria-live="polite">
+    <span class="wf-vk">As published</span>
+    <b data-winner>&mdash;</b>
+    <span class="wf-vn" data-detail></span>
+  </div>
+  <p class="wf-note" data-note>Try the other two windows.</p>
+
+  <div class="wf-scroll">
+    <table class="wf-table">
+      <thead>
+        <tr><th>Window</th><th>Launch, total</th><th>Resale, total</th><th>Launch, per yr</th><th>Resale, per yr</th></tr>
+      </thead>
+      <tbody>
+        {states.map((s) => (
+          <tr>
+            <td>{s.id}</td>
+            <td>{f1(s.launch)}%</td>
+            <td>{f1(s.resale)}%</td>
+            <td>{s.lc === null ? 'not published' : `${f2(s.lc)}%`}</td>
+            <td>{s.rc === null ? 'not published' : `${f2(s.rc)}%`}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</figure>
+
+<style is:global>
+.wf{
+  --wf-resale:#2563EB; --wf-new:#B45309;      /* validated pair, light card */
+  --wf-rule:var(--color-border); --wf-ink:var(--color-dark);
+  --wf-body:var(--color-body); --wf-muted:var(--color-muted);
+  --wf-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--wf-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .wf{ --wf-resale:#4E86DD; --wf-new:#B8842E; } }
+.post-content .wf-cap{margin:0 0 16px;padding:0;text-align:left}
+.post-content .wf-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--wf-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .wf-cap p{margin:0;font-size:12.5px;color:var(--wf-muted);line-height:1.5}
+
+.wf-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.wf-radio{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.post-content .wf-pills label{display:inline-block;padding:6px 13px;border:1px solid var(--wf-rule);
+  border-radius:999px;font-size:12.5px;font-weight:600;color:var(--wf-muted);cursor:pointer;
+  margin:0;transition:background .15s,border-color .15s,color .15s}
+.post-content .wf-pills label:hover{background:var(--color-light,#F6F4EF)}
+.wf-radio:checked + label{background:var(--wf-ink);border-color:var(--wf-ink);color:#fff}
+.wf-radio:focus-visible + label{outline:2px solid var(--wf-resale);outline-offset:2px}
+
+.wf-basis{margin-bottom:16px;padding-top:14px;border-top:1px solid var(--wf-rule)}
+.wf-basis:first-of-type{padding-top:0;border-top:0}
+.wf-blabel{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--wf-muted);
+  font-weight:700;margin-bottom:11px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.wf-blabel em{font-style:normal;letter-spacing:0;text-transform:none;font-size:11px;
+  font-weight:600;color:var(--wf-body);border:1px solid var(--wf-rule);border-radius:999px;padding:1px 8px}
+
+.wf-row{display:grid;grid-template-columns:118px 1fr 58px;gap:10px;align-items:center;margin-bottom:7px}
+.wf-key{font-size:12px;color:var(--wf-body);display:flex;align-items:center;gap:6px}
+.wf-sw{width:9px;height:9px;border-radius:2px;flex:none;display:inline-block}
+.wf-sw.resale{background:var(--wf-resale)} .wf-sw.new{background:var(--wf-new)}
+.wf-track{position:relative;height:18px;background:var(--color-light,#F6F4EF);border-radius:3px}
+.wf-bar{position:absolute;left:0;top:0;height:18px;border-radius:0 3px 3px 0;
+  transition:width .4s ease;min-width:2px}
+.wf-bar.resale{background:var(--wf-resale)} .wf-bar.new{background:var(--wf-new)}
+.wf-val{font-family:var(--wf-mono);font-variant-numeric:tabular-nums;font-size:12.5px;
+  font-weight:600;color:var(--wf-ink);text-align:right}
+.wf-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--wf-muted);
+  margin:6px 68px 0 128px;font-family:var(--wf-mono)}
+.post-content .wf-none{font-size:13px;color:var(--wf-body);line-height:1.55;margin:4px 0 0}
+
+.wf-verdict{display:flex;flex-wrap:wrap;gap:5px 14px;align-items:baseline;
+  padding:12px 14px;border:1px solid var(--wf-rule);border-radius:8px;margin-top:4px}
+.wf-vk{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--wf-muted);font-weight:700}
+.wf-verdict b{font-size:17px;font-weight:700}
+.wf-vn{font-size:12.5px;color:var(--wf-muted)}
+.post-content .wf-note{font-size:13.5px;color:var(--wf-body);line-height:1.6;margin:12px 0 0;min-height:1.5em}
+.wf-note b{color:var(--wf-ink);font-weight:600}
+
+.wf-scroll{overflow-x:auto;margin-top:14px}
+.post-content table.wf-table{width:100%;border-collapse:collapse;font-size:13px;margin:0}
+.post-content .wf-table th{font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--wf-muted);font-weight:700;background:none;padding:0 8px 6px 0;
+  border-bottom:1px solid var(--wf-rule);text-align:left}
+.post-content .wf-table th:not(:first-child),
+.post-content .wf-table td:not(:first-child){text-align:right;font-family:var(--wf-mono);
+  font-variant-numeric:tabular-nums}
+.post-content .wf-table td{padding:7px 8px 7px 0;border-bottom:1px solid var(--wf-rule);color:var(--wf-body)}
+.post-content .wf-table tr:last-child td{border-bottom:none}
+
+@media(max-width:600px){
+  .wf{padding:16px 12px 13px}
+  .wf-row{grid-template-columns:96px 1fr 48px;gap:7px}
+  .wf-key{font-size:11px}
+  .wf-scale{margin:6px 55px 0 103px}
+  .wf-val{font-size:11.5px}
+}
+@media(prefers-reduced-motion:reduce){ .wf-bar{transition:none} }
+</style>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('[data-wf]');
+    if (!root) return;
+    var MAX_TOTAL = 40, MAX_ANNUAL = 6;
+    var q = function (sel) { return root.querySelector(sel); };
+    var lastWinner = null, flips = 0;
+
+    function apply(r) {
+      var d = r.dataset;
+      q('[data-bar="launch"]').style.width = (+d.launch / MAX_TOTAL * 100) + '%';
+      q('[data-bar="resale"]').style.width = (+d.resale / MAX_TOTAL * 100) + '%';
+      q('[data-val="launch"]').textContent = d.launch + '%';
+      q('[data-val="resale"]').textContent = d.resale + '%';
+      q('[data-winner]').textContent = d.winner;
+      q('[data-winner]').style.color = d.winner === 'New launch' ? 'var(--wf-new)' : 'var(--wf-resale)';
+      q('[data-detail]').textContent = 'ahead by ' + d.totalGap + ' percentage points of total gain · ' + d.id;
+
+      var note = q('[data-note]');
+      if (d.lc) {
+        q('[data-annual]').hidden = false; q('[data-none]').hidden = true;
+        q('[data-bar="lc"]').style.width = (+d.lc / MAX_ANNUAL * 100) + '%';
+        q('[data-bar="rc"]').style.width = (+d.rc / MAX_ANNUAL * 100) + '%';
+        q('[data-val="lc"]').textContent = d.lc + '%';
+        q('[data-val="rc"]').textContent = d.rc + '%';
+        note.innerHTML = (+d.annualGap < 0.25)
+          ? 'On the same annual basis that lead is <b>' + d.annualGap +
+            ' percentage points a year</b> — close enough to nothing that it would not survive a different sample.'
+          : 'On the same annual basis <b>' + d.annualLead.toLowerCase() +
+            '</b> is ahead by <b>' + d.annualGap + ' percentage points a year</b>.';
+      } else {
+        q('[data-annual]').hidden = true; q('[data-none]').hidden = false;
+        note.textContent = 'Without a published holding period this window cannot be compared like-for-like at all.';
+      }
+
+      if (lastWinner && lastWinner !== d.winner) flips++;
+      lastWinner = d.winner;
+      if (flips > 0) {
+        note.innerHTML += ' <b>You have changed the answer ' + flips +
+          (flips === 1 ? ' time' : ' times') + '</b> without changing a single number.';
+      }
+    }
+
+    var radios = Array.prototype.slice.call(root.querySelectorAll('.wf-radio'));
+    radios.forEach(function (r) {
+      r.addEventListener('change', function () { if (r.checked) apply(r); });
+    });
+    apply(radios.filter(function (r) { return r.checked; })[0] || radios[0]);
+  })();
+</script>

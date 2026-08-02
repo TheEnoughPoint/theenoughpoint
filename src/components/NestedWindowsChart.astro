@@ -1,0 +1,112 @@
+---
+// The reveal behind the switcher: those three windows are not three periods.
+// They all END on 31 March 2021 and differ only in how far back they reach.
+//
+// Bar length encodes elapsed time and nothing else — the verdict sits in its own
+// column rather than inside the bar, because a bar carrying both its span and its
+// conclusion asks the reader to decode two things from one object.
+//
+// The shared endpoint is drawn as a rule that overshoots every track, so "they all
+// stop on the same day" is seen rather than read.
+//
+// Widths are real: years elapsed to 31 Mar 2021 over the full 26.25-year span.
+// The 2015 bar is an outline, not a fill, because that window has no published
+// holding period and therefore no verdict to report. Filling it would imply one.
+const END = new Date('2021-03-31T00:00:00Z');
+const YEAR_MS = 365.25 * 24 * 3600 * 1000;
+const yearsTo = (iso: string) => (END.getTime() - new Date(iso + 'T00:00:00Z').getTime()) / YEAR_MS;
+
+const FULL = yearsTo('1995-01-01');
+
+const ROWS = [
+  { from: '1995', start: '1995-01-01', kind: 'resale',  head: 'Resale clearly ahead',  sub: 'by 2.35 points a year' },
+  { from: '2011', start: '2011-01-14', kind: 'new',     head: 'New launch ahead',      sub: 'by about S$3,800 on S$1.5m' },
+  { from: '2015', start: '2015-01-01', kind: 'unknown', head: 'Cannot be compared',    sub: 'no holding period published' },
+].map((r) => {
+  const yrs = yearsTo(r.start);
+  return { ...r, yrs, pct: (yrs / FULL) * 100 };
+});
+---
+
+<figure class="nw">
+  <figcaption class="nw-cap">
+    <h4>Every one of those windows ends on the same day</h4>
+    <p>They are not three different periods. They differ only in how far back they
+    reach &mdash; and that alone flips the answer.</p>
+  </figcaption>
+
+  <div class="nw-rows">
+    {ROWS.map((r) => (
+      <div class="nw-row">
+        <div class="nw-name">
+          <b>from {r.from}</b>
+          <span>{r.yrs.toFixed(1)} years</span>
+        </div>
+        <div class="nw-track">
+          <div class={`nw-bar ${r.kind}`} style={`width:${r.pct.toFixed(2)}%`}></div>
+        </div>
+        <div class={`nw-verdict ${r.kind}`}>
+          <b>{r.head}</b>
+          <span>{r.sub}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+  <div class="nw-axis"><span>&larr; further back</span><span>all end 31 Mar 2021</span></div>
+
+  <p class="nw-foot">Reach back to 1995 and resale wins clearly. Start in 2011 and new
+  launch &ldquo;wins&rdquo; by a margin worth less than a tenth of the stamp duty on the
+  purchase. Start in 2015 and nobody can say.</p>
+</figure>
+
+<style is:global>
+.nw{
+  --nw-resale:#2563EB; --nw-new:#B45309;      /* same pair as the rest of the article */
+  --nw-rule:var(--color-border); --nw-ink:var(--color-dark);
+  --nw-body:var(--color-body); --nw-muted:var(--color-muted);
+  --nw-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--nw-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .nw{ --nw-resale:#4E86DD; --nw-new:#B8842E; } }
+.post-content .nw-cap{margin:0 0 16px;padding:0;text-align:left}
+.post-content .nw-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--nw-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .nw-cap p{margin:0;font-size:12.5px;color:var(--nw-muted);line-height:1.5}
+
+.nw-rows{display:flex;flex-direction:column;gap:11px}
+.nw-row{display:grid;grid-template-columns:78px 1fr 168px;gap:14px;align-items:center}
+.nw-name{line-height:1.25}
+.nw-name b{display:block;font-size:13px;color:var(--nw-ink);font-weight:700}
+.nw-name span{font-size:11px;color:var(--nw-muted);font-family:var(--nw-mono);
+  font-variant-numeric:tabular-nums}
+
+.nw-track{position:relative;height:28px;background:var(--color-light,#F6F4EF);border-radius:3px}
+/* the shared endpoint, drawn as a wall every bar runs into */
+.nw-track::after{content:"";position:absolute;right:-1px;top:-6px;bottom:-6px;width:2px;
+  background:var(--nw-ink);border-radius:1px}
+.nw-bar{position:absolute;right:0;top:0;bottom:0;border-radius:3px}
+.nw-bar.resale{background:var(--nw-resale)}
+.nw-bar.new{background:var(--nw-new)}
+.nw-bar.unknown{background:transparent;border:1px dashed var(--nw-muted);opacity:.75}
+
+.nw-verdict{line-height:1.3}
+.nw-verdict b{display:block;font-size:12.5px;font-weight:700}
+.nw-verdict.resale b{color:var(--nw-resale)}
+.nw-verdict.new b{color:var(--nw-new)}
+.nw-verdict.unknown b{color:var(--nw-muted)}
+.nw-verdict span{font-size:11px;color:var(--nw-muted)}
+
+.nw-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--nw-muted);
+  margin:9px 182px 0 92px}
+.post-content .nw-foot{font-size:13.5px;color:var(--nw-body);line-height:1.6;margin:16px 0 0}
+
+@media(max-width:600px){
+  .nw{padding:16px 12px 13px}
+  .nw-row{grid-template-columns:1fr;gap:5px}
+  .nw-name{display:flex;align-items:baseline;gap:8px}
+  .nw-name b{font-size:12.5px}
+  .nw-track{height:22px}
+  .nw-axis{margin:9px 0 0}
+}
+</style>
