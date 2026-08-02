@@ -14,22 +14,20 @@ const {
 const encoded = encodeURIComponent(pageUrl);
 const encodedTitle = encodeURIComponent(title);
 
+// Ordered for a Singapore readership rather than alphabetically or by global
+// market share: WhatsApp and Telegram are how this audience actually forwards
+// things, LinkedIn carries the professional finance reach, and Facebook is the
+// weakest of the set for this kind of content.
+//
+// Instagram is deliberately absent. There is no web share endpoint for it and
+// never has been — Meta only permits sharing to Stories from a native app via
+// their SDK. The OS share sheet behind the native button below is the only
+// route to Instagram from a web page, and it covers it.
+//
+// These are plain links, not the official Facebook/X SDK widgets. The widgets
+// inject third-party tracking into every article, which would contradict what
+// the site tells readers about carrying no advertising.
 const shares = [
-  {
-    icon:  'bi:facebook',
-    label: 'Share on Facebook',
-    href:  `https://www.facebook.com/sharer/sharer.php?u=${encoded}`,
-  },
-  {
-    icon:  'bi:twitter-x',
-    label: 'Share on Twitter/X',
-    href:  `https://twitter.com/intent/tweet?url=${encoded}&text=${encodedTitle}`,
-  },
-  {
-    icon:  'bi:linkedin',
-    label: 'Share on LinkedIn',
-    href:  `https://www.linkedin.com/shareArticle?mini=true&url=${encoded}&title=${encodedTitle}`,
-  },
   {
     icon:  'bi:whatsapp',
     label: 'Share on WhatsApp',
@@ -40,19 +38,167 @@ const shares = [
     label: 'Share on Telegram',
     href:  `https://t.me/share/url?url=${encoded}&text=${encodedTitle}`,
   },
+  {
+    // share-offsite is LinkedIn's current endpoint; the older shareArticle one
+    // is deprecated. It takes no title — LinkedIn reads the page's OG tags.
+    icon:  'bi:linkedin',
+    label: 'Share on LinkedIn',
+    href:  `https://www.linkedin.com/sharing/share-offsite/?url=${encoded}`,
+  },
+  {
+    icon:  'bi:twitter-x',
+    label: 'Share on X',
+    href:  `https://x.com/intent/post?url=${encoded}&text=${encodedTitle}`,
+  },
+  {
+    icon:  'bi:facebook',
+    label: 'Share on Facebook',
+    href:  `https://www.facebook.com/sharer/sharer.php?u=${encoded}`,
+  },
+  {
+    // Long reads get forwarded to a spouse or an accountant. mailto works
+    // everywhere and needs no third party.
+    icon:  'bi:envelope-fill',
+    label: 'Share by email',
+    href:  `mailto:?subject=${encodedTitle}&body=${encodedTitle}%0A%0A${encoded}`,
+  },
 ];
 ---
 
-<div class="flex items-center gap-0.5">
+<div class="ts-share" data-share data-share-url={pageUrl} data-share-title={title}>
+  <span class="sr-only">Share this article</span>
+
+  {/* Native OS share sheet. Hidden until the script confirms support, because
+      on iOS and Android it is the only route to Instagram, Messages, AirDrop
+      and whatever else the reader actually has installed. */}
+  <button type="button" class="ts-btn ts-native" data-share-native aria-label="Share…">
+    <Icon name="bi:share-fill" class="size-4" />
+  </button>
+
   {shares.map((s) => (
     <a
       href={s.href}
       aria-label={s.label}
+      title={s.label}
       target="_blank"
       rel="noopener noreferrer"
-      class="p-2 hover:opacity-70 transition-opacity"
+      class="ts-btn"
     >
       <Icon name={s.icon} class="size-4" />
     </a>
   ))}
+
+  {/* Copy link is the most-used share action in practice and needs no platform. */}
+  <button type="button" class="ts-btn ts-copy" data-share-copy aria-label="Copy link">
+    <Icon name="bi:link-45deg" class="size-4 ts-ico-idle" />
+    <Icon name="bi:check-lg" class="size-4 ts-ico-done" />
+  </button>
+
+  <span class="ts-toast" data-share-toast role="status" aria-live="polite"></span>
 </div>
+
+<style>
+  .ts-share {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+  .ts-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border: none;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: opacity .15s ease, background-color .15s ease;
+  }
+  .ts-btn:hover { opacity: .7; background: rgba(0, 0, 0, .04); }
+  .ts-btn:focus-visible { outline: 2px solid var(--color-brand-600); outline-offset: 1px; }
+
+  /* 32px is fine for a mouse and too small for a thumb — these sit shoulder to
+     shoulder, so a mis-tap sends the article to the wrong app. Keyed on pointer
+     type rather than width, since that is the actual constraint. Eight targets
+     at 44px still fit a 375px screen, and wrap if they ever do not. */
+  @media (pointer: coarse) {
+    .ts-btn { min-width: 44px; min-height: 44px; }
+  }
+
+  /* Scoped, so this beats the utility classes and the button cannot flash
+     visible before the script runs. */
+  .ts-native { display: none; }
+  .ts-native.is-on { display: inline-flex; }
+
+  .ts-ico-done { display: none; }
+  .ts-copy.is-done .ts-ico-idle { display: none; }
+  .ts-copy.is-done .ts-ico-done { display: inline-block; color: var(--color-brand-600); }
+
+  .ts-toast {
+    font-size: 12px;
+    color: var(--color-muted);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity .15s ease;
+  }
+  .ts-toast.is-on { opacity: 1; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ts-btn, .ts-toast { transition: none; }
+  }
+</style>
+
+<script>
+  // This component renders twice on an article page (once by the tags, once
+  // lower down), so every lookup is by class within its own root — ids would
+  // collide and only the first instance would work.
+  document.querySelectorAll<HTMLElement>('[data-share]').forEach((root) => {
+    const url = root.dataset.shareUrl || location.href;
+    const title = root.dataset.shareTitle || document.title;
+    const toast = root.querySelector<HTMLElement>('[data-share-toast]');
+    let timer: ReturnType<typeof setTimeout>;
+
+    const say = (msg: string) => {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('is-on');
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        toast.classList.remove('is-on');
+        toast.textContent = '';
+      }, 2000);
+    };
+
+    const native = root.querySelector<HTMLButtonElement>('[data-share-native]');
+    if (native && typeof navigator.share === 'function') {
+      native.classList.add('is-on');
+      native.addEventListener('click', async () => {
+        try {
+          await navigator.share({ title, url });
+        } catch {
+          // Dismissing the sheet rejects with AbortError. Not an error worth
+          // reporting to the reader.
+        }
+      });
+    }
+
+    const copy = root.querySelector<HTMLButtonElement>('[data-share-copy]');
+    copy?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        copy.classList.add('is-done');
+        say('Link copied');
+        setTimeout(() => copy.classList.remove('is-done'), 2000);
+      } catch {
+        say('Press Ctrl+C to copy');
+      }
+    });
+  });
+</script>
