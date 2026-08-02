@@ -39,7 +39,16 @@ const {
 
 const site = Astro.site ?? new URL('https://theenoughpoint.com');
 const canonical = Astro.url?.href || site.href;
-const shareImage = new URL(article?.image ?? '/img/brand/og-image.jpg', site).href;
+// Link previews must never be handed an SVG: WhatsApp, Facebook, LinkedIn and
+// X all refuse to render one, and they do not degrade to the title — the share
+// collapses to a bare URL. Article covers are SVG, so map them to the JPEG twin
+// that `npm run og:images` generates, and fall back to the house image if that
+// twin is somehow missing.
+const rasterCover = article?.image?.endsWith('.svg')
+  ? article.image.replace('/img/brand/', '/img/brand/og/').replace(/\.svg$/, '.jpg')
+  : article?.image;
+const shareImage = new URL(rasterCover ?? '/img/brand/og-image.jpg', site).href;
+const shareImageAlt = article?.headline ?? 'TheEnoughPoint';
 
 // Search engines had nothing to work with before this: no schema of any kind
 // shipped on any page. For finance writing that matters more than usual, since
@@ -92,6 +101,11 @@ const schema = article
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="TheEnoughPoint" />
     <meta property="og:image" content={shareImage} />
+    <meta property="og:image:secure_url" content={shareImage} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={shareImageAlt} />
     {article && <meta property="article:published_time" content={article.published} />}
     {article && <meta property="article:modified_time" content={article.modified ?? article.published} />}
     {article && <meta property="article:author" content={article.authorName} />}
@@ -101,6 +115,7 @@ const schema = article
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={shareImage} />
+    <meta name="twitter:image:alt" content={shareImageAlt} />
 
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
 
