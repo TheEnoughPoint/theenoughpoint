@@ -1,0 +1,147 @@
+---
+// The thesis in one picture: four 3x funds, one decade, outcomes from 6.97x the
+// index down to 0.84x — less than simply owning it.
+//
+// The measure is what a leveraged holder ENDED WITH, as a multiple of what an
+// index holder ended with, over the ten years to 30 June 2026. Computed by us by
+// compounding each issuer's published annualised NAV return; the inputs are in
+// the table below the chart, so the arithmetic is checkable.
+//
+// One colour for all four bars, deliberately. These are the same kind of thing —
+// a leveraged fund's outcome — so colouring by who won would be encoding rank,
+// and would also read as a verdict on named products. The reference lines carry
+// the meaning instead: 1.0x is the line between beating and losing to the index.
+const FUNDS = [
+  { t: 'SOXL', d: '3× semiconductors', mult: 6.97, lev: 65.87, idx: 36.59 },
+  { t: 'TQQQ', d: '3× Nasdaq-100',     mult: 5.79, lev: 45.50, idx: 22.07 },
+  { t: 'UPRO', d: '3× S&P 500',        mult: 3.24, lev: 29.72, idx: 15.35 },
+  { t: 'TNA',  d: '3× small caps',     mult: 0.84, lev: 9.62,  idx: 11.53 },
+  { t: 'KORU', d: '3× Korea',          mult: 0.82, lev: 14.41, idx: 16.72 },
+];
+const MAX = 7.6;
+const pos = (v: number) => (v / MAX) * 100;
+---
+
+<figure class="sp">
+  <figcaption class="sp-cap">
+    <h4>Same structure, same decade, opposite outcomes</h4>
+    <p>What a holder of each 3&times; fund ended with after ten years, as a multiple of what
+    someone who simply owned the index ended with. To 30 June 2026.</p>
+  </figcaption>
+
+  <div class="sp-plot">
+    <div class="sp-refs" aria-hidden="true">
+      <div class="sp-ref one" style={`left:${pos(1)}%`}><span>1&times; same as the index</span></div>
+      <div class="sp-ref three" style={`left:${pos(3)}%`}><span>3&times; what people assume</span></div>
+    </div>
+
+    {FUNDS.map((f) => (
+      <div class="sp-row">
+        <div class="sp-name"><b>{f.t}</b><span>{f.d}</span></div>
+        <div class="sp-track">
+          <div class="sp-scale">
+            <div class="sp-tick one" style={`left:${pos(1)}%`}></div>
+            <div class="sp-tick three" style={`left:${pos(3)}%`}></div>
+            <div class="sp-bar" style={`width:${pos(f.mult)}%`}></div>
+            <span class="sp-val" style={`left:calc(${pos(f.mult)}% + 8px)`}>{f.mult.toFixed(2)}&times;</span>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <p class="sp-foot">Three beat their index handsomely. Two ended with <b>less</b> than an
+  index holder had — and they are the two whose markets spent the decade churning rather
+  than climbing.</p>
+
+  <div class="sp-scroll">
+    <table class="sp-table">
+      <thead>
+        <tr><th>Annualised, 10 years to 30 Jun 2026</th><th>The 3&times; fund</th><th>Its index</th></tr>
+      </thead>
+      <tbody>
+        {FUNDS.map((f) => (
+          <tr>
+            <td>{f.t} — {f.d}</td>
+            <td>{f.lev.toFixed(1)}%</td>
+            <td>{f.idx.toFixed(1)}%</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</figure>
+
+<style is:global>
+.sp{
+  --sp-bar:#2563EB;                      /* validated categorical step, light */
+  --sp-rule:var(--color-border); --sp-ink:var(--color-dark);
+  --sp-body:var(--color-body); --sp-muted:var(--color-muted);
+  --sp-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--sp-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .sp{ --sp-bar:#4E86DD; } }
+.post-content .sp-cap{margin:0 0 16px;padding:0;text-align:left}
+.post-content .sp-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--sp-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .sp-cap p{margin:0;font-size:12.5px;color:var(--sp-muted);line-height:1.5}
+
+.sp-plot{position:relative;display:flex;flex-direction:column;gap:11px;padding-top:26px}
+.sp-refs{position:absolute;top:0;left:132px;right:44px;height:22px}
+/* anchored at the tick, not centred on it — centring made the two labels collide */
+.sp-ref{position:absolute;top:0;white-space:nowrap;padding-left:5px;
+  border-left:1px solid var(--sp-rule);height:20px}
+.sp-ref span{font-size:10.5px;color:var(--sp-muted);font-weight:600;line-height:1}
+.sp-ref.three span{color:var(--sp-muted)}
+
+.sp-row{display:grid;grid-template-columns:126px 1fr;gap:6px;align-items:center}
+.sp-name{display:flex;flex-direction:column;line-height:1.25}
+.sp-name b{font-size:13.5px;color:var(--sp-ink);font-weight:700}
+.sp-name span{font-size:11.5px;color:var(--sp-muted)}
+/* The scale sits inside the track's reserved right margin. Bars and ticks are
+   positioned against .sp-scale, so their percentages cannot run under the value
+   label — positioning them against the padded track let them overflow it. */
+.sp-track{position:relative;height:24px;padding-right:44px}
+.sp-scale{position:relative;height:100%;width:100%}
+.sp-tick{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--sp-rule)}
+.sp-tick.one{background:var(--sp-muted);opacity:.65}
+.sp-tick.three{border-left:1px dashed var(--sp-muted);background:none;opacity:.5}
+.sp-bar{position:absolute;top:3px;height:18px;background:var(--sp-bar);
+  border-radius:0 4px 4px 0;transition:width .4s ease;min-width:2px}
+.sp-val{position:absolute;top:4px;font-family:var(--sp-mono);font-variant-numeric:tabular-nums;
+  font-size:13px;font-weight:600;color:var(--sp-ink);white-space:nowrap}
+
+.post-content .sp-foot{font-size:13.5px;color:var(--sp-body);line-height:1.6;margin:16px 0 0}
+.sp-foot b{color:var(--sp-ink);font-weight:600}
+
+.sp-scroll{overflow-x:auto;margin-top:14px}
+.post-content table.sp-table{width:100%;border-collapse:collapse;font-size:13.5px;margin:0}
+.post-content .sp-table th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--sp-muted);font-weight:700;background:none;padding:0 10px 6px 0;
+  border-bottom:1px solid var(--sp-rule);text-align:left}
+.post-content .sp-table th:not(:first-child),
+.post-content .sp-table td:not(:first-child){text-align:right;font-family:var(--sp-mono);
+  font-variant-numeric:tabular-nums}
+.post-content .sp-table td{padding:7px 10px 7px 0;border-bottom:1px solid var(--sp-rule);
+  color:var(--sp-body)}
+.post-content .sp-table tr:last-child td{border-bottom:none}
+
+@media(max-width:600px){
+  .sp{padding:16px 12px 13px}
+  .sp-row{grid-template-columns:88px 1fr}
+  .sp-refs{left:94px;right:38px}
+  .sp-name b{font-size:12.5px}
+  .sp-name span{font-size:10.5px}
+  /* the full reference sentences collide at this width — the ticks and the
+     caption carry the meaning instead, so shorten to the bare multiple */
+  .sp-ref span{font-size:9.5px}
+  .sp-ref.one span::after{content:'1×'}
+  .sp-ref.three span::after{content:'3×'}
+  .sp-ref span{font-size:0}
+  .sp-ref span::after{font-size:9.5px}
+  .sp-track{padding-right:38px}
+  .sp-val{font-size:11.5px}
+}
+@media(prefers-reduced-motion:reduce){ .sp-bar{transition:none} }
+</style>
