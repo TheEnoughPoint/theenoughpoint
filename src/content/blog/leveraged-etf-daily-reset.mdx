@@ -1,5 +1,5 @@
 ---
-title: "Can You Hold a 3× ETF Long Term? A Decade of Evidence"
+title: "Leveraged ETFs Sometimes Work. Can You Survive the Ride?"
 cover: "/img/brand/cover-leverage-decay.svg"
 date: "2026-07-28"
 category: "invest-better"
@@ -8,31 +8,75 @@ tags:
   - ETFs
   - Leverage
   - Risk
-readTime: 6
+readTime: 8
+inlineShare: true
 authorId: "fi"
 excerpt: |
-  Over the ten years to June 2026, one 3× fund turned S$10,000 into S$1.58 million. Another left its holders with less than if they had simply bought the index. Same structure, same decade — and what separated them is not luck.
+  Korean retail investors put billions into 2× Samsung and SK Hynix funds this June. Six weeks later, S$10,000 in the SK Hynix fund was worth S$1,351 — while the stock itself had merely halved. Yet on other markets the same structure made fortunes. What separates the two is not the product. It is whether you can sit through the path.
 ---
 
 import LeverageDecayTool from '@src/components/LeverageDecayTool.astro';
 import LeverageSpreadChart from '@src/components/LeverageSpreadChart.astro';
+import KoreaCrashChart from '@src/components/KoreaCrashChart.astro';
+import NvidiaPathChart from '@src/components/NvidiaPathChart.astro';
 import LeveragePeakChart from '@src/components/LeveragePeakChart.astro';
+import SocialShare from '@src/components/SocialShare.astro';
 
-Every leveraged fund carries the same warning, printed by the people who sell it: not to be held for more than a day.
+On 27 May 2026, Korea did something no market had done before: it listed leveraged funds on **single stocks**. Two, specifically — Samsung Electronics and SK Hynix, the only names large enough to qualify. Each promised twice the daily move.
 
-Almost nobody obeys it. So the useful question is not what the label says — it is what actually happened to people who ignored it. Ten years of published records answer that, and the answer is not the one either camp expects.
+Korean savers understood the appeal immediately. Within about a fortnight the money in these products roughly doubled, from around US$3 billion at listing to close to US$9 billion. Roughly **92%** of the buying was retail. Not institutions. People.
+
+Then the memory trade turned. Both stocks fell more than **20%** from their late-June highs inside about a week — a bear market in seven trading days, while Samsung was still reporting record profits.
+
+Here is what that did to the money.
+
+<KoreaCrashChart />
+
+SK Hynix shares peaked on 22 June. Six weeks later a holder was down **55%** at the low. **Someone who bought the 2× fund on the same stock, on the same day, was down 86%** — S$10,000 reduced to **S$1,351**. Twice the leverage did not cost twice as much. It cost far more.
+
+The regulator's response was to triple the minimum deposit required to buy these products, from ₩10 million to ₩30 million, and the head of the financial supervisor publicly regretted how quickly they had been approved.
+
+That is the story most people now have about leveraged funds. It is true, and it is half the picture. The other half is stranger, and more useful.
+
+## First, what the ride actually looks like
+
+The best leveraged fund of the last decade was the 3× semiconductor one: **65.9% a year** for ten years. It also fell **90%** at its worst, between December 2021 and October 2022 — about ten months. Put that in a statement rather than a percentage: S$50,000 became **S$4,770**, while everyone around you explained why semiconductors were finished. **That 65.9% belonged only to whoever sat through that screen**, and sat through it twice.
+
+**That is the mismatch.** Nobody buys a 2× fund on Samsung expecting to watch it halve while being right about Samsung. The damage happens in the gap between those two expectations — not in the arithmetic, but in the entirely human decision to sell at the bottom of a fall that was never in the plan.
+
+**A stop-loss makes this worse, not better.** A level rarely touched on the ordinary stock gets hit routinely on a 2× version of it. You are sold out of a position that later recovers — right about the company, stopped out anyway.
+
+## Right about Nvidia, and still down
+
+The 2× fund in that opening chart is not the Korean one. It is run by CSOP, listed in **Hong Kong**, holds about **US$5.5 billion**, and most Singapore brokers can reach it. You did not need a Korean account to lose that money.
+
+But the clearest warning in CSOP's range is not a memory stock at all.
+
+<NvidiaPathChart />
+
+**Nobody holds a chart, they hold a position.** In May this one was up nearly 40%, which is a gain with a decision attached. By 30 June there was nothing left to decide.
+
+The issuer is admirably direct about why. From CSOP's own key facts statement:
+
+> "This product is not intended for holding longer than one day… it is even possible that the Product will lose money over time while the Underlying Stock's performance increases or is flat."
+
+And on cost, where the Hong Kong disclosure is far blunter than anything American issuers print: CSOP discloses swap and option costs of **up to 40% a year** of net assets on the SK Hynix product, and up to 35.2% on the Samsung one. Read that as a disclosed ceiling rather than this year's bill — what you actually pay depends on how expensive it is to borrow the stock, and on a volatile single name that is not a small number. Before the market does anything at all.
+
+## And yet, on other markets, it worked
+
+None of that makes these products a trap. Look at the same structure elsewhere.
 
 <LeverageSpreadChart />
 
-A holder of the 3× semiconductor fund ended the decade with **seven times** what an ordinary semiconductor index holder had. The 3× Nasdaq fund returned **45.5% a year** for ten years. These are not near-misses; they are life-changing outcomes, and anyone who tells you leveraged funds are simply a trap has not looked at them.
+A holder of the 3× semiconductor fund ended the decade with roughly **seven times** what an ordinary semiconductor fund holder had. The 3× Nasdaq fund averaged **45.5% a year**. These are not near-misses, and anyone who tells you these products are simply a scam has not looked at them.
 
-And in the same decade, with the same structure, the 3× small-cap fund left its holders with **less than the plain index** — and over five years it lost money outright, **−4.4% a year while small caps gained 6.9%**. The 3× Korea fund did the same.
+On other markets the same design did the opposite: 3× small caps and 3× Korea both left their holders with **less than the plain index** over the same period.
 
-Same product design. Same ten years. Outcomes from seven times the index down to below it.
+It cuts both ways inside a single year, too. The very same SK Hynix 2× that produced the opening chart had returned about **798%** in the six months before it — comfortably more than twice the stock's own 307%.
 
-So what separated them? Two forces, and neither is luck.
+**Same structure, same decade, outcomes from seven times the index down to below it.** So the product is not the variable. Something inside it produced both results — and it takes two minutes to see, because once you have it, every number above explains itself.
 
-## The first: a machine that buys high and sells low, every day
+## Why the same machine does both
 
 The promise is three times the move of the index **for a single day**. Not three times your year.
 
@@ -50,95 +94,76 @@ Three times a 1% loss should be 3%. You lost **9%**. No fee was charged and nobo
 
 That is the machine. Every day the market rises, it buys more. Every day the market falls, it sells. It is required to, because the promise is defined against whatever the fund is worth *today*.
 
-**Which explains both halves of the chart above.** In a market that climbs steadily, buying more after every up day is exactly the right move, and the machine hands you more than three times the index — that is the semiconductor and Nasdaq decade. In a market that lurches up and down without going anywhere, the same machine buys high and sells low, over and over, by design. That is small caps, and that is Korea.
-
-Our own model puts numbers on the boundary. An index compounding at 25% a year with only 15% volatility hands a 3× holder about **83%** a year — more than the 75% that "three times" implies. But at a 10% index return, the 3× fund beats the naive multiple only while volatility stays under about **9%**. Above that, the chop starts taking more than the leverage adds.
-
-The Korea episode shows the losing side happening in real time. The 3× fund peaked on **1 June 2026**. The index it tracks kept climbing, and peaked on **18 June** — seventeen days later. The market went on making new highs the leveraged fund never saw again.
+That is the arithmetic. Here is what it did to a real market over three months.
 
 <LeveragePeakChart />
 
-Those seventeen days are the whole argument in miniature, so they are worth slowing down on.
+**Which explains both halves of the chart earlier.** In a market that climbs steadily, buying more after every up day is exactly the right move, and the machine hands you more than three times the index — that is the semiconductor and Nasdaq decade. In a market that lurches up and down without going anywhere, the same machine buys high and sells low, over and over, by design. That is small caps, and that is Korea.
 
-The index finished the stretch **1.2% higher**. To get there it moved an average of **4.6% every single day** — one session up 11.5%, another down 14.1%, nine down days against four up days. Add up all those daily moves regardless of direction and the market travelled **59%** in order to end up 1.2% ahead.
+One point in the machine's favour, since it is owed. On the way down it works in reverse: as the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times Korea's 28% drop would have been 85%, and the fund lost 76%. The daily reset is not simply a penalty — it is a **volatility cost, not a direction cost.** What it punishes is chop.
 
-The fund had to respond to every one of those moves. Up 11.5%? Buy more, at the top. Down 14.1%? Sell, at the bottom. Thirteen times in a row, mechanically, because its promise is defined against whatever it is worth that morning.
+### Where the line falls, on your own numbers
 
-The index kept 1.2%. The fund lost **13.8%**.
-
-That is the clearest statement of what these products cost: not a fee, not a fall in the market, but the price of being made to trade in and out of a market that could not make up its mind.
-
-## The second: a borrowing bill you cannot see
-
-The fund's published fee is 1.32% a year. That number is true and close to irrelevant.
-
-To hold $300 of market for your $100, it has to get the other $200 somewhere. It rents it, through contracts with investment banks, and pays them a short-term interest rate plus a spread — around 4.5% a year in mid-2026, on the borrowed portion.
-
-None of that is in the 1.32%. The fund's own fee agreement excludes "swap financing and related costs", then adds, in its own words: **"If these expenses were included, the expense ratio would be higher."**
-
-How much higher is public record. Its regulatory filing for 30 April 2026 lists swaps with a face value of **US$3.86 billion** against **US$1.55 billion** of fund assets, at rates between 4.34% and 5.34%. That is roughly **US$176 million a year — about 11% of everything in the fund.**
-
-Some of that comes back. The same filing shows about half the fund's assets held directly in the ordinary index fund, which implies the other half sits in cash as collateral. If that cash earns something close to the same short-term rate, it returns roughly 1.8%, bringing the financing bill down to about **9.5%**.
-
-Add the published fee and the real cost of holding is near **11% a year**, of which the headline 1.32% is roughly an eighth. Not a scandal. That is simply what borrowing costs. But it means the fund starts each year eleven points behind.
-
-## Work out the bite on your own assumptions
+Now that the machine is on the table, you can find its break-even yourself.
 
 <LeverageDecayTool />
 
-The number to watch is the last one. At 30% volatility — roughly a single-country market — the index must compound at about **13.5% a year, or 3.2% a quarter,** before a 3× holder makes anything at all. Below that, you lose money in a rising market.
+It opens on an ordinary year — a 10% index return with 30% volatility — and the 3× fund **loses 9%** in a rising market. That is the case people do not price in.
 
-## "But these are for short-term trading"
-
-That defence is right, and much stricter than most people realise. The fund's own horizon is not "short term". It is **one day**.
-
-Three months is not a rounding error against that. At 30% volatility, the daily rebalancing costs around 6.5% over a quarter and the borrowing adds roughly 2.6% more — so about **9% disappears in three months before the index does anything.**
-
-The Korea episode settles it. The 3× fund fell **76%** from its June peak while the index fell **28%**, and that took about eight weeks. Anyone holding "just a quarter" held through the whole thing.
-
-One point in the machine's favour, since it is owed. On the way down it works in reverse: as the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times a 28% drop would have been 85%, and the fund lost 76%. The daily reset is not simply a penalty — it is a **volatility cost, not a direction cost.** What it punishes is chop.
+**But set the index return to 36.6%, which is what semiconductors actually delivered over the decade, and the same tool turns strongly positive.** That is not a contradiction; it is the entire argument in one field. The drag never goes away. It simply stops mattering when a market runs hard enough for long enough — and nothing tells you in advance which kind of market you have walked into.
 
 ## Singapore has its own version, and it goes to seven times
 
-None of this is a distant American problem.
+None of this is a distant American problem. The Singapore Exchange has listed **Daily Leverage Certificates** since 2017, at **2, 3, 5 and 7 times**, long or short — on Apple, Nvidia and Tesla, on Tencent and Alibaba, and on DBS, OCBC, UOB, Singtel and Singapore Airlines. They reset daily, exactly as above, and SGX says so plainly in its own materials.
 
-The Singapore Exchange has listed **Daily Leverage Certificates** since 2017 — the first market in Asia to do so. They offer fixed daily leverage of **2, 3, 5 and 7 times**, long or short, on indices and on single stocks. The single-stock list includes American names like Apple, Nvidia and Tesla, Hong Kong names like Tencent and Alibaba, and Singapore's own: DBS, OCBC, UOB, Singtel, Singapore Airlines.
+**What stands between an ordinary investor and 7× leverage on a single bank stock is one form.** A broker must run a Customer Account Review first, which you pass with a relevant qualification, three years of relevant work, six such trades in three years — or a free online quiz. And on 15 May 2026 the Monetary Authority concluded a consultation that would **remove the mandatory financial-advice requirement** for complex products altogether. Fewer gates, not more, which is precisely the setting Korea listed its two funds into.
 
-They work the same way, and the exchange says so plainly:
+## What to take from this
 
-> "The performance of the underlying asset and the DLC is reset at the end of each trading day… Over the period of more than one day, the profits or losses are thus compounded."
+**The product is not the problem.** On a market that trends, a daily-reset fund does what it advertises and can beat even the multiple people expect of it. On one that churns, the identical machine grinds you down while you are right about the direction — and you do not get to know which you are in until afterwards.
 
-To its credit, SGX publishes worked examples that include the uncomfortable case — a three-day sequence where the underlying finishes higher and the certificate finishes down. The information is there for anyone who looks.
+**The published return is not the return you got.** Every fund here that made a fortune also required its holders to sit through 80% and 90% falls without selling. Those who collected were not smarter than those who did not. They had the stomach, or the inattention, to stay put — a far rarer qualification than having the right view.
 
-These products carry an extra feature ordinary leveraged funds do not: an **air bag**, which suspends trading when the underlying moves sharply against the certificate — 10% for a 5× or 7× index product, 15% for a 5× single stock. It limits the damage from one violent session. It also, in the issuer's own words, leaves the certificate with "a reduced exposure… thereby reducing its ability to recover losses" if the market turns back in your favour afterwards.
+**None of it is hidden.** The Hong Kong issuer prints "up to 40% a year" in costs. The American one prints that its fund "should not be expected to provide three times the return… for periods greater than a day". It is simply never on the poster.
 
-**What stands between an ordinary investor and 7× leverage on a single bank stock is one form.** These are classified as Specified Investment Products, so a broker must run a Customer Account Review first. You pass by holding a relevant qualification, or three years of relevant work experience, or six such trades in the past three years — or by passing a free online quiz.
+So what matters before you buy one is not a view on the market. It is two numbers, written down before you press the button.
 
-Worth knowing: on 15 May 2026 the Monetary Authority concluded a consultation that would **remove the mandatory financial-advice requirement** for complex products, replacing it with alerts and learning modules. The legislation has not been drafted yet, so today's rules still stand. But the direction is toward fewer gates, not more, which puts rather more weight on the arithmetic above.
+**The price at which you will sell** — decided while you are calm, knowing a 2× fund reaches it twice as fast, and a 3× fund three times as fast, as the stock you are actually thinking about.
 
-## So can you hold one long term?
+**The amount you could watch halve, twice, without changing your mind.** That is your position size, and for most people it is far smaller than the sum they were about to put in.
 
-The decade says: sometimes, spectacularly — and you cannot know which in advance, because the thing that decides it is not whether you picked the right market. It is whether that market happened to trend or churn while you held it.
+If you cannot write both down, you have your answer. And if you can, keep them somewhere you will find them on the bad day — because on the evidence above, the bad day is not a tail risk in these products. It is a feature of holding them.
 
-That distinction is worth being precise about, because the risk people prepare for is usually the other one. If you borrow to invest, the danger is that the market falls and the debt does not — painful, and widely understood. That loan does not care what route the price took: down 20% then up 25% leaves you where you started. A daily-reset fund does care. The rebalancing happens whether you like it or not, the borrowing bill runs whatever the market does, and every swing takes a bite on the way through.
-
-The people holding the 3× semiconductor fund through the last decade were not smarter than the people holding 3× small caps. They were in a market that went one way.
-
-So the question is not whether you are right about the market. It is whether the thing you are holding can survive being right slowly.
+<SocialShare title="Leveraged ETFs Sometimes Work. Can You Survive the Ride?" />
 
 <div class="post-notes">
 
+<details class="notes-fold">
+<summary>Sources, and where our numbers are soft</summary>
+
 #### Sources
 
-All standardised returns are each issuer's own published figures, NAV basis, as of 30 June 2026: [ProShares](https://www.proshares.com/our-etfs/leveraged-and-inverse/tqqq) for TQQQ and UPRO, [Direxion](https://www.direxion.com/product/daily-semiconductor-bull-bear-3x-etfs) for SOXL, TNA and KORU, [Invesco](https://www.invesco.com/qqq-etf/en/performance.html) for QQQ, [iShares](https://www.ishares.com/us/products/239705/ishares-phlx-semiconductor-etf) for SOXX, IWM and EWY, and [State Street](https://www.ssga.com/us/en/individual/etfs/spdr-sp-500-etf-trust-spy) for SPY. The outcome multiples are ours, computed by compounding those annualised returns over ten years; the underlying figures are in the table so the arithmetic can be checked. SOXL and SOXX track the same benchmark, the NYSE Semiconductor Index, which makes that the cleanest pair in the set. Fund objective and warning language: the [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) Korea product pages. Swap notional, holdings and financing rates: the fund's Form N-PORT filed with the US Securities and Exchange Commission for the period ending 30 April 2026, the most recent public filing. Price paths computed by us from split-adjusted public closing prices, 1 July 2024 to 31 July 2026.
+All standardised returns are each issuer's own published figures, NAV basis, as of 30 June 2026: [ProShares](https://www.proshares.com/our-etfs/leveraged-and-inverse/tqqq) for TQQQ and UPRO, [Direxion](https://www.direxion.com/product/daily-semiconductor-bull-bear-3x-etfs) for SOXL, TNA and KORU, [Invesco](https://www.invesco.com/qqq-etf/en/performance.html) for QQQ, [iShares](https://www.ishares.com/us/products/239705/ishares-phlx-semiconductor-etf) for SOXX, IWM and EWY, and [State Street](https://www.ssga.com/us/en/individual/etfs/spdr-sp-500-etf-trust-spy) for SPY. Those published figures are **average annual returns, not cumulative ones**, for every period of a year or longer — the issuers say so in their own fact sheets ("returns for performance under one year are cumulative, not annualized"). The outcome multiples are ours, computed by compounding those annual averages over ten years; the underlying figures sit in the table so the arithmetic can be checked. We compare each leveraged fund against the ordinary *fund* tracking the same market rather than against the index itself, because an index cannot be bought — which also makes the comparison slightly more conservative than using the index would. SOXL and SOXX track the same benchmark, the NYSE Semiconductor Index, which makes that the cleanest pair in the set. Fund objective and warning language: the [Direxion](https://www.direxion.com/product/daily-msci-south-korea-bull-3x-etf) and [iShares](https://www.ishares.com/us/products/239681/ishares-msci-south-korea-capped-etf) Korea product pages. Price paths, drawdowns and time-underwater computed by us from split-adjusted public closing prices, July 2010 to July 2026.
+
+Hong Kong products, holdings, year-to-date returns, cost disclosures and the "not intended for holding longer than one day" wording: [CSOP Asset Management's own product pages and key facts statements](https://www.csopasset.com/en/products/hk-skhy-2l) for the SK Hynix 2× (7709.HK), Samsung Electronics 2× (7747.HK) and Nvidia 2× (7788.HK), with returns as at 30 June 2026 and assets as at 31 July 2026. The report that the SK Hynix product peaked above US$20 billion before falling 70–80% is from secondary press rather than an issuer or exchange statement — we have flagged it as such rather than dropping it, because the direction is corroborated by the fund's own published performance.
+
+The Nvidia chart is built from daily closing prices for NVDA and 7788.HK, 31 December 2025 to 30 June 2026, rebased by us so both begin at zero. **These are traded prices, not net asset values**, and the distinction is not cosmetic: CSOP's published year-to-date figure for the fund is −0.49% on a NAV basis, while its traded price ended the same period 5.06% down. We show the traded price because that is what an investor buys and sells at, and we print both rather than choose the flattering one. Note also that the fund is listed in Hong Kong and the stock trades in New York, so the Hong Kong session closes before the American one opens — the fund's move on any given day reflects the stock's move the day before. We checked this rather than assumed it: fund returns correlate 0.77 with the previous day's Nvidia return and only 0.17 with the same day's.
+
+Korean single-stock leveraged funds — listing date, products and issuers: [Samsung Asset Management's own KODEX product pages](https://www.samsungfund.com/etf/product/view.do?id=2ETFV6) and [KED Global](https://www.kedglobal.com/korean-stock-market/newsView/ked202605270003). Asset growth and the retail share: Korean financial press including [Financial Today](https://www.ftoday.co.kr/news/articleView.html?idxno=360769) and [Seoul Economic Daily](https://en.sedaily.com/finance/2026/07/18/samsung-hynix-single-stock-leverage-etfs-draw-7-trillion). The underlying stocks' drawdown: [market data via Yahoo Finance](https://finance.yahoo.com/markets/article/micron-samsung-sk-hynix-just-dragged-memory-stocks-into-a-bear-market-154549356.html). Regulatory response and deposit change: [Korea JoongAng Daily](https://www.koreajoongangdaily.com/opinion/the-dilemma-of-singlestock-leveraged-etfs/12773384).
 
 Singapore products, leverage factors, and the daily-reset and air-bag wording: [SGX's Daily Leverage Certificates page](https://www.sgx.com/DLC) and the issuer's handbook. Customer Account Review criteria: [MoneySense](https://www.moneysense.gov.sg/investments/understanding-specified-investment-products/), the MAS-run consumer portal. Consultation outcome: [MAS media release, 15 May 2026](https://www.mas.gov.sg/news/media-releases/2026/mas-concludes-consultation-on-enhancements-to-phs-and-streamlined-framework-for-complex-products). All checked 2 August 2026; the calculator's derivation is documented in its source code.
 
 #### Where our numbers are soft
 
-The 1.8% credited back for interest on collateral is **our estimate, not a disclosed figure** — the filing shows the cash position but not the income earned on it. Treat the 11% all-in cost as an approximation with its working shown rather than a reported number. It also leaves out a third, smaller drag: the trading costs the fund incurs turning over its own book each day, which no filing separates out.
+**The drawdown study is evidence, not a law.** It covers sixteen years and a handful of funds, and those sixteen years contained one of the strongest bull runs in market history — which is precisely why the winning cases look as good as they do. Read it as a description of what this era did, not a forecast of the next.
 
-Our figures also come from one fund over particular windows, which is a fair thing to be suspicious of. The underlying relationship is neither ours nor new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes turn on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result above.
+**The S$10,000 chart crosses a currency line.** SK Hynix trades in won in Seoul; the 2× fund on it trades in Hong Kong dollars. We have rebased both to Singapore dollars so the two paths are comparable, which means a slice of the gap between them is exchange-rate movement rather than leverage. It is a small slice over six weeks — the leverage does nearly all of the work — but a Singapore buyer of the Hong Kong product genuinely carries that currency layer, and the chart is honest to include it rather than assume it away.
+
+The Korean episode is reported from Korean issuer notices, Korean financial press and market data. The asset and retail-share figures circulate in several outlets with small variations, so treat "roughly US$3 billion to roughly US$9 billion" and "roughly 92% retail" as well-supported approximations rather than audited numbers. The single-day fall in the SK Hynix-linked funds on 29 July is reported from exchange data via secondary outlets; the underlying stocks' fall of more than 20% from late-June highs is the more solidly sourced fact of the two.
+
+Our figures also come from a small number of funds over particular windows, which is a fair thing to be suspicious of. The underlying relationship is neither ours nor new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes turn on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result above.
+
+</details>
 
 <p class="note-aside">A note on what this is not. We are not telling you to buy or avoid anything, and we name these funds only because the arithmetic needs a real example — the mechanism belongs to every daily-reset product, whichever issuer runs it. We have no commercial relationship with any fund manager or exchange, carry no advertising, and earn nothing from any link on this page.</p>
 

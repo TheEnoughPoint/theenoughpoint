@@ -1,0 +1,141 @@
+---
+// The Nvidia gap as a path rather than an outcome.
+//
+// An earlier version of this was three static bars — stock, "what 2x implies",
+// and the fund. It stated the result and hid the story: that the fund was up
+// 39% at one point, gave all of it back, and finished below zero while the
+// stock finished up. That round trip is the argument, and only a time series
+// shows it.
+//
+// Daily closing prices, 31 December 2025 to 30 June 2026, rebased so both start
+// at zero. Nvidia (NVDA) on Nasdaq; the CSOP Nvidia Daily (2x) Leveraged Product
+// (7788.HK) in Hong Kong. Pulled from public market data and computed by us.
+//
+// MARKET PRICE, NOT NAV, and that is a compromise rather than a preference.
+// NAV is the fairer basis for comparison against a share price, because it
+// excludes whatever premium or discount the fund trades at — noise that has
+// nothing to do with the daily reset this chart is about. Only the traded
+// series is published daily, so that is what the line plots, and the footnote
+// says plainly that CSOP's NAV figure is −0.49% against −5.06% at the traded
+// price. The conclusion survives either basis: the fund ended below zero while
+// the stock ended up 7.4%.
+const STOCK = [0,1.26,0.87,0.4,1.4,-0.78,-0.88,-0.84,-0.37,-1.8,0.29,-0.14,-4.52,-1.71,-0.89,0.63,-0.02,1.08,2.69,3.22,2.48,-0.48,-3.3,-6.6,-7.84,-0.58,1.9,1.09,1.9,0.24,-1.98,1.78,2.71,3.4,4.86,-0.86,-4.99,-2.16,-3.46,-1.86,-1.69,-2.06,-0.93,-0.25,-1.8,-3.35,-1.75,-2.45,-3.27,-4.25,-7.39,-5.82,-6.05,-4.19,-8.18,-10.17,-11.43,-6.48,-5.76,-4.88,-2.36,-1.38,1.15,1.51,5.37,6.64,6.36,8.15,8.35,7.18,8.58,7.05,11.68,16.15,14.31,12.2,7.01,6.43,5.37,11.44,13.41,15.39,17.67,18.39,21.1,26.41,20.82,19.21,18.3,19.83,17.71,15.46,15.21,14,14.89,13.22,20.31,19.48,15.15,17.39,10.11,12.01,11.77,7.59,9.98,10.16,14.05,11.35,9.87,13.11,12.01,7.39,6.83,5.08,3.36,4.67,7.42];
+const FUND  = [0,1.46,2.8,2.33,0.9,2.36,-2.23,-4.29,-2.36,-3.06,-3.66,0.6,-6.09,-8.36,-4.16,-3.73,-1.8,-1.17,3.66,2.86,0.97,-1.86,-2.06,-8.59,-11.65,-16.41,-4.69,1.07,-0.93,1.13,-3.26,-2.33,-1.23,2.76,3.2,8.26,-4.36,-17.64,-13.08,-12.72,-9.95,-16.44,-9.22,-7.19,-7.02,-9.62,-10.19,-8.69,-8.79,-12.28,-13.48,-21.64,-16.11,-15.88,-15.55,-19.64,-24.07,-25.57,-16.84,-20.91,-10.55,-13.65,-11.15,-8.32,-4.46,1.2,5.66,4.13,4.83,7.76,6.76,7.32,5.76,14.81,22.17,19.34,15.11,4.49,3.46,0.7,13.68,18.21,19.67,22.6,31.29,39.48,39.35,29.73,28.1,28.4,27.4,25.63,21.24,17.71,14.28,19.17,19.84,29.36,26.33,17.84,16.51,9.85,11.32,6.86,3.76,5.26,11.05,11.82,9.29,6.99,10.35,1.9,0.73,0.57,-6.56,-5.66,-5.06];
+const MONTHS = [
+  { i: 1,  t: 'Jan' }, { i: 21, t: 'Feb' }, { i: 37, t: 'Mar' },
+  { i: 58, t: 'Apr' }, { i: 77, t: 'May' }, { i: 96, t: 'Jun' },
+];
+
+// PAD_R reserves the end-label gutter. Measured, not guessed: at 104 the
+// longest label ran 30px past the viewBox edge and was clipped.
+const W = 720, H = 330, PAD_L = 42, PAD_R = 132, PAD_T = 26, PAD_B = 30;
+// Tightened once the reference line went: with only the two real series the
+// range is -25.6 to +39.5, so the plot uses the height instead of reserving
+// space for a line that is no longer drawn.
+const LO = -30, HI = 45;
+const n = STOCK.length;
+const x = (i: number) => PAD_L + (i / (n - 1)) * (W - PAD_L - PAD_R);
+const y = (v: number) => PAD_T + (1 - (v - LO) / (HI - LO)) * (H - PAD_T - PAD_B);
+const path = (a: number[]) => a.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+const GRID = [40, 20, 0, -20];
+const fmt = (v: number) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + '%';
+
+// The peak is the point of the chart, so it gets marked rather than described.
+const peakI = FUND.indexOf(Math.max(...FUND));
+---
+
+<figure class="np">
+  <figcaption class="np-cap">
+    <h4>Right about Nvidia. Still down.</h4>
+    <p>Every trading day of 2026 to 30 June. Nvidia shares against the 2&times; fund on them,
+    both starting at zero.</p>
+  </figcaption>
+
+  <div class="np-wrap">
+    <svg viewBox={`0 0 ${W} ${H}`} class="np-svg" role="img"
+         aria-label="Through the first half of 2026 the 2x Nvidia fund rose as high as 39.5% in May, then gave it all back, finishing 5.1% down on 30 June. Nvidia shares finished 7.4% up over the same period.">
+      {GRID.map((g) => (
+        <>
+          <line x1={PAD_L} x2={W - PAD_R} y1={y(g)} y2={y(g)} class:list={['np-grid', g === 0 && 'zero']} />
+          <text x={PAD_L - 7} y={y(g) + 3.5} class="np-ylab">{g > 0 ? '+' + g : g}%</text>
+        </>
+      ))}
+      {MONTHS.map((m) => <text x={x(m.i)} y={H - 9} class="np-xlab">{m.t}</text>)}
+
+      {/* Two lines, not three. A dashed "twice the stock" reference line was the
+          busiest thing on the chart, crossed both real series repeatedly, and
+          made the peak annotation ambiguous. The comparison it carried is one
+          sentence of prose underneath, where it costs nothing to read. */}
+      <path d={path(STOCK)} class="np-line stock" />
+      <path d={path(FUND)} class="np-line fund" />
+
+      {/* the round trip, tied to the red line with a leader so it cannot be
+          misread as belonging to the other series */}
+      <line x1={x(peakI)} x2={x(peakI)} y1={y(FUND[peakI]) - 6} y2={y(FUND[peakI]) - 15} class="np-leader" />
+      <circle cx={x(peakI)} cy={y(FUND[peakI])} r="4" class="np-peak" />
+      <text x={x(peakI)} y={y(FUND[peakI]) - 21} class="np-peaklab">the fund, up {fmt(FUND[peakI])}</text>
+
+      <circle cx={x(n - 1)} cy={y(STOCK[n - 1])} r="4" class="np-dot stock" />
+      <circle cx={x(n - 1)} cy={y(FUND[n - 1])} r="4" class="np-dot fund" />
+
+      <text x={x(n - 1) + 10} y={y(STOCK[n - 1]) - 5} class="np-end stock">the shares</text>
+      <text x={x(n - 1) + 10} y={y(STOCK[n - 1]) + 13} class="np-endv stock">{fmt(STOCK[n - 1])}</text>
+      <text x={x(n - 1) + 10} y={y(FUND[n - 1]) - 5} class="np-end fund">the 2× fund</text>
+      <text x={x(n - 1) + 10} y={y(FUND[n - 1]) + 13} class="np-endv fund">{fmt(FUND[n - 1])}</text>
+    </svg>
+  </div>
+
+  <p class="np-foot">No crash and no drama &mdash; the stock simply rose, unevenly. The fund was <b>up 39%</b> in May and finished <b>below where it started</b>. Twice the stock&rsquo;s return would have been <b>+14.8%</b>. You were right about the most discussed company on earth, you held the product built to double it, and you finished behind.</p>
+
+  <p class="np-note">Traded prices, rebased, because that is the daily series available publicly.
+  Note that <b>net asset value is the fairer comparison</b> against a share price: it strips out
+  whatever premium or discount the fund happens to trade at, which has nothing to do with the daily
+  reset. On that basis CSOP reports <b>−0.49%</b> for the same period, against <b>−5.06%</b> at the
+  traded price. The line above therefore flatters the stock a little &mdash; but on either basis the
+  fund finished below zero while the stock finished up 7.4%.</p>
+</figure>
+
+<style is:global>
+.np{
+  --np-stock:#1A8754; --np-fund:#A93226;
+  --np-rule:var(--color-border); --np-ink:var(--color-dark);
+  --np-body:var(--color-body); --np-muted:var(--color-muted);
+  --np-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--np-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .np{ --np-stock:#2FA87A; --np-fund:#E08074; } }
+.post-content .np-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .np-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--np-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .np-cap p{margin:0;font-size:12.5px;color:var(--np-muted);line-height:1.5}
+.np-wrap{overflow-x:auto}
+.np-svg{width:100%;min-width:520px;height:auto;display:block}
+.np-grid{stroke:var(--np-rule);stroke-width:1}
+.np-grid.zero{stroke:var(--np-muted);opacity:.55}
+.np-ylab,.np-xlab{font-family:var(--np-mono);font-size:9.5px;fill:var(--np-muted)}
+.np-ylab{text-anchor:end}
+.np-xlab{text-anchor:middle}
+.np-line{fill:none;stroke-width:2.1;stroke-linejoin:round;stroke-linecap:round}
+.np-line.stock{stroke:var(--np-stock)}
+.np-line.fund{stroke:var(--np-fund)}
+.np-dot{stroke:#fff;stroke-width:2}
+@media (prefers-color-scheme: dark){ .np-dot{stroke:#101E31} }
+.np-dot.stock{fill:var(--np-stock)}
+.np-dot.fund{fill:var(--np-fund)}
+.np-peak{fill:var(--np-fund);stroke:#fff;stroke-width:1.5}
+.np-leader{stroke:var(--np-fund);stroke-width:1;opacity:.55}
+.np-peaklab{font-family:var(--font-body);font-size:10.5px;font-weight:600;fill:var(--np-fund);text-anchor:middle}
+.np-end{font-family:var(--font-body);font-size:11px;font-weight:700;text-anchor:start}
+.np-end.stock{fill:var(--np-stock)}
+.np-end.fund{fill:var(--np-fund)}
+.np-endv{font-family:var(--np-mono);font-size:12.5px;font-weight:600;text-anchor:start}
+.np-endv.stock{fill:var(--np-stock)}
+.np-endv.fund{fill:var(--np-fund)}
+.post-content .np-foot{font-size:14px;color:var(--np-body);line-height:1.6;margin:12px 0 0;
+  padding-top:13px;border-top:1px solid var(--np-rule)}
+.np-foot b{color:var(--np-ink);font-weight:600}
+.post-content .np-note{font-size:11.5px;color:var(--np-muted);line-height:1.55;margin:9px 0 0}
+.np-note b{font-family:var(--np-mono);color:var(--np-body);font-weight:600}
+@media(max-width:560px){ .np{padding:16px 13px 13px} }
+</style>

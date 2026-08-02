@@ -1,0 +1,91 @@
+---
+// One metric, one unit. An earlier version of this chart carried three
+// quantities at once — share of trading days above 30%, a nested darker block
+// for above 50%, and a worst-fall column — and asked the reader to decode a
+// caption before any of it meant anything. This shows a single number in a unit
+// people think in: YEARS spent worth less than half what the fund had been.
+//
+// Two of the four bars are zero, and that is the finding, not a gap: across
+// sixteen years the plain index funds never once halved.
+//
+// Computed by us from daily adjusted closes, July 2010 to July 2026: for each
+// day, how far below its own running high the fund was.
+const ROWS = [
+  { name: 'SOXL', sub: '3× semiconductors',   years: 5.1, lev: true },
+  { name: 'SOXX', sub: 'the plain index fund', years: 0.0, lev: false },
+  { name: 'TQQQ', sub: '3× Nasdaq-100',       years: 1.7, lev: true },
+  { name: 'QQQ',  sub: 'the plain index fund', years: 0.0, lev: false },
+];
+const SPAN = 16;
+---
+
+<figure class="dd">
+  <figcaption class="dd-cap">
+    <h4>Years spent worth less than half</h4>
+    <p>Of the sixteen years to July 2026, how long each fund sat more than 50% below its own
+    previous high.</p>
+  </figcaption>
+
+  <div class="dd-plot">
+    {ROWS.map((r) => (
+      <div class:list={['dd-row', r.lev ? 'is-lev' : 'is-idx']}>
+        <div class="dd-name"><b>{r.name}</b><span>{r.sub}</span></div>
+        <div class="dd-track">
+          <div class="dd-bar" style={`width:${(r.years / SPAN) * 100}%`}></div>
+          <span class="dd-val" style={`left:calc(${(r.years / SPAN) * 100}% + 9px)`}>
+            {r.years === 0 ? 'never' : `${r.years.toFixed(1)} years`}
+          </span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <p class="dd-scale">each bar measured against the full sixteen years</p>
+
+  <p class="dd-foot">The 3× semiconductor fund returned <b>65.9% a year</b> over the decade to
+  June 2026. It also spent five of those sixteen years worth less than half what it had been,
+  and fell <b>90%</b> at its worst. Neither plain fund halved once inside this window — though
+  QQQ fell around 80% in the dot-com bust, just before it.</p>
+</figure>
+
+<style is:global>
+.dd{
+  --dd-lev:#A93226; --dd-idx:#8A8A82;
+  --dd-rule:var(--color-border); --dd-ink:var(--color-dark);
+  --dd-body:var(--color-body); --dd-muted:var(--color-muted);
+  --dd-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--dd-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .dd{ --dd-lev:#E08074; --dd-idx:#7C8A99; } }
+.post-content .dd-cap{margin:0 0 18px;padding:0;text-align:left}
+.post-content .dd-cap h4{margin:0 0 3px;font-size:16px;font-weight:700;color:var(--dd-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .dd-cap p{margin:0;font-size:12.5px;color:var(--dd-muted);line-height:1.5}
+
+.dd-plot{display:flex;flex-direction:column;gap:12px}
+.dd-row{display:grid;grid-template-columns:126px 1fr;gap:12px;align-items:center}
+.dd-name{display:flex;flex-direction:column;line-height:1.25}
+.dd-name b{font-size:13.5px;color:var(--dd-ink);font-weight:700}
+.dd-name span{font-size:11px;color:var(--dd-muted)}
+.dd-track{position:relative;height:22px;padding-right:86px}
+.dd-bar{position:absolute;top:3px;height:16px;border-radius:0 3px 3px 0;
+  background:var(--dd-lev);transition:width .4s ease}
+.dd-row.is-idx .dd-bar{background:var(--dd-idx)}
+.dd-val{position:absolute;top:3px;font-family:var(--dd-mono);font-variant-numeric:tabular-nums;
+  font-size:13px;font-weight:600;color:var(--dd-ink);white-space:nowrap;line-height:16px}
+.dd-row.is-idx .dd-val{color:var(--dd-muted);font-family:var(--font-body);font-style:italic}
+
+.post-content .dd-scale{font-size:11px;color:var(--dd-muted);margin:10px 0 0;text-align:right}
+.post-content .dd-foot{font-size:14px;color:var(--dd-body);line-height:1.6;margin:14px 0 0;
+  padding-top:13px;border-top:1px solid var(--dd-rule)}
+.dd-foot b{color:var(--dd-ink);font-weight:600}
+
+@media(max-width:600px){
+  .dd{padding:16px 13px 13px}
+  .dd-row{grid-template-columns:96px 1fr;gap:9px}
+  .dd-name b{font-size:12.5px}
+  .dd-track{padding-right:74px}
+  .dd-val{font-size:12px}
+}
+</style>
