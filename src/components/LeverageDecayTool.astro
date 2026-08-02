@@ -16,6 +16,12 @@ import { Font } from 'astro:assets';
     <span class="ld-lbl accent">Interactive</span>
   </div>
 
+  <!-- The defaults are not neutral and should not pretend to be. They are the
+       semiconductor case from the article: a real fund's published fee, a real
+       mid-2026 borrowing rate, and volatility mid-range for a single sector.
+       Saying so is what stops the -9% reading as a rigged number. -->
+  <p class="ld-preset">It opens on the sector case above &mdash; <b>SOXL&rsquo;s published 1.32% fee</b>, a <b>4.55%</b> borrowing rate for mid-2026, and <b>30%</b> volatility, which is mid-range for a single sector and well below a single stock. The 10% index return is a deliberately ordinary year, not a bad one. Change anything you disagree with.</p>
+
   <div class="ld-body">
     <div class="ld-grid">
       <label class="ld-f">
@@ -120,6 +126,9 @@ import { Font } from 'astro:assets';
   display:flex;justify-content:space-between;align-items:center;gap:12px}
 .ld-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ld-t3)}
 .ld-lbl.accent{color:var(--ld-g2)}
+.post-content .ld-preset{font-size:12.5px;color:var(--ld-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--ld-bd)}
+.ld-preset b{color:var(--ld-t2);font-weight:600}
 .ld-body{padding:18px 22px 16px}
 .ld-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 26px}
 .ld-f{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0}
