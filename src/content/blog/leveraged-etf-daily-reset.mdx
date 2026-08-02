@@ -11,7 +11,7 @@ tags:
 readTime: 6
 authorId: "fi"
 excerpt: |
-  Korean retail investors put billions into 2× Samsung and SK Hynix funds this June, then watched them fall a fifth in a day. Yet on other markets the same structure made fortunes. What separates the two is not the product — it is whether you can sit through the path.
+  Korean retail investors put billions into 2× Samsung and SK Hynix funds this June. Six weeks later, S$10,000 in the SK Hynix fund was worth S$1,351 — while the stock itself had merely halved. Yet on other markets the same structure made fortunes. What separates the two is not the product. It is whether you can sit through the path.
 ---
 
 import LeverageDecayTool from '@src/components/LeverageDecayTool.astro';
@@ -57,13 +57,15 @@ But the clearest warning in the range is not a memory stock at all.
 
 <NvidiaGapChart />
 
-The SK Hynix fund carries the opposite lesson at the same time. Bought in January and held, it returned roughly **798%** for the half-year against about 307% for the stock — the trend rewarded it enormously. Enter six months later, at the June peak, and you saw the chart above. Same fund, same calendar year, opposite lives.
+The SK Hynix fund carries the opposite lesson at the same time. Bought in January and held, it returned roughly **798%** for the half-year against about 307% for the stock. Note what that means: twice the stock's return would have been about 614%. The fund beat it. A market that moves in one direction long enough compounds the leverage in your favour, and the product delivers more than the multiple on the label — which is exactly why people keep buying them.
+
+Enter six months later, at the June peak, and you saw the chart above. Same fund, same calendar year, opposite lives.
 
 The issuer is admirably direct about why. From CSOP's own key facts statement:
 
 > "This product is not intended for holding longer than one day… it is even possible that the Product will lose money over time while the Underlying Stock's performance increases or is flat."
 
-And on cost, where the Hong Kong disclosure is far blunter than anything American issuers print: CSOP discloses swap and option costs of **up to 40% a year** of net assets on the SK Hynix product, and up to 35.2% on the Samsung one. Before the market does anything at all.
+And on cost, where the Hong Kong disclosure is far blunter than anything American issuers print: CSOP discloses swap and option costs of **up to 40% a year** of net assets on the SK Hynix product, and up to 35.2% on the Samsung one. Read that as a disclosed ceiling rather than this year's bill — what you actually pay depends on how expensive it is to borrow the stock, and on a volatile single name that is not a small number. Before the market does anything at all.
 
 <LeverageDecayTool />
 
@@ -121,15 +123,23 @@ To its credit, SGX publishes worked examples that include the uncomfortable case
 
 Worth knowing: on 15 May 2026 the Monetary Authority concluded a consultation that would **remove the mandatory financial-advice requirement** for complex products, replacing it with alerts and learning modules. The legislation has not been drafted yet, so today's rules still stand. But the direction is toward fewer gates, not more — which is exactly the setting in which Korea listed two single-stock leveraged funds, watched retail buy nine billion dollars of them, and then tripled the deposit requirement afterwards.
 
-## The question is not the product
+## What to take from this
 
-Leveraged funds are not a scam and they are not free money. On the right market, over the right stretch, they have delivered outcomes ordinary funds cannot approach. On the wrong one they have quietly lost to the index they track.
+Three things survive everything above.
 
-But that framing still puts the question in the wrong place. Even the funds that won demanded that their holders sit through 80% and 90% falls, more than once, without flinching. The return was real. Almost nobody was in a position to collect it.
+**The product is not the problem.** On a market that trends, a daily-reset fund does exactly what it advertises and can beat even the doubled or tripled return people expect of it. On a market that churns, the identical machine grinds you down while you are right about the direction. You do not get to know which one you are standing in until afterwards.
 
-The people who held the 3× semiconductor fund through the last decade were not smarter than the people who held 3× small caps. They were in a market that went one way — and they had the stomach, or the inattention, to stay put while it did.
+**The published return is not the return you got.** Every fund here that made a fortune also required its holders to sit through 80% and 90% falls, more than once, without selling. The people who collected those returns were not smarter than the people who did not. They had the stomach, or the inattention, to stay put — and that is a far rarer qualification than having the right view.
 
-So the question worth answering before you buy one is not whether you are right about the market, nor how long you intend to stay. It is a plainer one: **if this halves, and then halves again, what will you actually do?** Answer that honestly first, because the market will ask it.
+**Nothing about this is hidden.** The Hong Kong issuer prints "up to 40% a year" in costs. The American one prints that its fund "should not be expected to provide three times the return… for periods greater than a day". Singapore's exchange publishes a worked example where the market rises and the certificate falls. It is all disclosed. It is simply never on the poster.
+
+So if you are going to buy one, the preparation that matters is not a view on the market. It is two numbers, written down before you press the button.
+
+**The price at which you will sell.** Not a feeling — a number, decided while you are calm, knowing that a 2× fund reaches it roughly twice as fast and a 3× fund three times as fast as the stock you are actually thinking about.
+
+**The amount you could watch halve, twice, without changing your mind.** That is your position size. For most people it is dramatically smaller than the amount they were about to put in.
+
+If you cannot write both down, you have your answer. And if you can, keep them somewhere you will find them on the bad day — because on the evidence above, the bad day is not a tail risk in these products. It is a feature of holding them.
 
 <div class="post-notes">
 
@@ -146,6 +156,8 @@ Singapore products, leverage factors, and the daily-reset and air-bag wording: [
 #### Where our numbers are soft
 
 **The drawdown study is evidence, not a law.** It covers sixteen years and a handful of funds, and those sixteen years contained one of the strongest bull runs in market history — which is precisely why the winning cases look as good as they do. Read it as a description of what this era did, not a forecast of the next.
+
+**The S$10,000 chart crosses a currency line.** SK Hynix trades in won in Seoul; the 2× fund on it trades in Hong Kong dollars. We have rebased both to Singapore dollars so the two paths are comparable, which means a slice of the gap between them is exchange-rate movement rather than leverage. It is a small slice over six weeks — the leverage does nearly all of the work — but a Singapore buyer of the Hong Kong product genuinely carries that currency layer, and the chart is honest to include it rather than assume it away.
 
 The Korean episode is reported from Korean issuer notices, Korean financial press and market data. The asset and retail-share figures circulate in several outlets with small variations, so treat "roughly US$3 billion to roughly US$9 billion" and "roughly 92% retail" as well-supported approximations rather than audited numbers. The single-day fall in the SK Hynix-linked funds on 29 July is reported from exchange data via secondary outlets; the underlying stocks' fall of more than 20% from late-June highs is the more solidly sourced fact of the two.
 
