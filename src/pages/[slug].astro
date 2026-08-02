@@ -2,6 +2,8 @@
 import { getCollection, render } from 'astro:content';
 import MainLayout from '@src/layouts/MainLayout.astro';
 import SocialShare from '@src/components/SocialShare.astro';
+import KeyTakeaways from '@src/components/KeyTakeaways.astro';
+import TableOfContents from '@src/components/TableOfContents.astro';
 import AuthorBio from '@src/components/AuthorBio.astro';
 import RelatedArticles from '@src/components/RelatedArticles.astro';
 import RightSidebar from '@src/components/RightSidebar.astro';
@@ -38,7 +40,7 @@ export async function getStaticPaths() {
 
 // ── Props & render ────────────────────────────────────────────────────────────
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 
 const {
   title,
@@ -53,6 +55,9 @@ const {
   sponsorName,
   showDisclosure,
   inlineShare,
+  takeaways = [],
+  figuresAsOf,
+  updated,
 } = post.data;
 
 const variant = 'standard' as 'fullwidth' | 'standard';
@@ -85,7 +90,20 @@ function tagSlug(t: string) {
 }
 ---
 
-<MainLayout title={`${title}`} description={excerpt}>
+<MainLayout
+  title={`${title}`}
+  description={excerpt}
+  article={{
+    headline: title,
+    published: new Date(date).toISOString(),
+    modified: updated ? new Date(updated).toISOString() : undefined,
+    authorName: author.name,
+    authorUrl: author.href,
+    image: cover,
+    section: category,
+    tags,
+  }}
+>
   <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">
     {variant === 'fullwidth' ? (
       <div class="grid grid-cols-1 py-6">
@@ -119,6 +137,8 @@ function tagSlug(t: string) {
 
           <!-- Content -->
           <div class="relative post-content pt-2">
+            <KeyTakeaways items={takeaways} asOf={figuresAsOf} />
+            <TableOfContents headings={headings} />
             <Content />
           </div>
 
@@ -183,6 +203,8 @@ function tagSlug(t: string) {
 
           <!-- Content -->
           <div class="relative post-content pt-2">
+            <KeyTakeaways items={takeaways} asOf={figuresAsOf} />
+            <TableOfContents headings={headings} />
             <Content />
           </div>
 

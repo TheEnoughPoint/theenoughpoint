@@ -1,0 +1,63 @@
+---
+// Jump list for long pieces, built from the headings Astro already extracts
+// during render — nothing to maintain per article, and it cannot fall out of
+// sync with the copy.
+//
+// h2 only. Including h3 on this site would surface sub-points that read as
+// peers of the section headings and make the list longer than the thing it is
+// meant to make navigable.
+interface Heading { depth: number; slug: string; text: string }
+interface Props {
+  headings: Heading[];
+  /** Below this many sections a jump list is furniture, not help. */
+  minSections?: number;
+}
+const { headings, minSections = 4 } = Astro.props;
+const items = headings.filter((h) => h.depth === 2);
+---
+
+{items.length >= minSections && (
+  <nav class="toc" aria-label="Table of contents">
+    <p class="toc-head">In this article</p>
+    <ol class="toc-list">
+      {items.map((h) => (
+        <li><a href={`#${h.slug}`}>{h.text}</a></li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<style is:global>
+.toc{
+  margin:0 0 30px;padding:14px 20px 16px;
+  border:1px solid var(--color-border);border-radius:10px;background:#fff;
+}
+.post-content .toc-head{
+  margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--color-muted);
+}
+.post-content ol.toc-list{
+  margin:0;padding:0;list-style:none;counter-reset:toc;
+}
+.post-content .toc-list li{
+  counter-increment:toc;position:relative;padding:3px 0 3px 26px;margin:0;
+}
+.post-content .toc-list li::before{
+  content:counter(toc) '.';position:absolute;left:2px;top:3px;
+  font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--color-subtle);
+}
+.post-content .toc-list a{
+  font-size:14.5px;line-height:1.5;color:var(--color-body);
+  text-decoration:none;border-bottom:1px solid transparent;
+}
+.post-content .toc-list a:hover{color:var(--color-brand-700);border-bottom-color:var(--color-brand-600)}
+
+/* Anchor targets sit under nothing sticky on this site, but a little breathing
+   room stops a jumped-to heading hugging the viewport edge. */
+.post-content h2[id]{scroll-margin-top:18px}
+
+@media(max-width:560px){
+  .toc{padding:12px 15px 13px}
+  .post-content .toc-list a{font-size:14px}
+}
+</style>

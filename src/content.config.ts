@@ -23,6 +23,12 @@ const blog = defineCollection({
     // just above those notes. Without this the template appends it after the
     // legal disclaimer, which is the worst spot on the page to ask for a share.
     inlineShare: z.boolean().optional().default(false),
+    /** Three or four lines of argument shown before the article starts. */
+    takeaways: z.array(z.string()).optional().default([]),
+    /** Rendered under the takeaways, e.g. "30 June 2026". */
+    figuresAsOf: z.string().optional(),
+    /** Set when a published piece is materially revised; feeds dateModified. */
+    updated: z.string().optional(),
     lifeStage: z.array(z.string()).optional().default([]),
   }),
 });

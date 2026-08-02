@@ -7,11 +7,26 @@ import type { HeaderData } from '@src/data/headerData';
 import type { FooterData } from '@src/data/footerData';
 import '@src/styles/style.css';
 
+/** Passed by article pages so the head can describe a post rather than a
+ *  generic page: correct og:type, the post's own cover as the share image,
+ *  and BlogPosting structured data. Omitted everywhere else. */
+export interface ArticleMeta {
+  headline:   string;
+  published:  string;
+  modified?:  string;
+  authorName: string;
+  authorUrl:  string;
+  image?:     string;
+  section?:   string;
+  tags?:      string[];
+}
+
 interface Props {
   title?: string;
   description?: string;
   headerData?: Partial<HeaderData>;
   footerData?: Partial<FooterData>;
+  article?: ArticleMeta;
 }
 
 const {
@@ -19,7 +34,45 @@ const {
   description = 'Portal is a Astro news magazine theme. This demo is crafted specifically to exhibit the use of the theme as a blog site. Visit our main page for more demos.',
   headerData  = {},
   footerData  = {},
+  article,
 } = Astro.props;
+
+const site = Astro.site ?? new URL('https://theenoughpoint.com');
+const canonical = Astro.url?.href || site.href;
+const shareImage = new URL(article?.image ?? '/img/brand/og-image.jpg', site).href;
+
+// Search engines had nothing to work with before this: no schema of any kind
+// shipped on any page. For finance writing that matters more than usual, since
+// authorship and dating are what Google weighs on the subject.
+const schema = article
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: article.headline,
+      description,
+      image: shareImage,
+      datePublished: article.published,
+      dateModified: article.modified ?? article.published,
+      author: { '@type': 'Person', name: article.authorName, url: new URL(article.authorUrl, site).href },
+      publisher: {
+        '@type': 'Organization',
+        name: 'TheEnoughPoint',
+        url: site.href,
+        logo: { '@type': 'ImageObject', url: new URL('/img/brand/og-image.jpg', site).href },
+      },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+      ...(article.section ? { articleSection: article.section } : {}),
+      ...(article.tags?.length ? { keywords: article.tags.join(', ') } : {}),
+      inLanguage: 'en-SG',
+      isAccessibleForFree: true,
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'TheEnoughPoint',
+      url: site.href,
+      inLanguage: 'en-SG',
+    };
 ---
 
 <!DOCTYPE html>
@@ -30,17 +83,26 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href={Astro.url?.href || 'https://theenoughpoint.com'} />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/png" href="/img/favicon.png" />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={article ? 'article' : 'website'} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL('/img/brand/og-image.jpg', Astro.site ?? Astro.url).href} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="TheEnoughPoint" />
+    <meta property="og:image" content={shareImage} />
+    {article && <meta property="article:published_time" content={article.published} />}
+    {article && <meta property="article:modified_time" content={article.modified ?? article.published} />}
+    {article && <meta property="article:author" content={article.authorName} />}
+    {article?.section && <meta property="article:section" content={article.section} />}
+    {article?.tags?.map((t) => <meta property="article:tag" content={t} />)}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL('/img/brand/og-image.jpg', Astro.site ?? Astro.url).href} />
+    <meta name="twitter:image" content={shareImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
 
     <slot name="head" />
     <Font cssVariable="--font-heading" preload />
