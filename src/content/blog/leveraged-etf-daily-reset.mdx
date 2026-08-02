@@ -16,7 +16,6 @@ excerpt: |
 
 import LeverageDecayTool from '@src/components/LeverageDecayTool.astro';
 import LeverageSpreadChart from '@src/components/LeverageSpreadChart.astro';
-import LeverageDrawdownChart from '@src/components/LeverageDrawdownChart.astro';
 import KoreaCrashChart from '@src/components/KoreaCrashChart.astro';
 import NvidiaGapChart from '@src/components/NvidiaGapChart.astro';
 
@@ -30,7 +29,7 @@ Here is what that did to the money.
 
 <KoreaCrashChart />
 
-SK Hynix shares peaked on 22 June. Six weeks later a holder was down **55%** at the low. Someone who had bought the 2× fund on the very same stock, on the very same day, was down **86%** — S$10,000 reduced to **S$1,351**.
+SK Hynix shares peaked on 22 June. Six weeks later a holder was down **55%** at the low. **Someone who bought the 2× fund on the same stock, on the same day, was down 86%** — S$10,000 reduced to **S$1,351**. Twice the leverage did not cost twice as much. It cost far more.
 
 The regulator's response was to triple the minimum deposit required to buy these products, from ₩10 million to ₩30 million, and the head of the financial supervisor publicly regretted how quickly they had been approved.
 
@@ -38,9 +37,9 @@ That is the story most people now have about leveraged funds. It is true, and it
 
 ## First, what the ride actually looks like
 
-<LeverageDrawdownChart />
+The best leveraged fund of the last decade was the 3× semiconductor one. It returned **65.9% a year** for ten years. It also fell **90%** at its worst, and spent five of the last sixteen years worth less than half what it had been.
 
-Put that in terms of a statement rather than a percentage. You invest S$50,000. At the worst of it the statement reads **S$5,000**, and everyone around you is explaining why semiconductors are finished. The published 65.9% a year belongs to whoever sat through that screen — and sat through it again, because it happened more than once.
+Put that in a statement rather than a percentage. You invest S$50,000. At the worst of it the statement reads **S$5,000**, and everyone around you is explaining why semiconductors are finished. **That 65.9% a year belonged only to whoever sat through that screen** — and sat through it again, because it happened more than once.
 
 **That is the mismatch.** Nobody buys a 2× fund on Samsung expecting to watch it halve, twice, while being right about Samsung. They expect roughly twice the ride they already understand. The gap between those two expectations is where the damage happens — not usually in the arithmetic, but in the entirely human decision to sell at the bottom of a fall that was never in the plan.
 
@@ -64,8 +63,6 @@ The issuer is admirably direct about why. From CSOP's own key facts statement:
 
 And on cost, where the Hong Kong disclosure is far blunter than anything American issuers print: CSOP discloses swap and option costs of **up to 40% a year** of net assets on the SK Hynix product, and up to 35.2% on the Samsung one. Read that as a disclosed ceiling rather than this year's bill — what you actually pay depends on how expensive it is to borrow the stock, and on a volatile single name that is not a small number. Before the market does anything at all.
 
-<LeverageDecayTool />
-
 ## And yet, on other markets, it worked
 
 None of that makes these products a trap. Look at the same structure elsewhere.
@@ -76,7 +73,7 @@ A holder of the 3× semiconductor fund ended the decade with roughly **seven tim
 
 On other markets the same design did the opposite: 3× small caps and 3× Korea both left their holders with **less than the plain index** over the same period.
 
-So the product is not the variable. The mechanism inside it is the same in both cases — and it is worth two minutes of your time, because it explains everything above.
+**Same structure, same decade, outcomes from seven times the index down to below it.** So the product is not the variable. Something inside it produced both results — and it takes two minutes to see, because once you have it, every number above explains itself.
 
 ## Why the same machine does both
 
@@ -101,6 +98,16 @@ That is the machine. Every day the market rises, it buys more. Every day the mar
 It is not only arithmetic. In Korea this June the 3× country fund peaked on **1 June**, while the index it tracks kept climbing until **18 June**. Over those seventeen days the index ended **1.2%** higher — and the fund, forced to trade into every lurch along the way, lost **13.8%**.
 
 One point in the machine's favour, since it is owed. On the way down it works in reverse: as the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times Korea's 28% drop would have been 85%, and the fund lost 76%. The daily reset is not simply a penalty — it is a **volatility cost, not a direction cost.** What it punishes is chop.
+
+### Where the line falls, on your own numbers
+
+Now that the machine is on the table, you can find its break-even yourself.
+
+<LeverageDecayTool />
+
+It opens on an ordinary year — a 10% index return with 30% volatility — and the 3× fund **loses 9%** in a rising market. That is the case people do not price in.
+
+**But set the index return to 36.6%, which is what semiconductors actually delivered over the decade, and the same tool turns strongly positive.** That is not a contradiction; it is the entire argument in one field. The drag never goes away. It simply stops mattering when a market runs hard enough for long enough — and nothing tells you in advance which kind of market you have walked into.
 
 ## Singapore has its own version, and it goes to seven times
 
