@@ -1,0 +1,100 @@
+---
+// S$10,000 put in at the June peak, in the stock and in the 2x fund on it.
+//
+// The point of this chart is not the percentage — it is the money. Six weeks,
+// one decision, and the two lines end a long way apart. Daily closes from
+// 22 June (the day both peaked) to 31 July 2026, rebased to S$10,000.
+//
+// SK Hynix (000660.KS) against CSOP's SK Hynix Daily 2x (7709.HK), aligned on
+// dates where both markets traded. One axis, because both are the same quantity:
+// what your money is now worth.
+const STOCK = [10000,8753,8979,9993,9157,9003,9078,7492,8308,8027,7540,7112,7489,7468,6321,6554,7133,6310,6043,6290,6269,6574,6026,6221,5310,4800,4529,5886];
+const LEV   = [10000,7663,8207,9720,8367,7823,7940,5841,6224,5793,4887,4409,5116,4764,3192,3475,3825,3010,2802,3080,2971,3224,2811,2904,2026,1743,1351,2266];
+const WEEKS = [{ i: 0, t: '22 Jun' }, { i: 9, t: '6 Jul' }, { i: 18, t: '20 Jul' }, { i: 27, t: '31 Jul' }];
+
+const W = 700, H = 300, PAD_L = 54, PAD_R = 96, PAD_T = 18, PAD_B = 28;
+const LO = 0, HI = 10600;
+const n = STOCK.length;
+const x = (i: number) => PAD_L + (i / (n - 1)) * (W - PAD_L - PAD_R);
+const y = (v: number) => PAD_T + (1 - (v - LO) / (HI - LO)) * (H - PAD_T - PAD_B);
+const path = (a: number[]) => a.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+const area = (a: number[]) => `${path(a)}L${x(n - 1).toFixed(1)},${y(LO)}L${x(0).toFixed(1)},${y(LO)}Z`;
+const money = (v: number) => 'S$' + v.toLocaleString('en-US');
+const GRID = [10000, 7500, 5000, 2500];
+---
+
+<figure class="kc">
+  <figcaption class="kc-cap">
+    <h4>S$10,000 put in on the day it peaked</h4>
+    <p>22 June to 31 July 2026. SK Hynix shares against the 2&times; fund on the same stock,
+    listed in Hong Kong and reachable from a Singapore brokerage.</p>
+  </figcaption>
+
+  <div class="kc-wrap">
+    <svg viewBox={`0 0 ${W} ${H}`} class="kc-svg" role="img"
+         aria-label="S$10,000 invested at the 22 June 2026 peak. In SK Hynix shares it fell to about S$4,500 by 30 July and recovered to S$5,886. In the 2x fund it fell to S$1,351 and recovered to S$2,266.">
+      {GRID.map((g) => (
+        <>
+          <line x1={PAD_L} x2={W - PAD_R} y1={y(g)} y2={y(g)} class="kc-grid" />
+          <text x={PAD_L - 8} y={y(g) + 3.5} class="kc-ylab">{money(g)}</text>
+        </>
+      ))}
+      {WEEKS.map((w) => <text x={x(w.i)} y={H - 9} class="kc-xlab">{w.t}</text>)}
+
+      <path d={area(LEV)} class="kc-fill lev" />
+      <path d={path(STOCK)} class="kc-line stock" />
+      <path d={path(LEV)} class="kc-line lev" />
+
+      <circle cx={x(n - 1)} cy={y(STOCK[n - 1])} r="4" class="kc-dot stock" />
+      <circle cx={x(n - 1)} cy={y(LEV[n - 1])} r="4" class="kc-dot lev" />
+
+      <text x={x(n - 1) + 9} y={y(STOCK[n - 1]) - 7} class="kc-end stock">the shares</text>
+      <text x={x(n - 1) + 9} y={y(STOCK[n - 1]) + 14} class="kc-endv stock">{money(STOCK[n - 1])}</text>
+      <text x={x(n - 1) + 9} y={y(LEV[n - 1]) - 7} class="kc-end lev">the 2&times; fund</text>
+      <text x={x(n - 1) + 9} y={y(LEV[n - 1]) + 14} class="kc-endv lev">{money(LEV[n - 1])}</text>
+    </svg>
+  </div>
+
+  <p class="kc-foot">At the low on 30 July the shares were worth <b>S$4,529</b> and the 2&times;
+  fund <b>S$1,351</b>. The stock halved. The fund lost <b>86%</b>.</p>
+</figure>
+
+<style is:global>
+.kc{
+  --kc-stock:#1A8754; --kc-lev:#A93226;
+  --kc-rule:var(--color-border); --kc-ink:var(--color-dark);
+  --kc-body:var(--color-body); --kc-muted:var(--color-muted);
+  --kc-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--kc-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .kc{ --kc-stock:#2FA87A; --kc-lev:#E08074; } }
+.post-content .kc-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .kc-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--kc-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .kc-cap p{margin:0;font-size:12.5px;color:var(--kc-muted);line-height:1.5}
+.kc-wrap{overflow-x:auto}
+.kc-svg{width:100%;min-width:470px;height:auto;display:block}
+.kc-grid{stroke:var(--kc-rule);stroke-width:1}
+.kc-ylab,.kc-xlab{font-family:var(--kc-mono);font-size:9.5px;fill:var(--kc-muted)}
+.kc-ylab{text-anchor:end}
+.kc-xlab{text-anchor:middle}
+.kc-line{fill:none;stroke-width:2.25;stroke-linejoin:round;stroke-linecap:round}
+.kc-line.stock{stroke:var(--kc-stock)}
+.kc-line.lev{stroke:var(--kc-lev)}
+.kc-fill{stroke:none}
+.kc-fill.lev{fill:var(--kc-lev);opacity:.09}
+.kc-dot{stroke:#fff;stroke-width:2}
+@media (prefers-color-scheme: dark){ .kc-dot{stroke:#101E31} }
+.kc-dot.stock{fill:var(--kc-stock)}
+.kc-dot.lev{fill:var(--kc-lev)}
+.kc-end{font-family:var(--font-body);font-size:11px;font-weight:700;text-anchor:start}
+.kc-end.stock{fill:var(--kc-stock)}
+.kc-end.lev{fill:var(--kc-lev)}
+.kc-endv{font-family:var(--kc-mono);font-size:12.5px;font-weight:600;text-anchor:start}
+.kc-endv.stock{fill:var(--kc-stock)}
+.kc-endv.lev{fill:var(--kc-lev)}
+.post-content .kc-foot{font-size:14px;color:var(--kc-body);line-height:1.6;margin:12px 0 0}
+.kc-foot b{font-family:var(--kc-mono);color:var(--kc-ink);font-weight:600}
+@media(max-width:560px){ .kc{padding:16px 13px 13px} }
+</style>
