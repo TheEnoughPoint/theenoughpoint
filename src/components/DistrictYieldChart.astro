@@ -2,11 +2,19 @@
 // Every private district in Singapore on the two things a buyer can check before
 // committing: what it costs per square foot, and what it yields in rent.
 //
-// A SCATTER, not a ranked list, and the scatter IS the finding: price and yield are
-// barely related (r = -0.14 across all 26 districts). A league table would flatten a
-// two-dimensional choice into a single order and imply a pattern the data does not
-// contain. An earlier draft of this component asserted the intuitive trade-off —
-// cheap yields more, dear yields less — before it was measured. It does not hold.
+// TWO panels, deliberately: the relationship everyone assumes, beside the one that is
+// actually there. Price against yield is flat (Spearman -0.09). Median unit size against
+// yield is not (Spearman -0.59). Showing only the first would report a non-finding;
+// showing only the second would lose the point that it overturns something.
+//
+// Two earlier drafts of this component were wrong, which is why it now carries its
+// correlations on its face. The first asserted a price/yield trade-off before anyone
+// measured it. The second had 20 of 26 rows hand-typed and mostly fabricated. The array
+// is now emitted mechanically from the source data and diffed row by row.
+//
+// Unit size is a volume-weighted mean of project medians, excluding records above
+// 10,000 sqft — LOYANG VALLEY carries 626,545 sqft, a land figure rather than a flat,
+// and with the weighting it alone moved a district's mean by a factor of five.
 //
 // Districts are places, not products. Ranking them raises none of the questions that
 // ranking named developments would.
@@ -23,35 +31,35 @@
 const ASOF = 'July 2026';
 const BASIS = 'resale condominiums and apartments, last 12 months, URA caveat data';
 
-interface Row { d: string; name: string; seg: 'CCR' | 'RCR' | 'OCR'; psf: number; vol: number; yld: number; mom: number }
+interface Row { d: string; name: string; seg: 'CCR' | 'RCR' | 'OCR'; psf: number; vol: number; yld: number; mom: number; size: number }
 
 const ROWS: Row[] = [
-  { d: 'D1', name: 'Raffles Place / Marina', seg: 'CCR', psf: 1959, vol: 157, yld: 4.08, mom: -1.8 },
-  { d: 'D2', name: 'Tanjong Pagar / Anson', seg: 'CCR', psf: 2162, vol: 132, yld: 3.91, mom: 4.8 },
-  { d: 'D3', name: 'Tiong Bahru / Queenstown', seg: 'RCR', psf: 2250, vol: 550, yld: 3.49, mom: 3.1 },
-  { d: 'D4', name: 'Sentosa / Harbourfront', seg: 'RCR', psf: 1774, vol: 258, yld: 3.68, mom: 0.7 },
-  { d: 'D5', name: 'Buona Vista / Clementi / Dover', seg: 'OCR', psf: 1873, vol: 772, yld: 3.57, mom: 7.8 },
-  { d: 'D7', name: 'Bugis / Beach Road', seg: 'RCR', psf: 2126, vol: 121, yld: 4.06, mom: 4.3 },
-  { d: 'D8', name: 'Little India / Farrer Park', seg: 'RCR', psf: 1765, vol: 173, yld: 3.83, mom: 0.2 },
-  { d: 'D9', name: 'Orchard / River Valley', seg: 'CCR', psf: 2330, vol: 679, yld: 3.09, mom: 2.6 },
-  { d: 'D10', name: 'Bukit Timah / Holland', seg: 'CCR', psf: 2239, vol: 836, yld: 2.8, mom: 1.1 },
-  { d: 'D11', name: 'Novena / Newton', seg: 'CCR', psf: 2049, vol: 338, yld: 2.83, mom: 1.2 },
-  { d: 'D12', name: 'Balestier / Toa Payoh', seg: 'RCR', psf: 1741, vol: 359, yld: 3.45, mom: 2.7 },
-  { d: 'D13', name: 'Macpherson / Potong Pasir', seg: 'RCR', psf: 1992, vol: 302, yld: 3.43, mom: 4.0 },
-  { d: 'D14', name: 'Geylang / Eunos', seg: 'RCR', psf: 1697, vol: 622, yld: 3.83, mom: -2.0 },
-  { d: 'D15', name: 'East Coast / Marine Parade', seg: 'RCR', psf: 1833, vol: 947, yld: 3.03, mom: 2.7 },
-  { d: 'D16', name: 'Bedok / Upper East Coast', seg: 'OCR', psf: 1526, vol: 572, yld: 3.33, mom: 0.6 },
-  { d: 'D17', name: 'Changi / Loyang', seg: 'OCR', psf: 1255, vol: 261, yld: 3.37, mom: 3.0 },
-  { d: 'D18', name: 'Tampines / Pasir Ris', seg: 'OCR', psf: 1492, vol: 756, yld: 3.45, mom: -0.2 },
-  { d: 'D19', name: 'Serangoon / Hougang / Punggol', seg: 'OCR', psf: 1691, vol: 1308, yld: 3.28, mom: 5.8 },
-  { d: 'D20', name: 'Bishan / Ang Mo Kio', seg: 'RCR', psf: 1962, vol: 376, yld: 2.84, mom: 5.0 },
-  { d: 'D21', name: 'Upper Bukit Timah / Clementi Pk', seg: 'RCR', psf: 1805, vol: 421, yld: 2.66, mom: 8.6 },
-  { d: 'D22', name: 'Jurong', seg: 'OCR', psf: 1614, vol: 272, yld: 3.52, mom: 3.1 },
-  { d: 'D23', name: 'Bukit Batok / Choa Chu Kang', seg: 'OCR', psf: 1490, vol: 614, yld: 3.26, mom: 6.4 },
-  { d: 'D25', name: 'Woodlands / Kranji', seg: 'OCR', psf: 1153, vol: 92, yld: 3.89, mom: -3.7 },
-  { d: 'D26', name: 'Upper Thomson / Mandai', seg: 'OCR', psf: 1502, vol: 76, yld: 2.95, mom: 3.5 },
-  { d: 'D27', name: 'Sembawang / Yishun', seg: 'OCR', psf: 1301, vol: 296, yld: 3.77, mom: 3.4 },
-  { d: 'D28', name: 'Seletar / Yio Chu Kang', seg: 'OCR', psf: 1548, vol: 218, yld: 3.19, mom: 2.7 },
+  { d: 'D1', name: 'Raffles Place / Marina', seg: 'CCR', psf: 1959, vol: 157, yld: 4.08, mom: -1.8, size: 941 },
+  { d: 'D2', name: 'Tanjong Pagar / Anson', seg: 'CCR', psf: 2162, vol: 132, yld: 3.91, mom: 4.8, size: 731 },
+  { d: 'D3', name: 'Tiong Bahru / Queenstown', seg: 'RCR', psf: 2250, vol: 550, yld: 3.49, mom: 3.1, size: 863 },
+  { d: 'D4', name: 'Sentosa / Harbourfront', seg: 'RCR', psf: 1774, vol: 258, yld: 3.68, mom: 0.7, size: 1675 },
+  { d: 'D5', name: 'Buona Vista / Clementi / Dover', seg: 'OCR', psf: 1873, vol: 772, yld: 3.57, mom: 7.8, size: 967 },
+  { d: 'D7', name: 'Bugis / Beach Road', seg: 'RCR', psf: 2126, vol: 121, yld: 4.06, mom: 4.3, size: 904 },
+  { d: 'D8', name: 'Little India / Farrer Park', seg: 'RCR', psf: 1765, vol: 173, yld: 3.83, mom: 0.2, size: 923 },
+  { d: 'D9', name: 'Orchard / River Valley', seg: 'CCR', psf: 2330, vol: 679, yld: 3.09, mom: 2.6, size: 1263 },
+  { d: 'D10', name: 'Bukit Timah / Holland', seg: 'CCR', psf: 2239, vol: 836, yld: 2.8, mom: 1.1, size: 1561 },
+  { d: 'D11', name: 'Novena / Newton', seg: 'CCR', psf: 2049, vol: 338, yld: 2.83, mom: 1.2, size: 1322 },
+  { d: 'D12', name: 'Balestier / Toa Payoh', seg: 'RCR', psf: 1741, vol: 359, yld: 3.45, mom: 2.7, size: 923 },
+  { d: 'D13', name: 'Macpherson / Potong Pasir', seg: 'RCR', psf: 1992, vol: 302, yld: 3.43, mom: 4.0, size: 808 },
+  { d: 'D14', name: 'Geylang / Eunos', seg: 'RCR', psf: 1697, vol: 622, yld: 3.83, mom: -2.0, size: 875 },
+  { d: 'D15', name: 'East Coast / Marine Parade', seg: 'RCR', psf: 1833, vol: 947, yld: 3.03, mom: 2.7, size: 1259 },
+  { d: 'D16', name: 'Bedok / Upper East Coast', seg: 'OCR', psf: 1526, vol: 572, yld: 3.33, mom: 0.6, size: 1083 },
+  { d: 'D17', name: 'Changi / Loyang', seg: 'OCR', psf: 1255, vol: 261, yld: 3.37, mom: 3.0, size: 1026 },
+  { d: 'D18', name: 'Tampines / Pasir Ris', seg: 'OCR', psf: 1492, vol: 756, yld: 3.45, mom: -0.2, size: 981 },
+  { d: 'D19', name: 'Serangoon / Hougang / Punggol', seg: 'OCR', psf: 1691, vol: 1308, yld: 3.28, mom: 5.8, size: 915 },
+  { d: 'D20', name: 'Bishan / Ang Mo Kio', seg: 'RCR', psf: 1962, vol: 376, yld: 2.84, mom: 5.0, size: 1134 },
+  { d: 'D21', name: 'Upper Bukit Timah / Clementi Pk', seg: 'RCR', psf: 1805, vol: 421, yld: 2.66, mom: 8.6, size: 1206 },
+  { d: 'D22', name: 'Jurong', seg: 'OCR', psf: 1614, vol: 272, yld: 3.52, mom: 3.1, size: 1086 },
+  { d: 'D23', name: 'Bukit Batok / Choa Chu Kang', seg: 'OCR', psf: 1490, vol: 614, yld: 3.26, mom: 6.4, size: 1029 },
+  { d: 'D25', name: 'Woodlands / Kranji', seg: 'OCR', psf: 1153, vol: 92, yld: 3.89, mom: -3.7, size: 935 },
+  { d: 'D26', name: 'Upper Thomson / Mandai', seg: 'OCR', psf: 1502, vol: 76, yld: 2.95, mom: 3.5, size: 1191 },
+  { d: 'D27', name: 'Sembawang / Yishun', seg: 'OCR', psf: 1301, vol: 296, yld: 3.77, mom: 3.4, size: 1031 },
+  { d: 'D28', name: 'Seletar / Yio Chu Kang', seg: 'OCR', psf: 1548, vol: 218, yld: 3.19, mom: 2.7, size: 920 },
 ];
 
 // Axis bounds are round numbers just outside the data, so no point sits on an edge.
@@ -61,6 +69,10 @@ const py = (v: number) => 100 - ((v - Y0) / (Y1 - Y0)) * 100;
 
 const XT = [1100, 1400, 1700, 2000, 2300];
 const YT = [2.5, 3.0, 3.5, 4.0];
+// second panel: median unit size
+const S0 = 650, S1 = 1750;
+const sx = (v: number) => ((v - S0) / (S1 - S0)) * 100;
+const ST = [700, 1000, 1300, 1600];
 const SEGS = [
   { k: 'OCR', label: 'Outside central' },
   { k: 'RCR', label: 'Rest of central' },
@@ -71,9 +83,9 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
 
 <figure class="dy">
   <figcaption class="dy-cap">
-    <h4>What each district costs, and what it pays</h4>
-    <p>Every private district on the two things you can check before committing: the price
-    per square foot, and the gross rental yield. {BASIS}, as at {ASOF}.</p>
+    <h4>Price does not predict yield. Unit size does.</h4>
+    <p>Every private district, plotted twice. On the left, the relationship everyone assumes.
+    On the right, the one that is actually there. {BASIS}, as at {ASOF}.</p>
   </figcaption>
 
   <div class="dy-legend">
@@ -83,35 +95,53 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
     <span class="dy-hint">if price predicted yield, these would form a line — they do not</span>
   </div>
 
-  <div class="dy-plotwrap">
-    <div class="dy-ylab">Gross yield</div>
-    <div class="dy-plot">
-      {YT.map((t) => (
-        <div class="dy-grid-y" style={`top:${py(t)}%`}><span>{t.toFixed(1)}%</span></div>
-      ))}
-      {XT.map((t) => (
-        <div class="dy-grid-x" style={`left:${px(t)}%`}><span>${t.toLocaleString('en-SG')}</span></div>
-      ))}
-      {ROWS.map((r) => (
-        <div class={`dy-pt ${r.seg}`} style={`left:${px(r.psf)}%;top:${py(r.yld)}%`}
-             title={`${r.d} ${r.name} · $${r.psf.toLocaleString('en-SG')} psf · ${r.yld.toFixed(2)}% yield · ${r.vol} resales`}>
-          <span class="dy-plab">{r.d}</span>
+  <div class="dy-panels">
+    <div class="dy-panel">
+      <div class="dy-ptitle">Median price per sq ft <em>Spearman &minus;0.09</em></div>
+      <div class="dy-plotwrap">
+        <div class="dy-ylab">Gross yield</div>
+        <div class="dy-plot">
+          {YT.map((t) => (<div class="dy-grid-y" style={`top:${py(t)}%`}><span>{t.toFixed(1)}%</span></div>))}
+          {XT.map((t) => (<div class="dy-grid-x" style={`left:${px(t)}%`}><span>${(t / 1000).toFixed(1)}k</span></div>))}
+          {ROWS.map((r) => (
+            <div class={`dy-pt ${r.seg}`} style={`left:${px(r.psf)}%;top:${py(r.yld)}%`}
+                 title={`${r.d} ${r.name} · $${r.psf.toLocaleString('en-SG')} psf · ${r.yld.toFixed(2)}% · median ${r.size} sqft`}>
+              <span class="dy-plab">{r.d}</span>
+            </div>
+          ))}
         </div>
-      ))}
+        <div class="dy-xlab">Price per square foot &rarr;</div>
+      </div>
     </div>
-    <div class="dy-xlab">Resale median price per square foot</div>
+
+    <div class="dy-panel">
+      <div class="dy-ptitle">Median unit size <em class="hit">Spearman &minus;0.59</em></div>
+      <div class="dy-plotwrap">
+        <div class="dy-ylab">Gross yield</div>
+        <div class="dy-plot">
+          {YT.map((t) => (<div class="dy-grid-y" style={`top:${py(t)}%`}><span>{t.toFixed(1)}%</span></div>))}
+          {ST.map((t) => (<div class="dy-grid-x" style={`left:${sx(t)}%`}><span>{t.toLocaleString('en-SG')}</span></div>))}
+          {ROWS.map((r) => (
+            <div class={`dy-pt ${r.seg}`} style={`left:${sx(r.size)}%;top:${py(r.yld)}%`}
+                 title={`${r.d} ${r.name} · median ${r.size} sqft · ${r.yld.toFixed(2)}% · $${r.psf.toLocaleString('en-SG')} psf`}>
+              <span class="dy-plab">{r.d}</span>
+            </div>
+          ))}
+        </div>
+        <div class="dy-xlab">Median unit size, sq ft &rarr;</div>
+      </div>
+    </div>
   </div>
 
-  <p class="dy-foot">There is <b>almost no relationship</b> between what a district costs and
-  what it yields. Across all 26 the correlation is <b>&minus;0.14</b> &mdash; statistically
-  indistinguishable from none. The highest-yielding district on this chart is a core-central
-  one; the lowest sits mid-price. Yield is gross: before maintenance, tax, and any month the
-  place sits empty.</p>
+  <p class="dy-foot">The left panel is flat: what a district costs tells you almost nothing
+  about what it yields. The right panel is not. <b>Districts full of small flats yield more,
+  and districts of family-sized homes yield less</b> — which is most of what a district-level
+  yield is actually measuring. Yield is gross, before maintenance, tax and vacancy.</p>
 
   <div class="dy-scroll">
     <table class="dy-table">
       <thead>
-        <tr><th>District</th><th>Segment</th><th>Median $psf</th><th>Gross yield</th><th>Resales, 12m</th><th>1-yr price</th></tr>
+        <tr><th>District</th><th>Segment</th><th>Median $psf</th><th>Gross yield</th><th>Median size</th><th>Resales, 12m</th></tr>
       </thead>
       <tbody>
         {byPsf.map((r) => (
@@ -120,8 +150,8 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
             <td>{r.seg}</td>
             <td>${r.psf.toLocaleString('en-SG')}</td>
             <td>{r.yld.toFixed(2)}%</td>
+            <td>{r.size.toLocaleString('en-SG')} sqft</td>
             <td>{r.vol.toLocaleString('en-SG')}</td>
-            <td>{r.mom > 0 ? '+' : ''}{r.mom.toFixed(1)}%</td>
           </tr>
         ))}
       </tbody>
@@ -159,11 +189,20 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
 .dy-dot.OCR{background:var(--dy-ocr)} .dy-dot.RCR{background:var(--dy-rcr)} .dy-dot.CCR{background:var(--dy-ccr)}
 .dy-hint{color:var(--dy-muted);font-style:italic}
 
+.dy-panels{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.dy-panel{min-width:0}
+.dy-ptitle{font-size:11px;font-weight:700;color:var(--dy-ink);margin-bottom:8px;
+  display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.dy-ptitle em{font-style:normal;font-weight:600;font-size:10.5px;color:var(--dy-muted);
+  font-family:var(--dy-mono);border:1px solid var(--dy-rule);border-radius:999px;padding:1px 7px}
+.dy-ptitle em.hit{color:var(--dy-ink);border-color:var(--dy-ink)}
+@media(max-width:700px){ .dy-panels{grid-template-columns:1fr;gap:26px} }
+
 .dy-plotwrap{display:grid;grid-template-columns:18px 1fr;grid-template-rows:1fr 22px;gap:6px}
 .dy-ylab{grid-column:1;grid-row:1;writing-mode:vertical-rl;transform:rotate(180deg);
   font-size:10.5px;color:var(--dy-muted);justify-self:center;align-self:center;letter-spacing:.04em}
 .dy-xlab{grid-column:2;grid-row:2;text-align:center;font-size:10.5px;color:var(--dy-muted);letter-spacing:.04em}
-.dy-plot{grid-column:2;grid-row:1;position:relative;height:330px;
+.dy-plot{grid-column:2;grid-row:1;position:relative;height:270px;
   border-left:1px solid var(--dy-rule);border-bottom:1px solid var(--dy-rule)}
 
 .dy-grid-y{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--dy-rule);opacity:.7}
@@ -193,11 +232,12 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
 .post-content .dy-table td{padding:6px 9px 6px 0;border-bottom:1px solid var(--dy-rule);color:var(--dy-body)}
 .post-content .dy-table td b{color:var(--dy-ink)}
 .post-content .dy-table tr:last-child td{border-bottom:none}
+.post-content .dy-note{font-size:11.5px;color:var(--dy-muted);line-height:1.55;margin:10px 0 0}
 .post-content .dy-src{font-size:11.5px;color:var(--dy-muted);line-height:1.55;margin:12px 0 0}
 
 @media(max-width:600px){
   .dy{padding:16px 12px 13px}
-  .dy-plot{height:280px}
+  .dy-plot{height:250px}
   .dy-plab{font-size:8.5px;left:11px}
   .dy-pt{width:9px;height:9px}
 }

@@ -1,5 +1,5 @@
 ---
-title: "Does a Cheaper District Really Pay More Rent? We Checked All 26"
+title: "Does a Cheaper District Pay More Rent? No. Smaller Flats Do."
 cover: "/img/brand/cover-district-yields.svg"
 date: "2026-08-02"
 category: "build-enough"
@@ -13,13 +13,13 @@ inlineShare: true
 figuresAsOf: "July 2026"
 authorId: "fi"
 excerpt: |
-  Everyone repeats the same rule: the suburbs pay you rent, the prime districts pay you prestige. We checked it against all 26 private districts. The correlation between price per square foot and gross yield is −0.14 — close enough to nothing — and the highest-yielding district in Singapore is a core-central one. The rule does not even hold at the extremes.
+  Everyone repeats the same rule: the suburbs pay you rent, the prime districts pay you prestige. We checked it across all 26 private districts and the relationship is not there — price and yield barely move together. What does move with yield is the size of the flats. The highest-yielding district in Singapore is in the city centre, and it is full of small apartments.
 takeaways:
-  - "Gross yields across Singapore's 26 private districts run from <strong>2.66% to 4.08%</strong> — a spread wide enough to matter on any purchase."
-  - "But price barely predicts where a district lands. The correlation between price per square foot and yield is <strong>−0.14</strong>, which is close enough to nothing."
-  - "The <strong>highest-yielding district is a core-central one</strong>, not a suburban one — and two districts in the same prime segment sit at 4.08% and 2.80%."
-  - "Yield is not adjusted for unit size, and that is the main catch: <strong>small units rent for more per square foot</strong>, so a district full of them looks generous for that reason alone."
-  - "Gross is not net. Maintenance, property tax and vacancy come out of these figures before anything reaches you."
+  - "Across all 26 private districts, what a place costs per square foot tells you <strong>almost nothing</strong> about what it yields. The rank correlation is <strong>−0.09</strong>."
+  - "What does predict yield is <strong>unit size</strong> — rank correlation <strong>−0.59</strong>. Districts of small flats yield more; districts of family homes yield less."
+  - "That resolves the oddity in the table. The <strong>highest-yielding district is in the city centre</strong>, because its median flat is 941 sq ft. The lowest-yielding one has 1,206 sq ft flats."
+  - "So a &ldquo;high-yield district&rdquo; is mostly a <strong>district of small apartments</strong> — which is a fact about what is built there, not a verdict on the location."
+  - "Gross is not net. Maintenance, property tax and vacancy come out before anything reaches you."
 ---
 
 import DistrictYieldChart from '@src/components/DistrictYieldChart.astro';
@@ -27,47 +27,47 @@ import SocialShare from '@src/components/SocialShare.astro';
 
 There is a rule of thumb everybody in Singapore property repeats: the suburbs pay you rent, the prime districts pay you prestige. Buy in Woodlands and the yield is generous. Buy in Orchard and you are paying for the postcode.
 
-It is a tidy story. We checked it against every private district in the country, and it does not hold.
-
-## What each district costs, and what it pays
+It is a tidy story, and the property internet states it as fact. We checked it against every private district in the country. It is not there.
 
 <DistrictYieldChart />
 
-## The relationship people assume is not there
+## The relationship everyone assumes is missing
 
-If price predicted yield, those points would slope from top-left to bottom-right. They do not. Across all 26 districts the correlation between price per square foot and gross yield is **−0.14** — the faintest tilt in the expected direction, and far too weak to plan around.
+Look at the left panel. If price predicted yield, those points would slope from top-left to bottom-right. They do not. The rank correlation between price per square foot and gross yield is **−0.09** — the faintest tilt in the expected direction, and nothing you could plan around.
 
-Look at the core-central districts on their own, the ones the folk model says should yield least. They land at **4.08%, 3.91%, 3.09%, 2.83% and 2.80%**. The same segment, the same city, and the top one out-yields the bottom by more than a full percentage point. Whatever is setting those yields, it is not "how prime is this".
+It does not hold at the extremes either, which is where a weak rule usually survives. The average district yields 3.41%. Of the two cheapest districts, one sits above that and one below. Of the two dearest, the same. A coin flip at both ends.
 
-The single highest-yielding district on the chart is a **core-central** one. The lowest sits mid-price, in neither the cheapest nor the dearest bracket.
+The middle is no better, and the middle is where most people are shopping. Between roughly $1,500 and $2,100 per square foot — 16 of the 26 districts — yields run from 2.66% to 4.08%. That is the entire national range inside one price band.
 
-## It does not even hold at the extremes
+## The one that is there
 
-The obvious defence of the rule of thumb is that it works at the ends, even if the middle is messy. It does not.
+Now the right panel. **Median unit size** against yield, and the slope is unmistakable: rank correlation **−0.59**.
 
-The average district yields **3.41%**. Of the two cheapest districts, one sits above that average and one below it. Of the two most expensive, the same: one above, one below. At both ends of the price range it is a coin flip.
+Districts where the typical flat is small yield well. Districts of family-sized homes do not. The mechanism is not mysterious — rent per square foot falls more slowly than price per square foot as flats get bigger. A studio does not rent for half what a two-bedroom does simply because it has half the floor area. So the smaller the unit, the more rent each dollar of price buys.
 
-The middle is no better, and the middle is where almost everybody is actually shopping. Between roughly $1,500 and $2,100 per square foot — which covers **16 of the 26 districts** — yields scatter from 2.66% to 4.08%. That is the entire national range, inside one price band. Knowing what a district costs tells you very nearly nothing about what it pays.
+That resolves the oddity sitting at the top of the yield table. **The highest-yielding district in Singapore is in the city centre**, which the folk model says should be impossible. Its median flat is **941 square feet**. The next two on the yield table have median flats of 904 and 731 square feet, yielding 4.06% and 3.91%. Meanwhile the lowest-yielding district in the country has a median flat of 1,206 square feet, and the next-lowest 1,561.
 
-## The catch that matters more than any of this
+Prime or suburban turns out to be almost beside the point. What is built there is not.
 
-There is one thing that will distort a district yield more than location does, and it is not on the chart: **unit size**.
+## What that means for a yield figure
 
-Small units rent for more per square foot than large ones. A studio does not cost half of what a two-bedroom costs to rent, even though it may be half the floor area. So a district holding a lot of small apartments will show a higher gross yield than a district of family-sized homes — for reasons that have nothing to do with how good an investment either is.
+A district-level yield is mostly a statement about the housing stock, not about the location. When somewhere is described as a high-yield district, the usable translation is: **that district contains a lot of small apartments**.
 
-These figures are medians across every unit size in each district, unadjusted. That is the honest limitation, and it is why a district-level yield should be a starting question rather than an answer. The useful version of this comparison is like-for-like: the same number of bedrooms, in the districts you are actually choosing between.
+That is not a criticism of small apartments, and it is not a reason to buy or avoid one. But it does mean two yields are only comparable when they describe the same kind of home. Comparing a shoebox district against a family-housing district and concluding that one location is a better investment is comparing unit sizes and calling it geography.
 
-And all of these are **gross**. Maintenance, property tax and the months a place sits empty all come out before anything reaches you. The gap between a gross yield and what lands in your account is not small.
+The question that makes any yield figure usable is the one almost nobody asks: **what size is this computed on?**
+
+And all of these are gross. Maintenance, property tax and the months a place sits empty come out before anything reaches you.
 
 ## What to take from this
 
-**Do not use price as a shortcut for yield.** It is the assumption embedded in most property conversation and it does not survive contact with the data. If someone tells you a district yields well because it is cheap, they have skipped the checking.
+**Do not use price as a shortcut for yield.** It is the assumption embedded in most property conversation and it does not survive contact with the data.
 
-**Ask what size the yield is computed on.** This is the single most useful question about any rental yield figure you are shown, and it is almost never answered. A district, a project or an agent quoting a headline yield is usually quoting the smallest units in it.
+**Ask what size the yield is computed on.** This single question does more work than any district ranking. A project or an agent quoting a headline yield is usually quoting the smallest units in it.
 
-**Then look at where you were going to buy anyway.** The spread across districts — 2.66% to 4.08% — is real and worth knowing. It is just not something you can infer from the price tag.
+**Compare like with like.** If you are choosing between two districts, compare the same number of bedrooms in each. A district average blends a studio and a four-bedroom into one number that describes neither.
 
-<SocialShare title="Does a Cheaper District Really Pay More Rent? We Checked All 26" />
+<SocialShare title="Does a Cheaper District Pay More Rent? No. Smaller Flats Do." />
 
 <div class="post-notes">
 
@@ -76,17 +76,19 @@ And all of these are **gross**. Maintenance, property tax and the months a place
 
 #### Sources
 
-1. URA private residential transaction and rental data, via the URA Data Service. Median resale price per square foot, transaction counts and gross yields are our own computation from caveat data, covering the twelve months to July 2026.
+1. URA private residential transaction and rental data, via the URA Data Service. Median resale price per square foot, transaction counts, median unit sizes and gross yields are our own computation from caveat data, covering the twelve months to July 2026.
 2. Segment classifications (core central, rest of central, outside central) follow URA's own definitions.
 
 #### Where our numbers are soft
 
-- **Yield is not size-adjusted, and this is the big one.** Median rent over median price, across all unit sizes in the district. A district weighted toward small apartments will show a higher yield for that reason alone. Any like-for-like comparison needs to hold bedroom count constant, which district-level data cannot do.
+- **Correlations are rank-based (Spearman) and reported as such.** On the raw values the price relationship is −0.14 and the size relationship −0.53; the ranking version is quoted because it is not thrown by a single unusual district. Both tell the same story.
+- **With 26 observations, this establishes the presence of one relationship, not the absence of the other.** A modest price effect could hide in a sample this small. What can be said is that size is much the stronger of the two.
+- **Unit size is a volume-weighted mean of project medians**, not a true district median, and it excludes one corrupt record — a project carrying a 626,545 sq ft "unit size", which is a land figure rather than a flat. Left in, it moved its district's mean by a factor of five.
 - **Gross, not net.** Before maintenance, property tax, agent fees and vacancy.
 - **Medians hide dispersion.** A district median says nothing about a particular project, floor, lease or condition. This compares places, not homes.
 - **Districts 6 and 24 are absent** because too few private resales occur there to produce a meaningful median.
-- **A snapshot, not a trend.** Twelve months to July 2026. Yields move with both rents and prices, and these two have not been moving together.
-- **The correlation is a single summary number.** −0.14 across 26 points describes the whole scatter; it does not rule out a relationship inside a narrower band of the market, and with 26 observations it would take a much stronger figure to be confident of anything.
+- **A snapshot, not a trend.** Twelve months to July 2026. Yields move with both rents and prices, and those have not been moving together.
+- **Size is not the only thing left uncontrolled.** Lease type, building age and condition all bear on yield, and none is held constant here.
 
 </details>
 
