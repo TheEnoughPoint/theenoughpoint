@@ -19,6 +19,10 @@ const blog = defineCollection({
     sponsored: z.boolean().optional().default(false),
     sponsorName: z.string().optional(),
     showDisclosure: z.boolean().optional().default(false),
+    // Articles that end in a long endnotes block place the share row themselves,
+    // just above those notes. Without this the template appends it after the
+    // legal disclaimer, which is the worst spot on the page to ask for a share.
+    inlineShare: z.boolean().optional().default(false),
     lifeStage: z.array(z.string()).optional().default([]),
   }),
 });
