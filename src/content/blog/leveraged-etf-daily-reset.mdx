@@ -8,7 +8,7 @@ tags:
   - ETFs
   - Leverage
   - Risk
-readTime: 10
+readTime: 9
 authorId: "fi"
 excerpt: |
   Korean retail investors put billions into 2× Samsung and SK Hynix funds this June. Six weeks later, S$10,000 in the SK Hynix fund was worth S$1,351 — while the stock itself had merely halved. Yet on other markets the same structure made fortunes. What separates the two is not the product. It is whether you can sit through the path.
@@ -19,7 +19,6 @@ import LeverageSpreadChart from '@src/components/LeverageSpreadChart.astro';
 import LeverageDrawdownChart from '@src/components/LeverageDrawdownChart.astro';
 import KoreaCrashChart from '@src/components/KoreaCrashChart.astro';
 import NvidiaGapChart from '@src/components/NvidiaGapChart.astro';
-import LeveragePeakChart from '@src/components/LeveragePeakChart.astro';
 
 On 27 May 2026, Korea did something no market had done before: it listed leveraged funds on **single stocks**. Two, specifically — Samsung Electronics and SK Hynix, the only names large enough to qualify. Each promised twice the daily move.
 
@@ -39,8 +38,6 @@ That is the story most people now have about leveraged funds. It is true, and it
 
 ## First, what the ride actually looks like
 
-Before any argument about whether these products are good or bad, look at what holding one does to you.
-
 <LeverageDrawdownChart />
 
 Put that in terms of a statement rather than a percentage. You invest S$50,000. At the worst of it the statement reads **S$5,000**, and everyone around you is explaining why semiconductors are finished. The published 65.9% a year belongs to whoever sat through that screen — and sat through it again, because it happened more than once.
@@ -51,13 +48,13 @@ A stop-loss does not rescue you from this, and can make it worse. A level that w
 
 ## Right about Nvidia, and still down
 
-Worth being clear about whose loss that opening chart shows. The 2× fund in it is not the Korean one — it is run by CSOP, listed in **Hong Kong**, and most Singapore brokers can reach it. It held about **US$5.5 billion** at the end of July; the same firm's Samsung Electronics 2× held about US$1.17 billion. These are not obscure instruments, and you did not need a Korean account to lose that money.
+The 2× fund in that opening chart is not the Korean one. It is run by CSOP, listed in **Hong Kong**, holds about **US$5.5 billion**, and most Singapore brokers can reach it. You did not need a Korean account to lose that money.
 
 But the clearest warning in CSOP's range is not a memory stock at all.
 
 <NvidiaGapChart />
 
-The SK Hynix fund carries the opposite lesson at the same time. Bought in January and held, it returned roughly **798%** for the half-year against about 307% for the stock. Note what that means: twice the stock's return would have been about 614%. The fund beat it. A market that moves in one direction long enough compounds the leverage in your favour, and the product delivers more than the multiple on the label — which is exactly why people keep buying them.
+The SK Hynix fund carries the opposite lesson at the same time. Bought in January and held, it returned roughly **798%** against the stock's 307% — where twice the stock would have been 614%. It beat the multiple printed on its own label, because a market that keeps going one way compounds leverage in your favour. That is exactly why people keep buying these.
 
 Enter six months later, at the June peak, and you got the opening chart instead. Same fund, same calendar year, opposite lives.
 
@@ -101,9 +98,7 @@ That is the machine. Every day the market rises, it buys more. Every day the mar
 
 **Which explains both halves of the chart above.** In a market that climbs steadily, buying more after every up day is exactly the right move, and the machine hands you more than three times the index — that is the semiconductor and Nasdaq decade. In a market that lurches up and down without going anywhere, the same machine buys high and sells low, over and over, by design. That is small caps, and that is Korea.
 
-You can watch it happen. In Korea this June the 3× country fund peaked on **1 June**; the index it tracks kept climbing and did not peak until **18 June**. Over those seventeen days the index finished just **1.2%** higher — but it got there in a run of daily lurches that added up to **59%** of movement, and the fund, buying and selling into every one of them, lost **13.8%**.
-
-<LeveragePeakChart />
+It is not only arithmetic. In Korea this June the 3× country fund peaked on **1 June**, while the index it tracks kept climbing until **18 June**. Over those seventeen days the index ended **1.2%** higher — and the fund, forced to trade into every lurch along the way, lost **13.8%**.
 
 One point in the machine's favour, since it is owed. On the way down it works in reverse: as the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times Korea's 28% drop would have been 85%, and the fund lost 76%. The daily reset is not simply a penalty — it is a **volatility cost, not a direction cost.** What it punishes is chop.
 
@@ -121,27 +116,30 @@ To its credit, SGX publishes worked examples that include the uncomfortable case
 
 **What stands between an ordinary investor and 7× leverage on a single bank stock is one form.** These are classified as Specified Investment Products, so a broker must run a Customer Account Review first. You pass by holding a relevant qualification, or three years of relevant work experience, or six such trades in the past three years — or by passing a free online quiz.
 
-Worth knowing: on 15 May 2026 the Monetary Authority concluded a consultation that would **remove the mandatory financial-advice requirement** for complex products, replacing it with alerts and learning modules. The legislation has not been drafted yet, so today's rules still stand. But the direction is toward fewer gates, not more — which is exactly the setting in which Korea listed two single-stock leveraged funds, watched retail buy nine billion dollars of them, and then tripled the deposit requirement afterwards.
+And on 15 May 2026 the Monetary Authority concluded a consultation that would **remove the mandatory financial-advice requirement** for complex products. The legislation is not drafted, so today's rules stand — but the direction is toward fewer gates, not more. Which is exactly the setting in which Korea listed its two funds, watched retail buy nine billion dollars of them, and tripled the deposit requirement afterwards.
 
 ## What to take from this
 
 Three things survive everything above.
 
-**The product is not the problem.** On a market that trends, a daily-reset fund does exactly what it advertises and can beat even the doubled or tripled return people expect of it. On a market that churns, the identical machine grinds you down while you are right about the direction. You do not get to know which one you are standing in until afterwards.
+**The product is not the problem.** On a market that trends, a daily-reset fund does what it advertises and can beat even the multiple people expect of it. On one that churns, the identical machine grinds you down while you are right about the direction. You do not get to know which you are in until afterwards.
 
-**The published return is not the return you got.** Every fund here that made a fortune also required its holders to sit through 80% and 90% falls, more than once, without selling. The people who collected those returns were not smarter than the people who did not. They had the stomach, or the inattention, to stay put — and that is a far rarer qualification than having the right view.
+**The published return is not the return you got.** Every fund here that made a fortune also required its holders to sit through 80% and 90% falls, more than once, without selling. Those who collected were not smarter than those who did not. They had the stomach, or the inattention, to stay put — a far rarer qualification than having the right view.
 
-**Nothing about this is hidden.** The Hong Kong issuer prints "up to 40% a year" in costs. The American one prints that its fund "should not be expected to provide three times the return… for periods greater than a day". Singapore's exchange publishes a worked example where the market rises and the certificate falls. It is all disclosed. It is simply never on the poster.
+**Nothing about this is hidden.** The Hong Kong issuer prints "up to 40% a year" in costs. The American one prints that its fund "should not be expected to provide three times the return… for periods greater than a day". SGX publishes a worked example where the market rises and the certificate falls. It is simply never on the poster.
 
-So if you are going to buy one, the preparation that matters is not a view on the market. It is two numbers, written down before you press the button.
+So if you are going to buy one, what matters is not a view on the market. It is two numbers, written down before you press the button.
 
-**The price at which you will sell.** Not a feeling — a number, decided while you are calm, knowing that a 2× fund reaches it roughly twice as fast and a 3× fund three times as fast as the stock you are actually thinking about.
+**The price at which you will sell** — decided while you are calm, knowing a 2× fund reaches it twice as fast, and a 3× fund three times as fast, as the stock you are actually thinking about.
 
-**The amount you could watch halve, twice, without changing your mind.** That is your position size. For most people it is dramatically smaller than the amount they were about to put in.
+**The amount you could watch halve, twice, without changing your mind.** That is your position size, and for most people it is far smaller than the sum they were about to put in.
 
 If you cannot write both down, you have your answer. And if you can, keep them somewhere you will find them on the bad day — because on the evidence above, the bad day is not a tail risk in these products. It is a feature of holding them.
 
 <div class="post-notes">
+
+<details class="notes-fold">
+<summary>Sources, and where our numbers are soft</summary>
 
 #### Sources
 
@@ -162,6 +160,8 @@ Singapore products, leverage factors, and the daily-reset and air-bag wording: [
 The Korean episode is reported from Korean issuer notices, Korean financial press and market data. The asset and retail-share figures circulate in several outlets with small variations, so treat "roughly US$3 billion to roughly US$9 billion" and "roughly 92% retail" as well-supported approximations rather than audited numbers. The single-day fall in the SK Hynix-linked funds on 29 July is reported from exchange data via secondary outlets; the underlying stocks' fall of more than 20% from late-June highs is the more solidly sourced fact of the two.
 
 Our figures also come from a small number of funds over particular windows, which is a fair thing to be suspicious of. The underlying relationship is neither ours nor new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes turn on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result above.
+
+</details>
 
 <p class="note-aside">A note on what this is not. We are not telling you to buy or avoid anything, and we name these funds only because the arithmetic needs a real example — the mechanism belongs to every daily-reset product, whichever issuer runs it. We have no commercial relationship with any fund manager or exchange, carry no advertising, and earn nothing from any link on this page.</p>
 

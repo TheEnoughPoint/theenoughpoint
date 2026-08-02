@@ -444,3 +444,38 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 @media (max-width: 560px) {
     .post-content .post-notes { font-size: 12.5px; }
 }
+
+/* Sources and caveats, folded away by default. The rigour has to be on the
+   page — a reader who wants to check us must be able to — but ~900 words of
+   citations sitting open makes an already-long article read as endless.
+   The disclosure and the legal note stay outside the fold deliberately. */
+.post-content .notes-fold > summary {
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+    color: var(--color-body);
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+}
+.post-content .notes-fold > summary::-webkit-details-marker { display: none; }
+.post-content .notes-fold > summary::before {
+    content: "";
+    width: .42rem; height: .42rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform .15s ease;
+    flex: none;
+}
+.post-content .notes-fold[open] > summary::before { transform: rotate(45deg); }
+.post-content .notes-fold > summary:hover { color: var(--color-dark); }
+.post-content .notes-fold > summary:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+}
+.post-content .notes-fold > *:not(summary) { margin-top: .9rem; }
+@media (prefers-reduced-motion: reduce) {
+    .post-content .notes-fold > summary::before { transition: none; }
+}
