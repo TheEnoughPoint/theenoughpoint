@@ -26,7 +26,8 @@ const pos = (v: number) => (v / MAX) * 100;
   <figcaption class="sp-cap">
     <h4>Same structure, same decade, opposite outcomes</h4>
     <p>What a holder of each 3&times; fund ended with after ten years, as a multiple of what
-    someone who simply owned the index ended with. To 30 June 2026.</p>
+    someone who simply owned the index ended with. Compounded from each issuer&rsquo;s published
+    <em>annual average</em> returns to 30 June 2026 — the figures in the table below.</p>
   </figcaption>
 
   <div class="sp-plot">
@@ -57,7 +58,7 @@ const pos = (v: number) => (v / MAX) * 100;
   <div class="sp-scroll">
     <table class="sp-table">
       <thead>
-        <tr><th>Annualised, 10 years to 30 Jun 2026</th><th>The 3&times; fund</th><th>Its index</th></tr>
+        <tr><th>Average return per year, 10 years to 30 Jun 2026</th><th>The 3&times; fund</th><th>Its index</th></tr>
       </thead>
       <tbody>
         {FUNDS.map((f) => (
