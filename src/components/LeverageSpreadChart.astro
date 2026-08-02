@@ -44,7 +44,7 @@ const pos = (v: number) => (v / MAX) * 100;
             <div class="sp-tick one" style={`left:${pos(1)}%`}></div>
             <div class="sp-tick three" style={`left:${pos(3)}%`}></div>
             <div class="sp-bar" style={`width:${pos(f.mult)}%`}></div>
-            <span class="sp-val" style={`left:calc(${pos(f.mult)}% + 8px)`}>{f.mult.toFixed(2)}&times;</span>
+            <span class="sp-val" style={`left:calc(${pos(f.mult)}% + 5px)`}>{f.mult.toFixed(2)}&times;</span>
           </div>
         </div>
       </div>
@@ -110,8 +110,13 @@ const pos = (v: number) => (v / MAX) * 100;
 .sp-tick.three{border-left:1px dashed var(--sp-muted);background:none;opacity:.5}
 .sp-bar{position:absolute;top:3px;height:18px;background:var(--sp-bar);
   border-radius:0 4px 4px 0;transition:width .4s ease;min-width:2px}
+/* The 1x reference tick ran straight through the value labels on the two bars
+   that finish just short of it — 0.84x and 0.82x sit within a pixel of the
+   line, so the rule struck the glyphs. A card-coloured backing plate masks it;
+   nudging the labels instead would misalign them with the other three. */
 .sp-val{position:absolute;top:4px;font-family:var(--sp-mono);font-variant-numeric:tabular-nums;
-  font-size:13px;font-weight:600;color:var(--sp-ink);white-space:nowrap}
+  font-size:13px;font-weight:600;color:var(--sp-ink);white-space:nowrap;
+  background:#fff;padding:0 4px;border-radius:2px}
 
 .post-content .sp-foot{font-size:13.5px;color:var(--sp-body);line-height:1.6;margin:16px 0 0}
 .sp-foot b{color:var(--sp-ink);font-weight:600}
