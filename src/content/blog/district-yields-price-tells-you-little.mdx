@@ -15,9 +15,9 @@ authorId: "fi"
 excerpt: |
   Everyone repeats the same rule: the suburbs pay you rent, the prime districts pay you prestige. We checked it across all 26 private districts and the relationship is not there — price and yield barely move together. What does move with yield is the size of the flats. The highest-yielding district in Singapore is in the city centre, and it is full of small apartments.
 takeaways:
-  - "Across all 26 private districts, what a place costs per square foot tells you <strong>almost nothing</strong> about what it yields. The rank correlation is <strong>−0.09</strong>."
-  - "What does predict yield is <strong>unit size</strong> — rank correlation <strong>−0.59</strong>. Districts of small flats yield more; districts of family homes yield less."
-  - "That resolves the oddity in the table. The <strong>highest-yielding district is in the city centre</strong>, because its median flat is 941 sq ft. The lowest-yielding one has 1,206 sq ft flats."
+  - "Split Singapore's 26 private districts in half by price and both halves yield about the same — <strong>3.45% against 3.36%</strong>. Price tells you almost nothing."
+  - "Split them by the size of the flats instead and the gap is <strong>three and a half times wider</strong>: 3.58% against 3.23%. Districts of small flats yield more."
+  - "That resolves the oddity in the table. The <strong>highest-yielding district is in the city centre</strong> — because its median flat is 941 sq ft. The lowest-yielding one has 1,206 sq ft flats."
   - "So a &ldquo;high-yield district&rdquo; is mostly a <strong>district of small apartments</strong> — which is a fact about what is built there, not a verdict on the location."
   - "Gross is not net. Maintenance, property tax and vacancy come out before anything reaches you."
 ---
@@ -33,7 +33,9 @@ It is a tidy story, and the property internet states it as fact. We checked it a
 
 ## The relationship everyone assumes is missing
 
-Look at the left panel. If price predicted yield, those points would slope from top-left to bottom-right. They do not. The rank correlation between price per square foot and gross yield is **−0.09** — the faintest tilt in the expected direction, and nothing you could plan around.
+Look at the left panel. If price predicted yield, those points would slope from top-left to bottom-right. They do not.
+
+Put a number on it the simplest way there is. Sort the districts by price, cut the list in half, and compare the two halves. The thirteen cheapest yield **3.45%** on average. The thirteen dearest yield **3.36%**. A tenth of a percentage point apart — which is to say, the same.
 
 It does not hold at the extremes either, which is where a weak rule usually survives. The average district yields 3.41%. Of the two cheapest districts, one sits above that and one below. Of the two dearest, the same. A coin flip at both ends.
 
@@ -41,9 +43,11 @@ The middle is no better, and the middle is where most people are shopping. Betwe
 
 ## The one that is there
 
-Now the right panel. **Median unit size** against yield, and the slope is unmistakable: rank correlation **−0.59**.
+Now the right panel. Same 26 districts, same yields, but sorted by **the size of the typical flat** instead of its price.
 
-Districts where the typical flat is small yield well. Districts of family-sized homes do not. The mechanism is not mysterious — rent per square foot falls more slowly than price per square foot as flats get bigger. A studio does not rent for half what a two-bedroom does simply because it has half the floor area. So the smaller the unit, the more rent each dollar of price buys.
+Do the same split. The thirteen districts with the smallest flats yield **3.58%**. The thirteen with the largest yield **3.23%**. That gap is **three and a half times** the one price produced — and unlike the price split, it holds steadily down the ranking rather than appearing only at the ends.
+
+It is not an enormous difference in absolute terms. On a S$1.5 million home it is roughly **S$5,000 a year** in gross rent. But it is a real one, and it is the one that is actually there. The mechanism is not mysterious — rent per square foot falls more slowly than price per square foot as flats get bigger. A studio does not rent for half what a two-bedroom does simply because it has half the floor area. So the smaller the unit, the more rent each dollar of price buys.
 
 That resolves the oddity sitting at the top of the yield table. **The highest-yielding district in Singapore is in the city centre**, which the folk model says should be impossible. Its median flat is **941 square feet**. The next two on the yield table have median flats of 904 and 731 square feet, yielding 4.06% and 3.91%. Meanwhile the lowest-yielding district in the country has a median flat of 1,206 square feet, and the next-lowest 1,561.
 
@@ -81,7 +85,7 @@ And all of these are gross. Maintenance, property tax and the months a place sit
 
 #### Where our numbers are soft
 
-- **Correlations are rank-based (Spearman) and reported as such.** On the raw values the price relationship is −0.14 and the size relationship −0.53; the ranking version is quoted because it is not thrown by a single unusual district. Both tell the same story.
+- **For readers who want the correlations.** Rank correlation (Spearman) between price and yield is **−0.09**; between median unit size and yield, **−0.59**. On raw values they are −0.14 and −0.53. The article quotes half-and-half averages instead, because a correlation coefficient is not a unit most people carry around — and the split says the same thing in figures you can check by eye against the table.
 - **With 26 observations, this establishes the presence of one relationship, not the absence of the other.** A modest price effect could hide in a sample this small. What can be said is that size is much the stronger of the two.
 - **Unit size is a volume-weighted mean of project medians**, not a true district median, and it excludes one corrupt record — a project carrying a 626,545 sq ft "unit size", which is a land figure rather than a flat. Left in, it moved its district's mean by a factor of five.
 - **Gross, not net.** Before maintenance, property tax, agent fees and vacancy.
