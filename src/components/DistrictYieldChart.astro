@@ -95,7 +95,17 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
     <span class="dy-hint">if price predicted yield, these would form a line — they do not</span>
   </div>
 
-  <div class="dy-panels">
+  <div class="dy-panels" data-dywrap>
+    <div class="dy-tip" data-dytip hidden>
+      <b data-tip-head></b>
+      <span data-tip-seg></span>
+      <dl>
+        <div><dt>Price</dt><dd data-tip-psf></dd></div>
+        <div><dt>Gross yield</dt><dd data-tip-yld></dd></div>
+        <div><dt>Median size</dt><dd data-tip-size></dd></div>
+        <div><dt>Resales, 12m</dt><dd data-tip-vol></dd></div>
+      </dl>
+    </div>
     <div class="dy-panel">
       <div class="dy-ptitle">Median price per sq ft <em>Spearman &minus;0.09</em></div>
       <div class="dy-plotwrap">
@@ -105,7 +115,10 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
           {XT.map((t) => (<div class="dy-grid-x" style={`left:${px(t)}%`}><span>${(t / 1000).toFixed(1)}k</span></div>))}
           {ROWS.map((r) => (
             <div class={`dy-pt ${r.seg}`} style={`left:${px(r.psf)}%;top:${py(r.yld)}%`}
-                 title={`${r.d} ${r.name} · $${r.psf.toLocaleString('en-SG')} psf · ${r.yld.toFixed(2)}% · median ${r.size} sqft`}>
+                 tabindex="0" role="img" data-tip
+                 data-d={r.d} data-name={r.name} data-seg={r.seg}
+                 data-psf={r.psf} data-yld={r.yld.toFixed(2)} data-size={r.size} data-vol={r.vol}
+                 aria-label={`${r.d} ${r.name}, ${r.seg}. $${r.psf.toLocaleString('en-SG')} per square foot, ${r.yld.toFixed(2)} per cent gross yield, median ${r.size} square feet, ${r.vol} resales.`}>
               <span class="dy-plab">{r.d}</span>
             </div>
           ))}
@@ -123,7 +136,10 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
           {ST.map((t) => (<div class="dy-grid-x" style={`left:${sx(t)}%`}><span>{t.toLocaleString('en-SG')}</span></div>))}
           {ROWS.map((r) => (
             <div class={`dy-pt ${r.seg}`} style={`left:${sx(r.size)}%;top:${py(r.yld)}%`}
-                 title={`${r.d} ${r.name} · median ${r.size} sqft · ${r.yld.toFixed(2)}% · $${r.psf.toLocaleString('en-SG')} psf`}>
+                 tabindex="0" role="img" data-tip
+                 data-d={r.d} data-name={r.name} data-seg={r.seg}
+                 data-psf={r.psf} data-yld={r.yld.toFixed(2)} data-size={r.size} data-vol={r.vol}
+                 aria-label={`${r.d} ${r.name}, ${r.seg}. $${r.psf.toLocaleString('en-SG')} per square foot, ${r.yld.toFixed(2)} per cent gross yield, median ${r.size} square feet, ${r.vol} resales.`}>
               <span class="dy-plab">{r.d}</span>
             </div>
           ))}
@@ -189,7 +205,20 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
 .dy-dot.OCR{background:var(--dy-ocr)} .dy-dot.RCR{background:var(--dy-rcr)} .dy-dot.CCR{background:var(--dy-ccr)}
 .dy-hint{color:var(--dy-muted);font-style:italic}
 
-.dy-panels{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.dy-panels{display:grid;grid-template-columns:1fr 1fr;gap:20px;position:relative}
+.dy-tip{position:absolute;z-index:5;pointer-events:none;min-width:172px;
+  background:var(--dy-ink);color:#fff;border-radius:8px;padding:9px 11px;
+  box-shadow:0 6px 18px rgba(0,0,0,.22);font-size:11.5px;line-height:1.4;
+  transform:translate(-50%,calc(-100% - 14px))}
+.dy-tip b{display:block;font-size:12.5px;font-weight:700}
+.dy-tip > span{display:block;opacity:.7;margin-bottom:6px}
+.dy-tip dl{margin:0;display:grid;gap:2px}
+.dy-tip dl div{display:flex;justify-content:space-between;gap:14px}
+.dy-tip dt{opacity:.7}
+.dy-tip dd{margin:0;font-family:var(--dy-mono);font-variant-numeric:tabular-nums;font-weight:600}
+/* the arrow, so the tooltip reads as attached to its point rather than floating */
+.dy-tip::after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;
+  background:var(--dy-ink);transform:translateX(-50%) rotate(45deg)}
 .dy-panel{min-width:0}
 .dy-ptitle{font-size:11px;font-weight:700;color:var(--dy-ink);margin-bottom:8px;
   display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
@@ -215,7 +244,11 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
 /* the dot is the mark; the code beside it is the secondary encoding, so identity
    never depends on being able to tell the three hues apart */
 .dy-pt{position:absolute;width:11px;height:11px;border-radius:50%;
-  transform:translate(-50%,-50%);border:1.5px solid #fff;cursor:default}
+  transform:translate(-50%,-50%);border:1.5px solid #fff;cursor:pointer;
+  transition:transform .12s ease}
+.dy-pt:hover,.dy-pt:focus-visible{transform:translate(-50%,-50%) scale(1.55);z-index:4;outline:none}
+.dy-pt:focus-visible{box-shadow:0 0 0 3px rgba(37,99,235,.45)}
+@media(prefers-reduced-motion:reduce){ .dy-pt{transition:none} }
 .dy-pt.OCR{background:var(--dy-ocr)} .dy-pt.RCR{background:var(--dy-rcr)} .dy-pt.CCR{background:var(--dy-ccr)}
 .dy-plab{position:absolute;left:13px;top:-5px;font-size:9.5px;font-weight:700;
   color:var(--dy-ink);font-family:var(--dy-mono);white-space:nowrap;pointer-events:none}
@@ -242,3 +275,41 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
   .dy-pt{width:9px;height:9px}
 }
 </style>
+
+<script is:inline>
+  (function () {
+    var wrap = document.querySelector('[data-dywrap]');
+    if (!wrap) return;
+    var tip = wrap.querySelector('[data-dytip]');
+    var f = function (n) { return Number(n).toLocaleString('en-SG'); };
+    var SEG = { OCR: 'Outside central', RCR: 'Rest of central', CCR: 'Core central' };
+
+    function show(pt) {
+      var d = pt.dataset;
+      tip.querySelector('[data-tip-head]').textContent = d.d + ' · ' + d.name;
+      tip.querySelector('[data-tip-seg]').textContent = SEG[d.seg] || d.seg;
+      tip.querySelector('[data-tip-psf]').textContent = '$' + f(d.psf) + ' psf';
+      tip.querySelector('[data-tip-yld]').textContent = d.yld + '%';
+      tip.querySelector('[data-tip-size]').textContent = f(d.size) + ' sqft';
+      tip.querySelector('[data-tip-vol]').textContent = f(d.vol);
+      tip.hidden = false;
+      // position against the wrapper, then pull it back inside if it would overhang
+      var w = wrap.getBoundingClientRect(), r = pt.getBoundingClientRect();
+      var x = r.left - w.left + r.width / 2, y = r.top - w.top;
+      tip.style.left = '0px'; tip.style.top = '0px';
+      var tw = tip.getBoundingClientRect().width;
+      var min = tw / 2 + 4, max = w.width - tw / 2 - 4;
+      tip.style.left = Math.max(min, Math.min(max, x)) + 'px';
+      tip.style.top = y + 'px';
+    }
+    function hide() { tip.hidden = true; }
+
+    wrap.querySelectorAll('[data-tip]').forEach(function (pt) {
+      pt.addEventListener('mouseenter', function () { show(pt); });
+      pt.addEventListener('focus', function () { show(pt); });
+      pt.addEventListener('mouseleave', hide);
+      pt.addEventListener('blur', hide);
+    });
+    wrap.addEventListener('mouseleave', hide);
+  })();
+</script>
