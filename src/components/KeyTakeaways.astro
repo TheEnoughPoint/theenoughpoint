@@ -1,0 +1,58 @@
+---
+// Three or four lines of argument, before the article starts.
+//
+// A reader who bounces at paragraph two should still leave with the case. On a
+// long piece that is most of them, so this is not a summary for the lazy — it
+// is the only version many people will read, and it is written to stand alone.
+//
+// Driven from frontmatter (`takeaways`), so it never drifts from the post it
+// sits on and no article has to hand-build one.
+interface Props {
+  items: string[];
+  asOf?: string;
+}
+const { items, asOf } = Astro.props;
+---
+
+{items.length > 0 && (
+  <aside class="kt" aria-label="Key takeaways">
+    <p class="kt-head">The short version</p>
+    <ul class="kt-list">
+      {items.map((t) => <li set:html={t} />)}
+    </ul>
+    {asOf && <p class="kt-asof">All figures as at {asOf}. Sources at the foot of the article.</p>}
+  </aside>
+)}
+
+<style is:global>
+.kt{
+  margin:0 0 30px;padding:18px 22px 16px;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-left:3px solid var(--color-brand-600);
+  border-radius:10px;
+}
+.post-content .kt-head{
+  margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--color-brand-700);
+}
+.post-content ul.kt-list{margin:0;padding:0;list-style:none}
+.post-content .kt-list li{
+  position:relative;padding:0 0 0 18px;margin:0 0 8px;
+  font-size:15px;line-height:1.6;color:var(--color-body);
+}
+.post-content .kt-list li:last-child{margin-bottom:0}
+.post-content .kt-list li::before{
+  content:'';position:absolute;left:2px;top:9px;
+  width:6px;height:6px;border-radius:50%;background:var(--color-brand-600);
+}
+.kt-list strong{color:var(--color-dark);font-weight:700}
+.post-content .kt-asof{
+  margin:12px 0 0;padding-top:10px;border-top:1px solid var(--color-border);
+  font-size:11.5px;color:var(--color-muted);
+}
+@media(max-width:560px){
+  .kt{padding:15px 15px 13px}
+  .post-content .kt-list li{font-size:14.5px}
+}
+</style>
