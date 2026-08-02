@@ -1,0 +1,122 @@
+---
+// Every overlapping holding period for TQQQ against the Nasdaq index, from one
+// month to three years, computed by us from daily adjusted closes since July 2010
+// (roughly 4,000 windows per horizon).
+//
+// Two series per row: the median outcome and the worst observed outcome, on ONE
+// shared scale so the asymmetry is the thing you see. Green and red here are not
+// categorical hues for two entities — they are the sign of a single quantity, the
+// one case where semantic colour is right.
+const ROWS = [
+  { h: '1 month',  lost: 34.7, rbl: 3.0, med: 5.0,   worst: -69.0 },
+  { h: '3 months', lost: 27.8, rbl: 4.3, med: 13.1,  worst: -60.5 },
+  { h: '6 months', lost: 23.3, rbl: 6.3, med: 26.0,  worst: -73.6 },
+  { h: '1 year',   lost: 17.8, rbl: 8.5, med: 54.0,  worst: -81.0 },
+  { h: '2 years',  lost: 11.3, rbl: 6.1, med: 109.4, worst: -63.9 },
+  { h: '3 years',  lost: 3.8,  rbl: 3.8, med: 209.5, worst: -30.2 },
+];
+// Zero sits at 34% so the +210 median and the −81 worst both fit one linear scale.
+// The scale stops at 86% rather than 100% to leave room for the value labels —
+// at full width the +210% label rendered outside the card.
+const ZERO = 34, UNIT = 52 / 209.5;
+const w = (v: number) => Math.abs(v) * UNIT;
+const sign = (v: number) => (v > 0 ? '+' : '−') + Math.abs(Math.round(v)) + '%';
+---
+
+<figure class="hz">
+  <figcaption class="hz-cap">
+    <h4>The shape of the bet, by how long you hold</h4>
+    <p>TQQQ against the Nasdaq index. Every overlapping window since July 2010 — about 4,000
+    of each length. Median outcome against the worst one that actually occurred.</p>
+  </figcaption>
+
+  <div class="hz-plot">
+    {ROWS.map((r) => (
+      <div class="hz-row">
+        <div class="hz-lab">{r.h}</div>
+        <div class="hz-bar">
+          <div class="hz-zero" style={`left:${ZERO}%`}></div>
+          <div class="hz-neg" style={`right:${100 - ZERO}%;width:${w(r.worst)}%`}></div>
+          <div class="hz-pos" style={`left:${ZERO}%;width:${w(r.med)}%`}></div>
+          <span class="hz-v neg" style={`right:calc(${100 - ZERO}% + ${w(r.worst)}% + 7px)`}>{sign(r.worst)}</span>
+          <span class="hz-v pos" style={`left:calc(${ZERO}% + ${w(r.med)}% + 7px)`}>{sign(r.med)}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="hz-key">
+    <i><span class="hz-sw pos"></span>typical (median) outcome</i>
+    <i><span class="hz-sw neg"></span>worst outcome on record</i>
+  </div>
+
+  <div class="hz-scroll">
+    <table class="hz-table">
+      <thead>
+        <tr><th>Held for</th><th>Lost money</th><th>Index up, fund down</th></tr>
+      </thead>
+      <tbody>
+        {ROWS.map((r) => (
+          <tr>
+            <td>{r.h}</td>
+            <td>{r.lost.toFixed(1)}%</td>
+            <td>{r.rbl.toFixed(1)}%</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</figure>
+
+<style is:global>
+.hz{
+  --hz-pos:#1A8754; --hz-neg:#A93226;
+  --hz-rule:var(--color-border); --hz-ink:var(--color-dark);
+  --hz-body:var(--color-body); --hz-muted:var(--color-muted);
+  --hz-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--hz-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .hz{ --hz-pos:#2FA87A; --hz-neg:#E08074; } }
+.post-content .hz-cap{margin:0 0 16px;padding:0;text-align:left}
+.post-content .hz-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--hz-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .hz-cap p{margin:0;font-size:12.5px;color:var(--hz-muted);line-height:1.5}
+
+.hz-plot{display:flex;flex-direction:column;gap:8px}
+.hz-row{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:center}
+.hz-lab{font-size:12.5px;color:var(--hz-body)}
+.hz-bar{position:relative;height:24px}
+.hz-zero{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--hz-muted);opacity:.55}
+.hz-pos,.hz-neg{position:absolute;top:4px;height:16px}
+.hz-pos{background:var(--hz-pos);border-radius:0 3px 3px 0}
+.hz-neg{background:var(--hz-neg);border-radius:3px 0 0 3px}
+.hz-v{position:absolute;top:5px;font-family:var(--hz-mono);font-variant-numeric:tabular-nums;
+  font-size:11.5px;font-weight:600;white-space:nowrap}
+.hz-v.pos{color:var(--hz-pos)}
+.hz-v.neg{color:var(--hz-neg)}
+
+.hz-key{display:flex;gap:16px;margin-top:14px;font-size:11.5px;color:var(--hz-muted);flex-wrap:wrap}
+.hz-key i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
+.hz-sw{width:10px;height:10px;border-radius:2px}
+.hz-sw.pos{background:var(--hz-pos)}
+.hz-sw.neg{background:var(--hz-neg)}
+
+.hz-scroll{overflow-x:auto;margin-top:16px}
+.post-content table.hz-table{width:100%;border-collapse:collapse;font-size:13.5px;margin:0}
+.post-content .hz-table th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--hz-muted);font-weight:700;background:none;padding:0 10px 6px 0;
+  border-bottom:1px solid var(--hz-rule);text-align:left}
+.post-content .hz-table th:not(:first-child),
+.post-content .hz-table td:not(:first-child){text-align:right;font-family:var(--hz-mono);
+  font-variant-numeric:tabular-nums}
+.post-content .hz-table td{padding:7px 10px 7px 0;border-bottom:1px solid var(--hz-rule);color:var(--hz-body)}
+.post-content .hz-table tr:last-child td{border-bottom:none}
+
+@media(max-width:600px){
+  .hz{padding:16px 13px 13px}
+  .hz-row{grid-template-columns:58px 1fr}
+  .hz-lab{font-size:11.5px}
+  .hz-v{font-size:10.5px}
+}
+</style>

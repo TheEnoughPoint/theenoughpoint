@@ -16,11 +16,14 @@ excerpt: |
 
 import LeverageDecayTool from '@src/components/LeverageDecayTool.astro';
 import LeverageSpreadChart from '@src/components/LeverageSpreadChart.astro';
+import LeverageHorizonChart from '@src/components/LeverageHorizonChart.astro';
 import LeveragePeakChart from '@src/components/LeveragePeakChart.astro';
 
 Every leveraged fund carries the same warning, printed by the people who sell it: not to be held for more than a day.
 
 Almost nobody obeys it. So the useful question is not what the label says — it is what actually happened to people who ignored it. Ten years of published records answer that, and the answer is not the one either camp expects.
+
+Some of these funds made their holders extraordinarily rich. Others quietly lost to the index they track. The difference is not the one most people assume.
 
 <LeverageSpreadChart />
 
@@ -88,15 +91,25 @@ Add the published fee and the real cost of holding is near **11% a year**, of wh
 
 The number to watch is the last one. At 30% volatility — roughly a single-country market — the index must compound at about **13.5% a year, or 3.2% a quarter,** before a 3× holder makes anything at all. Below that, you lose money in a rising market.
 
-## "But these are for short-term trading"
+## So how long should you hold one?
 
-That defence is right, and much stricter than most people realise. The fund's own horizon is not "short term". It is **one day**.
+The label says one day. Almost nobody obeys that, so the more useful question is what actually happened to people who did not.
 
-Three months is not a rounding error against that. At 30% volatility, the daily rebalancing costs around 6.5% over a quarter and the borrowing adds roughly 2.6% more — so about **9% disappears in three months before the index does anything.**
+We took every daily close since July 2010 and measured **every overlapping holding period** — roughly four thousand of each length, from one month to three years.
 
-The Korea episode settles it. The 3× fund fell **76%** from its June peak while the index fell **28%**, and that took about eight weeks. Anyone holding "just a quarter" held through the whole thing.
+<LeverageHorizonChart />
 
-One point in the machine's favour, since it is owed. On the way down it works in reverse: as the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times a 28% drop would have been 85%, and the fund lost 76%. The daily reset is not simply a penalty — it is a **volatility cost, not a direction cost.** What it punishes is chop.
+The result is not the one the warning label implies. **Holding longer did not make things worse.** The share of periods that lost money falls the longer you hold: about a third of one-month holds, a quarter of three-month holds, and under 4% of three-year holds. The typical outcome climbs from +5% to +210%.
+
+That is not a licence to hold forever. It is a statement about **which sixteen years these were.** The Nasdaq trended upward for most of them, and a machine that buys more after every up day is superbly suited to a market that mostly goes up. The same sixteen years destroyed 3× small caps and 3× Korea. The horizon is not really the variable. The regime is — and you do not know the regime in advance.
+
+Two things do survive every row, and they are the honest takeaways.
+
+**You can be right and still lose, at any length.** The "index up, fund down" column is never zero: 3% of one-month holds, 8.5% of one-year holds. Run the same test on the 3× semiconductor fund and it peaks at **14.6% of two-year holds** — roughly one time in seven where the market went your way and the fund did not.
+
+**And the left tail never closes.** Even a one-month hold has lost **69%** at some point since 2010. There is no horizon short enough to make these safe, and none long enough either.
+
+One point in the machine's favour, since it is owed. On the way down it works in reverse: as the fund shrinks it sells, so it carries less exposure into each subsequent fall. Three times Korea's 28% drop would have been 85%, and the fund lost 76%. The daily reset is not simply a penalty — it is a **volatility cost, not a direction cost.** What it punishes is chop.
 
 ## Singapore has its own version, and it goes to seven times
 
@@ -118,13 +131,13 @@ Worth knowing: on 15 May 2026 the Monetary Authority concluded a consultation th
 
 ## So can you hold one long term?
 
-The decade says: sometimes, spectacularly — and you cannot know which in advance, because the thing that decides it is not whether you picked the right market. It is whether that market happened to trend or churn while you held it.
+The evidence says: sometimes, spectacularly — and the thing that decides it is not how long you hold, nor whether you picked the right market. It is whether that market happened to trend or churn while you were in it. Which you do not know in advance, and cannot control.
 
 That distinction is worth being precise about, because the risk people prepare for is usually the other one. If you borrow to invest, the danger is that the market falls and the debt does not — painful, and widely understood. That loan does not care what route the price took: down 20% then up 25% leaves you where you started. A daily-reset fund does care. The rebalancing happens whether you like it or not, the borrowing bill runs whatever the market does, and every swing takes a bite on the way through.
 
-The people holding the 3× semiconductor fund through the last decade were not smarter than the people holding 3× small caps. They were in a market that went one way.
+The people who held the 3× semiconductor fund through the last decade were not smarter than the people who held 3× small caps. They were in a market that went one way.
 
-So the question is not whether you are right about the market. It is whether the thing you are holding can survive being right slowly.
+So the question is not whether you are right about the market, or how long you intend to stay. It is whether the thing you are holding can survive being right slowly.
 
 <div class="post-notes">
 
@@ -138,7 +151,9 @@ Singapore products, leverage factors, and the daily-reset and air-bag wording: [
 
 The 1.8% credited back for interest on collateral is **our estimate, not a disclosed figure** — the filing shows the cash position but not the income earned on it. Treat the 11% all-in cost as an approximation with its working shown rather than a reported number. It also leaves out a third, smaller drag: the trading costs the fund incurs turning over its own book each day, which no filing separates out.
 
-Our figures also come from one fund over particular windows, which is a fair thing to be suspicious of. The underlying relationship is neither ours nor new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes turn on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result above.
+**The holding-period study is evidence, not a law.** It covers sixteen years and two funds, and those sixteen years contained one of the strongest bull runs in market history — which is precisely why the longer horizons look so good. Overlapping windows also share most of their days with their neighbours, so four thousand windows are nowhere near four thousand independent observations. Read it as a description of what this era did, not a forecast of what the next one will.
+
+Our figures also come from a small number of funds over particular windows, which is a fair thing to be suspicious of. The underlying relationship is neither ours nor new: Avellaneda and Zhang derived it formally and tested it across 56 leveraged funds, and independent work has checked it against more than a century of data across eight equity markets. More recent research argues the picture is subtler still — that outcomes turn on whether a market trends or mean-reverts, not on volatility alone, which is consistent with the two-sided result above.
 
 <p class="note-aside">A note on what this is not. We are not telling you to buy or avoid anything, and we name these funds only because the arithmetic needs a real example — the mechanism belongs to every daily-reset product, whichever issuer runs it. We have no commercial relationship with any fund manager or exchange, carry no advertising, and earn nothing from any link on this page.</p>
 
