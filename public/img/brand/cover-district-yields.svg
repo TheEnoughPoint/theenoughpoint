@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Gross rental yields across Singapore districts run from 2.7 to 4.1 per cent, and price per square foot barely predicts where a district lands">
+  <!-- Cover for the district yield piece. House system: navy field, gold figure.
+       The finding is a non-relationship, and a correlation coefficient is unreadable
+       on a cover, so the figure is the SPREAD instead — the range every district's
+       yield falls in — with the point made underneath in words.
+       Stacked, following cover-leverage-decay and cover-new-launch-resale.
+       Safe zone: square thumbnail crops to x 300-900. -->
+  <defs>
+    <radialGradient id="bgDY" cx="50%" cy="42%" r="76%">
+      <stop offset="0%" stop-color="#10233D"/>
+      <stop offset="100%" stop-color="#081627"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bgDY)"/>
+
+  <text x="600" y="126" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">SINGAPORE DISTRICT RENTAL YIELDS</text>
+
+  <text x="600" y="278" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="122"
+        fill="#C89A3C">2.7% to 4.1%</text>
+
+  <text x="600" y="336" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600"
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.9">across all 26 private districts</text>
+
+  <line x1="450" y1="386" x2="750" y2="386" stroke="#C89A3C" stroke-width="1.5" opacity="0.5"/>
+
+  <text x="600" y="436" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">and what you pay per square foot</text>
+  <text x="600" y="476" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">barely predicts where you land.</text>
+</svg>
