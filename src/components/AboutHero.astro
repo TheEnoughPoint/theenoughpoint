@@ -33,7 +33,18 @@ const { about } = Astro.props;
 
   <!-- Intro paragraphs -->
   <div class="flex flex-col gap-4 text-body leading-relaxed text-left max-w-3xl">
-    {about.intro.map((para) => <p>{para}</p>)}
+    {about.intro.map((para, i) => (
+      <>
+        {i === about.intro.length - 1 && (
+          <img
+            src={url('/img/about/fi-re-pickleball-comic.jpg')}
+            alt="Comic strip of FI and RE finishing their Thursday 10am pickleball game and talking about reaching their enough point"
+            class="w-full rounded-lg border border-cream-dark"
+          />
+        )}
+        <p>{para}</p>
+      </>
+    ))}
   </div>
 </div>
 
