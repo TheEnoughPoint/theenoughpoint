@@ -1,0 +1,105 @@
+---
+// Our ShopBack dashboard, redrawn to the cent for the cashback-routing piece.
+//
+// A screenshot would prove the same numbers, but a screenshot ships somebody's
+// browser chrome and goes stale ugly. Redrawing keeps the figures — read
+// directly off the dashboard, 6 Aug 2026, 07:12 — and drops everything else.
+//
+// The split bar is drawn to scale from the same two figures, so the picture
+// and the numbers cannot disagree: 4,541.03 + 1,943.06 = 6,484.09 exactly,
+// which is also the honesty device — "lifetime" is nothing more than the sum
+// of money paid out and money still in transit.
+//
+// Colour pair is the house validated categorical pair (see EntryGapTool):
+// light #B45309 / #2563EB, dark re-stepped #B8842E / #4E86DD. Paid-out wears
+// the amber (money in hand), tracking wears the blue (money in transit).
+const LIFETIME = 6484.09;
+const WITHDRAWN = 4541.03;
+const TRACKING = 1943.06;
+const ASOF = '6 August 2026';
+
+const fmt = (n: number) =>
+  'S$' + n.toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const pctW = (WITHDRAWN / LIFETIME) * 100;
+const pctT = (TRACKING / LIFETIME) * 100;
+---
+
+<figure class="cbl">
+  <figcaption class="cbl-cap">
+    <h4>One account, lifetime view</h4>
+    <p>Our ShopBack dashboard, redrawn to the cent. As at {ASOF}.</p>
+  </figcaption>
+
+  <div class="cbl-tiles">
+    <div class="cbl-tile is-total">
+      <span class="cbl-label">Lifetime cashback</span>
+      <b class="cbl-val">{fmt(LIFETIME)}</b>
+      <span class="cbl-sub">every confirmed and tracking dollar, since the account opened</span>
+    </div>
+    <div class="cbl-tile is-paid">
+      <span class="cbl-label"><i class="cbl-sw paid" aria-hidden="true"></i>Paid out to the bank</span>
+      <b class="cbl-val">{fmt(WITHDRAWN)}</b>
+      <span class="cbl-sub">withdrawn as it confirmed</span>
+    </div>
+    <div class="cbl-tile is-track">
+      <span class="cbl-label"><i class="cbl-sw track" aria-hidden="true"></i>Still tracking</span>
+      <b class="cbl-val">{fmt(TRACKING)}</b>
+      <span class="cbl-sub">mostly stays not yet taken</span>
+    </div>
+    <div class="cbl-tile is-zero">
+      <span class="cbl-label">Available to withdraw</span>
+      <b class="cbl-val">{fmt(0)}</b>
+      <span class="cbl-sub">we sweep it out as it clears</span>
+    </div>
+  </div>
+
+  <div class="cbl-bar" role="img" aria-label={`Of ${fmt(LIFETIME)} lifetime cashback, ${fmt(WITHDRAWN)} has been paid out and ${fmt(TRACKING)} is still tracking`}>
+    <span class="cbl-seg paid" style={`width:${pctW}%`}></span>
+    <span class="cbl-seg track" style={`width:${pctT}%`}></span>
+  </div>
+  <p class="cbl-foot">Drawn to scale. Paid out plus tracking is the lifetime figure to the cent:
+  {fmt(WITHDRAWN)} + {fmt(TRACKING)} = {fmt(LIFETIME)}.</p>
+</figure>
+
+<style is:global>
+.cbl{
+  --cbl-paid:#B45309; --cbl-track:#2563EB;
+  --cbl-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--color-border);border-radius:12px;
+}
+@media (prefers-color-scheme: dark){
+  .cbl{ --cbl-paid:#B8842E; --cbl-track:#4E86DD; }  /* re-stepped for the dark card, not flipped */
+}
+.post-content .cbl-cap{margin:0 0 16px;padding:0;text-align:left}
+.post-content .cbl-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .cbl-cap p{margin:0;font-size:12.5px;color:var(--color-muted);line-height:1.5}
+
+.cbl-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.cbl-tile{display:flex;flex-direction:column;gap:3px;padding:12px 14px;
+  border:1px solid var(--color-border);border-radius:10px;line-height:1.3}
+.cbl-tile.is-total{border-left:3px solid var(--color-brand-600)}
+.cbl-label{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--color-muted);display:flex;align-items:center;gap:6px}
+.cbl-sw{width:9px;height:9px;border-radius:2px;flex:none;display:inline-block}
+.cbl-sw.paid{background:var(--cbl-paid)} .cbl-sw.track{background:var(--cbl-track)}
+.cbl-val{font-family:var(--cbl-mono);font-variant-numeric:tabular-nums;font-size:21px;
+  font-weight:700;color:var(--color-dark)}
+.cbl-tile.is-paid .cbl-val{color:var(--cbl-paid)}
+.cbl-tile.is-track .cbl-val{color:var(--cbl-track)}
+.cbl-tile.is-zero .cbl-val{color:var(--color-muted)}
+.cbl-sub{font-size:11px;color:var(--color-muted)}
+
+.cbl-bar{display:flex;gap:2px;height:16px;border-radius:4px;overflow:hidden}
+.cbl-seg{display:block;height:100%}
+.cbl-seg.paid{background:var(--cbl-paid);border-radius:4px 0 0 4px}
+.cbl-seg.track{background:var(--cbl-track);border-radius:0 4px 4px 0}
+.post-content .cbl-foot{font-size:11.5px;color:var(--color-muted);line-height:1.55;margin:10px 0 0}
+
+@media(max-width:680px){
+  .cbl{padding:16px 14px 13px}
+  .cbl-tiles{grid-template-columns:1fr 1fr;gap:10px}
+  .cbl-val{font-size:18px}
+}
+</style>

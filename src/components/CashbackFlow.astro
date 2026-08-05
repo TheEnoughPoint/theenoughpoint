@@ -1,0 +1,63 @@
+---
+// The cashback business model in four steps, for the cashback-routing piece.
+//
+// The article's trust move is explaining where the money comes from — a
+// referral commission that exists whether or not the customer claims a share.
+// Four nodes, read left to right on desktop, top to bottom on a phone. The
+// arrows are CSS, not SVG, so the thing reflows instead of shrinking.
+const STEPS = [
+  { k: '1', head: 'You decide the purchase', body: 'On its own merits, at a price you have checked. Nothing here changes what you buy.' },
+  { k: '2', head: 'You start at ShopBack', body: 'App or browser button — the click attaches the referral to you.' },
+  { k: '3', head: 'The store pays a commission', body: 'A referral fee for a delivered customer. On travel, a large one.' },
+  { k: '4', head: 'You get a share', body: 'ShopBack keeps a slice and passes the rest back as cashback.' },
+];
+---
+
+<figure class="cbf">
+  <figcaption class="cbf-cap">
+    <h4>You are the referral fee</h4>
+    <p>Stores pay for delivered customers either way. The only question is whether the customer collects a share.</p>
+  </figcaption>
+  <ol class="cbf-steps">
+    {STEPS.map((s) => (
+      <li class="cbf-step">
+        <span class="cbf-k" aria-hidden="true">{s.k}</span>
+        <b>{s.head}</b>
+        <span class="cbf-body">{s.body}</span>
+      </li>
+    ))}
+  </ol>
+</figure>
+
+<style is:global>
+.cbf{
+  margin:26px 0;padding:20px 22px 18px;background:var(--color-surface);
+  border:1px solid var(--color-border);border-radius:12px;
+}
+.post-content .cbf-cap{margin:0 0 16px;padding:0;text-align:left}
+.post-content .cbf-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .cbf-cap p{margin:0;font-size:12.5px;color:var(--color-muted);line-height:1.5}
+
+.post-content ol.cbf-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
+  margin:0;padding:0;list-style:none;counter-reset:none}
+.cbf-step{position:relative;display:flex;flex-direction:column;gap:4px;line-height:1.4;
+  background:#fff;border:1px solid var(--color-border);border-radius:10px;padding:12px 14px}
+.post-content .cbf-step{margin:0}
+.cbf-k{width:20px;height:20px;border-radius:50%;background:var(--color-brand-600);color:#fff;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+.cbf-step b{font-size:13.5px;color:var(--color-dark);font-weight:700}
+.cbf-body{font-size:12px;color:var(--color-muted);line-height:1.5}
+/* the connector: an arrow in the 22px gutter between cards */
+.cbf-step:not(:last-child)::after{
+  content:'\2192';position:absolute;right:-19px;top:50%;transform:translateY(-50%);
+  color:var(--color-muted);font-size:15px;line-height:1;
+}
+@media(max-width:680px){
+  .cbf{padding:16px 14px 14px}
+  .post-content ol.cbf-steps{grid-template-columns:1fr;gap:16px}
+  .cbf-step:not(:last-child)::after{
+    content:'\2193';right:auto;left:50%;top:auto;bottom:-15px;transform:translateX(-50%);
+  }
+}
+</style>

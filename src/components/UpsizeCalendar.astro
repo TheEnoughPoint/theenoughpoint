@@ -1,0 +1,143 @@
+---
+// When ShopBack's upsized days land — the verified rhythm, for the
+// cashback-routing piece.
+//
+// Everything drawn here traces to a published source, read 6 Aug 2026:
+// payday sales run the last week of each month (ShopBack's own 2026 SG sale
+// calendar and payday explainer); Plus Day is the 1st and Plus member rates
+// the 15th (ShopBack Plus help article); 9.9/10.10/11.11/12.12 with Black
+// Friday 27 Nov and Cyber Monday 30 Nov per the 2026 calendar; ShopFest has
+// historically spanned Sep-Dec (press coverage — the 2026 SG edition was not
+// yet announced when this shipped, which the article's endnotes say).
+// A weekly "travel Tuesday" pattern was checked for and does NOT exist, so it
+// is deliberately absent.
+//
+// Two lanes, not one: the monthly rhythm and the annual spine are different
+// clocks, and squeezing both onto one track implied payday only happens in
+// December. Bands are windows, dots are marquee days; identity is carried by
+// labels, never colour alone.
+//
+// Positions are computed from dates, not hand-placed, so the picture cannot
+// drift from the data.
+const mPos = (day: number) => ((day - 1) / 30) * 100;            // day of a 31-day month
+const yPos = (month: number, day: number, dim: number) =>        // month 1-12
+  ((month - 1 + day / dim) / 12) * 100;
+
+const MONTH_MARKS = [
+  { at: mPos(1),  lab: 'Plus Day', sub: '1.2×, members', row: 'top', edge: true },
+  { at: mPos(15), lab: 'Plus rates', sub: '15th, members', row: 'top', edge: false },
+];
+const PAYDAY = { from: mPos(25), to: 100 };
+
+const YEAR_BANDS = [
+  { from: yPos(6, 15, 30), to: yPos(8, 15, 31), lab: 'GSS' },
+  { from: yPos(9, 1, 30),  to: 100,             lab: 'ShopFest' },
+];
+const YEAR_MARKS = [
+  { at: yPos(6, 8, 30),   lab: 'Birthday sale', sub: 'to 35% upsized', row: 'bot' },
+  { at: yPos(9, 9, 30),   lab: '9.9',   sub: '', row: 'bot' },
+  { at: yPos(10, 10, 31), lab: '10.10', sub: '', row: 'top' },
+  { at: yPos(11, 11, 30), lab: '11.11', sub: 'deepest', row: 'bot', big: true },
+  { at: yPos(11, 27, 30), lab: 'BF/CM', sub: '27 + 30 Nov', row: 'top' },
+  { at: yPos(12, 12, 31), lab: '12.12', sub: '', row: 'bot' },
+];
+const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+---
+
+<figure class="uc">
+  <figcaption class="uc-cap">
+    <h4>When the upsized days land</h4>
+    <p>ShopBack&rsquo;s own published rhythm for Singapore, 2026. Bands are windows; dots are marquee days.
+    There is no weekly pattern &mdash; the rest is ad hoc, shown on each store&rsquo;s page.</p>
+  </figcaption>
+
+  <div class="uc-scroll">
+  <div class="uc-lanes">
+    <div class="uc-lane">
+      <span class="uc-lanelab">Every month</span>
+      <div class="uc-track">
+        <span class="uc-band" style={`left:${PAYDAY.from}%;width:${PAYDAY.to - PAYDAY.from}%`}></span>
+        <span class="uc-bandlab is-right">Payday sale <i>~25th to month-end</i></span>
+        {MONTH_MARKS.map((m) => (
+          <span class={`uc-mark is-${m.row} ${m.edge ? 'is-edge' : ''}`} style={`left:${m.at}%`}>
+            <i class="uc-dot" aria-hidden="true"></i>
+            <span class="uc-marklab"><b>{m.lab}</b>{m.sub && <em>{m.sub}</em>}</span>
+          </span>
+        ))}
+      </div>
+      <div class="uc-axis"><span>1st</span><span>15th</span><span>31st</span></div>
+    </div>
+
+    <div class="uc-lane">
+      <span class="uc-lanelab">Across 2026</span>
+      <div class="uc-track">
+        {YEAR_BANDS.map((b) => (
+          <>
+            <span class="uc-band" style={`left:${b.from}%;width:${b.to - b.from}%`}></span>
+            <span class="uc-bandlab" style={`left:${b.from}%`}>{b.lab}</span>
+          </>
+        ))}
+        {YEAR_MARKS.map((m) => (
+          <span class={`uc-mark is-${m.row} ${m.big ? 'is-big' : ''}`} style={`left:${m.at}%`}>
+            <i class="uc-dot" aria-hidden="true"></i>
+            <span class="uc-marklab"><b>{m.lab}</b>{m.sub && <em>{m.sub}</em>}</span>
+          </span>
+        ))}
+      </div>
+      <div class="uc-axis uc-axis-months" aria-hidden="true">
+        {MONTHS.map((m) => <span>{m}</span>)}
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <p class="uc-foot">Plus Day and the 15th apply to the paid tier only. Campaign days officially add
+  roughly 1&ndash;5 percentage points to base rates; payday and marquee windows sometimes go far
+  beyond that on selected stores &mdash; our 25 July booking ran at 14% against a 4.5% everyday rate.</p>
+</figure>
+
+<style is:global>
+.uc{
+  --uc-band:var(--color-brand-600);
+  --uc-dot:#B45309;
+  margin:26px 0;padding:20px 22px 16px;background:var(--color-surface);
+  border:1px solid var(--color-border);border-radius:12px;
+}
+@media (prefers-color-scheme: dark){ .uc{ --uc-dot:#B8842E; } }
+.post-content .uc-cap{margin:0 0 18px;padding:0;text-align:left}
+.post-content .uc-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .uc-cap p{margin:0;font-size:12.5px;color:var(--color-muted);line-height:1.5}
+
+.uc-scroll{overflow-x:auto}
+.uc-lanes{display:flex;flex-direction:column;gap:26px;min-width:520px}
+.uc-lane{display:flex;flex-direction:column;gap:0}
+.uc-lanelab{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--color-muted);margin-bottom:52px}
+.uc-track{position:relative;height:6px;border-radius:999px;background:var(--color-border)}
+.uc-band{position:absolute;top:0;height:6px;background:var(--uc-band);opacity:.28;border-radius:999px}
+/* band labels live on their own tier above the mark labels, so windows and
+   marquee days can never collide no matter where the dates fall */
+.uc-bandlab{position:absolute;bottom:32px;font-size:10.5px;color:var(--color-brand-700);
+  font-weight:700;white-space:nowrap}
+.uc-bandlab.is-right{right:0}
+.uc-bandlab i{font-style:normal;font-weight:400;color:var(--color-muted)}
+.uc-mark{position:absolute;top:50%;transform:translate(-50%,-50%);display:block}
+.uc-dot{display:block;width:10px;height:10px;border-radius:50%;background:var(--uc-dot);
+  border:2px solid #fff;box-shadow:0 0 0 1px var(--uc-dot)}
+.uc-mark.is-big .uc-dot{width:14px;height:14px}
+.uc-marklab{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
+  display:flex;flex-direction:column;align-items:center;line-height:1.25;text-align:center}
+.uc-mark.is-top .uc-marklab{bottom:14px}
+.uc-mark.is-bot .uc-marklab{top:14px}
+/* a mark on the track's left edge keeps its label inside the figure */
+.uc-mark.is-edge .uc-marklab{left:0;transform:none;align-items:flex-start;text-align:left}
+.uc-marklab b{font-size:11px;color:var(--color-dark);font-weight:700}
+.uc-mark.is-big .uc-marklab b{font-size:12px}
+.uc-marklab em{font-style:normal;font-size:9.5px;color:var(--color-muted)}
+.uc-axis{display:flex;justify-content:space-between;margin-top:46px;font-size:10px;
+  color:var(--color-muted);font-variant-numeric:tabular-nums}
+.uc-axis-months span{flex:1;text-align:left}
+.post-content .uc-foot{font-size:11.5px;color:var(--color-muted);line-height:1.55;margin:16px 0 0}
+@media(max-width:560px){ .uc{padding:16px 12px 13px} }
+</style>

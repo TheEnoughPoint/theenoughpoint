@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="One cashback account has returned S$6,484 for the same spending — S$4,541 already paid out to the bank, S$1,943 still tracking">
+  <!-- Cover for the cashback-routing (ShopBack) piece.
+
+       IVORY VARIANT of the house system — this is a planning/value piece, and
+       the rule of thumb is navy for risk, ivory for comparison and planning
+       (see cover-new-launch-resale). Same type, same gold, same wordmark.
+
+       The figure is the account's lifetime total, rounded down on the cover
+       and exact (S$6,484.09) in the article, per house practice. The two bars
+       are the finding's own split drawn to scale on a 500px track: S$4,541
+       already withdrawn to the bank against S$1,943 still tracking — the
+       honesty device, because "lifetime" is only ever the sum of those two.
+
+       Safe zone: square thumbnail crops to x 300-900; the list slot crops
+       below x 150 and above 1050. Bar labels follow cover-new-launch-resale
+       in accepting partial crop at the extreme left. -->
+  <defs>
+    <radialGradient id="bgSBR" cx="50%" cy="42%" r="76%">
+      <stop offset="0%" stop-color="#F6F4EF"/>
+      <stop offset="100%" stop-color="#E4DCCB"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bgSBR)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#0B1D33"/>
+
+  <text x="600" y="122" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
+        letter-spacing="3.5" fill="#0B1D33" opacity="0.5">ONE CASHBACK ACCOUNT, IN FULL</text>
+
+  <text x="600" y="272" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="128"
+        fill="#9C7526">S$6,484</text>
+
+  <text x="600" y="330" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600"
+        letter-spacing="0.4" fill="#0B1D33" opacity="0.78">returned for the same spending</text>
+
+  <line x1="450" y1="378" x2="750" y2="378" stroke="#9C7526" stroke-width="1.5" opacity="0.55"/>
+
+  <text x="600" y="420" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="26"
+        fill="#33414F">earned one extra click at a time,</text>
+  <text x="600" y="456" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="26"
+        fill="#33414F">on purchases that were happening anyway.</text>
+
+  <!-- to scale: 4,541 and 1,943 on a 500px track -->
+  <text x="336" y="506" text-anchor="end"
+        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600"
+        fill="#0B1D33" opacity="0.6">paid out to the bank</text>
+  <rect x="350" y="492" width="500" height="18" rx="3" fill="#9C7526"/>
+  <text x="862" y="506"
+        font-family="Georgia, 'Times New Roman', serif" font-size="19"
+        fill="#9C7526">S$4,541</text>
+
+  <text x="336" y="542" text-anchor="end"
+        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600"
+        fill="#0B1D33" opacity="0.6">still tracking</text>
+  <rect x="350" y="528" width="214" height="18" rx="3" fill="#0B1D33" opacity="0.3"/>
+  <text x="576" y="542"
+        font-family="Georgia, 'Times New Roman', serif" font-size="19"
+        fill="#33414F">S$1,943</text>
+
+  <text x="600" y="586" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700"
+        letter-spacing="2.6" fill="#9C7526" opacity="0.85">THEENOUGHPOINT.COM</text>
+</svg>

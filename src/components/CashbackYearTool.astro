@@ -1,0 +1,177 @@
+---
+// What a year of routing returns, on the reader's own figures — for the
+// cashback-routing piece.
+//
+// Deliberately arithmetic, not a projection: three spending lines × three
+// editable rates, nothing else. The default rates are the BASE rates read off
+// merchant pages on 6 Aug 2026 (hotels 4.5–6% → 5; marketplaces ~0.1–1% for
+// existing customers → 1; in-store F&B ~5%), so the tool's resting state is
+// honest rather than flattering — upsized windows run higher, and the rate
+// boxes are editable precisely so nobody has to trust our defaults.
+//
+// The lifetime figure in the article flatters (it accumulated over years);
+// this is the corrective device. Same interaction idiom as EntryGapTool:
+// type=text + inputmode (a comma makes type=number silently discard), every
+// read through numOf().
+const ROWS = [
+  { key: 'travel', name: 'Travel booked online', unit: 'a year', amt: 2500, max: 10000, step: 100, rate: 5,
+    note: 'hotels, flights, activities — base rates run 4.5–6%' },
+  { key: 'shop', name: 'Everyday online orders', unit: 'a month', amt: 200, max: 1000, step: 10, rate: 1,
+    note: 'marketplaces pay existing customers very little now' },
+  { key: 'store', name: 'Food courts &amp; in-store', unit: 'a month', amt: 120, max: 600, step: 10, rate: 5,
+    note: 'Scan &amp; Pay or a linked card at partner outlets' },
+];
+const fmt0 = (n: number) => Math.round(n).toLocaleString('en-SG');
+const yearly = (r: (typeof ROWS)[number]) =>
+  (r.unit === 'a year' ? r.amt : r.amt * 12) * (r.rate / 100);
+const TOTAL = ROWS.reduce((s, r) => s + yearly(r), 0);
+---
+
+<figure class="cyt" data-cyt>
+  <figcaption class="cyt-cap">
+    <h4>What a year of routing returns</h4>
+    <p>Your own figures, times the rates. The defaults are today&rsquo;s base rates &mdash; edit them;
+    upsized windows run higher.</p>
+  </figcaption>
+
+  <div class="cyt-rows">
+    {ROWS.map((r) => (
+      <div class="cyt-row" data-row data-unit={r.unit}>
+        <div class="cyt-name">
+          <b set:html={r.name} />
+          <span set:html={r.note} />
+        </div>
+        <div class="cyt-controls">
+          <div class="cyt-fields">
+            <label class="cyt-field">
+              <i>S$</i>
+              <input data-amt type="text" inputmode="numeric" autocomplete="off"
+                     value={fmt0(r.amt)} aria-label={`${r.name.replace(/&amp;/g, '&')} spend`} />
+              <i class="cyt-unit">{r.unit}</i>
+            </label>
+            <label class="cyt-field is-rate">
+              <input data-rate type="text" inputmode="decimal" autocomplete="off"
+                     value={r.rate} aria-label={`${r.name.replace(/&amp;/g, '&')} cashback rate`} />
+              <i>%</i>
+            </label>
+          </div>
+          <input data-range class="cyt-range" type="range" min="0" max={r.max} step={r.step}
+                 value={r.amt} aria-label={`${r.name.replace(/&amp;/g, '&')} spend slider`} />
+        </div>
+        <div class="cyt-out">
+          <b data-out>{fmt0(yearly(r))}</b>
+          <span>S$ / year</span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="cyt-total">
+    <span>A year of the habit, at these figures</span>
+    <b data-total>S${fmt0(TOTAL)}</b>
+  </div>
+
+  <p class="cyt-foot">Arithmetic, not a projection. Rates are per store and change constantly
+  (these defaults are base rates as at August 2026); caps, exclusions and tracking failures all
+  take their bite, and pending cashback is not money until it confirms.</p>
+</figure>
+
+<style is:global>
+.cyt{
+  --cyt-accent:#2563EB; --cyt-amber:#B45309;
+  --cyt-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--color-border);border-radius:12px;
+}
+@media (prefers-color-scheme: dark){
+  .cyt{ --cyt-accent:#4E86DD; --cyt-amber:#B8842E; }
+}
+.post-content .cyt-cap{margin:0 0 16px;padding:0;text-align:left}
+.post-content .cyt-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .cyt-cap p{margin:0;font-size:12.5px;color:var(--color-muted);line-height:1.5}
+
+.cyt-rows{display:flex;flex-direction:column;gap:14px}
+.cyt-row{display:grid;grid-template-columns:190px 1fr 92px;gap:14px;align-items:center;
+  padding-bottom:14px;border-bottom:1px solid var(--color-border)}
+.cyt-name{display:flex;flex-direction:column;line-height:1.35}
+.cyt-name b{font-size:13.5px;color:var(--color-dark);font-weight:700}
+.cyt-name span{font-size:11px;color:var(--color-muted)}
+.cyt-controls{display:flex;flex-direction:column;gap:7px}
+.cyt-fields{display:flex;gap:8px;flex-wrap:wrap}
+.cyt-field{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--color-border);
+  border-radius:8px;padding:4px 9px;background:#fff}
+.cyt-field i{font-style:normal;font-size:12px;color:var(--color-muted)}
+.cyt-field input{border:0;outline:0;background:none;width:7ch;font-family:var(--cyt-mono);
+  font-variant-numeric:tabular-nums;font-size:13.5px;font-weight:600;color:var(--color-dark)}
+.cyt-field.is-rate input{width:4ch;text-align:right}
+.cyt-field:focus-within{border-color:var(--cyt-accent);box-shadow:0 0 0 2px rgba(37,99,235,.12)}
+.cyt-unit{white-space:nowrap}
+.cyt-range{-webkit-appearance:none;appearance:none;width:100%;height:4px;
+  background:var(--color-border);border-radius:999px;outline:none;cursor:pointer;
+  padding:0;border:none;margin:0;display:block}
+.cyt-range::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--cyt-accent);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.18);cursor:grab}
+.cyt-range::-moz-range-thumb{width:12px;height:12px;border-radius:50%;
+  background:var(--cyt-accent);border:2px solid #fff}
+.cyt-range:focus-visible{outline:2px solid var(--cyt-accent);outline-offset:4px}
+.cyt-out{text-align:right;line-height:1.2}
+.cyt-out b{display:block;font-family:var(--cyt-mono);font-variant-numeric:tabular-nums;
+  font-size:16px;font-weight:700;color:var(--color-dark)}
+.cyt-out span{font-size:10.5px;color:var(--color-muted)}
+
+.cyt-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding-top:14px}
+.cyt-total span{font-size:13px;color:var(--color-body)}
+.cyt-total b{font-family:var(--cyt-mono);font-variant-numeric:tabular-nums;font-size:24px;
+  font-weight:700;color:var(--cyt-amber)}
+.post-content .cyt-foot{font-size:11.5px;color:var(--color-muted);line-height:1.55;margin:12px 0 0}
+
+@media(max-width:640px){
+  .cyt{padding:16px 14px 13px}
+  .cyt-row{grid-template-columns:1fr 84px;gap:8px 10px}
+  .cyt-name{grid-column:1/-1}
+  .cyt-out b{font-size:14.5px}
+  .cyt-range{height:6px;padding:12px 0;background-clip:content-box}
+  .cyt-total b{font-size:21px}
+}
+@media(prefers-reduced-motion:reduce){ .cyt-range{transition:none} }
+</style>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('[data-cyt]');
+    if (!root) return;
+    var rows = Array.prototype.slice.call(root.querySelectorAll('[data-row]'));
+    var totalEl = root.querySelector('[data-total]');
+
+    function numOf(v) {
+      var n = parseFloat(String(v).replace(/[^0-9.]/g, ''));
+      return isFinite(n) ? n : 0;
+    }
+    var fmt = function (n) { return Math.round(n).toLocaleString('en-SG'); };
+
+    function render() {
+      var total = 0;
+      rows.forEach(function (r) {
+        var amt = numOf(r.querySelector('[data-amt]').value);
+        var rate = numOf(r.querySelector('[data-rate]').value);
+        var perYear = (r.dataset.unit === 'a year' ? amt : amt * 12) * (rate / 100);
+        r.querySelector('[data-out]').textContent = fmt(perYear);
+        total += perYear;
+      });
+      totalEl.textContent = 'S$' + fmt(total);
+    }
+
+    rows.forEach(function (r) {
+      var amt = r.querySelector('[data-amt]');
+      var rate = r.querySelector('[data-rate]');
+      var range = r.querySelector('[data-range]');
+      range.addEventListener('input', function () { amt.value = fmt(+range.value); render(); });
+      amt.addEventListener('input', function () { range.value = numOf(amt.value); render(); });
+      amt.addEventListener('blur', function () { amt.value = fmt(numOf(amt.value)); render(); });
+      rate.addEventListener('input', render);
+    });
+    render();
+  })();
+</script>
