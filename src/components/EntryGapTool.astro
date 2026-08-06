@@ -34,6 +34,7 @@ const fmt0 = (n: number) => Math.round(n).toLocaleString('en-SG');
 // Widest resale area across segments sets the scale, so the bars stay comparable
 // between rows instead of each row scaling to itself.
 const maxSqft = Math.max(...SEGMENTS.map((s) => DEFAULT_BUDGET / s.psf));
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="eg" data-eg>
@@ -135,6 +136,7 @@ const maxSqft = Math.max(...SEGMENTS.map((s) => DEFAULT_BUDGET / s.psf));
   $psf</b> is each segment&rsquo;s own 12-month median across all sizes and tenures. Applying one
   to the other shows the scale of the difference; it is not a valuation of any particular unit.
   Both from URA caveat data.</p>
+  <ToolBrand />
 </figure>
 
 <style is:global>

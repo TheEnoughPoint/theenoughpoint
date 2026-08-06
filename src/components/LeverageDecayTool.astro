@@ -6,6 +6,7 @@
 // below mirrors that module so the page works without a client bundle; if you change
 // one, change both. The derivation is documented in the module, not here.
 import { Font } from 'astro:assets';
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <Font cssVariable="--font-mono" />
@@ -104,6 +105,7 @@ import { Font } from 'astro:assets';
     <p><b>What it leaves out.</b> Gap risk, borrowing costs that change, tracking error and tax.
     Real markets are also not as well behaved as the model assumes — in practice the drag tends to
     be worse than this, not better.</p>
+    <ToolBrand />
   </div>
 </div>
 

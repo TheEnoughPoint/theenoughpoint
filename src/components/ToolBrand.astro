@@ -1,0 +1,35 @@
+---
+// ToolBrand — the small credit line that closes every interactive tool and
+// chart card.
+//
+// These cards get screenshotted and passed around on WhatsApp and Telegram
+// without the page around them, so the card itself has to say where it came
+// from. One mark, one corner, everywhere: the same lockup as the site header
+// (round icon, navy name, forest .com), bottom-right like a chart credit, so
+// recognition compounds across pieces instead of each tool inventing its own.
+//
+// Drop it as the last child inside the card's border — after the footnote,
+// before the closing tag — so any crop that keeps the card keeps the name.
+// Styles are global; a card that needs different spacing can override with
+// `.xx .tool-brand { ... }` in its own sheet.
+import { url } from '@src/utils/path';
+---
+
+<a class="tool-brand" href={url('/')}>
+  <img src={url('/img/brand/logo-icon-96.png')} width="15" height="15" alt="" loading="lazy" />
+  <span>TheEnoughPoint<b>.com</b></span>
+</a>
+
+<style is:global>
+/* Doubled selector so this outranks `.post-content a` underlining wherever
+   the card sits inside article prose. */
+a.tool-brand, .post-content a.tool-brand{
+  display:flex;align-items:center;gap:6px;width:fit-content;
+  margin:14px 0 0 auto;text-decoration:none;line-height:1;
+}
+.tool-brand img{width:15px;height:15px;border-radius:50%;display:block}
+.tool-brand span{font-family:var(--font-heading);font-size:11px;font-weight:700;
+  color:var(--color-navy);white-space:nowrap}
+.tool-brand span b{color:var(--color-forest)}
+a.tool-brand:hover span b, .post-content a.tool-brand:hover span b{color:var(--color-gold-dark)}
+</style>

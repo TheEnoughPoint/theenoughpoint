@@ -26,6 +26,7 @@ const ROWS = [
   const yrs = yearsTo(r.start);
   return { ...r, yrs, pct: (yrs / FULL) * 100 };
 });
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="nw">
@@ -57,6 +58,7 @@ const ROWS = [
   <p class="nw-foot">Reach back to 1995 and resale wins clearly. Start in 2011 and new
   launch &ldquo;wins&rdquo; by a margin worth less than a tenth of the stamp duty on the
   purchase. Start in 2015 and nobody can say.</p>
+  <ToolBrand />
 </figure>
 
 <style is:global>

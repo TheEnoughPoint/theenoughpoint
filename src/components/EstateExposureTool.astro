@@ -14,6 +14,7 @@
 // the rate refreshes itself whenever anything ships.
 import { Font } from 'astro:assets';
 import { getSgdPerUsd } from '@src/utils/fxRate';
+import ToolBrand from './ToolBrand.astro';
 
 const fx = await getSgdPerUsd();
 const usdPerSgd = (1 / fx.sgdPerUsd).toFixed(4);
@@ -78,6 +79,8 @@ const usdPerSgd = (1 / fx.sgdPerUsd).toFixed(4);
       <i><span class="ee-dot tax"></span>Goes to the US tax authority</i>
     </div>
   </div>
+
+  <ToolBrand />
 </div>
 
 <style is:global>

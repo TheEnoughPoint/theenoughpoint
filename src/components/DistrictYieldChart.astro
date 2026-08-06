@@ -79,6 +79,7 @@ const SEGS = [
   { k: 'CCR', label: 'Core central' },
 ];
 const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="dy">
@@ -177,6 +178,7 @@ const byPsf = [...ROWS].sort((a, b) => a.psf - b.psf);
   district holding more of them will show a higher yield for that reason alone. That is the
   main caveat on any district-level yield, including this one. Districts 6 and 24 are absent because too few private resales occur there to give a
   meaningful median.</p>
+  <ToolBrand />
 </figure>
 
 <style is:global>

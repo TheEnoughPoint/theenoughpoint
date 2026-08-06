@@ -35,6 +35,7 @@ const fmt = (n: number) =>
   'S$' + n.toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const pctW = (WITHDRAWN / LIFETIME) * 100;
 const pctT = (TRACKING / LIFETIME) * 100;
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="cbl">
@@ -72,6 +73,7 @@ const pctT = (TRACKING / LIFETIME) * 100;
   </div>
   <p class="cbl-foot">Drawn to scale. Paid out plus tracking is the lifetime figure to the cent:
   {fmt(WITHDRAWN)} + {fmt(TRACKING)} = {fmt(LIFETIME)}.</p>
+  <ToolBrand />
 </figure>
 
 <style is:global>

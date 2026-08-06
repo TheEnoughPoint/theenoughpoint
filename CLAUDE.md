@@ -79,6 +79,10 @@ Use anonymous author identities:
 - Use Astro content collections where available.
 - Do not hardcode repeated article lists if they can be driven from frontmatter or data files.
 - Keep styling centralised in Tailwind/CSS variables.
+- Every interactive tool and chart card ends with the `ToolBrand` credit
+  component (`src/components/ToolBrand.astro`) as the last child inside the
+  card border, so screenshots carry the site's name. New tools and charts
+  include it from their first commit.
 - Make all changes through branches and pull requests unless asked otherwise.
 - Deployment is automatic: merging a PR into `main` triggers GitHub Actions,
   which builds and deploys to Cloudflare Pages via `cloudflare/wrangler-action`
