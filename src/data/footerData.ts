@@ -80,10 +80,11 @@ export const defaultFooterData: FooterData = {
     {
       title: 'Resources',
       links: [
-        { label: 'About Us',    href: '/about' },
-        { label: 'Contact Us',  href: '/contact' },
-        { label: 'FI',          href: '/author/fi' },
-        { label: 'RE',          href: '/author/re' },
+        { label: 'About Us',          href: '/about' },
+        { label: 'Contact Us',        href: '/contact' },
+        { label: 'Cashback Calendar', href: '/cashback-calendar' },
+        { label: 'FI',                href: '/author/fi' },
+        { label: 'RE',                href: '/author/re' },
       ],
     },
     {

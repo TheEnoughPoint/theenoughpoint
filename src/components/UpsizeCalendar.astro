@@ -19,6 +19,14 @@
 //
 // Positions are computed from dates, not hand-placed, so the picture cannot
 // drift from the data.
+interface Props {
+  /** The compact next-window strip above the lanes. The standing
+   *  /cashback-calendar page passes false — it runs a larger version of the
+   *  same countdown, and two copies of the answer would fight. */
+  showNext?: boolean;
+}
+const { showNext = true } = Astro.props;
+
 const mPos = (day: number) => ((day - 1) / 30) * 100;            // day of a 31-day month
 const yPos = (month: number, day: number, dim: number) =>        // month 1-12
   ((month - 1 + day / dim) / 12) * 100;
@@ -54,10 +62,12 @@ const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
   {/* Computed from the reader's own clock on load, so the page stays useful on
       every return visit. Hidden until the script fills it — with JS off the
       static calendar below still carries the whole story. */}
-  <div class="uc-next" data-ucnext hidden>
-    <span class="uc-chip"><i>Payday window</i><b data-uc-payday>&mdash;</b></span>
-    <span class="uc-chip"><i>Next marquee day</i><b data-uc-marquee>&mdash;</b></span>
-  </div>
+  {showNext && (
+    <div class="uc-next" data-ucnext hidden>
+      <span class="uc-chip"><i>Payday window</i><b data-uc-payday>&mdash;</b></span>
+      <span class="uc-chip"><i>Next marquee day</i><b data-uc-marquee>&mdash;</b></span>
+    </div>
+  )}
 
   <div class="uc-scroll">
   <div class="uc-lanes">
@@ -104,7 +114,7 @@ const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
   beyond that on selected stores &mdash; our 25 July booking ran at 14% against a 4.5% everyday rate.</p>
 </figure>
 
-<script is:inline>
+{showNext && <script is:inline>
   (function () {
     var root = document.querySelector('[data-ucnext]');
     if (!root) return;
@@ -145,7 +155,7 @@ const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 
     root.hidden = false;
   })();
-</script>
+</script>}
 
 <style is:global>
 .uc{
