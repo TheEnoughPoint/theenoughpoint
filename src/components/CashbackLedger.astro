@@ -10,9 +10,22 @@
 // which is also the honesty device — "lifetime" is nothing more than the sum
 // of money paid out and money still in transit.
 //
-// Colour pair is the house validated categorical pair (see EntryGapTool):
-// light #B45309 / #2563EB, dark re-stepped #B8842E / #4E86DD. Paid-out wears
-// the amber (money in hand), tracking wears the blue (money in transit).
+// Colour carries meaning here rather than mere category, because these two
+// figures are not peers: one is money in the bank and the other is money that
+// might still fail to confirm. So paid-out wears the brand forest green
+// (realised, certain) and tracking keeps the blue (in transit, pending).
+//
+// It was amber/blue until 6 Aug 2026. Amber tested badly: on a money figure a
+// burnt orange reads as cost or warning, and this is the one number in the
+// piece that represents the thing working. Amber is now reserved across the
+// article for dated cashback EVENTS — the calendar's marquee dots — so the
+// three colours each mean one thing: green money you have, blue money in
+// transit, amber a day in the calendar.
+//
+// Forest #0E5A3F is 8.23:1 on the white card. No dark re-step: the card is
+// #fff under both colour schemes, so lightening the ink would only cut
+// contrast (the amber/blue pair in the sibling components still does this —
+// #B8842E is 3.29:1 on white, which is large-text-only).
 const LIFETIME = 6484.09;
 const WITHDRAWN = 4541.03;
 const TRACKING = 1943.06;
@@ -63,14 +76,13 @@ const pctT = (TRACKING / LIFETIME) * 100;
 
 <style is:global>
 .cbl{
-  --cbl-paid:#B45309; --cbl-track:#2563EB;
+  --cbl-paid:#0E5A3F; --cbl-track:#2563EB;
   --cbl-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
   margin:26px 0;padding:20px 22px 16px;background:#fff;
   border:1px solid var(--color-border);border-radius:12px;
 }
-@media (prefers-color-scheme: dark){
-  .cbl{ --cbl-paid:#B8842E; --cbl-track:#4E86DD; }  /* re-stepped for the dark card, not flipped */
-}
+/* No dark re-step: the card is #fff under both schemes, so lightening the ink
+   here would only reduce contrast against it. */
 .post-content .cbl-cap{margin:0 0 16px;padding:0;text-align:left}
 .post-content .cbl-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
   font-family:var(--font-body);letter-spacing:0}
