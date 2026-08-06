@@ -22,6 +22,7 @@ const path = (a: number[]) => a.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)
 const area = (a: number[]) => `${path(a)}L${x(n - 1).toFixed(1)},${y(LO)}L${x(0).toFixed(1)},${y(LO)}Z`;
 const money = (v: number) => 'S$' + v.toLocaleString('en-US');
 const GRID = [10000, 7500, 5000, 2500];
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="kc">
@@ -59,6 +60,7 @@ const GRID = [10000, 7500, 5000, 2500];
   <p class="kc-foot">At the low on 30 July the shares were worth <b>S$4,529</b> and the 2&times;
   fund <b>S$1,351</b>. The stock halved. The fund lost <b>86%</b>.</p>
 
+  <ToolBrand />
 </figure>
 
 <style is:global>

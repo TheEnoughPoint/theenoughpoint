@@ -11,6 +11,7 @@ const STEPS = [
   { k: '3', head: 'The store pays a commission', body: 'A referral fee for a delivered customer. On travel, a large one.' },
   { k: '4', head: 'You get a share', body: 'ShopBack keeps a slice and passes the rest back as cashback.' },
 ];
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="cbf">
@@ -27,6 +28,7 @@ const STEPS = [
       </li>
     ))}
   </ol>
+  <ToolBrand />
 </figure>
 
 <style is:global>

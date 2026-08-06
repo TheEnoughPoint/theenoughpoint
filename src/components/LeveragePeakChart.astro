@@ -32,6 +32,7 @@ const LP = 20, IP = 33;                        // 1 June and 18 June 2026
 const TICKS = [{ i: 0, t: 'May' }, { i: 20, t: 'Jun' }, { i: 41, t: 'Jul' }];
 const GRID = [100, 50, 0, -50];
 const sign = (v: number) => (v > 0 ? '+' : '') + Math.round(v) + '%';
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="pk">
@@ -79,6 +80,7 @@ const sign = (v: number) => (v > 0 ? '+' : '') + Math.round(v) + '%';
   <p class="pk-foot">Three times a 3% fall is a <b>9%</b> fall. Holders of the 3&times; fund lost <b>50%</b> &mdash; roughly <b>sixteen times</b> the index&rsquo;s loss, not three. The multiple on the label describes a single day; over three months it described nothing that happened.</p>
 
   <p class="pk-note">It also topped out on <b>1 June</b>, seventeen days before the index peaked on <b>18 June</b>: over that stretch the index rose a further 1.2% while the fund lost 13.8%, falling while the market it tracks was still setting highs.</p>
+  <ToolBrand />
 </figure>
 
 <style is:global>

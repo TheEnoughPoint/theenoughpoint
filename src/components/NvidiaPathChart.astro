@@ -42,6 +42,7 @@ const fmt = (v: number) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + '%'
 
 // The peak is the point of the chart, so it gets marked rather than described.
 const peakI = FUND.indexOf(Math.max(...FUND));
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="np">
@@ -93,6 +94,7 @@ const peakI = FUND.indexOf(Math.max(...FUND));
   reset. On that basis CSOP reports <b>−0.49%</b> for the same period, against <b>−5.06%</b> at the
   traded price. The line above therefore flatters the stock a little &mdash; but on either basis the
   fund finished below zero while the stock finished up 7.4%.</p>
+  <ToolBrand />
 </figure>
 
 <style is:global>

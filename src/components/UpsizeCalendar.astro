@@ -50,6 +50,7 @@ const YEAR_MARKS = [
   { at: yPos(12, 12, 31), lab: '12.12', sub: '', row: 'bot' },
 ];
 const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="uc">
@@ -112,6 +113,7 @@ const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
   <p class="uc-foot">Plus Day and the 15th apply to the paid tier only. Campaign days officially add
   roughly 1&ndash;5 percentage points to base rates; payday and marquee windows sometimes go far
   beyond that on selected stores &mdash; our 25 July booking ran at 14% against a 4.5% everyday rate.</p>
+  <ToolBrand />
 </figure>
 
 {showNext && <script is:inline>

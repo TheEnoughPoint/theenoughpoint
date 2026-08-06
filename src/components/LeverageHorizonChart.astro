@@ -21,6 +21,7 @@ const ROWS = [
 const ZERO = 34, UNIT = 52 / 209.5;
 const w = (v: number) => Math.abs(v) * UNIT;
 const sign = (v: number) => (v > 0 ? '+' : '−') + Math.abs(Math.round(v)) + '%';
+import ToolBrand from './ToolBrand.astro';
 ---
 
 <figure class="hz">
@@ -66,6 +67,7 @@ const sign = (v: number) => (v > 0 ? '+' : '−') + Math.abs(Math.round(v)) + '%
       </tbody>
     </table>
   </div>
+  <ToolBrand />
 </figure>
 
 <style is:global>
