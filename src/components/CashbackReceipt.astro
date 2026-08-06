@@ -43,12 +43,16 @@ const ROWS = [
 
 <style is:global>
 .cbr{
-  --cbr-amber:#B45309;
+  /* Blue, not amber: "cashback tracked" is money in transit, which is exactly
+     what the ledger's blue means. It wore amber until 6 Aug 2026, which put the
+     same state in two different colours across one article. Amber is now
+     reserved for dated events (the calendar's marquee dots). */
+  --cbr-amber:#2563EB;
   --cbr-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
   margin:26px 0;padding:20px 22px 16px;background:var(--color-surface);
   border:1px solid var(--color-border);border-radius:12px;
 }
-@media (prefers-color-scheme: dark){ .cbr{ --cbr-amber:#B8842E; } }
+/* No dark re-step: the card is #fff under both schemes. */
 .post-content .cbr-cap{margin:0 0 14px;padding:0;text-align:left}
 .post-content .cbr-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
   font-family:var(--font-body);letter-spacing:0}
