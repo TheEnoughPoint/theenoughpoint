@@ -22,6 +22,7 @@ takeaways:
   - "We applied the national number to a single district ourselves, in writing, and it <strong>reversed our conclusion</strong>. The correction is below."
 ---
 
+import DistrictSupplyChart from '@src/components/DistrictSupplyChart.astro';
 import SocialShare from '@src/components/SocialShare.astro';
 
 If you have read anything about Singapore property this year, you have met the number. Around **34,000 unsold private homes**. It gets quoted in headlines, in agent decks, in comment sections, usually with an air of warning — as though it were a fact about the flat you are considering.
@@ -44,22 +45,15 @@ The homes that compete with a buyer today are the ones in projects that are open
 
 Here is where those 3,645 sit.
 
-| District | Unsold | Launched | Sold |
-| --- | ---: | ---: | ---: |
-| D1 &nbsp;Raffles Place / Marina | 483 | 1,303 | 63% |
-| D9 &nbsp;Orchard / River Valley | 472 | 1,694 | 72% |
-| D23 Bukit Batok / Choa Chu Kang | 374 | 1,460 | 74% |
-| D5 &nbsp;Buona Vista / Clementi / Dover | 324 | 1,855 | 83% |
-| D21 Upper Bukit Timah / Clementi Pk | 263 | 1,057 | 75% |
-| D3 &nbsp;Tiong Bahru / Queenstown | 243 | 1,302 | 81% |
+<DistrictSupplyChart />
 
-The top three alone — Raffles Place, Orchard and Bukit Batok — hold **more than a third** of every unsold new home in the country that is actually on sale. Take the top four and you pass **45%**.
+The top three alone — Raffles Place, Orchard and Bukit Batok — hold **more than a third** of every unsold new home in the country that is actually on sale. Take the top five and you pass **half**. Hold on to that number, because five is also how many districts have none at all.
 
 That is a very different sentence from "Singapore has a glut". Two of those three are city-centre districts where the product is expensive and the buyer pool is thin, and one is a suburban district that has had several large projects launch close together. Each is a local story with a local cause.
 
 ## Five districts where the glut simply is not
 
-Run the same exercise the other way and something more useful appears. In the latest published month, **five districts have no active launch in the data at all**: Sentosa and Harbourfront, Little India and Farrer Park, Macpherson and Potong Pasir, Geylang and Eunos, and Bishan and Ang Mo Kio.
+Five districts hold half the unsold stock. Run the same exercise the other way and a different five appears — the ones with **no active launch in the data at all**: Sentosa and Harbourfront, Little India and Farrer Park, Macpherson and Potong Pasir, Geylang and Eunos, and Bishan and Ang Mo Kio.
 
 Not "a small amount of unsold stock". None on the list.
 
