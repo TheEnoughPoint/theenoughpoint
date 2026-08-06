@@ -1,0 +1,76 @@
+---
+// One real booking's tracking detail, redrawn from our dashboard for the
+// cashback-routing piece: Trip.com, booked 25 Jul 2026, S$468.01 in the
+// Hotels & Homes tier at 14%, S$65.52 tracked. The stay itself is dated
+// 23 Oct 2026, which is what makes it the article's slow-money exhibit —
+// booked in July, stayed in October, cash after that.
+//
+// Redrawn rather than screenshotted for the same reason as CashbackLedger:
+// the figures are the evidence, the pixels around them are not.
+const ROWS = [
+  { k: 'Eligible purchase amount', v: 'S$468.01' },
+  { k: 'Cashback tier', v: 'Hotels & Homes' },
+  { k: 'Cashback rate', v: '14%' },
+];
+---
+
+<figure class="cbr">
+  <figcaption class="cbr-cap">
+    <h4>One booking from the 25 July sitting</h4>
+    <p>Trip.com tracking detail, redrawn from our dashboard. The stay is in late October &mdash; the cash lands after it.</p>
+  </figcaption>
+
+  <div class="cbr-card">
+    <div class="cbr-head">
+      <b>Trip.com</b>
+      <span>booked 25 Jul 2026</span>
+    </div>
+    <dl class="cbr-rows">
+      {ROWS.map((r) => (
+        <div class="cbr-row">
+          <dt>{r.k}</dt>
+          <dd>{r.v}</dd>
+        </div>
+      ))}
+      <div class="cbr-row is-total">
+        <dt>Cashback tracked</dt>
+        <dd>S$65.52</dd>
+      </div>
+    </dl>
+    <p class="cbr-status"><span class="cbr-dot" aria-hidden="true"></span>Tracked &mdash; Trip.com confirms up to 120 days after the October stay</p>
+  </div>
+</figure>
+
+<style is:global>
+.cbr{
+  --cbr-amber:#B45309;
+  --cbr-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:var(--color-surface);
+  border:1px solid var(--color-border);border-radius:12px;
+}
+@media (prefers-color-scheme: dark){ .cbr{ --cbr-amber:#B8842E; } }
+.post-content .cbr-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .cbr-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .cbr-cap p{margin:0;font-size:12.5px;color:var(--color-muted);line-height:1.5}
+
+.cbr-card{max-width:430px;background:#fff;border:1px solid var(--color-border);
+  border-radius:10px;padding:14px 16px 12px}
+.cbr-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:10px;border-bottom:1px solid var(--color-border)}
+.cbr-head b{font-size:14.5px;color:var(--color-dark);font-weight:700}
+.cbr-head span{font-size:11.5px;color:var(--color-muted)}
+.post-content dl.cbr-rows{margin:0;padding:8px 0 0}
+.cbr-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:5px 0}
+.post-content .cbr-row dt{font-size:12.5px;color:var(--color-muted);font-weight:400;margin:0}
+.post-content .cbr-row dd{font-size:13px;color:var(--color-dark);font-weight:600;margin:0;
+  font-family:var(--cbr-mono);font-variant-numeric:tabular-nums}
+.cbr-row.is-total{border-top:1px dashed var(--color-border);margin-top:6px;padding-top:10px}
+.post-content .cbr-row.is-total dt{font-size:13px;color:var(--color-dark);font-weight:700;
+  font-family:var(--font-body)}
+.post-content .cbr-row.is-total dd{font-size:17px;font-weight:700;color:var(--cbr-amber)}
+.post-content .cbr-status{display:flex;align-items:center;gap:7px;margin:10px 0 0;
+  font-size:11px;color:var(--color-muted);line-height:1.5}
+.cbr-dot{width:7px;height:7px;border-radius:50%;background:var(--cbr-amber);flex:none}
+@media(max-width:560px){ .cbr{padding:16px 14px 13px} .cbr-card{max-width:none} }
+</style>
