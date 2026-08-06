@@ -111,7 +111,7 @@ const SEGS = [
   <ol class="ds-rows">
     {ROWS.map((r) => (
       <li class="ds-row">
-        <span class="ds-name"><b>{r.d}</b> <span class="ds-nm">{r.name}</span></span>
+        <span class="ds-name" title={`${r.d} ${r.name}`}><b>{r.d}</b> <span class="ds-nm">{r.name}</span></span>
         <span class="ds-barwrap">
           <span class="ds-track">
             <span class={`ds-bar ${r.seg}`} style={`width:${bar(r.unsold)}%`}
@@ -173,7 +173,11 @@ const SEGS = [
 .ds-dot.OCR{background:var(--ds-ocr)} .ds-dot.RCR{background:var(--ds-rcr)} .ds-dot.CCR{background:var(--ds-ccr)}
 .ds-hint{color:var(--ds-muted);font-style:italic}
 
-.ds-head,.ds-row{display:grid;grid-template-columns:minmax(96px,178px) 1fr 44px;gap:10px;align-items:center}
+/* 215px clears the longest district name (209px at this size), so nothing truncates
+   at article width. The bar track keeps ~460px, which is ample for proportional bars.
+   Below that the column shrinks and ellipsis takes over; the full name is always in
+   the row's aria-label and title. */
+.ds-head,.ds-row{display:grid;grid-template-columns:minmax(96px,215px) 1fr 44px;gap:10px;align-items:center}
 .ds-head{padding:0 0 6px;border-bottom:1px solid var(--ds-rule);margin-bottom:6px;
   font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ds-muted)}
 .ds-h-pct{text-align:right;line-height:1.25}
@@ -182,6 +186,11 @@ const SEGS = [
 
 .post-content ol.ds-rows{list-style:none;margin:0;padding:0;display:grid;gap:3px}
 .post-content ol.ds-rows li{margin:0;padding:0}
+/* The theme paints a numbered badge on every .post-content ol li (and a bullet on
+   every ul li), absolutely positioned at the left edge. Both land on top of this
+   component's own row content, so suppress them here only. */
+.post-content ol.ds-rows li::before,
+.post-content ul.ds-qlist li::before{content:none;display:none}
 .ds-row{padding:2px 0}
 .ds-name{font-size:12px;color:var(--ds-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ds-name b{font-family:var(--ds-mono);font-size:11.5px;color:var(--ds-ink)}
