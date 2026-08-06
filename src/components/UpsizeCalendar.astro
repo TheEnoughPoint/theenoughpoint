@@ -51,6 +51,14 @@ const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
     There is no weekly pattern &mdash; the rest is ad hoc, shown on each store&rsquo;s page.</p>
   </figcaption>
 
+  {/* Computed from the reader's own clock on load, so the page stays useful on
+      every return visit. Hidden until the script fills it — with JS off the
+      static calendar below still carries the whole story. */}
+  <div class="uc-next" data-ucnext hidden>
+    <span class="uc-chip"><i>Payday window</i><b data-uc-payday>&mdash;</b></span>
+    <span class="uc-chip"><i>Next marquee day</i><b data-uc-marquee>&mdash;</b></span>
+  </div>
+
   <div class="uc-scroll">
   <div class="uc-lanes">
     <div class="uc-lane">
@@ -96,6 +104,49 @@ const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
   beyond that on selected stores &mdash; our 25 July booking ran at 14% against a 4.5% everyday rate.</p>
 </figure>
 
+<script is:inline>
+  (function () {
+    var root = document.querySelector('[data-ucnext]');
+    if (!root) return;
+    var now = new Date();
+    var day = now.getDate();
+    var days = function (to) { return Math.ceil((to - now) / 86400000); };
+    var plural = function (n) { return n + (n === 1 ? ' day' : ' days'); };
+
+    var payday = root.querySelector('[data-uc-payday]');
+    if (day >= 25) {
+      payday.textContent = 'live now, to month-end';
+      payday.classList.add('is-live');
+    } else {
+      payday.textContent = 'opens the 25th · in ' + plural(25 - day);
+    }
+
+    // The published 2026 marquee dates. When they run out, the chip says so
+    // honestly instead of counting to a date nobody has announced.
+    var MARQUEE = [
+      ['2026-09-09', '9.9'], ['2026-10-10', '10.10'], ['2026-11-11', '11.11'],
+      ['2026-11-27', 'Black Friday'], ['2026-11-30', 'Cyber Monday'], ['2026-12-12', '12.12']
+    ];
+    var marquee = root.querySelector('[data-uc-marquee]');
+    var next = null;
+    for (var i = 0; i < MARQUEE.length; i++) {
+      var d = new Date(MARQUEE[i][0] + 'T00:00:00');
+      var left = days(d);
+      if (left >= 0) { next = { name: MARQUEE[i][1], left: left }; break; }
+    }
+    if (next && next.left === 0) {
+      marquee.textContent = next.name + ' · today';
+      marquee.classList.add('is-live');
+    } else if (next) {
+      marquee.textContent = next.name + ' · in ' + plural(next.left);
+    } else {
+      marquee.textContent = 'next year’s dates land when ShopBack publishes them';
+    }
+
+    root.hidden = false;
+  })();
+</script>
+
 <style is:global>
 .uc{
   --uc-band:var(--color-brand-600);
@@ -108,6 +159,15 @@ const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 .post-content .uc-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
   font-family:var(--font-body);letter-spacing:0}
 .post-content .uc-cap p{margin:0;font-size:12.5px;color:var(--color-muted);line-height:1.5}
+
+.uc-next{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px}
+.uc-chip{display:inline-flex;align-items:baseline;gap:7px;padding:7px 12px;background:#fff;
+  border:1px solid var(--color-border);border-radius:999px;line-height:1.2}
+.uc-chip i{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--color-muted)}
+.uc-chip b{font-size:13px;font-weight:700;color:var(--color-dark);
+  font-variant-numeric:tabular-nums}
+.uc-chip b.is-live{color:var(--color-brand-600)}
 
 .uc-scroll{overflow-x:auto}
 .uc-lanes{display:flex;flex-direction:column;gap:26px;min-width:520px}

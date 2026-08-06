@@ -41,9 +41,12 @@ const STEPS = [
 
 .post-content ol.cbf-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
   margin:0;padding:0;list-style:none;counter-reset:none}
+/* the theme decorates every .post-content ol li with its own numbered badge and a
+   32px indent — these cards carry their own step badges, so both are switched off */
+.post-content ol.cbf-steps li{counter-increment:none;padding:12px 14px;margin:0}
+.post-content ol.cbf-steps li::before{content:none}
 .cbf-step{position:relative;display:flex;flex-direction:column;gap:4px;line-height:1.4;
   background:#fff;border:1px solid var(--color-border);border-radius:10px;padding:12px 14px}
-.post-content .cbf-step{margin:0}
 .cbf-k{width:20px;height:20px;border-radius:50%;background:var(--color-brand-600);color:#fff;
   font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
 .cbf-step b{font-size:13.5px;color:var(--color-dark);font-weight:700}
