@@ -1,0 +1,31 @@
+---
+// Sidebar card for the site's own standing tools (src/data/toolsData.ts).
+//
+// Deliberately separate from RecommendedTools: that component is the affiliate
+// "Partner Offers" inventory with its own disclosure framing, and a free
+// in-house utility does not belong under it. This card carries no CTA buttons
+// and no "T&Cs apply" — a tool is a page, so the whole row is just a link.
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+import { tools } from '@src/data/toolsData';
+---
+
+{tools.length > 0 && (
+  <div class="bg-white border border-cream-dark rounded-lg">
+    <h3 class="flex items-center gap-2 px-5 py-3 border-b border-cream-dark text-navy font-semibold text-sm">
+      <Icon name="bi:compass" class="text-gold size-4" />
+      Our Tools
+    </h3>
+    <div class="flex flex-col divide-y divide-cream-dark">
+      {tools.map((t) => (
+        <a href={url(t.href)} class="group flex gap-3 px-5 py-4 hover:bg-cream transition-colors">
+          <Icon name={t.icon} class="size-4 text-brand-600 shrink-0 mt-0.5" />
+          <span>
+            <span class="block text-sm font-semibold text-navy group-hover:text-brand-700">{t.name}</span>
+            <span class="block text-muted text-xs mt-1 leading-relaxed">{t.blurb}</span>
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+)}
