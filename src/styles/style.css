@@ -383,6 +383,19 @@ h4.text-heading, h5.text-heading, h6.text-heading {
   vertical-align: top;
 }
 .post-content tr:nth-child(even) td { background: var(--color-cream); }
+/* On a phone a data table is wider than the screen. Let it scroll inside itself
+   rather than pushing the whole article sideways — the page body must never
+   scroll horizontally. Mobile-only, so desktop table layout is untouched. */
+@media (max-width: 640px) {
+  .post-content table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  .post-content th,
+  .post-content td { padding: 9px 11px; }
+}
 /* Card hover */
 .article-card:hover .article-title { color: var(--color-brand-600); }
 .article-title { transition: color .2s; }

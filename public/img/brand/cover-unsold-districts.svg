@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Three Singapore districts hold more than a third of every unsold new home that is actually on sale, and five districts have no active launch at all">
+  <!-- Cover for the unsold-supply piece. House system: navy field, gold figure.
+       The finding is a concentration, so the figure is the share — a third — with
+       the counterweight (five districts with none) carried underneath in words.
+       Stacked, following cover-district-yields and cover-new-launch-resale.
+       Safe zone: square thumbnail crops to x 300-900. -->
+  <defs>
+    <radialGradient id="bgUD" cx="50%" cy="42%" r="76%">
+      <stop offset="0%" stop-color="#10233D"/>
+      <stop offset="100%" stop-color="#081627"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bgUD)"/>
+
+  <text x="600" y="126" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">SINGAPORE UNSOLD NEW HOMES</text>
+
+  <text x="600" y="286" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="122"
+        fill="#C89A3C">3 districts</text>
+
+  <text x="600" y="336" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600"
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.9">hold more than a third of it</text>
+
+  <line x1="450" y1="386" x2="750" y2="386" stroke="#C89A3C" stroke-width="1.5" opacity="0.5"/>
+
+  <text x="600" y="436" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">Five districts have no active</text>
+  <text x="600" y="476" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">launch at all.</text>
+</svg>
