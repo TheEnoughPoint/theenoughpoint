@@ -19,6 +19,7 @@ const RESERVED = new Set([
   'index', '404', 'contact', 'cookies', 'privacy', 'terms',
   'author', 'blog', 'category', 'page', 'search', 'tags',
   'about', 'docs', 'careers', 'advertise', 'news',
+  'cashback-calendar',
 ]);
 
 export async function getStaticPaths() {
@@ -26,6 +27,7 @@ export async function getStaticPaths() {
     'index', '404', 'contact', 'cookies', 'privacy', 'terms',
     'author', 'blog', 'category', 'page', 'search', 'tags',
     'about', 'docs', 'careers', 'advertise', 'news',
+    'cashback-calendar',
   ]);
 
   const allPosts = await getCollection('blog');
