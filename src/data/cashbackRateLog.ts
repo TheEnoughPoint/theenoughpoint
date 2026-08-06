@@ -72,4 +72,22 @@ export const rateLog: RateReading[] = [
     note: 'The fattest everyday hotel rate of the four portals; confirms up to 120 days after the trip ends.',
     source: { label: 'merchant page', href: 'https://www.shopback.sg/klook' },
   },
+  {
+    date: '2026-08-06',
+    store: 'Shopee',
+    tier: 'existing customers',
+    rate: 'token rate',
+    kind: 'everyday',
+    note: 'The headline rate is new-customer only; the routing guide recorded the condition, not a figure.',
+    source: { label: 'merchant page', href: 'https://www.shopback.sg/shopee-web' },
+  },
+  {
+    date: '2026-08-06',
+    store: 'Lazada',
+    tier: 'existing customers',
+    rate: '~1%',
+    kind: 'everyday',
+    note: 'Capped at S$3 per purchase; items already in the cart before the click-through are excluded.',
+    source: { label: 'merchant page', href: 'https://www.shopback.sg/lazada' },
+  },
 ];
