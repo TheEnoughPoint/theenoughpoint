@@ -1,0 +1,490 @@
+---
+// The standing home of the upsized-day rhythm from the cashback-routing
+// guide — a page built to be bookmarked and re-opened the week before
+// anything big gets booked.
+//
+// Three jobs the in-article calendar cannot do:
+//   1. Stay useful in any year. The countdown below falls back to the
+//      recurring pattern (payday ~25th, the double-digit days, Black Friday
+//      on the fourth Friday of November) once the published dates run out —
+//      and says plainly when it is projecting rather than quoting.
+//   2. Accrete evidence. Every dated rate we verify lands in
+//      src/data/cashbackRateLog.ts and renders here — a public history of
+//      what these rates actually were, which nobody in Singapore keeps.
+//   3. Say what this is: a pattern, not a promise. ShopBack decides its
+//      campaigns; this page only decides when to look.
+import { Font } from 'astro:assets';
+import MainLayout from '@src/layouts/MainLayout.astro';
+import UpsizeCalendar from '@src/components/UpsizeCalendar.astro';
+import AffiliateDisclosureBox from '@src/components/AffiliateDisclosureBox.astro';
+import CategoryWidget from '@src/components/CategoryWidget.astro';
+import FeaturedPostWidget from '@src/components/FeaturedPostWidget.astro';
+import TagsWidget from '@src/components/TagsWidget.astro';
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+import { rateLog } from '@src/data/cashbackRateLog';
+
+const title = 'The Singapore Cashback Calendar: When the Next Upsized Window Lands';
+const description =
+  'A standing calendar of ShopBack Singapore’s upsized-cashback rhythm — the monthly payday ' +
+  'window, Plus days, and the 9.9-to-12.12 marquee dates — plus a dated log of the rates we have ' +
+  'actually observed. A pattern, not a promise.';
+
+/** The day the rhythm itself was last checked against ShopBack's published
+ *  pages — distinct from the newest rate reading below. */
+const RHYTHM_VERIFIED = '6 August 2026';
+
+// Newest reading first; the data file appends chronologically.
+const log = [...rateLog].sort((a, b) => b.date.localeCompare(a.date));
+const latestISO = log[0]?.date ?? '2026-08-06';
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const shortDate = (iso: string) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+};
+
+const site = Astro.site ?? new URL('https://theenoughpoint.com');
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: new URL('/cashback-calendar/', site).href,
+  datePublished: '2026-08-06',
+  dateModified: latestISO,
+  inLanguage: 'en-SG',
+  isPartOf: { '@type': 'WebSite', name: 'TheEnoughPoint', url: site.href },
+};
+---
+
+<MainLayout title={title} description={description}>
+  <Fragment slot="head">
+    <Font cssVariable="--font-mono" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </Fragment>
+
+  <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 py-6">
+      <div class="max-lg:mb-12 lg:col-span-2 py-4">
+        <h1 class="text-2xl md:text-3xl font-heading font-bold text-navy py-4">The Singapore Cashback Calendar</h1>
+
+        <div class="pb-4 w-full flex flex-wrap items-center gap-4 text-sm text-muted border-b border-cream-dark">
+          <span class="flex items-center gap-1.5">
+            <Icon name="bi:calendar" class="size-3.5" />
+            Standing page &middot; rhythm verified {RHYTHM_VERIFIED}
+          </span>
+          <a href={url('/author/re')} rel="author" class="flex items-center gap-1.5 hover:text-brand-600">
+            <Icon name="bi:person" class="size-3.5" />
+            kept current by RE
+          </a>
+          <a href={url('/spend-with-value')} class="flex items-center gap-1.5 hover:text-brand-600">
+            <Icon name="bi:bookmark" class="size-3.5" />
+            Value Hunts
+          </a>
+        </div>
+
+        <div class="mt-6">
+          <AffiliateDisclosureBox />
+        </div>
+
+        <div class="relative post-content pt-6">
+          <p>
+            Upsized cashback in Singapore runs on a clock. This page is the clock: the monthly
+            payday window, the double-digit marquee days, and a dated log of the rates we have
+            actually seen — kept current so a big booking can be parked, checked, and placed
+            inside a window instead of guessed.
+          </p>
+          <p>
+            <strong>The one rule travels with it.</strong> Cashback routes a purchase that was
+            already decided; it never makes one. The full system — the browser-extension habit,
+            the two-tab price test, the fine print that voids
+            tracking — lives in <a href={url('/shopback-used-properly')}>the routing guide</a>.
+            This page is only its calendar, kept alive after the article ages.
+          </p>
+
+          <h2 id="next-window">The next window</h2>
+
+          <section class="cc-hero" aria-label="The next upsized window">
+            <div class="cc-cap">
+              <h4>Where the clock stands</h4>
+              <p>Computed from your device&rsquo;s clock, each time you open this page.</p>
+            </div>
+            <div class="cc-tiles" data-ccnext hidden>
+              <div class="cc-tile">
+                <span class="cc-label">Payday window</span>
+                <b class="cc-val" data-cc-payday>&mdash;</b>
+                <span class="cc-sub">~25th to month-end, every month</span>
+              </div>
+              <div class="cc-tile">
+                <span class="cc-label"><i class="cc-dot" aria-hidden="true"></i>Next marquee day</span>
+                <b class="cc-val" data-cc-marquee>&mdash;</b>
+                <span class="cc-sub" data-cc-marquee-sub>9.9 &middot; 10.10 &middot; 11.11 &middot; BF/CM &middot; 12.12</span>
+              </div>
+              <div class="cc-tile">
+                <span class="cc-label">Plus-tier days</span>
+                <b class="cc-val" data-cc-plus>&mdash;</b>
+                <span class="cc-sub">1st Plus Day &middot; 15th member rates &middot; paid tier only</span>
+              </div>
+            </div>
+            <noscript>
+              <p class="cc-noscript">
+                The payday window runs from about the 25th to month-end, every month. The marquee
+                days sit on the calendar below.
+              </p>
+            </noscript>
+            <p class="cc-foot">
+              When ShopBack&rsquo;s published calendar runs out, this strip falls back to the
+              recurring pattern — and says so, because a projected date is a guess with a
+              good track record, not an announcement.
+            </p>
+          </section>
+
+          <h2 id="the-rhythm">The rhythm</h2>
+
+          <UpsizeCalendar showNext={false} />
+
+          <p>
+            <strong>Every month, the last week.</strong> Payday sales run from roughly the 25th to
+            month-end — the reason our own year-end hotel run happened on a Saturday the 25th. The
+            1st (Plus Day, 1.2&times; cashback) and the 15th (member-only rates) apply to the paid
+            tier, and only clear their ~S$2 monthly fee when real spending flows through the portal
+            that month.
+          </p>
+          <p>
+            <strong>Every year, the fourth quarter.</strong> The double-digit days — 9.9, 10.10,
+            11.11, 12.12 — sit inside ShopFest, ShopBack&rsquo;s September-to-December festival,
+            with Black Friday and Cyber Monday between the last two and 11.11 historically the
+            deepest. June brings the birthday sale — up to 35% upsized in recent years — with the
+            Great Singapore Sale window alongside.
+          </p>
+          <p>
+            <strong>And some upsizes are simply ad hoc.</strong> No weekday pattern survives
+            checking. The practical rule is boring: a big booking that can wait a few days should
+            wait, parked until month-end or the next marquee date — and on the day, the
+            store&rsquo;s own ShopBack page is the only place the real rate exists.
+          </p>
+
+          <aside class="cc-pnp">
+            <p class="cc-pnp-head">Pattern, not promise</p>
+            <p>
+              Everything on this page is drawn from ShopBack&rsquo;s own published calendar and
+              past campaign coverage — and ShopBack decides its campaigns. Next year&rsquo;s dates
+              do not exist until it publishes them. Use this page to decide <em>when to look</em>;
+              what you find on the day is the store page&rsquo;s call, and never a reason to buy
+              anything that was not already decided.
+            </p>
+          </aside>
+
+          <h2 id="rate-log">Observed rates, dated</h2>
+
+          <p>
+            Rate pages show today and remember nothing. This table is the memory: each time we
+            verify a ShopBack rate for a piece or a real booking, the reading lands here with the
+            date it was read. It opens with the five readings behind the routing guide, and it
+            grows.
+          </p>
+
+          <section class="rl-sec" aria-label="Observed cashback rates, dated">
+            <div class="rl-wrap">
+              <table class="rl">
+                <thead>
+                  <tr>
+                    <th>Date read</th>
+                    <th>Store</th>
+                    <th>Rate</th>
+                    <th>Type</th>
+                    <th>Context</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {log.map((r) => (
+                    <tr>
+                      <td class="rl-date"><time datetime={r.date}>{shortDate(r.date)}</time></td>
+                      <td class="rl-store"><b>{r.store}</b><small>{r.tier}</small></td>
+                      <td class={`rl-rate ${r.kind === 'upsized' ? 'is-up' : ''}`}>{r.rate}</td>
+                      <td><span class={`rl-kind is-${r.kind}`}><i aria-hidden="true"></i>{r.kind}</span></td>
+                      <td class="rl-note">
+                        {r.note}
+                        <a
+                          class="rl-src"
+                          href={r.source.href.startsWith('http') ? r.source.href : url(r.source.href)}
+                        >{r.source.label}</a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p class="rl-foot">
+              Readings are spot checks on the dates shown, not averages, and rates can be
+              personalised to the account — treat your own logged-in rate as the truth. An upsized
+              reading is a window we actually caught, not a ceiling and not a floor.
+            </p>
+          </section>
+
+          <div class="post-notes">
+            <details class="notes-fold">
+              <summary>Sources, and where this page is soft</summary>
+
+              <h4>Sources</h4>
+              <ol>
+                <li>
+                  The rhythm: ShopBack&rsquo;s <a href="https://www.shopback.sg/blog/finance/singapore-2026-sale-calendar">2026 Singapore sale calendar</a> (July
+                  2026 — payday sales the last Friday&ndash;Sunday of each month; 9.9 through
+                  12.12; Black Friday 27 Nov; Cyber Monday 30
+                  Nov), its <a href="https://www.shopback.sg/guide/playbook/sale-calendar-strategy">sale-calendar strategy guide</a> (campaign
+                  days add roughly 1&ndash;5 percentage points to base rates)
+                  and <a href="https://www.shopback.sg/blog/fashion/payday-sale">payday-sale explainer</a> (May 2026).
+                </li>
+                <li>
+                  ShopFest&rsquo;s September&ndash;December
+                  span: <a href="https://www.digitalnewsasia.com/digital-economy/shopback-launches-shopfest-highlight-six-major-online-sales-q4">press coverage of the launch</a>.
+                  June birthday-sale upsizes per ShopBack SG&rsquo;s own campaign posts, 2024&ndash;2025.
+                </li>
+                <li>
+                  Plus Day on the 1st, member rates on the 15th, and the paid tier&rsquo;s
+                  mechanics: ShopBack&rsquo;s <a href="https://support.shopback.sg/hc/en-gb/articles/31827461660947-ShopBack-Plus">official Plus article</a>.
+                </li>
+                <li>
+                  Everyday rates in the log, read off the merchant pages on 6 August
+                  2026: <a href="https://www.shopback.sg/booking-com">Booking.com</a>, <a href="https://www.shopback.sg/trip-com">Trip.com</a>, <a href="https://www.shopback.sg/agoda">Agoda</a>, <a href="https://www.shopback.sg/klook">Klook</a>.
+                </li>
+                <li>
+                  The 14% upsized reading: our own dashboard, 25 July 2026 — the booking is shown
+                  to the cent in <a href={url('/shopback-used-properly')}>the routing guide</a>.
+                </li>
+              </ol>
+
+              <h4>Where this page is soft</h4>
+              <ul>
+                <li>
+                  <strong>The calendar is a pattern, not a promise.</strong> It is drawn from
+                  ShopBack&rsquo;s published 2026 calendar and past campaign coverage; ShopFest
+                  2026 had not been formally announced for Singapore as we wrote, and projected
+                  dates for later years are pattern, flagged as such in the strip above.
+                </li>
+                <li>
+                  <strong>Rates drift and can be personalised.</strong> Every reading in the log is
+                  what the page said to us, on that date, on our account. Check your own logged-in
+                  rate before relying on any number here.
+                </li>
+                <li>
+                  <strong>The log is young.</strong> Five readings is a start, not a history. The
+                  page earns its keep as entries accrete.
+                </li>
+              </ul>
+            </details>
+
+            <p class="note-aside">
+              A note on what this is not. ShopBack has not paid for, seen, or influenced this page,
+              and links to it here are ordinary links, not referral links — the same footing
+              as <a href={url('/shopback-used-properly')}>the guide this calendar grew out of</a>.
+            </p>
+
+            <p class="note-legal">
+              General information and education only. This is not financial advice and takes no
+              account of your objectives, situation or needs. Campaign dates, cashback rates and
+              terms change without notice and ShopBack decides its own campaigns; nothing here
+              guarantees any rate or window. Check current terms before relying on anything on
+              this page.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="lg:col-span-1 lg:ps-6 relative">
+        <div class="flex flex-col gap-4 lg:gap-6 top-24 sticky">
+          <CategoryWidget />
+          <FeaturedPostWidget />
+          <TagsWidget />
+        </div>
+      </aside>
+    </div>
+  </div>
+</MainLayout>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('[data-ccnext]');
+    if (!root) return;
+
+    // `?now=2027-02-03` renders the strip as it would read on that date — the
+    // pattern fallback can be checked today instead of waited for. Noon avoids
+    // any midnight edge in the day arithmetic.
+    var qs = new URLSearchParams(location.search).get('now');
+    var now = qs && /^\d{4}-\d{2}-\d{2}$/.test(qs) ? new Date(qs + 'T12:00:00') : new Date();
+
+    var DAY = 86400000;
+    var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var left = function (d) { return Math.ceil((d - now) / DAY); };
+    var inDays = function (n) { return n === 0 ? 'today' : n === 1 ? 'in 1 day' : 'in ' + n + ' days'; };
+    var nice = function (d) {
+      return DOW[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear();
+    };
+
+    var y = now.getFullYear(), m = now.getMonth(), day = now.getDate();
+
+    // Payday window — evergreen by construction: ~25th to month-end, monthly.
+    var payday = root.querySelector('[data-cc-payday]');
+    var eom = new Date(y, m + 1, 0).getDate();
+    if (day >= 25) {
+      payday.textContent = 'live now · to ' + eom + ' ' + MON[m];
+      payday.classList.add('is-live');
+    } else {
+      payday.textContent = 'opens 25 ' + MON[m] + ' · ' + inDays(25 - day);
+    }
+
+    // Marquee days. 2026's are published; any other year falls back to the
+    // recurring pattern — same double-digit days, Black Friday on the fourth
+    // Friday of November, Cyber Monday the Monday after — and the strip says
+    // it is projecting. (The pattern reproduces the published 2026 dates
+    // exactly, which is the sanity check on it.)
+    var PUBLISHED_YEAR = 2026;
+    var PUBLISHED = [
+      ['2026-09-09', '9.9'], ['2026-10-10', '10.10'], ['2026-11-11', '11.11'],
+      ['2026-11-27', 'Black Friday'], ['2026-11-30', 'Cyber Monday'], ['2026-12-12', '12.12']
+    ];
+    var iso = function (d) {
+      return d.getFullYear() + '-' +
+        ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    };
+    var patternFor = function (yr) {
+      var nov1 = new Date(yr, 10, 1);
+      var firstFri = 1 + ((5 - nov1.getDay()) + 7) % 7;
+      var bf = new Date(yr, 10, firstFri + 21);
+      var cm = new Date(yr, 10, firstFri + 24); // rolls into December when it must
+      return [
+        [yr + '-09-09', '9.9'], [yr + '-10-10', '10.10'], [yr + '-11-11', '11.11'],
+        [iso(bf), 'Black Friday'], [iso(cm), 'Cyber Monday'], [yr + '-12-12', '12.12']
+      ];
+    };
+    var marqueeFor = function (yr) {
+      var src = yr === PUBLISHED_YEAR ? PUBLISHED : patternFor(yr);
+      return src.map(function (e) {
+        return { d: new Date(e[0] + 'T00:00:00'), name: e[1], published: yr === PUBLISHED_YEAR };
+      });
+    };
+
+    var pool = marqueeFor(y).concat(marqueeFor(y + 1));
+    var next = null;
+    for (var i = 0; i < pool.length; i++) {
+      if (left(pool[i].d) >= 0) { next = pool[i]; break; }
+    }
+
+    var mq = root.querySelector('[data-cc-marquee]');
+    var mqSub = root.querySelector('[data-cc-marquee-sub]');
+    var n = left(next.d);
+    mq.textContent = next.name + ' · ' + inDays(n);
+    if (n === 0) mq.classList.add('is-live');
+    if (next.published) {
+      mqSub.textContent = nice(next.d) + ' — ShopBack’s published 2026 date';
+    } else {
+      mqSub.textContent = nice(next.d) + ' — if the pattern holds; not yet announced';
+      mqSub.classList.add('is-pattern');
+    }
+
+    // Plus tier — the 1st and the 15th, every month. Paid tier only.
+    var plus = root.querySelector('[data-cc-plus]');
+    if (day === 1) {
+      plus.textContent = 'Plus Day · today';
+      plus.classList.add('is-live');
+    } else if (day === 15) {
+      plus.textContent = 'member rates · today';
+      plus.classList.add('is-live');
+    } else if (day < 15) {
+      plus.textContent = 'member rates 15 ' + MON[m] + ' · ' + inDays(15 - day);
+    } else {
+      var d1 = new Date(y, m + 1, 1);
+      plus.textContent = 'Plus Day ' + d1.getDate() + ' ' + MON[d1.getMonth()] + ' · ' + inDays(left(d1));
+    }
+
+    root.hidden = false;
+  })();
+</script>
+
+<style is:global>
+/* ── Next-window strip ─────────────────────────────────────────────────────
+   The page's flagship answer, so it gets the biggest card. Amber marks
+   marquee days exactly as the calendar figure below draws them; live states
+   wear the house green, matching the uc-chip convention. Colour reinforces —
+   identity is carried by the labels. */
+.cc-hero{
+  --cc-dot:#B45309;
+  --cc-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--color-border);border-radius:12px;
+}
+@media (prefers-color-scheme: dark){ .cc-hero{ --cc-dot:#B8842E; } }
+.post-content .cc-cap{margin:0 0 16px}
+.post-content .cc-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--color-dark);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .cc-cap p{margin:0;font-size:12.5px;color:var(--color-muted);line-height:1.5}
+
+.cc-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cc-tile{display:flex;flex-direction:column;gap:4px;padding:12px 14px;
+  border:1px solid var(--color-border);border-radius:10px;line-height:1.35}
+.cc-label{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--color-muted);display:flex;align-items:center;gap:6px}
+.cc-dot{width:9px;height:9px;border-radius:50%;background:var(--cc-dot);flex:none;display:inline-block}
+.cc-val{font-family:var(--cc-mono);font-variant-numeric:tabular-nums;font-size:15.5px;
+  font-weight:700;color:var(--color-dark)}
+.cc-val.is-live{color:var(--color-brand-600)}
+.post-content .cc-sub{font-size:11px;color:var(--color-muted)}
+.post-content .cc-sub.is-pattern{color:var(--cc-dot);font-style:italic}
+.post-content .cc-noscript{margin:0;font-size:12.5px;color:var(--color-muted)}
+.post-content .cc-foot{font-size:11.5px;color:var(--color-muted);line-height:1.55;margin:14px 0 0}
+@media(max-width:680px){
+  .cc-hero{padding:16px 14px 13px}
+  .cc-tiles{grid-template-columns:1fr;gap:10px}
+}
+
+/* ── Pattern-not-promise ──────────────────────────────────────────────────
+   The KeyTakeaways card shape, re-cut with the amber edge: attention, not
+   endorsement. */
+.cc-pnp{
+  --pnp:#B45309;
+  margin:26px 0;padding:16px 20px 14px;background:var(--color-surface);
+  border:1px solid var(--color-border);border-left:3px solid var(--pnp);border-radius:10px;
+}
+@media (prefers-color-scheme: dark){ .cc-pnp{ --pnp:#B8842E; } }
+.post-content .cc-pnp-head{
+  margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--pnp);
+}
+.post-content .cc-pnp p:not(.cc-pnp-head){margin:0;font-size:14.5px;line-height:1.65;color:var(--color-body)}
+
+/* ── Observed-rate log ────────────────────────────────────────────────────
+   Rides on the house .post-content table (navy header, cream zebra); this
+   layer adds the validated categorical pair — amber for upsized readings,
+   blue for everyday — and mono, tabular figures so rates line up down the
+   column. */
+.rl-sec{
+  --rl-up:#B45309; --rl-ev:#2563EB;
+  --rl-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ .rl-sec{ --rl-up:#B8842E; --rl-ev:#4E86DD; } }
+.rl-wrap{overflow-x:auto;margin:18px 0 0}
+.post-content table.rl{margin:0;min-width:600px;font-size:.88rem}
+.rl th{font-size:.72rem;padding:8px 12px}
+.rl td{padding:10px 12px}
+.rl .rl-date{white-space:nowrap;font-family:var(--rl-mono);font-variant-numeric:tabular-nums;
+  font-size:.8rem;color:var(--color-muted)}
+.rl .rl-store b{display:block;font-weight:700;color:var(--color-dark)}
+.rl .rl-store small{display:block;font-size:.72rem;color:var(--color-muted)}
+.rl .rl-rate{font-family:var(--rl-mono);font-variant-numeric:tabular-nums;font-weight:700;
+  font-size:.95rem;color:var(--color-dark);white-space:nowrap}
+.rl .rl-rate.is-up{color:var(--rl-up)}
+.rl-kind{display:inline-flex;align-items:center;gap:6px;font-size:.68rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);white-space:nowrap}
+.rl-kind i{width:8px;height:8px;border-radius:2px;flex:none}
+.rl-kind.is-upsized i{background:var(--rl-up)}
+.rl-kind.is-everyday i{background:var(--rl-ev)}
+.rl .rl-note{font-size:.85rem;line-height:1.55}
+.rl .rl-src{display:block;margin-top:2px;font-size:.78rem}
+.post-content .rl-foot{font-size:11.5px;color:var(--color-muted);line-height:1.55;margin:12px 0 0}
+@media(max-width:560px){
+  .post-content table.rl{font-size:.84rem}
+}
+</style>
