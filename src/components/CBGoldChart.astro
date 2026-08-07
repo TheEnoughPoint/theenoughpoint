@@ -1,0 +1,99 @@
+---
+// Central-bank net gold purchases, 2022–2025, against the 2010–21 average pace.
+//
+// Only figures verified against World Gold Council reporting are drawn: the four
+// annual totals, the 2026 first half (net — a record 288.9t Q2 sat inside it),
+// and the prior-decade average (~473t). We deliberately do NOT bar the
+// individual 2010–21 years — we have not verified them one by one, and a dashed
+// average line claims exactly what we know and no more. 2024 is approximate
+// (~1,045t); the H1 2026 bar is a half period and drawn hollow to say so.
+const BARS = [
+  { yr: '2022', t: 1082, label: '1,082t' },
+  { yr: '2023', t: 1037, label: '1,037t' },
+  { yr: '2024', t: 1045, label: '~1,045t' },
+  { yr: '2025', t: 863,  label: '863t'   },
+  { yr: 'H1 2026', t: 345, label: '345t', half: true },
+];
+const AVG = 473;
+
+// See design.md: min-width in the CSS must equal W, or the SVG renders narrower
+// than its viewBox on a phone and scales its own labels below legibility.
+const W = 700, H = 300, PAD_L = 50, PAD_R = 20, PAD_T = 30, PAD_B = 40;
+const HI = 1150;
+const plotW = W - PAD_L - PAD_R, plotH = H - PAD_T - PAD_B;
+const barW = 76;
+const gap = (plotW - BARS.length * barW) / (BARS.length + 1);
+const bx = (i: number) => PAD_L + gap + i * (barW + gap);
+const y = (v: number) => PAD_T + (1 - v / HI) * plotH;
+const GRID = [1000, 750, 500, 250];
+import ToolBrand from './ToolBrand.astro';
+---
+
+<figure class="cb">
+  <figcaption class="cb-cap">
+    <h4>Central banks have been buying at roughly <em>double</em> their old pace</h4>
+    <p>Net official-sector gold purchases, tonnes per year. This is the buyers&rsquo; case&rsquo;s
+    strongest verifiable number &mdash; reported here, not endorsed.</p>
+  </figcaption>
+
+  <div class="cb-wrap">
+    <svg viewBox={`0 0 ${W} ${H}`} class="cb-svg" role="img"
+         aria-label="Central banks bought 1,082 tonnes of gold in 2022, 1,037 in 2023, about 1,045 in 2024 and 863 in 2025, against an average of about 473 tonnes a year over 2010 to 2021. The first half of 2026 netted 345 tonnes — the lowest first half since 2022 — although the second quarter alone was a record 288.9 tonnes.">
+      {GRID.map((g) => (
+        <>
+          <line x1={PAD_L} x2={W - PAD_R} y1={y(g)} y2={y(g)} class="cb-grid" />
+          <text x={PAD_L - 8} y={y(g) + 3.5} class="cb-ylab">{g.toLocaleString('en-US')}</text>
+        </>
+      ))}
+
+      {BARS.map((b, i) => (
+        <>
+          <rect x={bx(i)} y={y(b.t)} width={barW} height={y(0) - y(b.t)} rx="3"
+                class={b.half ? 'cb-bar h1' : 'cb-bar'} />
+          <text x={bx(i) + barW / 2} y={y(b.t) - 8} class="cb-val">{b.label}</text>
+          <text x={bx(i) + barW / 2} y={H - 14} class="cb-xlab">{b.yr}</text>
+        </>
+      ))}
+
+      <line x1={PAD_L} x2={W - PAD_R} y1={y(AVG)} y2={y(AVG)} class="cb-avg" />
+      <text x={W - PAD_R} y={y(AVG) - 7} class="cb-avglab">2010&ndash;21 average &#8776; 473t a year</text>
+    </svg>
+  </div>
+
+  <p class="cb-foot">Source: World Gold Council, Gold Demand Trends. 2024 is approximate.
+  2025&rsquo;s <b>863t</b> was a fifth below 2024 yet the fourth-largest annual addition on
+  record, with <b>230t</b> in Q4 alone. The hollow bar is a half period and cuts both ways:
+  H1 2026 nets <b>345t</b> &mdash; the lowest first half since 2022, dragged by first-quarter
+  selling from a few banks &mdash; yet Q2 alone was a record <b>288.9t</b>, bought into a
+  ~16% price fall. Read both facts together.</p>
+  <ToolBrand />
+</figure>
+
+<style is:global>
+.cb{
+  --cb-bar:var(--color-gold); --cb-rule:var(--color-border); --cb-ink:var(--color-dark);
+  --cb-body:var(--color-body); --cb-muted:var(--color-muted);
+  --cb-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--cb-rule);border-radius:12px
+}
+.post-content .cb-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .cb-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--cb-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.cb-cap h4 em{font-style:normal;color:#9C7526}
+.post-content .cb-cap p{margin:0;font-size:12.5px;color:var(--cb-muted);line-height:1.5}
+.cb-wrap{overflow-x:auto}
+.cb-svg{width:100%;min-width:700px;height:auto;display:block}
+.cb-grid{stroke:var(--cb-rule);stroke-width:1}
+.cb-ylab,.cb-xlab{font-family:var(--cb-mono);font-size:11px;fill:var(--cb-muted)}
+.cb-ylab{text-anchor:end}
+.cb-xlab{text-anchor:middle}
+.cb-bar{fill:var(--cb-bar);opacity:.9}
+.cb-bar.h1{fill:var(--cb-bar);fill-opacity:.22;stroke:var(--cb-bar);stroke-width:1.5;stroke-dasharray:5 4}
+.cb-val{font-family:var(--cb-mono);font-size:12px;font-weight:600;fill:var(--cb-ink);text-anchor:middle}
+.cb-avg{stroke:var(--cb-ink);stroke-width:1.5;stroke-dasharray:6 5;opacity:.55}
+.cb-avglab{font-family:var(--font-body);font-size:11px;font-weight:700;fill:var(--cb-ink);opacity:.65;text-anchor:end}
+.post-content .cb-foot{font-size:12.5px;color:var(--cb-muted);line-height:1.55;margin:12px 0 0}
+.cb-foot b{font-family:var(--cb-mono);color:var(--cb-body);font-weight:600}
+@media(max-width:560px){ .cb{padding:16px 13px 13px} }
+</style>

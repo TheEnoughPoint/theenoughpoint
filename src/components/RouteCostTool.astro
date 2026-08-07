@@ -1,0 +1,269 @@
+---
+// Route-cost calculator — what owning S$X of gold exposure costs over N years,
+// by route, side by side. Costs only: no price path, no return assumption, no
+// verdict. The published fund charges are prefilled where they exist; the
+// provider-dependent figures (dealer spread, storage, account fees, trading
+// costs) are ILLUSTRATIVE and labelled as such — the reader replaces them with
+// their provider's published schedule.
+//
+// The arithmetic and its derivation live in src/utils/routeCost.ts. The script
+// below mirrors that module; if you change one, change both.
+//
+// Deep-linkable: amt, yrs, and per-route triplets e1..e5 / a1..a5 / x1..x5.
+import { Font } from 'astro:assets';
+import ToolBrand from './ToolBrand.astro';
+---
+
+<Font cssVariable="--font-mono" />
+
+<div class="rc">
+  <div class="rc-head">
+    <span class="rc-lbl">The same exposure, five routes, priced</span>
+    <span class="rc-lbl accent">Interactive</span>
+  </div>
+
+  <p class="rc-preset">Costs only — this tool assumes nothing about where the gold price goes.
+  Three annual charges open at published figures: the two SGX funds (<b>0.40%</b> cap
+  and <b>0.39%</b> fee, June 2026), the bank account at <b>0.25%</b> a year — UOB&rsquo;s published
+  Gold Savings Account charge from 1 April 2026, before GST on the charge — and the miner row
+  at <b>0.51%</b>, the published net ratio of the sector&rsquo;s largest fund (VanEck&rsquo;s
+  GDX). All are checkable examples, not picks — set your own provider&rsquo;s. Every other
+  prefill &mdash; dealer premium and spread, storage and insurance, brokerage and FX &mdash;
+  is <b>illustrative</b>: providers publish their schedules, and the right numbers are theirs,
+  not ours. Change anything.</p>
+
+  <div class="rc-body">
+    <div class="rc-top">
+      <label class="rc-f">
+        <span>Exposure</span>
+        <span class="rc-in"><i>S$</i><input type="text" id="rc-amt" value="100,000" inputmode="decimal" class="w-lg"></span>
+      </label>
+      <label class="rc-f">
+        <span>Held for</span>
+        <span class="rc-in"><input type="text" id="rc-yrs" value="10" inputmode="decimal"><i>yrs</i></span>
+      </label>
+    </div>
+
+    <div class="rc-tblwrap">
+      <table class="rc-tbl">
+        <thead>
+          <tr><th>Route</th><th>Going in %</th><th>Per year %</th><th>Coming out %</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Physical bullion (IPM)<em>illustrative — dealer premium, vault + insurance</em></td>
+            <td><input type="text" id="rc-e1" value="2.0" inputmode="decimal"></td>
+            <td><input type="text" id="rc-a1" value="0.40" inputmode="decimal"></td>
+            <td><input type="text" id="rc-x1" value="1.0" inputmode="decimal"></td></tr>
+          <tr><td>Bank gold account<em>UOB GSA&rsquo;s published 0.25%/yr (from 1 Apr 2026, before GST) as the example — set your bank&rsquo;s; spread illustrative</em></td>
+            <td><input type="text" id="rc-e2" value="0.3" inputmode="decimal"></td>
+            <td><input type="text" id="rc-a2" value="0.25" inputmode="decimal"></td>
+            <td><input type="text" id="rc-x2" value="0.3" inputmode="decimal"></td></tr>
+          <tr><td>SGX gold ETF &mdash; US trust<em>0.40% published cap; trading costs illustrative</em></td>
+            <td><input type="text" id="rc-e3" value="0.35" inputmode="decimal"></td>
+            <td><input type="text" id="rc-a3" value="0.40" inputmode="decimal"></td>
+            <td><input type="text" id="rc-x3" value="0.35" inputmode="decimal"></td></tr>
+          <tr><td>SGX gold ETF &mdash; SG trust<em>0.39% published fee; trading costs illustrative</em></td>
+            <td><input type="text" id="rc-e4" value="0.35" inputmode="decimal"></td>
+            <td><input type="text" id="rc-a4" value="0.39" inputmode="decimal"></td>
+            <td><input type="text" id="rc-x4" value="0.35" inputmode="decimal"></td></tr>
+          <tr><td>Miner fund (overseas-listed)<em>GDX&rsquo;s published 0.51% net ratio as the example — set your fund&rsquo;s; FX + brokerage illustrative</em></td>
+            <td><input type="text" id="rc-e5" value="0.6" inputmode="decimal"></td>
+            <td><input type="text" id="rc-a5" value="0.51" inputmode="decimal"></td>
+            <td><input type="text" id="rc-x5" value="0.6" inputmode="decimal"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="rc-hint">Going in and coming out are one-off costs; per-year runs for the whole
+    holding period. Real annual fees are charged on value rather than a fixed sum, so treat
+    this as a comparison of fee structures, not a bill forecast.</p>
+  </div>
+
+  <div class="rc-bars-wrap">
+    <div class="rc-bars-t" id="rc-bars-t">&mdash;</div>
+    <div class="rc-bars" id="rc-bars"><!-- rows injected, sorted cheapest first --></div>
+  </div>
+
+  <div class="rc-out">
+    <div class="rc-out-s" id="rc-say">&mdash;</div>
+  </div>
+
+  <div class="rc-notes">
+    <p><b>What this is.</b> The cost side of five ownership routes on your own amount and
+    horizon &mdash; entry, running and exit &mdash; computed on a constant notional so that no
+    price path sneaks into a cost comparison.</p>
+    <p><b>What it leaves out.</b> Returns, in every direction; miner dividends and the
+    withholding tax on them; income and capital-gains treatment; FX drift on overseas listings;
+    and the non-cost differences that may matter more &mdash; counterparty, CPF/SRS eligibility,
+    and what happens on death &mdash; which are in the table above this tool.</p>
+    <p><b>What this is not.</b> Advice or a ranking. The lowest-cost route at your horizon is a
+    fact about fees, not a recommendation; the job you are hiring gold for comes first, and the
+    piece takes no side on that.</p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.rc{
+  --rc-bg2:var(--color-surface); --rc-bd:var(--color-border); --rc-bd2:#D5CDBB;
+  --rc-t1:var(--color-dark); --rc-t2:var(--color-body); --rc-t3:var(--color-muted);
+  --rc-g:var(--color-brand-600); --rc-g2:var(--color-brand-700);
+  --rc-gold:var(--color-gold); --rc-deep:var(--color-navy);
+  --rc-a-bg:rgba(200,154,60,0.10); --rc-a-bd:rgba(156,117,38,0.25);
+  --rc-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--rc-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--rc-t1)
+}
+.rc .num{font-family:var(--rc-mono);font-variant-numeric:tabular-nums}
+.rc-head{padding:14px 22px;background:var(--rc-bg2);border-bottom:1px solid var(--rc-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px}
+.rc-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--rc-t3)}
+.rc-lbl.accent{color:var(--rc-g2)}
+.post-content .rc-preset{font-size:12.5px;color:var(--rc-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--rc-bd)}
+.rc-preset b{color:var(--rc-t2);font-weight:600}
+.rc-body{padding:16px 22px 8px}
+.rc-top{display:flex;gap:34px;flex-wrap:wrap;margin-bottom:12px}
+.rc-f{display:flex;align-items:baseline;gap:10px;margin:0}
+.rc-f > span:first-child{font-size:14px;color:var(--rc-t2)}
+.rc-in{display:inline-flex;align-items:baseline;font-family:var(--rc-mono);font-size:15px;font-weight:600}
+.rc-in i{font-style:normal;color:var(--rc-t3);font-size:13px;margin:0 3px}
+.rc-in input{font-family:var(--rc-mono);font-size:15px;font-weight:600;color:var(--rc-t1);
+  background:none;border:none;border-bottom:1px dashed var(--rc-bd2);text-align:right;
+  width:4.5ch;padding:0 0 1px}
+.rc-in input.w-lg{width:9ch}
+.rc-in input:focus{outline:none;border-bottom:1px solid var(--rc-g);color:var(--rc-g2);box-shadow:none}
+.rc-tblwrap{overflow-x:auto}
+.post-content .rc-tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:0;min-width:520px}
+/* The site's prose CSS paints table headers navy, so these sit on a dark field —
+   --rc-t3 was written for a light one and measured 3.51:1, under the 4.5:1 that
+   11px text needs. Same light-on-navy treatment as RoutesTable's legend. */
+.post-content .rc-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;
+  color:#C9D3E0;font-weight:700;text-align:right;padding:7px 8px;border-bottom:1px solid var(--rc-bd)}
+.post-content .rc-tbl th:first-child{text-align:left;color:#fff}
+.post-content .rc-tbl td{padding:8px;border-bottom:1px dashed var(--rc-bd);vertical-align:top;text-align:right}
+.post-content .rc-tbl td:first-child{text-align:left;color:var(--rc-t2);line-height:1.35}
+.rc-tbl td em{display:block;font-style:normal;font-size:11px;color:var(--rc-t3);margin-top:2px}
+.rc-tbl input{font-family:var(--rc-mono);font-size:14px;font-weight:600;color:var(--rc-t1);
+  background:none;border:none;border-bottom:1px dashed var(--rc-bd2);text-align:right;width:5ch;padding:0 0 1px}
+.rc-tbl input:focus{outline:none;border-bottom:1px solid var(--rc-g);color:var(--rc-g2);box-shadow:none}
+
+.rc-bars-wrap{padding:14px 22px 18px}
+.rc-bars-t{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--rc-t3);margin-bottom:12px}
+.rc-bars-t b{color:#7A5A1D}
+.rc-bars{display:flex;flex-direction:column;gap:13px}
+.rc-tc{font-style:normal;font-family:var(--font-body);font-size:11px;font-weight:600;
+  color:var(--rc-t3);margin-left:4px}
+.rc-bar-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:5px}
+.rc-bar-l span{font-size:13.5px;color:var(--rc-t2)}
+.rc-bar-l b{font-family:var(--rc-mono);font-size:15px;font-weight:600;color:var(--rc-t1)}
+.rc-bar-l small{font-family:var(--rc-mono);font-size:11.5px;color:var(--rc-t3);font-weight:400}
+.rc-track{height:10px;background:var(--color-surface-alt);border-radius:999px;overflow:hidden}
+.rc-fill{height:100%;border-radius:999px;transition:width .3s ease;min-width:2px;background:#9C7526}
+
+.rc-out{background:var(--rc-deep);color:#fff;padding:17px 22px}
+.rc-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.rc-out-s b{font-family:var(--rc-mono);font-weight:600;color:#fff}
+
+.rc-notes{padding:15px 22px 17px;border-top:1px solid var(--rc-bd);background:var(--rc-bg2)}
+.post-content .rc-notes p{font-size:12.5px;line-height:1.55;color:var(--rc-t3);margin:0 0 7px}
+.post-content .rc-notes p:last-child{margin-bottom:0}
+.rc-notes b{color:var(--rc-t2)}
+@media(max-width:640px){ .rc-top{gap:16px} }
+@media(prefers-reduced-motion:reduce){.rc *{transition:none!important}}
+</style>
+
+<script is:inline>
+(function(){
+const $ = id => document.getElementById(id);
+const numOf = el => { const n = parseFloat(String(el.value).replace(/[^\d.\-]/g,'')); return isFinite(n) && n >= 0 ? n : 0; };
+const sgd = n => 'S$' + Math.round(n).toLocaleString('en-SG');
+const pctT = n => (n*100).toFixed(2).replace(/\.?0+$/,'') + '%';
+
+const ROUTES = [
+  { key: 1, label: 'Physical bullion (IPM)' },
+  { key: 2, label: 'Bank gold account' },
+  { key: 3, label: 'SGX ETF — US trust' },
+  { key: 4, label: 'SGX ETF — SG trust' },
+  { key: 5, label: 'Miner fund (overseas)' },
+];
+
+/* Mirrors src/utils/routeCost.ts — see that module for the derivation.
+   cost = A x (entry + annual x N + exit), on a constant notional so no price
+   path enters a cost comparison. Crossovers between routes are the point. */
+function compute(A, N){
+  return ROUTES.map(r => {
+    const e = numOf($('rc-e'+r.key))/100, a = numOf($('rc-a'+r.key))/100, x = numOf($('rc-x'+r.key))/100;
+    const entryCost = A*e, runCost = A*a*N, exitCost = A*x;
+    return { ...r, entryCost, runCost, exitCost, total: entryCost+runCost+exitCost };
+  });
+}
+
+function writeLink(A, N){
+  try {
+    const p = new URLSearchParams(window.location.search);
+    p.set('amt', String(Math.round(A))); p.set('yrs', String(N));
+    ROUTES.forEach(r => {
+      p.set('e'+r.key, $('rc-e'+r.key).value); p.set('a'+r.key, $('rc-a'+r.key).value); p.set('x'+r.key, $('rc-x'+r.key).value);
+    });
+    history.replaceState(null, '', window.location.pathname + '?' + p.toString() + window.location.hash);
+  } catch(err){}
+}
+
+function readLink(){
+  try {
+    const p = new URLSearchParams(window.location.search);
+    if (p.has('amt')) $('rc-amt').value = p.get('amt');
+    if (p.has('yrs')) $('rc-yrs').value = p.get('yrs');
+    ROUTES.forEach(r => {
+      ['e','a','x'].forEach(k => { if (p.has(k+r.key)) $('rc-'+k+r.key).value = p.get(k+r.key); });
+    });
+  } catch(err){}
+}
+
+function update(fromUser){
+  const A = Math.max(0, numOf($('rc-amt')));
+  const N = Math.min(40, Math.max(1, numOf($('rc-yrs'))));
+  const rows = compute(A, N);
+
+  if (A <= 0){
+    $('rc-bars').innerHTML = '';
+    $('rc-bars-t').textContent = '—';
+    $('rc-say').textContent = 'Enter an exposure above zero to price the routes.';
+    return;
+  }
+
+  $('rc-bars-t').innerHTML = 'What ' + N + (N === 1 ? ' year' : ' years') + ' of holding <b>'
+    + sgd(A) + '</b> costs, route by route — shorter bar, cheaper route';
+
+  const sorted = [...rows].sort((a,b) => a.total - b.total);
+  const max = Math.max(...rows.map(r => r.total), 1);
+  $('rc-bars').innerHTML = sorted.map(r =>
+    '<div class="rc-bar"><div class="rc-bar-l"><span>' + r.label +
+    ' <small>in ' + sgd(r.entryCost) + ' &middot; run ' + sgd(r.runCost) + ' &middot; out ' + sgd(r.exitCost) + '</small></span><b class="num">' +
+    sgd(r.total) + '<i class="rc-tc">total cost</i></b></div><div class="rc-track"><div class="rc-fill" style="width:' +
+    Math.max(2, Math.min(100, r.total/max*100)) + '%"></div></div></div>'
+  ).join('');
+
+  const lo = sorted[0], hi = sorted[sorted.length-1];
+  $('rc-say').innerHTML = 'On these inputs, over <b>' + N + (N === 1 ? ' year' : ' years') + '</b> the lowest-cost route is <b>'
+    + lo.label + '</b> at <b>' + sgd(lo.total) + '</b> (' + pctT(lo.total/A) + ' of the exposure), and the dearest is '
+    + hi.label + ' at <b>' + sgd(hi.total) + '</b>. Now move the horizon: one-off costs do not care how long you hold, '
+    + 'running fees do &mdash; so <b>spreads punish short holdings and annual fees punish long ones</b>, and the order '
+    + 'of the routes flips as the years change. Cost is one column of the decision, not the decision.';
+
+  if (fromUser) writeLink(A, N);
+}
+
+function init(){
+  readLink();
+  const ids = ['rc-amt','rc-yrs'];
+  ROUTES.forEach(r => ids.push('rc-e'+r.key,'rc-a'+r.key,'rc-x'+r.key));
+  ids.forEach(id => $(id).addEventListener('input', () => update(true)));
+  update(false);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+})();
+</script>

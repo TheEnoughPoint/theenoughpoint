@@ -1,0 +1,114 @@
+---
+// Did the miners beat the metal? One idea, five windows.
+//
+// Replaces the twenty-year line chart plus its window panel (2026-08-06). That
+// card carried two exhibits arguing opposite ways — a line whose shape said
+// "miners lost badly" above a table saying "miners won four windows out of
+// five" — and the reader had to reconcile them. This keeps the more useful
+// half: the window comparison answers the reader's actual question, and it
+// contains the twenty-year number rather than being contradicted by it.
+//
+// The risk that the line chart used to carry visually is now one sentence in
+// the foot, with both drawdowns stated. A returns table without that line would
+// read as "miners are simply better", which is the opposite error.
+//
+// Total returns to August 2026, dividends reinvested, USD. Yahoo Finance
+// adjusted monthly closes for GLD and GDX. Regenerate with windows.py; the
+// drawdowns come from the same series (gold -42.9%, miners -77.5%, both
+// troughing in late 2015).
+import ToolBrand from './ToolBrand.astro';
+
+const WINDOWS = [
+  { lab: '1 year',   gold: 22.5,  min: 33.4  },
+  { lab: '3 years',  gold: 116.4, min: 196.2 },
+  { lab: '5 years',  gold: 129.6, min: 175.1 },
+  { lab: '10 years', gold: 212.3, min: 262.0 },
+  { lab: '20 years', gold: 525.5, min: 142.9 },
+];
+const MAX = 550;
+const pct = (v: number) => (v / MAX) * 100;
+---
+
+<figure class="mw">
+  <figcaption class="mw-cap">
+    <h4>Did the miners beat the metal? <em>It depends when you ask</em></h4>
+    <p>Total return to August 2026, dividends reinvested. The metal through the gold fund
+    (<b>GLD</b>), the miners through VanEck&rsquo;s <b>GDX</b> &mdash; checkable examples, not
+    picks. Both are US-listed and priced in US dollars.</p>
+  </figcaption>
+
+  <div class="mw-rows">
+    <div class="mw-key">
+      <span class="mw-k"><i class="mw-sw gold"></i>Gold</span>
+      <span class="mw-k"><i class="mw-sw min"></i>Gold miners</span>
+    </div>
+    {WINDOWS.map((w) => (
+      <div class="mw-row">
+        <span class="mw-lab">{w.lab}</span>
+        <span class="mw-bars">
+          <span class="mw-barline">
+            <span class="mw-bar gold" style={`width:${pct(w.gold)}%`}></span>
+            <b class="mw-val gold">+{w.gold.toFixed(1)}%</b>
+          </span>
+          <span class="mw-barline">
+            <span class="mw-bar min" style={`width:${pct(w.min)}%`}></span>
+            <b class="mw-val min">+{w.min.toFixed(1)}%</b>
+          </span>
+        </span>
+      </div>
+    ))}
+  </div>
+
+  <p class="mw-foot"><b>The miners won four of these five windows</b> &mdash; one, three, five
+  and ten years. Gold wins only over the full twenty, and almost all of that gap is the
+  2011&ndash;2015 collapse still sitting inside the number. Pick a window and you have picked a
+  winner.
+  <br /><br />
+  <b>These are destinations, not the journey.</b> Getting to them meant sitting through a fall
+  of <b>77%</b> in the miners and <b>43%</b> in gold — both with dividends reinvested, both
+  bottoming in late 2015. On share price alone the miners&rsquo; fall was <b>81%</b>. Source:
+  Yahoo Finance adjusted monthly closes, 6 August 2026.</p>
+  <ToolBrand />
+</figure>
+
+<style is:global>
+.mw{
+  --mw-gold:#C89A3C; --mw-min:#5B7DA3;
+  --mw-rule:var(--color-border); --mw-ink:var(--color-dark);
+  --mw-body:var(--color-body); --mw-muted:var(--color-muted);
+  --mw-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--mw-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){ .mw{ --mw-min:#8FA9C9; } }
+.post-content .mw-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .mw-cap h4{margin:0 0 3px;font-size:16px;font-weight:700;color:var(--mw-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.mw-cap h4 em{font-style:normal;color:#9C7526}
+.post-content .mw-cap p{margin:0;font-size:12.5px;color:var(--mw-muted);line-height:1.5}
+.mw-cap p b{color:var(--mw-body);font-weight:700}
+.mw-key{display:flex;gap:18px;margin:0 0 12px 76px;font-size:12px;color:var(--mw-body)}
+.mw-k{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.mw-sw{width:11px;height:11px;border-radius:2px;display:inline-block}
+.mw-sw.gold{background:var(--mw-gold)}
+.mw-sw.min{background:var(--mw-min)}
+.mw-row{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:10px;
+  padding:9px 0;border-top:1px solid var(--mw-rule)}
+.mw-lab{font-size:13.5px;color:var(--mw-ink);font-weight:700}
+.mw-bars{display:flex;flex-direction:column;gap:5px}
+.mw-barline{display:flex;align-items:center;gap:9px}
+.mw-bar{height:13px;border-radius:2px;min-width:3px;display:block}
+.mw-bar.gold{background:var(--mw-gold)}
+.mw-bar.min{background:var(--mw-min)}
+.mw-val{font-family:var(--mw-mono);font-size:12.5px;font-weight:600;white-space:nowrap}
+.mw-val.gold{color:#9C7526}
+.mw-val.min{color:var(--mw-min)}
+.post-content .mw-foot{font-size:13px;color:var(--mw-body);line-height:1.6;margin:14px 0 0;
+  padding-top:12px;border-top:1px solid var(--mw-rule)}
+.mw-foot b{font-family:var(--mw-mono);color:var(--mw-ink);font-weight:600}
+@media(max-width:560px){
+  .mw{padding:16px 13px 13px}
+  .mw-row{grid-template-columns:60px 1fr;gap:7px}
+  .mw-key{margin-left:0}
+}
+</style>

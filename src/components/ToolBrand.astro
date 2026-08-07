@@ -1,0 +1,18 @@
+---
+// Minimal brand-credit badge for in-article tools and tables.
+// STUB: created 2026-08-06 to satisfy RoutesTable.astro's import (added by a
+// parallel workstream before this file existed) so the article preview renders.
+// If a fuller ToolBrand lands, it simply replaces this file — the only contract
+// callers rely on is an <a class="tool-brand"> element with no required props.
+---
+
+<a class="tool-brand" href="/">a theenoughpoint.com tool</a>
+
+<style is:global>
+a.tool-brand, .post-content a.tool-brand{
+  display:block;width:max-content;
+  font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--color-gold);opacity:.75;text-decoration:none;margin:0 0 0 auto
+}
+a.tool-brand:hover, .post-content a.tool-brand:hover{opacity:1;color:var(--color-brand-700)}
+</style>
