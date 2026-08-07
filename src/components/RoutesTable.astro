@@ -1,0 +1,135 @@
+---
+// The five ownership routes, side by side — structure only, no costs. Costs are
+// deliberately excluded: they belong to RouteCostTool, which computes them on the
+// reader's own amount and horizon. This table carries what does NOT change with
+// inputs: what you own, who stands between you and it, whether CPF/SRS money can
+// buy it, and which country's law answers on death.
+//
+// Tickers and fund names are checkable factual examples, not recommendations —
+// the article's disclaimer covers naming.
+const ROWS = [
+  {
+    route: 'Physical bullion',
+    sub: 'IPM — GST-free at ≥99.5% purity',
+    own: 'The metal itself — allocated bars and coins',
+    cpty: 'None',
+    cpf: false, srs: false,
+    death: 'A physical asset: location and access are the plan',
+    tone: 'ok',
+  },
+  {
+    route: 'Bank gold account',
+    sub: 'grams recorded against your name',
+    own: 'A claim on the bank — no allocated bars',
+    cpty: 'The bank',
+    cpf: false, srs: false,
+    death: 'A bank asset: probate, but local',
+    tone: 'ok',
+  },
+  {
+    route: 'SGX gold ETF — US trust',
+    sub: 'SPDR® Gold Shares · GSD / O87',
+    own: 'Units of a US grantor trust; bars vaulted in London',
+    cpty: 'Trust structure, market makers',
+    cpf: true, srs: true,
+    death: 'US estate-tax question — unsettled',
+    tone: 'warn',
+  },
+  {
+    route: 'SGX gold ETF — SG trust',
+    sub: 'LionGlobal Physical Gold · GLS / GLU',
+    own: 'Units of a Singapore trust; bars vaulted in Singapore',
+    cpty: 'Trust structure, market makers',
+    cpf: false, srs: true,
+    death: 'No US nexus; Singapore has no estate duty',
+    tone: 'ok',
+  },
+  {
+    route: 'Gold miners',
+    sub: 'e.g. VanEck GDX and peers — overseas-listed',
+    own: 'Equity in mining businesses, not metal',
+    cpty: 'The companies; the market',
+    cpf: false, srs: false,
+    death: 'Mostly US-listed — the estate question, at full strength',
+    tone: 'warn',
+  },
+];
+import ToolBrand from './ToolBrand.astro';
+---
+
+<div class="rt">
+  <div class="rt-legend">
+    <span class="rt-l-h">Route</span>
+    <span>What you actually own</span>
+    <span>Who stands in between</span>
+    <span>Retirement money</span>
+    <span>On the holder&rsquo;s death</span>
+  </div>
+
+  {ROWS.map((r) => (
+    <div class="rt-row">
+      <div class="rt-route">
+        <b>{r.route}</b>
+        <em>{r.sub}</em>
+      </div>
+      <div class="rt-cell" data-label="What you actually own">{r.own}</div>
+      <div class="rt-cell" data-label="Who stands in between">{r.cpty}</div>
+      <div class="rt-cell rt-chips" data-label="Retirement money">
+        <span class={r.cpf ? 'chip on' : 'chip'}>CPF-IS{r.cpf ? ' ✓' : ' —'}</span>
+        <span class={r.srs ? 'chip on' : 'chip'}>SRS{r.srs ? ' ✓' : ' —'}</span>
+      </div>
+      <div class={`rt-cell rt-death ${r.tone}`} data-label="On the holder's death">{r.death}</div>
+    </div>
+  ))}
+
+  <p class="rt-foot">CPF-IS eligibility sits within the scheme&rsquo;s 10% gold limit, above the
+  first S$20,000 of OA. Costs are deliberately not in this table — the calculator below runs
+  them on your own amount and horizon. Named funds are checkable examples, not picks.</p>
+  <ToolBrand />
+</div>
+
+<style is:global>
+.rt{
+  --rt-bd:var(--color-border); --rt-t1:var(--color-dark); --rt-t2:var(--color-body);
+  --rt-t3:var(--color-muted); --rt-warn:#7A5A1D; --rt-warn-bg:rgba(200,154,60,0.12);
+  --rt-ok:#1A6B47; --rt-ok-bg:rgba(26,135,84,0.08);
+  --rt-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;background:#fff;border:1px solid var(--rt-bd);border-radius:12px;
+  overflow:hidden;font-size:16px;color:var(--rt-t1);
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04)
+}
+.rt-legend{display:grid;grid-template-columns:1.15fr 1.3fr .9fr .8fr 1.1fr;gap:14px;
+  padding:12px 20px;background:var(--color-navy);align-items:end}
+/* 11px floor: at a 768px viewport the scrollbar leaves 753px of content, so the
+   760px hide-query has not fired yet and these are still on screen. */
+.rt-legend span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
+  color:#B9C4D4;line-height:1.3}
+.rt-legend .rt-l-h{color:#fff}
+.rt-row{display:grid;grid-template-columns:1.15fr 1.3fr .9fr .8fr 1.1fr;gap:14px;
+  padding:15px 20px;border-top:1px solid var(--rt-bd);align-items:start}
+.rt-row:nth-child(odd){background:var(--color-surface)}
+.rt-route b{display:block;font-size:14.5px;font-weight:700;color:var(--rt-t1);line-height:1.3}
+.rt-route em{display:block;font-style:normal;font-size:11.5px;color:var(--rt-t3);margin-top:3px;line-height:1.4}
+.rt-cell{font-size:13px;color:var(--rt-t2);line-height:1.45}
+.rt-cell[data-label]::before{content:none}
+.rt-chips{display:flex;gap:6px;flex-wrap:wrap}
+.rt .chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;
+  border:1px solid var(--rt-bd);color:var(--rt-t3);background:#fff}
+.rt .chip.on{border-color:rgba(26,135,84,.35);color:var(--rt-ok);background:var(--rt-ok-bg)}
+.rt-death{font-weight:600;font-size:12.5px;border-radius:6px;padding:6px 9px}
+.rt-death.warn{color:var(--rt-warn);background:var(--rt-warn-bg)}
+.rt-death.ok{color:var(--rt-t2);background:var(--color-surface-alt)}
+.post-content .rt-foot{font-size:12px;color:var(--rt-t3);line-height:1.55;margin:0;
+  padding:12px 20px 14px;border-top:1px solid var(--rt-bd)}
+/* The card root has no padding of its own, so give the credit the foot's inset.
+   Doubled like ToolBrand's own selector, which it must outrank inside prose. */
+.rt a.tool-brand, .post-content .rt a.tool-brand{margin:0 20px 14px auto}
+
+@media(max-width:760px){
+  .rt-legend{display:none}
+  .rt-row{grid-template-columns:1fr;gap:9px;padding:16px}
+  .rt-cell[data-label]::before{content:attr(data-label);display:block;font-size:10px;
+    font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--rt-t3);margin-bottom:2px}
+  .rt-death{display:inline-block}
+}
+</style>

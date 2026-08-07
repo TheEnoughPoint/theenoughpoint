@@ -1,0 +1,163 @@
+---
+// Both halves of gold's deal, in one exhibit: the years shares fell, and the
+// years gold itself fell hardest.
+//
+// Added the right-hand pair on 2026-08-06. The chart previously showed only the
+// three down-years for shares, in every one of which gold held up — which made
+// the strongest visual on the page an unbroken argument FOR gold, with the cost
+// side surviving only as a line of text underneath. That is structural tilt
+// whatever the words say. Both panels are complete sets, not selections: 2008,
+// 2018 and 2022 are every calendar year the S&P 500 fell in gold's ETF era, and
+// 2013 and 2015 are gold's two worst calendar years in the same period.
+//
+// Data: Yahoo Finance adjusted monthly closes (dividends reinvested), calendar
+// years, USD. Shares = SPY, Bonds = AGG, Gold = GLD. Regenerate: bad_years2.py.
+import ToolBrand from './ToolBrand.astro';
+
+const GROUPS = [
+  { yr: '2008', shares: -36.8, bonds: 7.9,   gold: 4.9,   note: 'the financial crisis', side: 'fell' },
+  { yr: '2018', shares: -4.6,  bonds: 0.3,   gold: -1.9,  note: 'the year-end slide',   side: 'fell' },
+  { yr: '2022', shares: -18.2, bonds: -13.0, gold: -0.8,  note: 'bonds fell too',       side: 'fell' },
+  { yr: '2013', shares: 32.3,  bonds: -2.0,  gold: -28.3, note: 'gold’s worst year', side: 'cost' },
+  { yr: '2015', shares: 1.2,   bonds: 0.5,   gold: -10.7, note: 'and its second worst',  side: 'cost' },
+];
+const SERIES = [
+  { key: 'shares', label: 'Shares', cls: 'sh' },
+  { key: 'bonds',  label: 'Bonds',  cls: 'bd' },
+  { key: 'gold',   label: 'Gold',   cls: 'gd' },
+];
+
+// Geometry widened 2026-08-07 for the mobile check. Text inside a viewBox is
+// measured in user units and rescaled by the container, so a chart rendering
+// narrower than its viewBox shrinks its own labels: at 390px this one rendered
+// 760 units into 560px (scale 0.74) and turned 9.5px labels into 7px. The fix is
+// two-part — min-width == W in the CSS so the scale never drops below 1, and
+// enough bar pitch that 11px labels do not collide. See design.md.
+const W = 880, H = 372;
+const PAD_L = 48, PAD_R = 18, PAD_T = 54, PAD_B = 64;
+const LO = -40, HI = 35;
+const plotW = W - PAD_L - PAD_R, plotH = H - PAD_T - PAD_B;
+const y = (v: number) => PAD_T + (1 - (v - LO) / (HI - LO)) * plotH;
+const zeroY = y(0);
+
+const nG = GROUPS.length;
+const groupW = plotW / nG;
+const barW = 34, gap = 8;
+const groupInner = SERIES.length * barW + (SERIES.length - 1) * gap;
+const gx = (gi: number) => PAD_L + gi * groupW + (groupW - groupInner) / 2;
+const bx = (gi: number, si: number) => gx(gi) + si * (barW + gap);
+const GRID = [30, 15, 0, -15, -30];
+const splitX = PAD_L + 3 * groupW;
+---
+
+<figure class="by">
+  <figcaption class="by-cap">
+    <h4>What gold did when shares fell &mdash; and what it cost the rest of the time</h4>
+    <p>Calendar-year total returns in US dollars, dividends reinvested. Left: every year the US
+    share market fell across gold&rsquo;s two decades as an ETF. Right: gold&rsquo;s own two
+    worst years in the same period. Both are complete sets, not selections.</p>
+  </figcaption>
+
+  <div class="by-wrap">
+    <svg viewBox={`0 0 ${W} ${H}`} class="by-svg" role="img"
+         aria-label="Left panel, the three years US shares fell: 2008 shares minus 36.8 percent, bonds plus 7.9, gold plus 4.9; 2018 shares minus 4.6, bonds plus 0.3, gold minus 1.9; 2022 shares minus 18.2 and bonds minus 13.0 together, gold minus 0.8. Right panel, gold's two worst years: 2013 shares plus 32.3, bonds minus 2.0, gold minus 28.3; 2015 shares plus 1.2, bonds plus 0.5, gold minus 10.7. Gold held up in every year shares fell, and fell hardest in years shares rose.">
+      {GRID.map((g) => (
+        <>
+          <line x1={PAD_L} x2={W - PAD_R} y1={y(g)} y2={y(g)} class={g === 0 ? 'by-zero' : 'by-grid'} />
+          <text x={PAD_L - 8} y={y(g) + 3.5} class={g === 0 ? 'by-ylab zero' : 'by-ylab'}>{g > 0 ? `+${g}` : g}</text>
+        </>
+      ))}
+
+      <line x1={splitX} x2={splitX} y1={PAD_T - 34} y2={H - PAD_B + 26} class="by-split" />
+      {/* Right-hand label is anchored to the RIGHT edge, not to the divider: anchored
+          left it sat 48 user-units from the viewBox edge, which clips the moment the
+          webfont falls back to wider metrics. Growing leftward, into empty space, it
+          cannot overflow. */}
+      <text x={PAD_L + 4} y={PAD_T - 38} class="by-side">WHEN SHARES FELL &mdash; ALL THREE YEARS</text>
+      <text x={W - PAD_R} y={PAD_T - 38} class="by-side cost" text-anchor="end">THE PRICE OF THAT &mdash; GOLD&rsquo;S WORST TWO</text>
+
+      {GROUPS.map((row, gi) => (
+        <>
+          {SERIES.map((s, si) => {
+            const v = row[s.key as 'shares' | 'bonds' | 'gold'];
+            const top = v >= 0 ? y(v) : zeroY;
+            const h = Math.max(2, Math.abs(y(v) - zeroY));
+            return (
+              <>
+                <rect x={bx(gi, si)} y={top} width={barW} height={h} rx="2" class={`by-bar ${s.cls}`} />
+                <text x={bx(gi, si) + barW / 2} y={v >= 0 ? top - 6 : top + h + 13}
+                      class={`by-val ${s.cls}`}>{v > 0 ? '+' : '−'}{Math.abs(v).toFixed(1)}%</text>
+              </>
+            );
+          })}
+          <text x={gx(gi) + groupInner / 2} y={H - 30} class="by-yr">{row.yr}</text>
+          <text x={gx(gi) + groupInner / 2} y={H - 15} class="by-note">{row.note}</text>
+        </>
+      ))}
+    </svg>
+  </div>
+
+  <div class="by-key">
+    {SERIES.map((s) => (
+      <span class="by-k"><i class={`by-sw ${s.cls}`}></i>{s.label}</span>
+    ))}
+    <span class="by-k-note">Shares: S&amp;P 500 tracker &middot; Bonds: US aggregate bond tracker &middot; Gold: the gold fund</span>
+  </div>
+
+  <p class="by-foot"><b>Both halves are the same deal.</b> On the left, gold&rsquo;s worst
+  showing in a year shares fell was <b>&minus;1.9%</b> &mdash; and 2022 is the one to look at
+  twice, the year bonds dropped <b>13%</b> alongside shares and gold finished roughly flat. On
+  the right is what that cost: <b>&minus;28.3%</b> in 2013 and <b>&minus;10.7%</b> in 2015,
+  while shares climbed. Insurance you are glad of three years in twenty, and pay for in most of
+  the rest. Source: Yahoo Finance adjusted monthly closes (SPY, AGG, GLD), calendar years, as of
+  6 August 2026.</p>
+  <ToolBrand />
+</figure>
+
+<style is:global>
+.by{
+  --by-sh:#0B1D33; --by-bd:#8FA0B5; --by-gd:#C89A3C;
+  --by-rule:var(--color-border); --by-ink:var(--color-dark);
+  --by-body:var(--color-body); --by-muted:var(--color-muted);
+  --by-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--by-rule);border-radius:12px
+}
+.post-content .by-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .by-cap h4{margin:0 0 3px;font-size:16px;font-weight:700;color:var(--by-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .by-cap p{margin:0;font-size:12.5px;color:var(--by-muted);line-height:1.5}
+.by-wrap{overflow-x:auto}
+/* min-width == the viewBox width: below it the SVG scales its own text down.
+   Wide by design; .by-wrap scrolls. Never lower this without re-measuring the
+   effective label size at 390px. */
+.by-svg{width:100%;min-width:880px;height:auto;display:block}
+.by-grid{stroke:var(--by-rule);stroke-width:1}
+.by-zero{stroke:var(--by-ink);stroke-width:1.5;opacity:.55}
+.by-split{stroke:var(--by-rule);stroke-width:1;stroke-dasharray:4 4}
+.by-side{font-family:var(--font-body);font-size:11px;font-weight:700;letter-spacing:.9px;fill:var(--by-muted)}
+.by-side.cost{fill:#9C7526}
+.by-ylab{font-family:var(--by-mono);font-size:11px;fill:var(--by-muted);text-anchor:end}
+.by-ylab.zero{font-weight:700;fill:var(--by-ink)}
+.by-bar.sh{fill:var(--by-sh)}
+.by-bar.bd{fill:var(--by-bd)}
+.by-bar.gd{fill:var(--by-gd)}
+.by-val{font-family:var(--by-mono);font-size:11px;font-weight:700;text-anchor:middle}
+.by-val.sh{fill:var(--by-sh)}
+.by-val.bd{fill:#5F7288}
+.by-val.gd{fill:#9C7526}
+.by-yr{font-family:var(--font-body);font-size:14.5px;font-weight:700;fill:var(--by-ink);text-anchor:middle}
+.by-note{font-family:var(--font-body);font-size:11px;fill:var(--by-muted);text-anchor:middle}
+.by-key{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin:10px 0 0;
+  font-size:12px;color:var(--by-body)}
+.by-k{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.by-sw{width:11px;height:11px;border-radius:2px;display:inline-block}
+.by-sw.sh{background:var(--by-sh)}
+.by-sw.bd{background:var(--by-bd)}
+.by-sw.gd{background:var(--by-gd)}
+.by-k-note{font-size:11px;color:var(--by-muted);font-weight:400}
+.post-content .by-foot{font-size:13px;color:var(--by-body);line-height:1.6;margin:12px 0 0;
+  padding-top:12px;border-top:1px solid var(--by-rule)}
+.by-foot b{font-family:var(--by-mono);color:var(--by-ink);font-weight:600}
+@media(max-width:560px){ .by{padding:16px 13px 13px} }
+</style>
