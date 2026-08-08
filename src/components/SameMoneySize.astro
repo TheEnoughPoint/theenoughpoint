@@ -27,10 +27,24 @@
 // so no figure in the prose can drift from a bar.
 //
 // COLOUR CARRIES NO VERDICT (VOICE.md C10). Every bar measures the same quantity — square feet —
-// so every bar is the same ink, and the only pattern is the dashed outline on the building that
-// does not exist yet. More space is not "better" here; it is the trade, and the lease and the walk
-// in the same row are what it is traded against — Braddell View offers the most floor area in the
-// district and has 54 years left against the baseline's fresh 99.
+// so this is a ONE-SERIES chart and takes one hue for every bar, which is the documented treatment:
+// slot 1, #2a78d6, validated at 4.4:1 on white. It replaces a near-black slate that turned nine
+// stacked rows into a wall and left the two states almost indistinguishable.
+//
+// The states are pattern, never a second hue:
+//   solid          floor area the budget buys there
+//   white-striped  the same, where the size sits above what usually trades — less certain, not
+//                  worse, so it is the SAME blue interrupted rather than a different colour
+//   dashed outline the building that does not exist yet
+//
+// White stripes, not dark ones: on a near-black bar the old hatch was invisible at a glance, which
+// defeated the point of marking it at all. The baseline row was worse — a cream hatch on white,
+// the most important reference on the chart and the least visible thing on it. It now carries a
+// pale tint of the same blue inside a dashed border of the full strength.
+//
+// More space is not "better" here; it is the trade, and the lease and the walk in the same row are
+// what it is traded against — Braddell View offers the most floor area and has 54 years left
+// against the baseline's fresh 99.
 //
 // Two filters, both mechanical and both stated on the figure: within 400 m of an MRT entrance, and
 // at least 10 resales in the twelve months so a median is not one odd unit. Nothing else is
@@ -144,8 +158,9 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm{
   --sm-ink:var(--color-dark); --sm-body:var(--color-body); --sm-muted:var(--color-muted);
   --sm-rule:var(--color-border);
-  --sm-fill:#33414F;          /* one ink for every bar: the quantity is the same on every row */
-  --sm-ghost:#E3DDCF;         /* baseline reference behind each bar, not a second measure */
+  --sm-fill:#2a78d6;          /* one hue for every bar: one series, one colour */
+  --sm-fill-pale:#DCEAFB;     /* the not-yet-built baseline, same family at a fraction of the weight */
+  --sm-ghost:#C9D3DE;         /* the baseline repeated behind each bar, not a second measure */
   --sm-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
   margin:26px 0;padding:20px 22px 16px;background:#fff;
   border:1px solid var(--sm-rule);border-radius:12px
@@ -161,8 +176,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm-lg{display:flex;align-items:center;gap:6px;color:var(--sm-body)}
 .sm-key{width:18px;height:11px;border-radius:2px;display:inline-block;flex:0 0 auto}
 /* Pattern, not hue, separates the three states — see the note at the top of this file. */
-.sm-key-new{border:1.5px dashed var(--sm-fill);background:
-  repeating-linear-gradient(45deg,transparent,transparent 3px,var(--sm-ghost) 3px,var(--sm-ghost) 6px)}
+.sm-key-new{border:1.5px dashed var(--sm-fill);background:var(--sm-fill-pale);box-sizing:border-box}
 .sm-key-old{background:var(--sm-fill)}
 
 /* An explicit header row: the bars had no column labels at all, so a reader met three numbers
@@ -190,8 +204,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm-bar-old{background:var(--sm-fill)}
 /* The stretch past the largest unit the building has ever sold. Same ink, hatched, so it reads as
    "this part is not available" rather than as a different kind of thing. */
-.sm-bar-new{background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--sm-ghost) 3px,var(--sm-ghost) 6px);
-  border:1.5px dashed var(--sm-fill);box-sizing:border-box}
+.sm-bar-new{background:var(--sm-fill-pale);border:1.5px dashed var(--sm-fill);box-sizing:border-box}
 /* The baseline repeated behind every bar, so the overhang past it is visible on each row. */
 .sm-ghost{position:absolute;left:0;top:0;height:17px;border-right:1.5px dashed var(--sm-muted);
   background:transparent}
@@ -204,8 +217,8 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm-key-warn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;
   border-radius:50%;border:1px solid var(--sm-muted);color:var(--sm-muted);font-size:11px;
   font-weight:700;font-style:normal;line-height:1}
-.sm-bar-old.is-above{background:repeating-linear-gradient(45deg,var(--sm-fill),var(--sm-fill) 6px,
-  #6E7C8C 6px,#6E7C8C 9px)}
+.sm-bar-old.is-above{background:repeating-linear-gradient(45deg,var(--sm-fill),var(--sm-fill) 5px,
+  #fff 5px,#fff 8px)}
 .sm-pct{font-family:var(--sm-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
   color:var(--sm-body);text-align:right;font-weight:600}
 .sm-pct-base{color:var(--sm-muted);font-weight:400}
