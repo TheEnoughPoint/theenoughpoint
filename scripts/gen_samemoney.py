@@ -14,28 +14,17 @@ BUDGET_PY, NEW_PSF_PY = 2_400_000, 2900
 BASE_PY = round(BUDGET_PY / NEW_PSF_PY)
 
 data, provenance = load_live(LIVE, ['projects', 'districts'])
+_sz = {x['project'].title(): x['size_r'] for x in data['projects']['rows']}
 rows = []
 for r in rows_for_compare(data):
     if r['d'] != 'D20' or r['m'] > 400:
         continue
-    want = round(BUDGET_PY / r['psf'])
-    # `hi` is the 90th percentile of sizes that TRADED — not the building's largest unit. The cap
-    # therefore means "9 in 10 sales there were smaller", which the figure states in words.
-    cap = r['hi'] if False else None
-    rows.append(r)
-# the size ceiling comes from the projects feed's size_r, which rows_for_compare does not carry,
-# so re-read it here against the same guarded data
-_sz = {x['project'].title(): x['size_r'] for x in data['projects']['rows']}
-out = []
-for r in rows:
-    want = round(BUDGET_PY / r['psf'])
-    cap = _sz[r['p']][1]
-    got = min(want, cap)
-    out.append(dict(p=r['p'], psf=r['psf'], n=r['v'], l=('FH' if r['fh'] else r['lyr']),
-                    m=r['m'], x=r['x'], got=got, want=want, capped=want > cap,
-                    pct=round((got / BASE_PY - 1) * 100)))
-out.sort(key=lambda x: x['got'])
-rows = out
+    sq = round(BUDGET_PY / r['psf'])
+    p90 = _sz[r['p']][1]
+    rows.append(dict(p=r['p'], psf=r['psf'], n=r['v'], l=('FH' if r['fh'] else r['lyr']),
+                     m=r['m'], x=r['x'], sq=sq, p90=p90, above=sq > p90,
+                     pct=round((sq / BASE_PY - 1) * 100)))
+rows.sort(key=lambda x: x['sq'])
 DATA = json.dumps(rows, separators=(',', ':'), ensure_ascii=False)
 
 TPL = '''---
@@ -47,23 +36,19 @@ TPL = '''---
 // foot") is a number nobody can feel. This figure restates the identical fact in the unit a buyer
 // lives in: one fixed sum, and the floor area it buys in each building.
 //
-// EVERY QUALIFYING BUILDING IS HERE, AND THE CONSTRAINT IS DRAWN RATHER THAN FOOTNOTED. An earlier
-// version dropped four buildings where the budget bought more space than the building has ever
-// sold, then explained the exclusion in a note longer than the chart. That was worse on both
-// counts: it hid buildings a reader might want, and it spent its longest paragraph on absence.
-// Every bar is the floor area the budget buys there, CAPPED at the top of what that building
-// actually sells. An intermediate version drew a ghosted stretch on to the uncapped figure; it
-// read as more bar rather than as absent space, so the bar simply stops.
+// EVERY QUALIFYING BUILDING IS HERE AND NOTHING IS CAPPED. Two earlier versions got this wrong in
+// opposite directions: the first dropped four buildings where the budget bought more space than
+// they usually sell, then explained the absence in a note longer than the chart; the second capped
+// their bars at the 90th percentile of traded sizes and called it "their biggest", which claimed
+// more than the data supports and answered a question nobody asked.
 //
-// WHAT THE CAP IS, precisely, because an earlier label got this wrong twice. `size_r` in the feed
-// is the 10th and 90th percentile of the sizes that TRADED in the twelve months — not the
-// building's inventory, and not the largest unit in it. So the ceiling means "9 in 10 sales there
-// were smaller than this", which is a statement about what comes to market, not about what was
-// built. The row said "their biggest", which claimed both more than the data supports; it now
-// says "top of what sells" and the footer states the percentile outright.
-//
-// That also puts Braddell View back on the chart, which matters: it is the row that shows the real
-// trade in this neighbourhood most starkly — far more space, at half the remaining lease.
+// The cap conflated two different things — what the money buys at a building's rate, and whether a
+// home that size is available. The bar answers the first, which is the comparison the figure
+// exists to make. The second is a caveat, and it is now stated as one: rows where the implied size
+// sits above the 90th percentile of what trades there carry a "!" and the footer gives both
+// reasons to read them as optimistic, the second of which the cap never captured — a building's
+// median rate is set by the sizes it sells, and larger homes almost always trade at a lower rate
+// per square foot than smaller ones in the same block, so the implied size is doubly generous.
 //
 // ROWS is emitted mechanically from data/live.json in the sg-property-decision repo (URA
 // PMI_Resi_Transaction resale medians, twelve months to August 2026; nearest MRT from LTA exits).
@@ -84,14 +69,14 @@ const BUDGET = 2_400_000;
 const NEW_PSF = 2900; // the middle of the illustrative band the article derives; NOT a quote
 
 interface Row { p: string; psf: number; n: number; l: number | string; m: number; x: string;
-  got: number; want: number; capped: boolean; pct: number }
+  sq: number; p90: number; above: boolean; pct: number }
 
 const ROWS: Row[] = __DATA__;
 
 const BASE = Math.round(BUDGET / NEW_PSF);
-const MAX = Math.max(BASE, ...ROWS.map((r) => r.got));
+const MAX = Math.max(BASE, ...ROWS.map((r) => r.sq));
 const w = (v: number) => (v / MAX) * 100;
-const CAPPED = ROWS.filter((r) => r.capped);
+const ABOVE = ROWS.filter((r) => r.above);
 const MIN_PCT = Math.min(...ROWS.map((r) => r.pct));
 const MAX_PCT = Math.max(...ROWS.map((r) => r.pct));
 const n = (v: number) => v.toLocaleString('en-SG');
@@ -108,6 +93,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 
   <div class="sm-legend">
     <span class="sm-lg"><i class="sm-key sm-key-old"></i>floor area {money(BUDGET)} buys there</span>
+    <span class="sm-lg"><i class="sm-key sm-key-warn">!</i> above the size that usually trades there</span>
     <span class="sm-lg"><i class="sm-key sm-key-new"></i>not built yet</span>
   </div>
 
@@ -139,13 +125,13 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
           <span class="sm-nm-s">{r.l} yrs &middot; {r.m}m</span></span>
         <span class="sm-track">
           <span class="sm-ghost" style={`width:${w(BASE)}%`} aria-hidden="true"></span>
-          <span class="sm-bar sm-bar-old" style={`width:${w(r.got)}%`}
+          <span class={`sm-bar sm-bar-old${r.above ? ' is-above' : ''}`} style={`width:${w(r.sq)}%`}
             role="img"
-            aria-label={`${r.p}. Median S$${n(r.psf)} per square foot over ${r.n} resales, ${r.l} years of lease remaining, ${r.m} metres to ${r.x} station. ${money(BUDGET)} buys ${n(r.got)} square feet there, ${r.pct} per cent against the new-build baseline.${r.capped ? ` That is the top of what sells there — nine in ten sales were smaller — and the budget alone would stretch to ${n(r.want)} square feet.` : ''}`}></span>
+            aria-label={`${r.p}. Median S$${n(r.psf)} per square foot over ${r.n} resales, ${r.l} years of lease remaining, ${r.m} metres to ${r.x} station. ${money(BUDGET)} buys ${n(r.sq)} square feet there, ${r.pct} per cent against the new-build baseline.${r.above ? ` That is above the size that usually trades there — nine in ten sales are under ${n(r.p90)} square feet — so treat it as optimistic.` : ''}`}></span>
         </span>
         {/* The bar stops at what the building actually offers. An earlier version drew a ghosted
             stretch to the notional figure, which read as more bar rather than as absent space. */}
-        <span class="sm-val">{n(r.got)}{r.capped && <i class="sm-cap-note">top of what sells</i>}</span>
+        <span class="sm-val">{n(r.sq)}{r.above && <i class="sm-cap-note"><b>!</b> above typical</i>}</span>
         <span class="sm-pct">{r.pct >= 0 ? '+' : '−'}{Math.abs(r.pct)}%</span>
       </li>
     ))}
@@ -154,20 +140,23 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   {/* An earlier version said all of this in one sentence carrying three separate ideas, and a
       reader stopped at it. One idea per sentence, with a worked example for the awkward case. */}
   <p class="sm-foot">Each bar is how much space {money(BUDGET)} buys at that building&rsquo;s own
-  price per square foot. For {ROWS.length - CAPPED.length} of them that is plain arithmetic.
-  For the other {CAPPED.length} the sum came out bigger than almost anything they sell, so the bar
-  stops at the size nine in ten of their sales come under &mdash; at <b>{CAPPED[0].p}</b> the budget
-  works out to {n(CAPPED[0].want)} sq ft, but nine in ten homes sold there are under{' '}
-  <b>{n(CAPPED[0].got)}</b>.</p>
+  median price per square foot. Nothing is capped: if the money reaches a bigger home there, the bar
+  shows it.</p>
+
+  <p class="sm-foot sm-foot-2">On {ABOVE.length} of them the answer lands <b>above the size that
+  usually trades there</b>, marked with a <b>!</b>. Read those as optimistic for two reasons. You may
+  not find a home that size &mdash; at <b>{ABOVE[0].p}</b> nine in ten sales are under{' '}
+  {n(ABOVE[0].p90)} sq ft, against the {n(ABOVE[0].sq)} the budget implies. And a building&rsquo;s
+  median price per square foot is set by the sizes it actually sells, so applying a small-unit
+  building&rsquo;s rate to a large notional home overstates the space: bigger homes almost always
+  trade at a lower rate per square foot than smaller ones in the same block.</p>
 
   <p class="sm-foot sm-foot-2">Against <b>{n(BASE)} sq ft</b> in a building that does not exist yet,
-  that runs from {MIN_PCT < 0 ? `${Math.abs(MIN_PCT)}% less space` : `${MIN_PCT}% more`} to{' '}
-  {MAX_PCT >= 100 ? 'more than double' : `${MAX_PCT}% more`}.</p>
-
-  <p class="sm-foot sm-foot-2">The extra space is not money saved. Part of what you pay for a new
-  build is the building being new &mdash; a fresh 99-year lease, and nothing to repair for years.
-  The lease column is where the biggest jumps show their price: the row with the most space has{' '}
-  <b>{ROWS.find((r) => r.pct === MAX_PCT).l} years</b> left, against a fresh 99.</p>
+  the range runs from {MIN_PCT < 0 ? `${Math.abs(MIN_PCT)}% less space` : `${MIN_PCT}% more`} to{' '}
+  {MAX_PCT >= 100 ? 'more than double' : `${MAX_PCT}% more`}. The extra space is not money saved:
+  part of what you pay for a new build is the building being new &mdash; a fresh 99-year lease, and
+  nothing to repair for years. The lease column is where the biggest jumps show their price: the row
+  with the most space has <b>{ROWS.find((r) => r.pct === MAX_PCT).l} years</b> left, against a fresh 99.</p>
 
   <p class="sm-src">Computed by us from URA private resale transactions, District 20, twelve months to{' '}
   {ASOF}; walking distances are straight-line to the nearest station entrance, so a real walk is
@@ -238,6 +227,14 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm-val{font-family:var(--sm-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
   font-weight:600;color:var(--sm-ink);text-align:right}
 .sm-cap-note{display:block;font-style:normal;font-size:11px;font-weight:400;color:var(--sm-muted)}
+.sm-cap-note b{font-weight:700;color:var(--sm-body)}
+/* The "!" is a caveat marker, not a status colour: these rows are not worse, they are less
+   certain, and the reason is spelled out in the footer rather than encoded in a hue. */
+.sm-key-warn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;
+  border-radius:50%;border:1px solid var(--sm-muted);color:var(--sm-muted);font-size:11px;
+  font-weight:700;font-style:normal;line-height:1}
+.sm-bar-old.is-above{background:repeating-linear-gradient(45deg,var(--sm-fill),var(--sm-fill) 6px,
+  #6E7C8C 6px,#6E7C8C 9px)}
 .sm-pct{font-family:var(--sm-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
   color:var(--sm-body);text-align:right;font-weight:600}
 .sm-pct-base{color:var(--sm-muted);font-weight:400}
@@ -266,4 +263,4 @@ from jsx_space_lint import assert_clean
 assert_clean(out, 'SameMoneySize.astro')   # a newline before an expression eats the space; five have shipped
 io.open(path, 'w', encoding='utf-8').write(out)
 print('written', len(out), 'bytes ·', len(rows), 'buildings ·',
-      sum(1 for r in rows if r['capped']), 'capped by the building')
+      sum(1 for r in rows if r['above']), 'above the size that usually trades there')
