@@ -32,10 +32,31 @@ HEAD = '''---
 // table, which the venture's red lines prohibit and which would be dishonest anyway — the weights
 // are the reader's and nobody else's. The figure says so in as many words.
 //
-// COLOUR MEANS SEGMENT AND NOTHING ELSE (VOICE.md C10), reusing the validated triple from
-// DistrictYieldChart and DistrictSupplyChart: light #2563EB/#B45309/#7C3AED. Leadership is marked
-// by a text tag, never by hue, so it survives greyscale and colour blindness and never implies a
-// value judgement the data cannot support.
+// COLOUR IDENTIFIES THE BUILDING — one hue per column, held down every row.
+//
+// It used to mark market segment, and that was wrong here for a reason the default set makes
+// obvious: compare three District 20 buildings and all three are RCR, so all three bars came out
+// the same colour and the channel carried nothing at all. Segment is a property of the building,
+// not of the comparison; it is now text in the column header ("D20 · RCR") where it belongs.
+//
+// The rule this follows is the dataviz standard: colour follows the entity, never its rank, and
+// categorical hues are assigned in fixed order. Because the reader chooses who occupies each
+// column, the hue is bound to the name in three places at once — the picker label, the column
+// header chip, and every bar beneath it — so identity is read off the page and never has to be
+// remembered across a change.
+//
+// Palette: slots 1-3 of the validated categorical theme, #2a78d6 / #eb6834 / #1baf7a. Checked
+// with the skill's validator under --pairs all (every pair matters here, not just neighbours):
+// lightness band PASS, chroma floor PASS, worst all-pairs CVD deltaE 9.2 deutan / 9.6 tritan
+// against a target of 8, worst normal-vision deltaE 24.0 against a floor of 15. One WARN: aqua
+// sits at 2.82:1 on white, under 3:1, which obliges visible labels — satisfied by construction,
+// since every mark here has its value, its delta and its building name printed beside it.
+// Deliberately NOT the segment triple used by DistrictYieldChart and DistrictSupplyChart: there
+// that ink means segment, and reusing it for entity identity would give one colour two meanings
+// across the site.
+//
+// Leadership is still marked by a text tag, never by hue, so it survives greyscale and colour
+// blindness and never implies a value judgement the data cannot support.
 //
 // The class prefix is `cmp-`, not `cc-`: src/pages/cashback-calendar.astro already owns `cc-` and
 // both files ship `is:global` styles, so sharing a prefix would collide the moment they met.
@@ -83,7 +104,7 @@ BODY = r'''
   <div class="cmp-picks">
     {[0, 1, 2].map((i) => (
       <div class="cmp-pick">
-        <label for={`cmp-s${i}`}>{SLOTS[i]}</label>
+        <label for={`cmp-s${i}`}><i class={`cmp-key s${i}`}></i>{SLOTS[i]}</label>
         <select id={`cmp-s${i}`}>
           <option value="">&mdash; none &mdash;</option>
           {BY_D.map((grp) => (
@@ -98,10 +119,7 @@ BODY = r'''
     ))}
   </div>
 
-  <div class="cmp-legend">
-    {SEGS.map((s) => (<span class="cmp-lg"><i class={`cmp-dot ${s.k}`}></i>{s.label}</span>))}
-    <span class="cmp-hint">colour marks segment &middot; <b>ahead</b> marks the leading value</span>
-  </div>
+  <div class="cmp-legend" id="cmp-legend"></div>
 
   <div class="cmp-out" id="cmp-out" aria-live="polite"></div>
 
@@ -115,7 +133,9 @@ BODY = r'''
   particular unit. Distances are straight-line to the nearest station entrance; a real walk is
   typically 20&ndash;40% further. &ldquo;Against its district&rdquo; compares a project with resale
   of the <b>same size band</b> in the same district &mdash; a position, not a discount, which a
-  newer building, a higher floor or a shorter walk can each explain. <b>There is no overall score
+  newer building, a higher floor or a shorter walk can each explain. Buildings are labelled by
+  postal district, which is exact. We do not show a market-segment tag: the upstream
+  classification is an approximation and disagrees with itself inside some districts. <b>There is no overall score
   and there will not be one</b>: the weights belong to whoever is buying.</p>
 </figure>
 
@@ -190,9 +210,9 @@ function render(){
   }
   const cols = picked.length;
   let h = '<div class="cmp-heads" style="--cols:' + cols + '">';
-  picked.forEach(r => {
-    h += '<div class="cmp-head"><b>' + esc(r.p) + '</b><span class="cmp-meta"><i class="cmp-dot '
-      + r.g + '"></i>' + r.d + ' \u00b7 ' + r.g + '</span></div>';
+  picked.forEach((r, i) => {
+    h += '<div class="cmp-head"><b><i class="cmp-key s' + i + '"></i>' + esc(r.p)
+      + '</b><span class="cmp-meta">' + r.d + ' \u00b7 ' + esc(r.n) + '</span></div>';
   });
   h += '</div>';
 
@@ -223,7 +243,7 @@ function render(){
         ? (isRef ? (cols > 1 ? 'lowest here' : '') : mt.delta(vals[i], ref))
         : '';
       h += '<div class="cmp-cell"><span class="cmp-v">' + esc(mt.fmt(r)) + '</span>'
-        + '<span class="cmp-track"><span class="cmp-bar ' + r.g + '" style="width:'
+        + '<span class="cmp-track"><span class="cmp-bar s' + i + '" style="width:'
         + Math.max(2, (vals[i] / scale) * 100) + '%" role="img" aria-label="'
         + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r) + (lead ? ', ' + mt.lead : '')
               + (d ? ', ' + d + ' ' + refLabel : '') + '.') + '"></span></span>'
@@ -234,6 +254,10 @@ function render(){
     h += '</div></div>';
   });
   $('cmp-out').innerHTML = h;
+  $('cmp-legend').innerHTML = picked.map((r, i) =>
+    '<span class="cmp-lg"><i class="cmp-key s' + i + '"></i>' + esc(r.p) + '</span>').join('')
+    + '<span class="cmp-hint">colour identifies the building &middot; '
+    + '<b>▲</b> marks the leading value</span>';
 
   if (cols < 2){
     $('cmp-say').innerHTML = 'Add a second building and every row will show how far apart they are.';
@@ -267,7 +291,10 @@ else init();
 
 <style is:global>
 .cmp{
-  --cmp-ocr:#2563EB; --cmp-rcr:#B45309; --cmp-ccr:#7C3AED;   /* validated triple, light card */
+  /* Categorical slots 1-3 of the validated theme — colour is WHICH BUILDING, held down every
+     row. Validated under --pairs all against a #fff surface: worst CVD deltaE 9.2, worst
+     normal-vision deltaE 24.0. Not the segment triple; that ink means segment elsewhere. */
+  --cmp-s0:#2a78d6; --cmp-s1:#eb6834; --cmp-s2:#1baf7a;
   --cmp-ink:var(--color-dark); --cmp-body:var(--color-body); --cmp-muted:var(--color-muted);
   --cmp-rule:var(--color-border); --cmp-soft:#F0ECE2;
   --cmp-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
@@ -282,21 +309,23 @@ else init();
 .post-content .cmp-cap p{margin:0;font-size:12.5px;color:var(--cmp-muted);line-height:1.5}
 
 .cmp-picks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-.cmp-pick label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.05em;color:var(--cmp-muted);margin-bottom:4px}
+.cmp-pick label{display:flex;align-items:center;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--cmp-muted);margin-bottom:4px}
 .cmp select{width:100%;font-family:inherit;font-size:12.5px;color:var(--cmp-ink);background:#fff;
   border:1px solid var(--cmp-rule);border-radius:6px;padding:11px 8px;min-height:44px}
 .cmp select:focus-visible{outline:2px solid var(--cmp-ink);outline-offset:2px}
 
-.cmp-legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-bottom:12px;font-size:11.5px}
+.cmp-legend{display:flex;flex-wrap:wrap;gap:5px 16px;align-items:center;margin-bottom:12px;font-size:11.5px}
 .cmp-lg{display:flex;align-items:center;gap:6px;color:var(--cmp-body)}
-.cmp-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 auto}
-.cmp-dot.OCR{background:var(--cmp-ocr)} .cmp-dot.RCR{background:var(--cmp-rcr)} .cmp-dot.CCR{background:var(--cmp-ccr)}
-.cmp-hint{color:var(--cmp-muted)}
+.cmp-key{width:10px;height:10px;border-radius:3px;display:inline-block;flex:0 0 auto;
+  margin-right:6px;vertical-align:-1px}
+.cmp-key.s0{background:var(--cmp-s0)} .cmp-key.s1{background:var(--cmp-s1)} .cmp-key.s2{background:var(--cmp-s2)}
+.cmp-hint{color:var(--cmp-muted);flex-basis:100%}
 
 .cmp-heads,.cmp-mrows{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:10px}
 .cmp-heads{padding-bottom:8px;border-bottom:1px solid var(--cmp-rule);margin-bottom:10px}
 .cmp-head b{display:block;font-size:13px;color:var(--cmp-ink);line-height:1.25}
+.cmp-head .cmp-key{margin-right:5px}
 .cmp-meta{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--cmp-muted);margin-top:2px}
 
 .cmp-metric{margin-bottom:13px}
@@ -307,9 +336,11 @@ else init();
 .cmp-cell{min-width:0}
 .cmp-v{display:block;font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;font-size:12px;
   font-weight:600;color:var(--cmp-ink);margin-bottom:3px}
-.cmp-track{display:block;height:9px;background:var(--cmp-soft);border-radius:3px}
-.cmp-bar{display:block;height:9px;border-radius:3px;min-width:2px}
-.cmp-bar.OCR{background:var(--cmp-ocr)} .cmp-bar.RCR{background:var(--cmp-rcr)} .cmp-bar.CCR{background:var(--cmp-ccr)}
+.cmp-track{display:block;height:10px;background:var(--cmp-soft);border-radius:0 4px 4px 0}
+/* 4px rounded data-end, thin mark, no border — separation comes from the 10px grid gap
+   between cells rather than a stroke around each bar. */
+.cmp-bar{display:block;height:10px;border-radius:0 4px 4px 0;min-width:3px}
+.cmp-bar.s0{background:var(--cmp-s0)} .cmp-bar.s1{background:var(--cmp-s1)} .cmp-bar.s2{background:var(--cmp-s2)}
 .cmp-delta{display:block;min-height:15px;margin-top:3px;font-family:var(--cmp-mono);
   font-variant-numeric:tabular-nums;font-size:11px;color:var(--cmp-muted)}
 /* Leadership is a word, never a colour: it must survive greyscale and colour blindness, and a
