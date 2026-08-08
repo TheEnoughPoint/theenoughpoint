@@ -45,25 +45,28 @@ HEAD = '''---
 // can un-see it. A comparison tool that hands out a favourable tone by slot order is putting a
 // thumb on the scale by accident, which is worse than doing it on purpose.
 //
-// So colour now encodes RANK WITHIN THE ROW, on a single hue, and no project owns a tone. A
-// building that leads on lease and trails on price is dark on one row and light on the next —
-// which is the honest picture. Identity is carried by the column header, which never moves.
+// A blue ordinal ramp followed, which was fair but inert — the reader could not tell at a glance
+// whether a dark cell was good news. On ZH's call the figure now uses STATUS colour, and the
+// scope of that decision is the whole design:
 //
-//   ranked rows    one blue ordinal ramp: darkest leads, lightest trails.
-//   unranked rows  a flat neutral grey on all three, because "strength" is undefined for price,
-//                  standing-vs-district, unit size and typical quantum. Colouring those would
-//                  invent the preference the tool explicitly refuses to hold.
+//   ranked rows    green leads, red trails, the middle stays neutral. Only the three measures
+//                  that HAVE a better end are marked.
+//   unranked rows  no status colour at all. Price, standing-vs-district, unit size and typical
+//                  quantum have no better end, so green there would invent a preference. This is
+//                  not a hedge — it is what stops the figure becoming a scorecard for a named
+//                  development, which is the one thing this tool must never be.
 //
-// Palette, validated rather than eyeballed. Ordinal ramp #86b6ef / #3987e5 / #1c5cab checked with
-// --ordinal: lightness monotone PASS, adjacent delta-L PASS, light-end contrast 2.11:1 against
-// the 2:1 ordinal floor PASS, single hue (3 degrees spread) PASS. The unranked neutral #6b7280
-// was then checked AGAINST the ramp, because both appear in one figure: normal-vision deltaE 22.6
-// and deutan 21.8 against the lightest step, so the "no ranking here" grey cannot be mistaken for
-// a ramp step. An earlier candidate sat at deltaE 13.7 and was rejected on that test.
+// Status tokens come from the fixed scale and are not themed: good #0ca30c, critical #d03b3b. Per
+// the status rule they never appear as colour alone — every marked cell also carries an arrow and
+// a factual word ("longest", "furthest", never "best"), so the reading survives greyscale, colour
+// blindness and a monochrome print. Measured on the page: the green mark reads 3.02:1 on its own
+// wash and the red 4.22:1, with values at about 15:1 on both.
 //
-// Leadership is still ALSO marked by a text tag and an explicit delta, so the ranking survives
-// greyscale, colour blindness and a monochrome print — colour is reinforcement here, never the
-// only carrier.
+// THE BARS ARE GONE, and that is the other half of the rethink. Twenty-one of them, each
+// normalised to its own row so none could be compared with any other, read as wallpaper rather
+// than as information. A tinted cell says the same thing in a third of the height — the component
+// lost about a quarter of its length and gained the thing it was missing, which is a reader being
+// able to see the shape of the trade without reading every number.
 //
 // The class prefix is `cmp-`, not `cc-`: src/pages/cashback-calendar.astro already owns `cc-` and
 // both files ship `is:global` styles, so sharing a prefix would collide the moment they met.
@@ -127,13 +130,12 @@ BODY = r'''
   </div>
 
   <div class="cmp-legend">
-    <span class="cmp-scale">
-      <i class="cmp-key r3"></i><i class="cmp-key r2"></i><i class="cmp-key r1"></i>
-      darker leads this row, lighter trails
-    </span>
-    <span class="cmp-scale"><i class="cmp-key n"></i>no better end &mdash; not ranked</span>
-    <span class="cmp-hint">Colour shows standing <em>within a row</em>, never which building it is
-    &mdash; so no project owns a shade, and one that leads on lease can trail on price.</span>
+    <span class="cmp-scale is-best"><b>&#9650;</b> leads this measure</span>
+    <span class="cmp-scale is-worst"><b>&#9660;</b> trails it</span>
+    <span class="cmp-scale is-flat">no better end &mdash; not marked</span>
+    <span class="cmp-hint">Green and red show standing <em>within one row</em>, on the three
+    measures that have a better end. They never say which building is the better buy &mdash; a
+    project can lead on lease and trail on the walk, and only you know which you are buying.</span>
   </div>
 
   <div class="cmp-lead" id="cmp-lead" aria-live="polite"></div>
@@ -183,7 +185,7 @@ const METRICS = [
     val: r => r.psf / r.b - 1,
     delta: (v, ref) => ppDelta(v * 100, ref * 100),
     note: 'no better end \u2014 a position vs same-size resale nearby, not a discount' },
-  { label: 'Resales in 12 months', short: 'how often units sell', dir: 'more', lead: 'most traded', kind: 'ratio',
+  { label: 'Resales in 12 months', short: 'how often units sell', dir: 'more', lead: 'most traded', trail: 'least traded', kind: 'ratio',
     fmt: r => num(r.v), brief: r => num(r.v) + ' sales', val: r => r.v,
     delta: (v, ref) => absDelta(v, ref, ''),
     note: 'more changes of hand = easier to leave when you need to' },
@@ -192,14 +194,14 @@ const METRICS = [
   // area — and silently scored them as zero spread. That reported a 2.2x price gap between
   // Braddell View and Jadescape as "much the same". Caught by reading the summary against the
   // detail grid rather than trusting it.
-  { label: 'Lease remaining', short: 'lease left', dir: 'more', lead: 'longest', kind: 'ratio', fh: true,
+  { label: 'Lease remaining', short: 'lease left', dir: 'more', lead: 'longest', trail: 'shortest', kind: 'ratio', fh: true,
     fmt: r => r.l === 'FH' ? 'Freehold' : r.l + ' yrs',
     brief: r => r.l === 'FH' ? 'freehold' : r.l + ' yrs',
     val: r => r.l === 'FH' ? 999 : Number(r.l),
     delta: (v, ref) => (v >= 999 || ref >= 999) ? ''
       : absDelta(v, ref, Math.abs(v - ref) === 1 ? ' yr' : ' yrs'),
     note: 'more years is more, and under 60 the CPF and lending rules tighten' },
-  { label: 'To the nearest MRT', short: 'the walk to a station', dir: 'less', lead: 'nearest', kind: 'ratio',
+  { label: 'To the nearest MRT', short: 'the walk to a station', dir: 'less', lead: 'nearest', trail: 'furthest', kind: 'ratio',
     fmt: r => num(r.m) + ' m \u00b7 ' + r.x, brief: r => num(r.m) + ' m', val: r => r.m,
     delta: (v, ref) => absDelta(v, ref, ' m'),
     note: 'nearer is nearer \u2014 whether that beats quiet is yours to weigh' },
@@ -351,23 +353,15 @@ function render(){
     const vals = picked.map(mt.val);
     const max = Math.max.apply(null, vals);
     const min = Math.min.apply(null, vals);
-    // Reference for the delta: the leader where one exists, otherwise the lowest value, so the
-    // column reads as "how far from the front" or "how far above the cheapest".
-    const isLead = i => cols > 1 && mt.dir !== 'none'
-      && (mt.dir === 'more' ? vals[i] === max : vals[i] === min);
-    const ref = mt.dir === 'more' ? max : mt.dir === 'less' ? min : min;
-    const refLabel = mt.dir === 'none' ? 'vs lowest here' : 'from the front';
-    // Bars stay proportional to the value, never to the gap: exaggerating a small spread to fill
-    // the track would make two near-identical buildings look far apart.
-    const scale = max || 1;
-    // Rank within the row, on distinct values so ties share a step. Index 0 is the leading value
-    // and takes the darkest step; unranked measures return the neutral.
-    const ordered = mt.dir === 'none' ? null
+    const ref = mt.dir === 'more' ? max : min;
+    // Rank on distinct values so ties share a state. A measure with no better end, or a single
+    // selection, has no ranking at all and every cell stays flat.
+    const ordered = mt.dir === 'none' || cols < 2 ? null
       : [...new Set(vals)].sort((a, b) => mt.dir === 'more' ? b - a : a - b);
-    const stepOf = (v) => {
-      if (!ordered) return 'n';
-      const ladder = ordered.length <= 1 ? ['r3'] : ordered.length === 2 ? ['r3','r1'] : ['r3','r2','r1'];
-      return ladder[Math.min(ordered.indexOf(v), ladder.length - 1)];
+    const rankOf = (v) => {
+      if (!ordered || ordered.length < 2) return 'flat';
+      const idx = ordered.indexOf(v);
+      return idx === 0 ? 'best' : idx === ordered.length - 1 ? 'worst' : 'mid';
     };
 
     h += '<div class="cmp-metric"><div class="cmp-mlabel">' + mt.label
@@ -375,21 +369,20 @@ function render(){
        + '<em>' + mt.note + '</em></div>'
        + '<div class="cmp-mrows" style="--cols:' + cols + '">';
     picked.forEach((r, i) => {
-      const lead = isLead(i);
-      // On a measure with no better end the reference cell is simply the lowest of the three,
-      // and saying "same" about a value compared with itself reads as a bug. Name it instead.
+      const rank = rankOf(vals[i]);
       const isRef = mt.dir === 'none' && vals[i] === ref;
-      const d = cols > 1 && !lead
-        ? (isRef ? (cols > 1 ? 'lowest here' : '') : mt.delta(vals[i], ref))
-        : '';
-      h += '<div class="cmp-cell' + (lead ? ' is-lead' : '') + '"><span class="cmp-v">'
-        + esc(mt.fmt(r)) + '</span>'
-        + '<span class="cmp-track"><span class="cmp-bar ' + stepOf(vals[i]) + '" style="width:'
-        + Math.max(2, (vals[i] / scale) * 100) + '%" role="img" aria-label="'
-        + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r) + (lead ? ', ' + mt.lead : '')
-              + (d ? ', ' + d + ' ' + refLabel : '') + '.') + '"></span></span>'
-        + (lead ? '<span class="cmp-delta cmp-best">\u25B2 ' + mt.lead + '</span>'
-                : d ? '<span class="cmp-delta">' + d + '</span>' : '<span class="cmp-delta"></span>')
+      const gap = cols > 1 && rank !== 'best'
+        ? (isRef ? 'lowest here' : mt.delta(vals[i], ref)) : '';
+      const mark = rank === 'best' ? '<span class="cmp-mark">\u25B2</span> ' + mt.lead
+                 : rank === 'worst' ? '<span class="cmp-mark">\u25BC</span> ' + mt.trail
+                 : '';
+      h += '<div class="cmp-cell is-' + rank + '" role="group" aria-label="'
+        + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r)
+              + (rank === 'best' ? ', ' + mt.lead : rank === 'worst' ? ', ' + mt.trail : '')
+              + (gap ? ', ' + gap : '') + '.') + '">'
+        + '<span class="cmp-v">' + esc(mt.fmt(r)) + '</span>'
+        + (mark ? '<span class="cmp-state">' + mark + '</span>' : '')
+        + (gap ? '<span class="cmp-delta">' + gap + '</span>' : '')
         + '</div>';
     });
     h += '</div></div>';
@@ -431,12 +424,15 @@ else init();
 
 <style is:global>
 .cmp{
-  /* One ordinal blue ramp — darkest leads its row, lightest trails. Validated with --ordinal
-     against a #fff surface: monotone lightness, visible step gaps, light end 2.11:1 over the 2:1
-     ordinal floor, hue spread 3 degrees. Plus one neutral for rows that cannot be ranked, checked
-     against the ramp at normal-vision deltaE 22.6 so it can never read as a step. */
-  --cmp-r3:#1c5cab; --cmp-r2:#3987e5; --cmp-r1:#86b6ef; --cmp-n:#6b7280;
-  --cmp-ink:var(--color-dark); --cmp-body:var(--color-body); --cmp-muted:var(--color-muted);
+  /* Status tokens from the validated fixed scale — reserved meaning, never themed, and used
+     ONLY on the three measures that have a better end. good #0ca30c is 3.27:1 on white and
+     critical #d03b3b is 4.68:1, so both clear 3:1 as graphical marks; the washes behind them are
+     tints of the same hues, carrying dark body text at well over 4.5:1. Per the status rule these
+     never appear as colour alone: every marked cell also shows an arrow glyph and a word
+     ("longest", "furthest"), so the reading survives greyscale and colour blindness. */
+  --cmp-good:#0ca30c; --cmp-good-wash:#EBF6EB;
+  --cmp-bad:#d03b3b;  --cmp-bad-wash:#FBEDED;
+--cmp-ink:var(--color-dark); --cmp-body:var(--color-body); --cmp-muted:var(--color-muted);
   --cmp-rule:var(--color-border); --cmp-soft:#F0ECE2;
   --cmp-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
   margin:26px 0;padding:20px 22px 16px;background:#fff;
@@ -460,11 +456,12 @@ else init();
 .cmp-lg{display:flex;align-items:center;gap:6px;color:var(--cmp-body)}
 .cmp-key{width:10px;height:10px;border-radius:3px;display:inline-block;flex:0 0 auto;
   margin-right:6px;vertical-align:-1px}
-.cmp-key.r3{background:var(--cmp-r3)} .cmp-key.r2{background:var(--cmp-r2)}
-.cmp-key.r1{background:var(--cmp-r1)} .cmp-key.n{background:var(--cmp-n)}
-.cmp-scale{display:flex;align-items:center;color:var(--cmp-body)}
-.cmp-scale .cmp-key{margin-right:2px}
-.cmp-scale .cmp-key:last-of-type{margin-right:6px}
+.cmp-scale{display:flex;align-items:center;gap:5px;color:var(--cmp-body);
+  border-radius:5px;padding:2px 8px}
+.cmp-scale b{font-size:11px;line-height:1}
+.cmp-scale.is-best{background:var(--cmp-good-wash)} .cmp-scale.is-best b{color:var(--cmp-good)}
+.cmp-scale.is-worst{background:var(--cmp-bad-wash)} .cmp-scale.is-worst b{color:var(--cmp-bad)}
+.cmp-scale.is-flat{border:1px solid var(--cmp-rule);color:var(--cmp-muted)}
 .cmp-hint{color:var(--cmp-muted);flex-basis:100%}
 
 .cmp-heads,.cmp-mrows{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:10px}
@@ -478,7 +475,19 @@ else init();
 .cmp-mlabel em{display:block;font-style:normal;font-weight:400;font-size:11px;color:var(--cmp-muted)}
 .cmp-tag{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.01em;
   border:1px solid var(--cmp-rule);border-radius:999px;padding:0 7px;color:var(--cmp-muted)}
-.cmp-cell{min-width:0}
+/* The 21 bars are gone. Each was normalised to its own row, so none could be compared with any
+   other, and stacking seven identical triplets read as wallpaper rather than as information. A
+   tinted cell says the same thing in a third of the height and is legible at a glance. */
+.cmp-cell{min-width:0;padding:6px 8px;border-radius:6px;border-left:3px solid transparent}
+.cmp-cell.is-best{background:var(--cmp-good-wash);border-left-color:var(--cmp-good)}
+.cmp-cell.is-worst{background:var(--cmp-bad-wash);border-left-color:var(--cmp-bad)}
+.cmp-cell.is-mid,.cmp-cell.is-flat{background:var(--color-light)}
+.cmp-state{display:block;margin-top:2px;font-size:11px;font-weight:700;line-height:1.3}
+.cmp-cell.is-best .cmp-state{color:var(--cmp-good)}
+.cmp-cell.is-worst .cmp-state{color:var(--cmp-bad)}
+/* 11px, not 9: MOBILE_CHECK.md sets an iOS legibility floor of 11px and it applies to glyphs,
+   not just words. check_page.py did not catch this one — measuring the rendered page did. */
+.cmp-mark{font-size:11px;line-height:1;vertical-align:0}
 /* Emphasis, not valence. The leading value takes full ink and weight; the others step back one
    notch. This is the "highlight one, recede the rest" move — it sharpens the hierarchy a reader
    asked for without a green that would assert the leader is GOOD. Three of these seven measures
@@ -487,15 +496,8 @@ else init();
    colour is reserved for things that genuinely mean good or bad, and naming a winner among named
    developments is the one thing this tool must never do. */
 .cmp-v{display:block;font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;font-size:12px;
-  font-weight:500;color:var(--cmp-body);margin-bottom:3px}
-.cmp-cell.is-lead .cmp-v{font-weight:700;color:var(--cmp-ink)}
-.cmp-track{display:block;height:10px;background:var(--cmp-soft);border-radius:0 4px 4px 0}
-/* 4px rounded data-end, thin mark, no border — separation comes from the 10px grid gap
-   between cells rather than a stroke around each bar. */
-.cmp-bar{display:block;height:10px;border-radius:0 4px 4px 0;min-width:3px}
-.cmp-bar.r3{background:var(--cmp-r3)} .cmp-bar.r2{background:var(--cmp-r2)}
-.cmp-bar.r1{background:var(--cmp-r1)} .cmp-bar.n{background:var(--cmp-n)}
-.cmp-delta{display:block;min-height:15px;margin-top:3px;font-family:var(--cmp-mono);
+  font-weight:600;color:var(--cmp-ink);line-height:1.3}
+.cmp-delta{display:block;margin-top:2px;font-family:var(--cmp-mono);
   font-variant-numeric:tabular-nums;font-size:11px;color:var(--cmp-muted)}
 /* Leadership is a word, never a colour: it must survive greyscale and colour blindness, and a
    green "winner" would assert a preference the data cannot support.
@@ -516,7 +518,7 @@ else init();
 .cmp-diffs b{color:var(--cmp-ink);font-weight:700}
 .cmp-diffs em{font-style:normal;color:var(--cmp-muted)}
 .cmp-gap{font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
-  font-weight:700;color:var(--cmp-r3)}
+  font-weight:700;color:var(--cmp-ink)}
 .post-content p.cmp-alike{margin:0 0 4px;font-size:12px;line-height:1.55;color:var(--cmp-muted)}
 .cmp-alike b{color:var(--cmp-body)}
 
