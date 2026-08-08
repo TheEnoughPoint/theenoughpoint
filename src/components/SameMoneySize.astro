@@ -1,0 +1,207 @@
+---
+// Hold the budget still and let the size move.
+//
+// The article's problem is that a percentage entry gap ("new build costs 34% more per
+// square foot") is a number nobody can feel. This figure restates the identical fact in
+// the unit a buyer actually lives in: one fixed sum of money, and the floor area it buys
+// in each building. Bars of floor area, one budget, sorted ascending so the baseline
+// sits at the left edge and every overhang past it is the gap made physical.
+//
+// COLOUR CARRIES NO VERDICT (VOICE.md C10). Every bar measures the same quantity —
+// square feet — so every bar is the same ink. The unbuilt baseline is separated by
+// PATTERN (hatched, outlined) and by a dashed reference rule, never by hue. A second
+// colour here would be read as "this one is better", which is exactly the claim the
+// piece refuses to make. The validated segment triple from DistrictYieldChart /
+// DistrictSupplyChart is deliberately NOT reused: there it means market segment, and
+// every row on this chart is the same segment, so borrowing it would attach a second
+// meaning to the same ink across the site.
+//
+// ROWS is emitted mechanically from data/live.json in the sg-property-decision repo
+// (URA PMI_Resi_Transaction resale medians, twelve months to August 2026; nearest MRT
+// from LTA exits). Floor areas, percentages, the baseline and the spread are all
+// recomputed from BUDGET and ROWS below, so no figure in the prose can drift from a bar.
+//
+// Three filters, all mechanical and all stated on the figure itself, because each one
+// removes buildings and a reader is entitled to know which:
+//   1. District 20, within 400 m straight-line of an MRT entrance.
+//   2. At least 10 resales in the twelve months, so a median is not one odd unit.
+//   3. A unit of the computed floor area must actually EXIST in that building's traded
+//      stock. Without this the chart cheerfully offers 2,279 sq ft at Braddell View,
+//      which has nothing near that size and a 54-year lease. Cheaper buildings are
+//      dropped by this rule, not by judgement.
+const ASOF = 'August 2026';
+const BUDGET = 2_400_000;
+const NEW_PSF = 2900; // the middle of the illustrative band the article derives; NOT a quote
+
+interface Row { p: string; psf: number; n: number; lease: number; m: number; mrt: string }
+
+const ROWS: Row[] = [
+  { p: 'Jadescape', psf: 2349, n: 62, lease: 91, m: 327, mrt: 'Marymount' },
+  { p: 'Thomson Three', psf: 2165, n: 21, lease: 85, m: 194, mrt: 'Upper Thomson' },
+  { p: 'Thomson Impressions', psf: 2146, n: 13, lease: 88, m: 358, mrt: 'Bright Hill' },
+  { p: 'Centro Residences', psf: 2024, n: 25, lease: 80, m: 143, mrt: 'Ang Mo Kio' },
+  { p: 'Thomson Grand', psf: 1819, n: 16, lease: 83, m: 298, mrt: 'Bright Hill' },
+];
+
+const sqft = (psf: number) => Math.round(BUDGET / psf);
+const BASE = Math.round(BUDGET / NEW_PSF);
+const items = ROWS.map((r) => ({ ...r, sq: sqft(r.psf), pct: Math.round((sqft(r.psf) / BASE - 1) * 100) }))
+  .sort((a, b) => a.sq - b.sq);
+
+const MAX = Math.max(BASE, ...items.map((i) => i.sq));
+const w = (v: number) => (v / MAX) * 100;
+const MIN_PCT = Math.min(...items.map((i) => i.pct));
+const MAX_PCT = Math.max(...items.map((i) => i.pct));
+const MIN_SQ = Math.min(...items.map((i) => i.sq));
+const MAX_SQ = Math.max(...items.map((i) => i.sq));
+const n = (v: number) => v.toLocaleString('en-SG');
+const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
+---
+
+<figure class="sm">
+  <figcaption class="sm-cap">
+    <h4>The same money, in square feet</h4>
+    <p>{money(BUDGET)} spent at each building&rsquo;s own median resale price per square foot,
+    District&nbsp;20, twelve months to {ASOF}. The baseline is the same sum at
+    S${n(NEW_PSF)} per square foot &mdash; an illustrative new-build price, not a quote from anyone.</p>
+  </figcaption>
+
+  <div class="sm-legend">
+    <span class="sm-lg"><i class="sm-key sm-key-new"></i>not built yet</span>
+    <span class="sm-lg"><i class="sm-key sm-key-old"></i>existing home, resale today</span>
+    <span class="sm-hint">bar length = floor area {money(BUDGET)} buys</span>
+  </div>
+
+  <ol class="sm-rows">
+    <li class="sm-row sm-row-base">
+      <span class="sm-name"><b>New build</b> <span class="sm-nm">at S${n(NEW_PSF)} psf</span></span>
+      <span class="sm-barwrap">
+        <span class="sm-track">
+          <span class="sm-bar sm-bar-new" style={`width:${w(BASE)}%`}
+            role="img"
+            aria-label={`Baseline. A new build at S$${n(NEW_PSF)} per square foot. ${n(BASE)} square feet for ${money(BUDGET)}.`}></span>
+        </span>
+        <span class="sm-val">{n(BASE)}</span>
+      </span>
+      <span class="sm-pct sm-pct-base">&mdash;</span>
+    </li>
+
+    {items.map((i) => (
+      <li class="sm-row">
+        <span class="sm-name"><b>{i.p}</b> <span class="sm-nm">{i.lease} yrs &middot; {i.m}m to {i.mrt}</span></span>
+        <span class="sm-barwrap">
+          <span class="sm-track">
+            <span class="sm-ghost" style={`width:${w(BASE)}%`} aria-hidden="true"></span>
+            <span class="sm-bar sm-bar-old" style={`width:${w(i.sq)}%`}
+              role="img"
+              aria-label={`${i.p}. Median S$${n(i.psf)} per square foot over ${i.n} resales, ${i.lease} years of lease remaining, ${i.m} metres to ${i.mrt} station. ${money(BUDGET)} buys ${n(i.sq)} square feet, ${i.pct} per cent more floor area than the new build baseline.`}></span>
+          </span>
+          <span class="sm-val">{n(i.sq)}</span>
+        </span>
+        <span class="sm-pct">+{i.pct}%</span>
+      </li>
+    ))}
+  </ol>
+
+  <div class="sm-nlist">
+    {items.map((i) => (
+      <span class="sm-nchip"><b>{i.p}</b> S${n(i.psf)} psf &middot; {i.n} resales</span>
+    ))}
+  </div>
+
+  <p class="sm-foot">The same {money(BUDGET)} is <b>{n(BASE)} square feet</b> in a building that does not
+  exist yet, or <b>{n(MIN_SQ)} to {n(MAX_SQ)} square feet</b> you could move into next month &mdash;{' '}
+  <b>{MIN_PCT}% to {MAX_PCT}%</b> more floor area, in buildings {Math.min(...items.map((i) => i.m))} to{' '}
+  {Math.max(...items.map((i) => i.m))} metres from an MRT entrance with {Math.min(...items.map((i) => i.lease))} to{' '}
+  {Math.max(...items.map((i) => i.lease))} years of lease still to run. That extra area is the entry gap
+  made physical. It is <b>not</b> money lost: part of it is what a new building, a fresh 99-year lease
+  and no near-term repair bill genuinely cost.</p>
+
+  <p class="sm-src">Computed by us from URA private resale transactions, District 20, twelve months to{' '}
+  {ASOF}; walking distances are straight-line to the nearest station entrance, so a real walk is
+  typically 20&ndash;40% further. Three filters, applied mechanically: within 400 m of an MRT entrance;
+  at least 10 resales in the period, so no median rests on one unusual unit; and a unit of the computed
+  floor area must actually exist in that building&rsquo;s traded stock &mdash; several cheaper
+  neighbours are excluded by that last rule alone, because the budget buys more space than anything
+  they contain. <b>A median mixes floor, stack, condition and renovation</b>, so no row is a price for
+  any particular unit, and no row is a view on any building.</p>
+</figure>
+
+<style is:global>
+.sm{
+  --sm-ink:var(--color-dark); --sm-body:var(--color-body); --sm-muted:var(--color-muted);
+  --sm-rule:var(--color-border);
+  --sm-fill:#33414F;          /* one ink for every bar: the quantity is the same on every row */
+  --sm-ghost:#E3DDCF;         /* baseline reference behind each bar, not a second measure */
+  --sm-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--sm-rule);border-radius:12px
+}
+/* No dark-scheme override on the fill. The card is pinned to #fff in BOTH schemes, so
+   lightening the bar ink for dark mode puts pale ink on a white card — measured at 2.59:1
+   against the card, below any legibility bar. The card is what the ink sits on, not the
+   page, so the ink follows the card. */
+.post-content .sm-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .sm-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--sm-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .sm-cap p{margin:0;font-size:12.5px;color:var(--sm-muted);line-height:1.5}
+
+.sm-legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-bottom:14px;font-size:11.5px}
+.sm-lg{display:flex;align-items:center;gap:6px;color:var(--sm-body)}
+.sm-key{width:18px;height:11px;border-radius:2px;display:inline-block}
+/* Pattern, not hue, separates the unbuilt baseline — see the note at the top of this file. */
+.sm-key-new{border:1.5px dashed var(--sm-fill);background:
+  repeating-linear-gradient(45deg,transparent,transparent 3px,var(--sm-ghost) 3px,var(--sm-ghost) 6px)}
+.sm-key-old{background:var(--sm-fill)}
+.sm-hint{color:var(--sm-muted);font-style:italic}
+
+.post-content ol.sm-rows{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.post-content ol.sm-rows li{margin:0;padding:0}
+/* The theme paints a numbered badge on every .post-content ol li, absolutely positioned
+   at the left edge, which lands on top of this component's own row content. */
+.post-content ol.sm-rows li::before{content:none;display:none}
+.sm-row{display:grid;grid-template-columns:minmax(96px,190px) 1fr 46px;gap:10px;align-items:center;padding:3px 0}
+.sm-row-base{padding-bottom:8px;border-bottom:1px solid var(--sm-rule);margin-bottom:4px}
+/* The name cell wraps to a second line rather than truncating. In the article column
+   with the sidebar present there is not room for "Jadescape 91 yrs · 327m to Marymount"
+   on one line, and an ellipsis would silently eat the lease and the walk — the two facts
+   the row exists to carry alongside the bar. */
+.sm-name{font-size:12px;color:var(--sm-body);line-height:1.3}
+.sm-name b{display:block;color:var(--sm-ink);font-weight:700}
+.sm-nm{display:block;color:var(--sm-muted);font-size:11px}
+/* Grid, not flex: a percentage bar width must resolve against a definite track. */
+.sm-barwrap{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;min-width:0}
+.sm-track{position:relative;height:17px;min-width:0}
+.sm-bar{display:block;height:17px;border-radius:3px;min-width:2px;position:relative}
+.sm-bar-old{background:var(--sm-fill)}
+.sm-bar-new{background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--sm-ghost) 3px,var(--sm-ghost) 6px);
+  border:1.5px dashed var(--sm-fill);box-sizing:border-box}
+/* The baseline repeated behind every bar, so the overhang past it is visible on each row
+   without a second colour doing the work. */
+.sm-ghost{position:absolute;left:0;top:0;height:17px;border-right:1.5px dashed var(--sm-muted);
+  background:transparent}
+.sm-val{font-family:var(--sm-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
+  font-weight:600;color:var(--sm-ink)}
+.sm-pct{font-family:var(--sm-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
+  color:var(--sm-body);text-align:right;font-weight:600}
+.sm-pct-base{color:var(--sm-muted);font-weight:400}
+
+.sm-nlist{display:flex;flex-wrap:wrap;gap:5px 8px;margin-top:12px}
+.sm-nchip{font-size:11px;color:var(--sm-muted);border:1px solid var(--sm-rule);
+  border-radius:999px;padding:2px 9px}
+.sm-nchip b{color:var(--sm-body);font-weight:600}
+
+.post-content p.sm-foot{margin:14px 0 0;font-size:12.5px;line-height:1.6;color:var(--sm-body)}
+.post-content p.sm-src{margin:10px 0 0;padding-top:10px;border-top:1px solid var(--sm-rule);
+  font-size:11.5px;line-height:1.55;color:var(--sm-muted)}
+
+@media (max-width:640px){
+  .sm{padding:16px 14px 13px}
+  .sm-row{grid-template-columns:minmax(78px,116px) 1fr 40px;gap:8px}
+  .sm-name{font-size:11.5px}
+  .sm-nm{display:none}       /* name alone on a phone; the full row stays in its aria-label */
+  .sm-hint{display:none}
+  /* iOS legibility floor: nothing under 11px on a phone (C:/dev/MOBILE_CHECK.md) */
+  .sm-nchip{font-size:11px}
+}
+</style>

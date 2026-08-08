@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="The rule of thumb says a launch price is about 1.8 to 2 times the land cost; on eight matched land-and-launch pairs the multiple runs 2.13 to 2.83 times">
+  <!-- Cover for the new-launch pricing method piece. House system: navy field, gold figure.
+       The finding is that the repeated rule of thumb is stale, so the figure is the
+       observed range, with the superseded rule struck through above it. Stacked,
+       following cover-unsold-districts and cover-new-launch-resale.
+       Safe zone: square thumbnail crops to x 300-900. -->
+  <defs>
+    <radialGradient id="bgPL" cx="50%" cy="42%" r="76%">
+      <stop offset="0%" stop-color="#10233D"/>
+      <stop offset="100%" stop-color="#081627"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bgPL)"/>
+
+  <text x="600" y="126" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">LAND COST TO LAUNCH PRICE</text>
+
+  <text x="600" y="196" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="40"
+        fill="#F6F4EF" opacity="0.42">the rule everyone quotes: 1.8&#8211;2.0&#215;</text>
+  <line x1="352" y1="184" x2="848" y2="184" stroke="#F6F4EF" stroke-width="2" opacity="0.42"/>
+
+  <text x="600" y="352" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="122"
+        fill="#C89A3C">2.13&#8211;2.83&#215;</text>
+
+  <text x="600" y="402" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600"
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.9">on eight matched land-and-launch pairs</text>
+
+  <line x1="450" y1="452" x2="750" y2="452" stroke="#C89A3C" stroke-width="1.5" opacity="0.5"/>
+
+  <text x="600" y="502" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">A check on a number.</text>
+  <text x="600" y="542" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">Never a valuation.</text>
+</svg>

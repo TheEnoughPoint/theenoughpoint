@@ -435,9 +435,14 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 .post-content .post-notes p { margin: 0; }
 .post-content .post-notes h4 {
     font-family: var(--font-body);
-    font-size: 10.5px;
+    /* iOS legibility floor: nothing under 11px (C:/dev/MOBILE_CHECK.md). These uppercase
+       section labels were 10.5px and were the only type on an article page below it —
+       measured at real 390px portrait and 844px landscape viewports. Set unconditionally
+       rather than inside the 560px query, because landscape on a phone is 844px wide and
+       a media query keyed to portrait width silently misses it. */
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: .09em;
+    letter-spacing: .07em;
     text-transform: uppercase;
     color: var(--color-subtle);
     margin: 0 0 .3rem;
