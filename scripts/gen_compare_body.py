@@ -212,7 +212,8 @@ function render(){
   });
   h += '</tr></thead><tbody>';
 
-  METRICS.forEach((mt, i) => {
+  // Discriminating measures first, level ones last — see orderFor() for why.
+  orderFor(METRICS, picked).forEach((mt, i) => {
     const tagText = tagFor(mt, picked);
     const level = tagText === 'level';
     const tag = tagText ? '<i>' + tagText + '</i>' : '';

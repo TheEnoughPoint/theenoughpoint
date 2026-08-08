@@ -5,8 +5,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CLOSE, RANGE_MIN_N, bandOf, mixedTenure, spreadOf, rankOf, bucket, showRange, tagFor }
-  from './compare_logic.mjs';
+import { CLOSE, RANGE_MIN_N, bandOf, mixedTenure, spreadOf, rankOf, bucket, showRange, tagFor,
+  orderFor } from './compare_logic.mjs';
 
 const psf   = { label: 'price', dir: 'none', kind: 'ratio', val: (r) => r.psf };
 const lease = { label: 'lease', dir: 'more', kind: 'ratio', fhAware: true, val: (r) => (r.fh ? Infinity : r.lyr) };
@@ -109,6 +109,21 @@ test('tags distinguish level, no-better-end and not-comparable', () => {
   const count = { label: 'v', dir: 'none', kind: 'ratio', nomark: 'not size-adjusted', val: (r) => r.v };
   assert.equal(tagFor(count, [B({ v: 60 }), B({ v: 20 })]), 'not size-adjusted');
   assert.equal(tagFor(mrt, [B({ m: 200 }), B({ m: 900 })]), '', 'a ranked, differing row has no tag');
+});
+
+test('rows are ordered so the discriminating measures come first', () => {
+  const metrics = [psf, lease, mrt];
+  // lease is level (92 vs 91), the other two differ; mrt differs more than psf
+  const picked = [B({ psf: 2100, lyr: 92, m: 200 }), B({ psf: 1500, lyr: 91, m: 900 })];
+  const order = orderFor(metrics, picked).map((m) => m.label);
+  assert.equal(order[order.length - 1], 'lease', 'a level measure sinks to the bottom');
+  assert.equal(order[0], 'mrt', 'the widest spread leads');
+  assert.equal(order.length, metrics.length, 'nothing is dropped or duplicated');
+});
+
+test('a single selection keeps the canonical order', () => {
+  const metrics = [psf, lease, mrt];
+  assert.deepEqual(orderFor(metrics, [B({})]).map((m) => m.label), ['price', 'lease', 'mrt']);
 });
 
 test('a price range is withheld below the sample floor', () => {

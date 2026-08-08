@@ -76,6 +76,24 @@ export function tagFor(mt, picked) {
   return '';
 }
 
+/** Row order for the table: the measures that actually separate these buildings first, the ones
+ *  that cannot decide anything last. Without this the reader met price and 12-month change at the
+ *  top — both greyed as level on most selections — so the faintest rows were the first ones seen.
+ *
+ *  Within the discriminating group, widest spread first, which is the same priority the summary
+ *  above the table already uses. Order therefore changes with the selection; that is the point,
+ *  and the row labels travel with the values so nothing is ambiguous. A single selection ranks
+ *  nothing, so it keeps the canonical order. */
+export function orderFor(metrics, picked) {
+  if (picked.length < 2) return [...metrics];
+  return [...metrics].sort((a, b) => {
+    const al = tagFor(a, picked) === 'level' ? 1 : 0;
+    const bl = tagFor(b, picked) === 'level' ? 1 : 0;
+    if (al !== bl) return al - bl;
+    return spreadOf(b, picked) - spreadOf(a, picked);
+  });
+}
+
 /** Whether a project's p10-p90 price range is stable enough to print. */
 export function showRange(r) {
   return r.v >= RANGE_MIN_N;
