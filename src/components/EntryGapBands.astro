@@ -1,0 +1,143 @@
+---
+// How far above the neighbourhood, by the size of the unit.
+//
+// This replaced a five-column table. The table was accurate and hard to use: a reader had
+// to hold four rows times three prices in their head to see the finding, which is that the
+// gap is a SPREAD rather than a number, and that the spread is driven by unit size and not
+// by the price on the list. A range bar says that in one look — each band is a bar running
+// from its gap at the cheapest illustrative price to its gap at the dearest, with the
+// middle price marked. Longer bar, more the price matters; further right, further above
+// the neighbourhood.
+//
+// COLOUR CARRIES NO VERDICT (VOICE.md C10). One ink for every band, because every bar
+// measures the same quantity. A bigger gap is not "bad" — part of it buys a genuinely newer
+// building, which the caption says — and colouring the largest band red would assert a
+// judgement the piece explicitly refuses to make.
+//
+// BANDS are emitted from data/live.json in the sg-property-decision repo (URA resale
+// transactions, District 20, twelve months to Aug 2026, size-band percentiles). Bands
+// mirror the pipeline exactly: <600, 600-850, 850-1150, >=1150 sq ft. Every gap is
+// recomputed from PRICES and the band median below, so no figure can drift from a bar.
+const ASOF = 'August 2026';
+const DISTRICT = 'District 20';
+const DISTRICT_N = 345;
+const PRICES = [2600, 2900, 3100];
+
+interface Band { label: string; psf: number }
+const BANDS: Band[] = [
+  { label: 'Under 600 sq ft', psf: 1966 },
+  { label: '600 – 850 sq ft', psf: 2205 },
+  { label: '850 – 1,150 sq ft', psf: 2042 },
+  { label: '1,150 sq ft and over', psf: 1763 },
+];
+
+const gap = (price: number, psf: number) => (price / psf - 1) * 100;
+const rows = BANDS.map((b) => ({
+  ...b,
+  lo: gap(PRICES[0], b.psf),
+  mid: gap(PRICES[1], b.psf),
+  hi: gap(PRICES[2], b.psf),
+}));
+
+const SCALE = Math.ceil(Math.max(...rows.map((r) => r.hi)) / 10) * 10 + 10; // 0 to 90%
+const x = (v: number) => (v / SCALE) * 100;
+const MIN = Math.min(...rows.map((r) => r.lo));
+const MAX = Math.max(...rows.map((r) => r.hi));
+const TICKS = [0, 20, 40, 60, 80].filter((t) => t <= SCALE);
+const n = (v: number) => v.toLocaleString('en-SG');
+---
+
+<figure class="eg">
+  <figcaption class="eg-cap">
+    <h4>The gap is a spread, and unit size decides where you sit in it</h4>
+    <p>How far above {DISTRICT} resale of the <em>same size</em> each unit would be priced, across the
+    three illustrative prices. Bar runs from S${n(PRICES[0])} to S${n(PRICES[2])} per square foot;
+    the notch is S${n(PRICES[1])}.</p>
+  </figcaption>
+
+  <div class="eg-scale" aria-hidden="true">
+    {TICKS.map((t) => (<span class="eg-tick" style={`left:${x(t)}%`}><i></i>+{t}%</span>))}
+  </div>
+
+  <ol class="eg-rows">
+    {rows.map((r) => (
+      <li class="eg-row">
+        <span class="eg-name"><b>{r.label}</b><span class="eg-sub">resale median S${n(r.psf)} psf</span></span>
+        <span class="eg-track">
+          {TICKS.map((t) => (<i class="eg-grid" style={`left:${x(t)}%`}></i>))}
+          <span class="eg-bar" style={`left:${x(r.lo)}%;width:${x(r.hi) - x(r.lo)}%`}
+            role="img"
+            aria-label={`${r.label}. Same-size ${DISTRICT} resale median S$${n(r.psf)} per square foot. At S$${n(PRICES[0])} you would pay ${r.lo.toFixed(0)} per cent above it, at S$${n(PRICES[1])} ${r.mid.toFixed(0)} per cent, at S$${n(PRICES[2])} ${r.hi.toFixed(0)} per cent.`}>
+            <i class="eg-mid" style={`left:${((r.mid - r.lo) / (r.hi - r.lo)) * 100}%`}></i>
+          </span>
+        </span>
+        <span class="eg-val">+{r.lo.toFixed(0)}&ndash;{r.hi.toFixed(0)}%</span>
+      </li>
+    ))}
+  </ol>
+
+  <p class="eg-foot">Same building, same price list, same morning &mdash; and the gap over the
+  surrounding market runs from <b>+{MIN.toFixed(0)}%</b> to <b>+{MAX.toFixed(0)}%</b> depending only on
+  which door you walk through. The 600&ndash;850 band is the tightest priced against its local
+  comparison; the largest units are the most stretched, partly because the big-unit band in this
+  district is weighted towards much older stock, which drags that comparison down and overstates the
+  gap at the top end.</p>
+
+  <p class="eg-src">Computed by us from URA resale transactions, {DISTRICT}, twelve months to {ASOF} &mdash;
+  {n(DISTRICT_N)} sales in total, split into the four size bands our pipeline uses. Each band shown
+  carries at least fifteen transactions; below that we suppress the percentiles rather than publish a
+  thin median. <b>This is not a measure of overpaying.</b> A district median mixes every vintage,
+  floor, stack and condition, so part of any gap buys a genuinely newer building, a warranty and no
+  near-term repair bill &mdash; and the prices are our own illustration, not a price list.</p>
+</figure>
+
+<style is:global>
+.eg{
+  --eg-ink:var(--color-dark); --eg-body:var(--color-body); --eg-muted:var(--color-muted);
+  --eg-rule:var(--color-border); --eg-fill:#33414F; --eg-grid:#EDE8DD;
+  --eg-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--eg-rule);border-radius:12px
+}
+/* No dark-scheme override: the card is pinned white in both schemes, so the ink follows
+   the card rather than the page. */
+.post-content .eg-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .eg-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--eg-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .eg-cap p{margin:0;font-size:12.5px;color:var(--eg-muted);line-height:1.5}
+
+.eg-scale,.eg-row{display:grid;grid-template-columns:minmax(96px,168px) 1fr 74px;gap:10px;align-items:center}
+.eg-scale{margin-bottom:4px;height:14px}
+.eg-scale>.eg-tick:first-child{grid-column:2}
+/* 11px, not 10.5: the iOS legibility floor applies to axis labels too (C:/dev/MOBILE_CHECK.md). */
+.eg-tick{position:relative;font-size:11px;color:var(--eg-muted);font-family:var(--eg-mono)}
+.eg-scale{position:relative}
+.eg-scale .eg-tick{position:absolute;transform:translateX(-50%);white-space:nowrap}
+/* The tick strip is positioned against the bar track, which starts after the name column. */
+.eg-scale{display:block;margin-left:calc(min(168px, 40%) + 10px);margin-right:84px;height:15px}
+
+.post-content ol.eg-rows{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.post-content ol.eg-rows li{margin:0;padding:0}
+.post-content ol.eg-rows li::before{content:none;display:none}
+.eg-name{font-size:12px;color:var(--eg-body);line-height:1.3}
+.eg-name b{display:block;color:var(--eg-ink);font-weight:700}
+.eg-sub{display:block;color:var(--eg-muted);font-size:11px}
+.eg-track{position:relative;height:20px;min-width:0;background:var(--eg-grid);border-radius:3px}
+.eg-grid{position:absolute;top:0;bottom:0;width:1px;background:#fff;opacity:.9}
+.eg-bar{position:absolute;top:3px;height:14px;background:var(--eg-fill);border-radius:3px;min-width:3px}
+.eg-mid{position:absolute;top:-3px;bottom:-3px;width:2px;background:#fff}
+.eg-val{font-family:var(--eg-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
+  font-weight:600;color:var(--eg-ink);text-align:right}
+
+.post-content p.eg-foot{margin:14px 0 0;font-size:12.5px;line-height:1.6;color:var(--eg-body)}
+.post-content p.eg-src{margin:10px 0 0;padding-top:10px;border-top:1px solid var(--eg-rule);
+  font-size:11.5px;line-height:1.55;color:var(--eg-muted)}
+
+@media (max-width:640px){
+  .eg{padding:16px 14px 13px}
+  .eg-scale,.eg-row{grid-template-columns:minmax(84px,104px) 1fr 60px;gap:8px}
+  .eg-scale{margin-left:calc(104px + 8px);margin-right:68px}
+  .eg-name{font-size:11.5px}
+  .eg-sub{font-size:11px}
+}
+</style>
