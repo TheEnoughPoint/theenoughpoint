@@ -128,7 +128,12 @@ const n = (v) => v.toLocaleString('en-SG');
     &mdash; so no project owns a shade, and one that leads on lease can trail on price.</span>
   </div>
 
-  <div class="cmp-out" id="cmp-out" aria-live="polite"></div>
+  <div class="cmp-lead" id="cmp-lead" aria-live="polite"></div>
+
+  <details class="cmp-fold">
+    <summary>All seven measures, side by side</summary>
+    <div class="cmp-out" id="cmp-out"></div>
+  </details>
 
   <p class="cmp-say" id="cmp-say"></p>
 
@@ -157,40 +162,78 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 // `dir` is the honest part. 'more'/'less' name a direction the data genuinely has; 'none' means
 // the measure has no better end and the tool must not invent one. `lead` is the word used for the
 // front-runner — factual ("longest lease"), never evaluative ("best").
+// `short` is the summary's wording, `brief` formats a value compactly for it, and `kind` says how
+// to measure the spread between buildings \u2014 a ratio for counts and money, percentage points for
+// the one measure that is already a percentage.
 const METRICS = [
-  { label: 'Median resale price', dir: 'none', lead: '',
-    fmt: r => sgd(r.psf) + ' psf', val: r => r.psf,
+  { label: 'Median resale price', short: 'price per square foot', dir: 'none', lead: '', kind: 'ratio',
+    fmt: r => sgd(r.psf) + ' psf', brief: r => sgd(r.psf), val: r => r.psf,
     delta: (v, ref) => pctDelta(v, ref),
     note: 'no better end \u2014 cheaper suits a buyer, dearer is what the market pays' },
-  { label: 'Against its district', dir: 'none', lead: '',
-    fmt: r => signed((r.psf / r.b - 1) * 100) + '%', val: r => r.psf / r.b - 1,
+  { label: 'Against its district', short: 'standing vs its district', dir: 'none', lead: '', kind: 'pp',
+    fmt: r => signed((r.psf / r.b - 1) * 100) + '%', brief: r => signed((r.psf / r.b - 1) * 100) + '%',
+    val: r => r.psf / r.b - 1,
     delta: (v, ref) => ppDelta(v * 100, ref * 100),
     note: 'no better end \u2014 a position vs same-size resale nearby, not a discount' },
-  { label: 'Resales in 12 months', dir: 'more', lead: 'most traded',
-    fmt: r => num(r.v), val: r => r.v,
+  { label: 'Resales in 12 months', short: 'how often units sell', dir: 'more', lead: 'most traded', kind: 'ratio',
+    fmt: r => num(r.v), brief: r => num(r.v) + ' sales', val: r => r.v,
     delta: (v, ref) => absDelta(v, ref, ''),
     note: 'more changes of hand = easier to leave when you need to' },
-  { label: 'Lease remaining', dir: 'more', lead: 'longest',
+  // `fh` marks the ONE measure that uses 999 as a freehold sentinel. Without it the spread and
+  // phrase helpers treated any value over 999 as freehold — which is every price and every floor
+  // area — and silently scored them as zero spread. That reported a 2.2x price gap between
+  // Braddell View and Jadescape as "much the same". Caught by reading the summary against the
+  // detail grid rather than trusting it.
+  { label: 'Lease remaining', short: 'lease left', dir: 'more', lead: 'longest', kind: 'ratio', fh: true,
     fmt: r => r.l === 'FH' ? 'Freehold' : r.l + ' yrs',
+    brief: r => r.l === 'FH' ? 'freehold' : r.l + ' yrs',
     val: r => r.l === 'FH' ? 999 : Number(r.l),
     delta: (v, ref) => (v >= 999 || ref >= 999) ? ''
       : absDelta(v, ref, Math.abs(v - ref) === 1 ? ' yr' : ' yrs'),
     note: 'more years is more, and under 60 the CPF and lending rules tighten' },
-  { label: 'To the nearest MRT', dir: 'less', lead: 'nearest',
-    fmt: r => num(r.m) + ' m \u00b7 ' + r.x, val: r => r.m,
+  { label: 'To the nearest MRT', short: 'the walk to a station', dir: 'less', lead: 'nearest', kind: 'ratio',
+    fmt: r => num(r.m) + ' m \u00b7 ' + r.x, brief: r => num(r.m) + ' m', val: r => r.m,
     delta: (v, ref) => absDelta(v, ref, ' m'),
     note: 'nearer is nearer \u2014 whether that beats quiet is yours to weigh' },
-  { label: 'Size that actually trades', dir: 'none', lead: '',
-    fmt: r => num(r.s) + ' sq ft', val: r => r.s,
+  { label: 'Size that actually trades', short: 'the size that trades', dir: 'none', lead: '', kind: 'ratio',
+    fmt: r => num(r.s) + ' sq ft', brief: r => num(r.s) + ' sq ft', val: r => r.s,
     delta: (v, ref) => absDelta(v, ref, ' sq ft'),
     note: 'no better end \u2014 the right size is the one you need' },
-  { label: 'Typical price paid', dir: 'none', lead: '',
-    fmt: r => sgd(r.q), val: r => r.q,
+  { label: 'Typical price paid', short: 'the typical cheque', dir: 'none', lead: '', kind: 'ratio',
+    fmt: r => sgd(r.q), brief: r => sgd(r.q), val: r => r.q,
     delta: (v, ref) => pctDelta(v, ref),
     note: 'no better end \u2014 it tracks the size that trades as much as the price' },
 ];
 
-function signed(x){ return (x >= 0 ? '+' : '\u2212') + Math.abs(x).toFixed(0); }
+// How far apart the selected buildings are on a measure, on a scale comparable across measures.
+// A ratio measure uses max/min - 1; the percentage-point measure uses its range in points over a
+// 20pp reference, so 5pp of spread reads like 25% and the two kinds can be ranked together.
+function spreadOf(mt, picked){
+  const vals = picked.map(mt.val);
+  const hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
+  if (mt.kind === 'pp') return Math.abs(hi - lo) * 100 / 20;
+  if (mt.fh && hi >= 999) return 0;              // freehold in the set makes the ratio meaningless
+  return lo > 0 ? (hi / lo) - 1 : 0;
+}
+
+// Plain-language size of the gap. "Nearly three times" beats "+195%" for a reader deciding
+// whether a difference is worth caring about.
+function gapPhrase(mt, picked){
+  const vals = picked.map(mt.val);
+  const hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
+  if (mt.kind === 'pp') return Math.round(Math.abs(hi - lo) * 100) + ' points apart';
+  if (mt.fh && hi >= 999) return 'one is freehold';
+  const ratio = lo > 0 ? hi / lo : 0;
+  if (ratio >= 1.8) return 'about ' + (Math.round(ratio * 10) / 10) + ' times';
+  const pct = Math.round((ratio - 1) * 100);
+  return pct + '% apart';
+}
+
+// A value that rounds to zero gets no sign: "\u22120%" reads as a bug, not as "level".
+function signed(x){
+  const r = Math.abs(x).toFixed(0);
+  return r === '0' ? '0' : (x >= 0 ? '+' : '\u2212') + r;
+}
 function absDelta(v, ref, unit){
   const d = v - ref;
   if (Math.round(Math.abs(d)) === 0) return 'same';
@@ -206,6 +249,79 @@ function ppDelta(v, ref){
   const d = v - ref;
   if (Math.abs(d) < 0.5) return 'same';
   return signed(d) + ' pp';
+}
+
+// The summary that answers the question a reader actually arrives with: what is different here,
+// and by how much? Seven rows of equal weight made them do that synthesis themselves. Measures are
+// ranked by how far apart the selected buildings sit, the biggest three are stated in words, and
+// everything the buildings agree on is collapsed to a single line — because "these are basically
+// the same on lease and price" is itself the finding most of the time.
+const CLOSE = 0.15;   // below 15% apart, the buildings are alike on that measure
+
+function renderLead(picked){
+  if (picked.length < 2){ $('cmp-lead').innerHTML = ''; return; }
+  // Freehold against leasehold is a difference in KIND, not a percentage. The sentinel makes its
+  // ratio meaningless, so the measure is set aside and named — it must not fall into "much the
+  // same", which is what a zero spread would otherwise say about freehold versus 91 years.
+  const mixedTenure = METRICS.filter(mt => mt.fh).filter(mt => {
+    const v = picked.map(mt.val);
+    return Math.max.apply(null, v) >= 999 && Math.min.apply(null, v) < 999;
+  });
+  const ranked = METRICS.filter(mt => !mixedTenure.includes(mt))
+    .map(mt => ({ mt, s: spreadOf(mt, picked) })).sort((a, b) => b.s - a.s);
+  // Every measure lands in exactly one of these three. An earlier version sliced the top three
+  // and filtered the rest on `s < CLOSE`, so a measure that differed but ranked fourth appeared in
+  // neither list and silently disappeared from the summary.
+  const differing = ranked.filter(x => x.s >= CLOSE);
+  const apart = differing.slice(0, 3);
+  const alsoApart = differing.slice(3);
+  const alike = ranked.filter(x => x.s < CLOSE);
+
+  let h = '';
+  if (apart.length){
+    h += '<div class="cmp-leadh">Where they differ most</div><ul class="cmp-diffs">';
+    apart.forEach(({ mt, s }) => {
+      const vals = picked.map(mt.val);
+      const hiV = Math.max.apply(null, vals), loV = Math.min.apply(null, vals);
+      const hi = picked[vals.indexOf(hiV)], lo = picked[vals.indexOf(loV)];
+      // On a ranked measure name the front-runner; on an unranked one just show the two ends, in
+      // the order the data happens to give, so the sentence carries no preference.
+      const front = mt.dir === 'more' ? hi : mt.dir === 'less' ? lo : null;
+      const other = front === hi ? lo : hi;
+      h += '<li><b>' + esc(mt.short) + '</b> &mdash; <span class="cmp-gap">' + gapPhrase(mt, picked)
+        + '</span><br>'
+        + (front
+            ? esc(front.p) + ' ' + esc(mt.brief(front)) + ' <em>(' + mt.lead + ')</em>, '
+              + esc(other.p) + ' ' + esc(mt.brief(other))
+            : esc(hi.p) + ' ' + esc(mt.brief(hi)) + ', ' + esc(lo.p) + ' ' + esc(mt.brief(lo)))
+        + '</li>';
+    });
+    h += '</ul>';
+  }
+  if (mixedTenure.length){
+    const fhNames = picked.filter(r => r.l === 'FH').map(r => esc(r.p));
+    const lhNames = picked.filter(r => r.l !== 'FH').map(r => esc(r.p) + ' ' + r.l + ' yrs');
+    h += '<p class="cmp-alike"><b>Different in kind, not degree</b> &mdash; '
+      + fhNames.join(' and ') + (fhNames.length > 1 ? ' are freehold' : ' is freehold')
+      + '; ' + lhNames.join(', ') + '. That is not a percentage gap and we do not state one.</p>';
+  }
+  if (alsoApart.length){
+    h += '<p class="cmp-alike"><b>Also apart on</b> '
+      + alsoApart.map(x => esc(x.mt.short) + ' (' + gapPhrase(x.mt, picked) + ')').join(' &middot; ')
+      + '.</p>';
+  }
+  if (alike.length){
+    h += '<p class="cmp-alike"><b>Much the same on</b> '
+      + alike.map(x => esc(x.mt.short)).join(' &middot; ')
+      + '. Where buildings agree, the measure is not the deciding one.</p>';
+  }
+  if (!apart.length){
+    h = '<div class="cmp-leadh">These are close on everything measured here</div>'
+      + '<p class="cmp-alike">No measure separates them by more than ' + Math.round(CLOSE * 100)
+      + '%. Whatever decides between them is not in the public record &mdash; it is the unit, the '
+      + 'floor and the outlook.</p>';
+  }
+  $('cmp-lead').innerHTML = h;
 }
 
 function render(){
@@ -272,6 +388,7 @@ function render(){
   $('cmp-out').innerHTML = h;
   // The legend is static markup now: it describes the ramp, not the selection, because colour no
   // longer names anybody. Nothing to re-render.
+  renderLead(picked);
 
   if (cols < 2){
     $('cmp-say').innerHTML = 'Add a second building and every row will show how far apart they are.';
@@ -367,6 +484,32 @@ else init();
    green "winner" would assert a preference the data cannot support. */
 .cmp-lead{color:var(--cmp-ink);font-weight:700}
 .post-content p.cmp-empty{margin:0;font-size:12.5px;color:var(--cmp-muted)}
+
+/* The summary carries the weight now, so it gets the emphasis the seven-row grid used to have. */
+.cmp-lead{margin-bottom:4px}
+.cmp-leadh{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--cmp-muted);margin-bottom:8px}
+.post-content ul.cmp-diffs{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:9px}
+.post-content ul.cmp-diffs li{margin:0;padding:0 0 9px;border-bottom:1px solid var(--color-light);
+  font-size:12.5px;line-height:1.5;color:var(--cmp-body)}
+.post-content ul.cmp-diffs li:last-child{border-bottom:0;padding-bottom:0}
+.post-content ul.cmp-diffs li::before{content:none;display:none}
+.cmp-diffs b{color:var(--cmp-ink);font-weight:700}
+.cmp-diffs em{font-style:normal;color:var(--cmp-muted)}
+.cmp-gap{font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
+  font-weight:700;color:var(--cmp-r3)}
+.post-content p.cmp-alike{margin:0 0 4px;font-size:12px;line-height:1.55;color:var(--cmp-muted)}
+.cmp-alike b{color:var(--cmp-body)}
+
+.cmp-fold{margin:10px 0 0;border-top:1px solid var(--cmp-rule);padding-top:10px}
+.post-content .cmp-fold>summary{cursor:pointer;list-style:none;font-size:11.5px;font-weight:600;
+  color:var(--cmp-muted);padding:6px 0;min-height:44px;display:flex;align-items:center}
+.post-content .cmp-fold>summary::-webkit-details-marker{display:none}
+.post-content .cmp-fold>summary::before{content:'+';margin-right:7px;font-family:var(--cmp-mono);
+  font-weight:700;color:var(--cmp-ink)}
+.post-content .cmp-fold[open]>summary::before{content:'–'}
+.post-content .cmp-fold>summary:hover{color:var(--cmp-ink)}
+.post-content .cmp-fold>summary:focus-visible{outline:2px solid var(--cmp-ink);outline-offset:2px}
 
 .post-content p.cmp-say{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--cmp-rule);
   font-size:12.5px;line-height:1.6;color:var(--cmp-body)}
