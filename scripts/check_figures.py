@@ -59,6 +59,16 @@ def build_checks(data):
             rate = (need ** (1 / yrs) - 1) * 100
             grid.append((f'break-even: {entry} psf over {yrs}y', f'{rate:.1f}%'))
 
+    # The entry-gap endpoints. These are derived from the four band medians, which WERE guarded --
+    # but the endpoints quoted in the summary and the frontmatter were not, so a refresh moved the
+    # 1,150+ band from 1,763 to 1,739 and the article went on claiming +76% while the component
+    # beneath it rendered +78%. Guarding an input does not guard what a reader is told about it.
+    gaps = [(price / b[2] - 1) * 100 for b in bands for price in (2600, 3100)]
+    grid += [
+        ('entry gap, narrowest band edge', f'+{round(min(gaps))}%'),
+        ('entry gap, widest band edge', f'+{round(max(gaps))}%'),
+    ]
+
     # Zyon Grand, carried in the article as a worked example of the same method on a project whose
     # price is already recorded. Its psf is URA's developer-sales median for ONE month, so it moves
     # more than a resale median does — which is exactly why it is guarded rather than trusted.
@@ -88,6 +98,12 @@ def build_checks(data):
         ('size band 850-1150 median', fmt(bands[2][2])),
         ('size band 1150+ median', fmt(bands[3][2])),
         ('exit comparable median $psf', fmt(comps_median)),
+        # Both of these were stated in prose, derived from the feed, and unguarded. The momentum
+        # shipped as 4.7% after a refresh moved it to 4.6%.
+        ('D20 twelve-month momentum', f"{d20['momentum'] * 100:.1f}%"),
+        ('D20 gross yield', f"{d20['yield'] * 100:.1f}%"),
+        ('2026 land award average $psf ppr', fmt(data['gls']['avg_psf_ppr_year']['2026'])),
+        ('2025 land award average $psf ppr', fmt(data['gls']['avg_psf_ppr_year']['2025'])),
         ('Jadescape median $psf', fmt(projects['JADESCAPE']['median_psf'])),
         ('Jadescape resale count', fmt(projects['JADESCAPE']['vol_12m'])),
         ('Braddell View median $psf', fmt(projects['BRADDELL VIEW']['median_psf'])),
@@ -96,7 +112,7 @@ def build_checks(data):
 
 
 def main():
-    data, provenance = load_live(LIVE, ['projects', 'districts', 'new_launches'], allow_stale=True)
+    data, provenance = load_live(LIVE, ['projects', 'districts', 'new_launches', 'gls'], allow_stale=True)
     checks = build_checks(data)
 
     paths = [os.path.join(DIST, p, 'index.html') for p in PAGES]
@@ -129,6 +145,26 @@ def main():
         print(f'  {"ok  " if ok else "FAIL"}  {label:<32} {value}')
         if not ok:
             bad.append((label, value))
+
+    # A second kind of check. Presence is not enough when a component on the same page renders the
+    # right number: the entry gap shipped as "+18% to +76%" in the summary while the component
+    # beneath it drew +78% from the same feed, and searching for "+78%" found the component's copy
+    # and passed. This captures every occurrence of the phrase shape and requires them to agree.
+    d20r = next(r for r in data['districts']['rows'] if r['district'] == 'D20')
+    gaps = [(price / b[2] - 1) * 100 for b in d20r['psf_sz'] for price in (2600, 3100)]
+    want = (str(round(min(gaps))), str(round(max(gaps))))
+    # Anchored on "runs", which is how the entry gap is phrased in all three places it appears.
+    # An unanchored pattern also swept up the break-even note's estimator spread, a different
+    # range that is legitimately different -- a check that cries wolf gets switched off.
+    found = set(re.findall(r'runs (?:from )?\+(\d+)% to \+(\d+)%', text))
+    wrong = sorted(f for f in found if f != want)
+    consistent = bool(found) and not wrong
+    print(f'  {"ok  " if consistent else "FAIL"}  {"entry-gap range, every statement":<32} '
+          f'+{want[0]}% to +{want[1]}%' + ('' if consistent else f'   page also says {wrong}'))
+    if not consistent:
+        bad.append(('entry-gap range stated inconsistently',
+                    f'every statement to read +{want[0]}% to +{want[1]}%'
+                    + (f'; found {wrong}' if wrong else '; found none')))
 
     if bad:
         print(f'\n{len(bad)} figure(s) shown to readers no longer match the data:')
