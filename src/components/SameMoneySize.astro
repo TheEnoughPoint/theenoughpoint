@@ -32,8 +32,12 @@
 // stacked rows into a wall and left the two states almost indistinguishable.
 //
 // The states are pattern, never a second hue:
-//   solid          floor area the budget buys there
-//   white-striped  the same, where the size sits above what usually trades — less certain, not
+//   solid bar      floor area the budget buys there
+//   upright mark   the p90 of sizes that actually trade there. Replaced a hatched bar, which was
+//                  the loudest mark in the chart while carrying a footnote, lowered the apparent
+//                  ink of the longest bars so the encoding fought itself, and could not show HOW
+//                  far past the ceiling a bar ran, because a texture has no position.
+//   (was)          white-striped: the same, where the size sits above what usually trades — not
 //                  worse, so it is the SAME blue interrupted rather than a different colour
 //   dashed outline the building that does not exist yet
 //
@@ -59,11 +63,15 @@ interface Row { p: string; psf: number; n: number; l: number | string; m: number
 const ROWS: Row[] = [{"p":"Jadescape","psf":2341,"n":64,"l":91,"m":327,"x":"Marymount","sq":1025,"p90":1259,"above":false,"pct":24},{"p":"Sky Vue","psf":2213,"n":16,"l":86,"m":208,"x":"Bishan","sq":1085,"p90":807,"above":true,"pct":31},{"p":"Thomson Three","psf":2162,"n":22,"l":85,"m":194,"x":"Upper Thomson","sq":1110,"p90":1259,"above":false,"pct":34},{"p":"Thomson Impressions","psf":2146,"n":15,"l":88,"m":358,"x":"Bright Hill","sq":1118,"p90":1195,"above":false,"pct":35},{"p":"The Panorama","psf":2087,"n":31,"l":86,"m":351,"x":"Mayflower","sq":1150,"p90":1141,"above":true,"pct":39},{"p":"Centro Residences","psf":2024,"n":25,"l":80,"m":143,"x":"Ang Mo Kio","sq":1186,"p90":1281,"above":false,"pct":43},{"p":"Thomson Grand","psf":1819,"n":16,"l":83,"m":298,"x":"Bright Hill","sq":1319,"p90":1410,"above":false,"pct":59},{"p":"The Gardens At Bishan","psf":1809,"n":16,"l":70,"m":246,"x":"Bright Hill","sq":1327,"p90":1227,"above":true,"pct":60},{"p":"Braddell View","psf":1053,"n":25,"l":54,"m":377,"x":"Caldecott","sq":2279,"p90":1701,"above":true,"pct":175}];
 
 const BASE = Math.round(BUDGET / NEW_PSF);
-const MAX = Math.max(BASE, ...ROWS.map((r) => r.sq));
+const MAX = Math.max(BASE, ...ROWS.map((r) => Math.max(r.sq, r.p90)));
 const w = (v: number) => (v / MAX) * 100;
 const ABOVE = ROWS.filter((r) => r.above);
 const MIN_PCT = Math.min(...ROWS.map((r) => r.pct));
 const MAX_PCT = Math.max(...ROWS.map((r) => r.pct));
+// The threshold is a knife edge for some of these. Naming the narrowest crossing keeps the count
+// from implying four equally stretched cases.
+const NARROW = ABOVE.filter((r) => (r.sq - r.p90) / r.p90 < 0.03);
+const WIDEST = ABOVE.reduce((a, b) => (b.sq - b.p90 > a.sq - a.p90 ? b : a));
 const n = (v: number) => v.toLocaleString('en-SG');
 const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 ---
@@ -78,7 +86,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 
   <div class="sm-legend">
     <span class="sm-lg"><i class="sm-key sm-key-old"></i>floor area {money(BUDGET)} buys there</span>
-    <span class="sm-lg"><i class="sm-key sm-key-warn">!</i> above the size that usually trades there</span>
+    <span class="sm-lg"><i class="sm-key sm-key-p90"></i>biggest size that usually trades there</span>
     <span class="sm-lg"><i class="sm-key sm-key-new"></i>not built yet</span>
   </div>
 
@@ -110,13 +118,18 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
           <span class="sm-nm-s">{r.l} yrs &middot; {r.m}m</span></span>
         <span class="sm-track">
           <span class="sm-ghost" style={`width:${w(BASE)}%`} aria-hidden="true"></span>
-          <span class={`sm-bar sm-bar-old${r.above ? ' is-above' : ''}`} style={`width:${w(r.sq)}%`}
+          {/* The reference marker that replaced the hatch. A hatch has no position, so it could
+              say "this is above what trades" but never how far above, and it degraded the one
+              thing the bar is for — length. This sits at the p90 of traded sizes, so a bar that
+              runs past it is visibly past it, and a bar short of it shows the headroom instead. */}
+          <span class="sm-p90" style={`left:${w(r.p90)}%`} aria-hidden="true"></span>
+          <span class="sm-bar sm-bar-old" style={`width:${w(r.sq)}%`}
             role="img"
-            aria-label={`${r.p}. Median S$${n(r.psf)} per square foot over ${r.n} resales, ${r.l} years of lease remaining, ${r.m} metres to ${r.x} station. ${money(BUDGET)} buys ${n(r.sq)} square feet there, ${r.pct} per cent against the new-build baseline.${r.above ? ` That is above the size that usually trades there — nine in ten sales are under ${n(r.p90)} square feet — so treat it as optimistic.` : ''}`}></span>
+            aria-label={`${r.p}. Median S$${n(r.psf)} per square foot over ${r.n} resales, ${r.l} years of lease remaining, ${r.m} metres to ${r.x} station. ${money(BUDGET)} buys ${n(r.sq)} square feet there, ${r.pct} per cent against the new-build baseline.${r.above ? ` That is above the size that usually trades there — nine in ten sales are under ${n(r.p90)} square feet — so treat it as optimistic.` : ` Nine in ten sales there are under ${n(r.p90)} square feet, so the budget stays inside the usual range.`}`}></span>
         </span>
         {/* The bar stops at what the building actually offers. An earlier version drew a ghosted
             stretch to the notional figure, which read as more bar rather than as absent space. */}
-        <span class="sm-val">{n(r.sq)}{r.above && <i class="sm-cap-note"><b>!</b> above typical</i>}</span>
+        <span class="sm-val">{n(r.sq)}{r.above && <i class="sm-cap-note">usually to {n(r.p90)}</i>}</span>
         <span class="sm-pct">{r.pct >= 0 ? '+' : '−'}{Math.abs(r.pct)}%</span>
       </li>
     ))}
@@ -128,10 +141,13 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   median price per square foot. Nothing is capped: if the money reaches a bigger home there, the bar
   shows it.</p>
 
-  <p class="sm-foot sm-foot-2">On {ABOVE.length} of them the answer lands <b>above the size that
-  usually trades there</b>, marked with a <b>!</b>. Read those as optimistic for two reasons. You may
-  not find a home that size &mdash; at <b>{ABOVE[0].p}</b> nine in ten sales are under{' '}
-  {n(ABOVE[0].p90)} sq ft, against the {n(ABOVE[0].sq)} the budget implies. And a building&rsquo;s
+  <p class="sm-foot sm-foot-2">The upright mark on each bar is the biggest size that usually trades
+  in that building &mdash; nine in ten of its resales were smaller. On {ABOVE.length} of them the bar
+  runs <b>past</b> that mark, and how far past is the whole point &mdash; at <b>{WIDEST.p}</b> the
+  budget implies {n(WIDEST.sq)} sq ft against a usual ceiling of {n(WIDEST.p90)}, while{' '}
+  {NARROW.length > 0 ? <>at <b>{NARROW[0].p}</b> it clears the mark by {n(NARROW[0].sq - NARROW[0].p90)} sq
+  ft, which is no gap at all</> : <>the rest clear it narrowly</>}. Read the wide ones as optimistic
+  for two reasons. You may not find a home that size. And a building&rsquo;s
   median price per square foot is set by the sizes it actually sells, so applying a small-unit
   building&rsquo;s rate to a large notional home overstates the space: bigger homes almost always
   trade at a lower rate per square foot than smaller ones in the same block.</p>
@@ -212,13 +228,9 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   font-weight:600;color:var(--sm-ink);text-align:right}
 .sm-cap-note{display:block;font-style:normal;font-size:11px;font-weight:400;color:var(--sm-muted)}
 .sm-cap-note b{font-weight:700;color:var(--sm-body)}
-/* The "!" is a caveat marker, not a status colour: these rows are not worse, they are less
-   certain, and the reason is spelled out in the footer rather than encoded in a hue. */
-.sm-key-warn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;
-  border-radius:50%;border:1px solid var(--sm-muted);color:var(--sm-muted);font-size:11px;
-  font-weight:700;font-style:normal;line-height:1}
-.sm-bar-old.is-above{background:repeating-linear-gradient(45deg,var(--sm-fill),var(--sm-fill) 5px,
-  #fff 5px,#fff 8px)}
+.sm-p90{position:absolute;top:-4px;height:25px;width:0;z-index:2;
+  border-left:2px solid var(--sm-ink)}
+.sm-key-p90{width:2px;height:15px;background:var(--sm-ink);border-radius:0;margin-right:7px}
 .sm-pct{font-family:var(--sm-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
   color:var(--sm-body);text-align:right;font-weight:600}
 .sm-pct-base{color:var(--sm-muted);font-weight:400}
