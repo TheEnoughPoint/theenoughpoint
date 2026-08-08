@@ -89,10 +89,14 @@ const METRICS = [
     brief: r => r.mo === null ? 'not available' : signed(r.mo * 100) + '%',
     val: r => r.mo === null ? 0 : r.mo,
     note: 'no better end — a rise is good news for an owner and bad for a buyer. Median against median, so a change in which units sold moves it too' },
+  // The sub-line is the size control made visible. Each building is measured against resale of
+  // ITS OWN size band, so the benchmarks differ between columns — without saying which, a reader
+  // compares three percentages struck against three different numbers and cannot know it.
   { label: 'Against its district', short: 'standing vs its district', dir: 'none', lead: '', trail: '', kind: 'pp',
     fmt: r => signed((r.psf / r.b - 1) * 100) + '%', brief: r => signed((r.psf / r.b - 1) * 100) + '%',
     val: r => r.psf / r.b - 1,
-    note: 'no better end — a position vs same-size resale nearby, not a discount' },
+    sub: r => 'vs ' + num(r.b) + ' · ' + r.bl + ' sq ft',
+    note: 'no better end — a position vs same-size resale nearby, not a discount. Each building is measured against its OWN size band, so the benchmarks differ: a building that sells small units is compared with small units. Worth knowing because the rate per square foot moves with size, and not in a simple way — the largest band is the cheapest per square foot in 16 of our 22 fully-measured districts, but the smallest band is the dearest in only 9' },
   // NOT marked, and the reason matters. A raw count of resales tracks how many units a building
   // HAS at least as much as how readily they sell — a 1,200-unit project will out-trade a
   // 400-unit one at identical turnover. The feed carries no unit count, so the tool cannot

@@ -70,6 +70,8 @@ def rows_for_compare(data, min_sales=10):
     def band(sqft):
         return 0 if sqft < 600 else 1 if sqft < 850 else 2 if sqft < 1150 else 3
 
+    BAND_LABEL = ['under 600', '600–850', '850–1,150', '1,150+']
+
     districts = {r['district']: r for r in data['districts']['rows']}
     out = []
     for r in data['projects']['rows']:
@@ -87,7 +89,8 @@ def rows_for_compare(data, min_sales=10):
             'p': r['project'].title(), 'd': r['district'], 'n': d['name'],
             'psf': r['median_psf'], 'v': r['vol_12m'],
             'fh': 1 if fh else 0, 'lyr': None if fh else int(r['lease']),
-            'm': r['mrt_m'], 'x': r['mrt'], 's': r['size'], 'b': b[2], 'q': r['price'],
+            'm': r['mrt_m'], 'x': r['mrt'], 's': r['size'], 'b': b[2],
+            'bl': BAND_LABEL[band(r['size'])], 'q': r['price'],
             'lo': pp[0], 'hi': pp[4], 'mo': r.get('momentum'),
         })
     out.sort(key=lambda r: (r['d'], r['p']))
