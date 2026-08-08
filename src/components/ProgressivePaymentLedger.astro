@@ -32,24 +32,31 @@ const FULL_DRAW_M = 54;
 const RENT_M = 4300;
 const DUTY = 44_600; // identical on both sides, so stated rather than drawn
 
-interface Seg { k: string; label: string; v: number }
+// `how` is printed beside each value so both bars can be checked by hand. Without it the
+// rent blocks are two numbers a reader has to take on trust, and the larger of them is the
+// entire finding — the same defect the affordability tool had when it folded stamp duty
+// into a total without showing it.
+interface Seg { k: string; label: string; v: number; how: string }
 interface Side { who: string; note: string; segs: Seg[] }
+
+const RENT_MONTHS_LAUNCH = 44;   // months 0 to 43: booking through one month past keys
+const RENT_MONTHS_RESALE = 3;    // months 0 to 2: booking through completion
 
 const SIDES: Side[] = [
   {
     who: 'Resale',
     note: 'completes in month 3, lives in it from then',
     segs: [
-      { k: 'int', label: 'Interest', v: 72_266 },
-      { k: 'rent', label: 'Rent', v: 12_900 },
+      { k: 'int', label: 'Interest', v: 72_266, how: 'on S$1,125,000 from month 3' },
+      { k: 'rent', label: 'Rent', v: 12_900, how: `${RENT_MONTHS_RESALE} × S$${RENT_M.toLocaleString('en-SG')}` },
     ],
   },
   {
     who: 'New launch',
     note: `keys at month ${TOP_M}, rents until then`,
     segs: [
-      { k: 'int', label: 'Interest', v: 28_000 },
-      { k: 'rent', label: 'Rent', v: 189_200 },
+      { k: 'int', label: 'Interest', v: 28_000, how: 'on the drawn balance only' },
+      { k: 'rent', label: 'Rent', v: 189_200, how: `${RENT_MONTHS_LAUNCH} × S$${RENT_M.toLocaleString('en-SG')}` },
     ],
   },
 ];
@@ -78,7 +85,8 @@ const pct = (v: number) => (v / MAX) * 100;
 <figure class="pp">
   <figcaption class="pp-cap">
     <h4>Money that does not come back, over the same {FULL_DRAW_M} months</h4>
-    <p>Two buyers, both needing somewhere to live, both paying {n(PRICE)} at {RATE} with 75% borrowed.
+    <p>Two buyers, both needing somewhere to live, both paying {n(PRICE)} at {RATE} on a loan of{' '}
+    {n(PRICE * 0.75)}.
     Principal repayment is excluded on purpose: it is money moved, not money spent. Stamp duty is
     excluded too &mdash; it is {n(DUTY)} either way, so it adds equal width to both bars and says
     nothing about the difference.</p>
@@ -98,7 +106,9 @@ const pct = (v: number) => (v / MAX) * 100;
         ))}
       </div>
       <div class="pp-vals">
-        {s.segs.map((g) => (<span class="pp-v"><i class={`pp-key ${g.k}`}></i>{g.label} {n(g.v)}</span>))}
+        {s.segs.map((g) => (
+          <span class="pp-v"><i class={`pp-key ${g.k}`}></i>{g.label} <b>{n(g.v)}</b> <em>{g.how}</em></span>
+        ))}
       </div>
     </div>
   ))}
@@ -176,7 +186,9 @@ const pct = (v: number) => (v / MAX) * 100;
 .pp-seg{display:block;height:22px;min-width:2px;box-shadow:inset -1px 0 0 #fff}
 .pp-seg.int{background:var(--pp-int)} .pp-seg.rent{background:var(--pp-rent)}
 .pp-vals{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:11.5px;color:var(--pp-body)}
-.pp-v{display:flex;align-items:center;gap:5px;font-variant-numeric:tabular-nums}
+.pp-v{display:flex;align-items:baseline;gap:5px;font-variant-numeric:tabular-nums}
+.pp-v b{font-weight:700;color:var(--pp-ink)}
+.pp-v em{font-style:normal;color:var(--pp-muted)}
 
 .post-content p.pp-head{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--pp-rule);
   font-size:13px;line-height:1.6;color:var(--pp-body)}
