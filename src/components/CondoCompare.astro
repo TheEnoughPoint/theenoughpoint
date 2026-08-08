@@ -132,7 +132,10 @@ const n = (v) => v.toLocaleString('en-SG');
 
   <div class="cmp-lead" id="cmp-lead" aria-live="polite"></div>
 
-  <details class="cmp-fold">
+  {/* Open by default: the summary answers "what differs", but a reader who has picked three
+      specific buildings usually wants the numbers straight away, and a closed fold makes them
+      ask for what they came for. It stays collapsible for anyone who only wants the headline. */}
+  <details class="cmp-fold" open>
     <summary>All seven measures, side by side</summary>
     <div class="cmp-out" id="cmp-out"></div>
   </details>
