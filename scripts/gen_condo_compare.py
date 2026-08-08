@@ -359,7 +359,12 @@ function render(){
     const ref = mt.dir === 'more' ? max : min;
     // Rank on distinct values so ties share a state. A measure with no better end, or a single
     // selection, has no ranking at all and every cell stays flat.
-    const ordered = mt.dir === 'none' || cols < 2 ? null
+    // GSMArena's differences mechanic, adopted from the survey: a row whose values are level is a
+    // row that cannot help you decide, so it recedes and is labelled as such. It also stops the
+    // tool over-marking — 92, 91 and 90 years was getting a green and a red for a two-year gap,
+    // which is exactly the false precision that makes a comparison feel untrustworthy.
+    const level = cols > 1 && spreadOf(mt, picked) < CLOSE;
+    const ordered = mt.dir === 'none' || cols < 2 || level ? null
       : [...new Set(vals)].sort((a, b) => mt.dir === 'more' ? b - a : a - b);
     const rankOf = (v) => {
       if (!ordered || ordered.length < 2) return 'flat';
@@ -367,8 +372,10 @@ function render(){
       return idx === 0 ? 'best' : idx === ordered.length - 1 ? 'worst' : 'mid';
     };
 
-    h += '<div class="cmp-metric"><div class="cmp-mlabel">' + mt.label
-       + (mt.dir === 'none' ? '<span class="cmp-tag cmp-tag-n">no better end</span>' : '')
+    h += '<div class="cmp-metric' + (level ? ' is-level' : '') + '"><div class="cmp-mlabel">'
+       + mt.label
+       + (level ? '<span class="cmp-tag cmp-tag-l">level &mdash; will not decide it</span>'
+                : mt.dir === 'none' ? '<span class="cmp-tag cmp-tag-n">no better end</span>' : '')
        + '<em>' + mt.note + '</em></div>'
        + '<div class="cmp-mrows" style="--cols:' + cols + '">';
     picked.forEach((r, i) => {
@@ -468,7 +475,13 @@ else init();
 .cmp-hint{color:var(--cmp-muted);flex-basis:100%}
 
 .cmp-heads,.cmp-mrows{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:10px}
-.cmp-heads{padding-bottom:8px;border-bottom:1px solid var(--cmp-rule);margin-bottom:10px}
+/* Sticky identity strip, taken from the Apple/Zillow pattern in the survey: with seven measures
+   the column labels rode off the top and a reader lost which building was which by the fourth
+   row. Riding along costs nothing and needs no script. */
+.cmp-heads{padding:8px 0;border-bottom:1px solid var(--cmp-rule);margin-bottom:10px;
+  position:sticky;top:64px;z-index:2;background:#fff}
+/* top:64px, not 0 — the site header is itself `sticky top-0` at h-16, so a strip pinned to 0
+   slides underneath it and is invisible exactly when it is needed. Measured, not assumed. */
 .cmp-head b{display:block;font-size:13px;color:var(--cmp-ink);line-height:1.25}
 .cmp-head .cmp-key{margin-right:5px}
 .cmp-meta{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--cmp-muted);margin-top:2px}
@@ -478,6 +491,11 @@ else init();
 .cmp-mlabel em{display:block;font-style:normal;font-weight:400;font-size:11px;color:var(--cmp-muted)}
 .cmp-tag{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.01em;
   border:1px solid var(--cmp-rule);border-radius:999px;padding:0 7px;color:var(--cmp-muted)}
+/* A level row recedes by losing its emphasis and its tint, never by losing contrast: values stay
+   fully legible because a reader may still want the number. */
+.cmp-metric.is-level .cmp-mlabel{color:var(--cmp-muted);font-weight:500}
+.cmp-metric.is-level .cmp-cell{background:transparent;border-left-color:var(--cmp-rule)}
+.cmp-metric.is-level .cmp-v{font-weight:500;color:var(--cmp-body)}
 /* The 21 bars are gone. Each was normalised to its own row, so none could be compared with any
    other, and stacking seven identical triplets read as wallpaper rather than as information. A
    tinted cell says the same thing in a third of the height and is legible at a glance. */
