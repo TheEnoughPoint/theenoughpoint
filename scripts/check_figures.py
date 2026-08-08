@@ -69,6 +69,16 @@ def build_checks(data):
         ('entry gap, widest band edge', f'+{round(max(gaps))}%'),
     ]
 
+    # The hold-length claim: how many of URA's own long-run windows clear the hurdle at each
+    # horizon. The window rates are typed (URA full history, cited on the page); the hurdles are
+    # feed-derived, so a refresh could move one across a boundary and silently falsify the count.
+    URA_WINDOWS = (1.8, 4.7, 2.8, 4.6, 6.1)          # 30y, 20y, 15y, 10y, 5y
+    for yrs, word in ((7, 'seven'), (15, 'fifteen')):
+        rate = ((2900 * ROUND_TRIP / comps_median) ** (1 / yrs) - 1) * 100
+        n = sum(1 for w in URA_WINDOWS if w >= rate)
+        grid.append((f'windows clearing the {word}-year hurdle',
+                     {1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five'}[n] + ' of the five'))
+
     # Zyon Grand, carried in the article as a worked example of the same method on a project whose
     # price is already recorded. Its psf is URA's developer-sales median for ONE month, so it moves
     # more than a resale median does — which is exactly why it is guarded rather than trusted.
