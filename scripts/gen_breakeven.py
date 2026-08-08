@@ -47,6 +47,22 @@ for p in PRICES:
     })
 MAX_RISE = max(r['rise'] for r in rows)
 
+# The base is the median of a five-building set, which means it IS one building — Thomson Three,
+# on 22 sales. Two other defensible estimators of the same set give a different answer, and the
+# reader was being shown a point where the honest object is a range. The article's own thesis is
+# that whoever picks the window picks the answer; picking one estimator in silence is that same
+# error a level down, so the spread is computed and stated rather than left for someone to find.
+psfs = [r['median_psf'] for r in comps]
+vols = [r['vol_12m'] for r in comps]
+EST = {
+    'median of their medians': sorted(psfs)[len(psfs) // 2],
+    'mean of them': sum(psfs) / len(psfs),
+    'weighted by resale count': sum(p * v for p, v in zip(psfs, vols)) / sum(vols),
+}
+MID = PRICES[len(PRICES) // 2]
+EST_RISE = sorted(round((MID * ROUND_TRIP / b - 1) * 100) for b in EST.values())
+EST_LINE = ' · '.join(f'{k} S${b:,.0f}' for k, b in EST.items())
+
 hdr_years = ''.join(
     f'<th scope="col">{n}<span class="be-u">yrs</span></th>' for n in HORIZONS)
 
@@ -98,6 +114,11 @@ const BASE = {BASE};
     <tbody>
 {body}    </tbody>
   </table>
+  <p class="be-note">The exit base is <b>S${BASE:,}</b>, from {len(comps)} District 20 buildings with
+  {LEASE_MIN}+ years of lease and at least {VOL_MIN} resales — {sum(r['vol_12m'] for r in comps)} sales in all.
+  Which average you take moves the answer: {EST_LINE}. On the middle row that is a spread of{{' '}}
+  <b>+{EST_RISE[0]}% to +{EST_RISE[-1]}%</b>, so read the column as about that wide, not as a point. Five
+  buildings is a thin set, and the median of five is really one of them.</p>
 </figure>
 
 <style is:global>
@@ -140,6 +161,8 @@ const BASE = {BASE};
   letter-spacing:.02em;text-transform:none}}
 .post-content figure.be .be-pc{{font-size:11px;font-weight:600;margin-left:1px}}
 .post-content figure.be .be-num .be-pc{{font-size:13.5px}}
+.post-content figure.be .be-note{{margin:12px 2px 0;font-size:12.5px;line-height:1.55;color:#5b6b7f}}
+.post-content figure.be .be-note b{{color:#0b1d33;font-weight:700}}
 
 @media (max-width: 640px){{
   /* The site rule turns every .post-content table into its own scroll box. This one already

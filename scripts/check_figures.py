@@ -59,6 +59,27 @@ def build_checks(data):
             rate = (need ** (1 / yrs) - 1) * 100
             grid.append((f'break-even: {entry} psf over {yrs}y', f'{rate:.1f}%'))
 
+    # Zyon Grand, carried in the article as a worked example of the same method on a project whose
+    # price is already recorded. Its psf is URA's developer-sales median for ONE month, so it moves
+    # more than a resale median does — which is exactly why it is guarded rather than trusted.
+    zg = next(r for r in data['new_launches']['rows'] if r['project'] == 'ZYON GRAND')
+    d3 = [r for r in data['projects']['rows']
+          if r['district'] == 'D3' and r['lease'] not in ('FH', None)
+          and int(r['lease']) >= 85 and r['vol_12m'] >= 10]
+    d3_base = sorted(r['median_psf'] for r in d3)[len(d3) // 2]
+    zg_need = zg['psf'] * ROUND_TRIP / d3_base
+    grid += [
+        ('Zyon Grand new-sale median $psf', fmt(zg['psf'])),
+        ('Zyon Grand take-up', f"{zg['takeup'] * 100:.0f}%"),
+        ('D3 exit comparables', str(len(d3))),
+        ('D3 exit comparable resales', fmt(sum(r['vol_12m'] for r in d3))),
+        ('D3 exit comparable $psf', fmt(d3_base)),
+        ('Zyon Grand total rise', f'+{round((zg_need - 1) * 100)}%'),
+        ('Zyon Grand over 9y', f'{(zg_need ** (1 / 9) - 1) * 100:.1f}%'),
+        ('same method at 3100 psf in D3',
+         f'+{round((3100 * ROUND_TRIP / d3_base - 1) * 100)}%'),
+    ]
+
     return grid + [
         ('D20 resale median $psf', fmt(d20['median_psf'])),
         ('D20 twelve-month resale count', fmt(d20['vol_12m'])),
@@ -75,7 +96,7 @@ def build_checks(data):
 
 
 def main():
-    data, provenance = load_live(LIVE, ['projects', 'districts'], allow_stale=True)
+    data, provenance = load_live(LIVE, ['projects', 'districts', 'new_launches'], allow_stale=True)
     checks = build_checks(data)
 
     paths = [os.path.join(DIST, p, 'index.html') for p in PAGES]
