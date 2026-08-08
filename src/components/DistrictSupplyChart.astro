@@ -1,0 +1,232 @@
+---
+// Unsold new homes, by district. The article's whole claim is that the national
+// supply figure is a concentration rather than a spread, so the chart has to make
+// concentration legible at a glance — which is what a ranked bar does and a scatter
+// does not. One panel, sorted, long tail left visible on purpose.
+//
+// Two measures sit on each row and they are NOT the same thing, which is the second
+// point the chart has to carry. Unsold units says how much stock is there. Per cent
+// sold says how much of what launched has gone. A district can be high on both
+// (D5: 324 unsold, 82.5% sold — it simply launched a lot) or low-and-stuck
+// (D28: 149 unsold, 19.9% sold). Ranking by unsold alone would imply the first is
+// the same problem as the second.
+//
+// Per cent sold is deliberately NOT the sort key and is styled as a plain figure
+// rather than a second bar. URA's developer-sales file carries no launch date, so
+// the figure is cumulative since launch and cannot be read as a rate — a project
+// three years into selling and one six weeks old are indistinguishable in it.
+// Drawing it as a bar would invite exactly the comparison the data cannot support.
+//
+// The five districts with no active launch are shown as their own strip rather than
+// as zero-length bars. A zero bar reads as "measured, and it is nothing"; the truth
+// is "no project in this district appears in this month's file", which is a
+// different statement and is labelled as one.
+//
+// ROWS is emitted mechanically from data/live.json in the sg-property-decision
+// repo (URA PMI_Resi_Developer_Sales), not hand-typed. Totals are recomputed from
+// ROWS below so the prose figures cannot drift from the bars.
+//
+// Colour marks segment — a classification, not a verdict — reusing the validated
+// triple from DistrictYieldChart so the two property charts agree:
+// light #2563EB/#B45309/#7C3AED, dark #4E86DD/#B8842E/#9575E0. Every row is
+// labelled with its district code, so identity never rests on colour alone.
+const ASOF = 'June 2026';
+const BASIS = "every project still selling, URA's monthly developer-sales record";
+
+interface Row { d: string; name: string; seg: 'CCR' | 'RCR' | 'OCR'; proj: number; units: number; unsold: number; soldPct: number }
+
+const ROWS: Row[] = [
+  { d: 'D1', name: 'Raffles Place / Marina', seg: 'CCR', proj: 2, units: 1303, unsold: 483, soldPct: 62.9 },
+  { d: 'D9', name: 'Orchard / River Valley', seg: 'CCR', proj: 4, units: 1694, unsold: 472, soldPct: 72.1 },
+  { d: 'D23', name: 'Bukit Batok / Choa Chu Kang', seg: 'OCR', proj: 3, units: 1460, unsold: 374, soldPct: 74.4 },
+  { d: 'D5', name: 'Buona Vista / Clementi / Dover', seg: 'OCR', proj: 5, units: 1855, unsold: 324, soldPct: 82.5 },
+  { d: 'D21', name: 'Upper Bukit Timah / Clementi Pk', seg: 'RCR', proj: 3, units: 1057, unsold: 263, soldPct: 75.1 },
+  { d: 'D3', name: 'Tiong Bahru / Queenstown', seg: 'RCR', proj: 2, units: 1302, unsold: 243, soldPct: 81.3 },
+  { d: 'D22', name: 'Jurong', seg: 'OCR', proj: 3, units: 1114, unsold: 226, soldPct: 79.7 },
+  { d: 'D15', name: 'East Coast / Marine Parade', seg: 'RCR', proj: 5, units: 2190, unsold: 206, soldPct: 90.6 },
+  { d: 'D17', name: 'Changi / Loyang', seg: 'OCR', proj: 3, units: 1047, unsold: 187, soldPct: 82.1 },
+  { d: 'D16', name: 'Bedok / Upper East Coast', seg: 'OCR', proj: 2, units: 1103, unsold: 181, soldPct: 83.6 },
+  { d: 'D28', name: 'Seletar / Yio Chu Kang', seg: 'OCR', proj: 1, units: 186, unsold: 149, soldPct: 19.9 },
+  { d: 'D7', name: 'Bugis / Beach Road', seg: 'RCR', proj: 1, units: 188, unsold: 120, soldPct: 36.2 },
+  { d: 'D12', name: 'Balestier / Toa Payoh', seg: 'RCR', proj: 2, units: 949, unsold: 109, soldPct: 88.5 },
+  { d: 'D10', name: 'Bukit Timah / Holland', seg: 'CCR', proj: 1, units: 301, unsold: 56, soldPct: 81.4 },
+  { d: 'D26', name: 'Upper Thomson / Mandai', seg: 'OCR', proj: 3, units: 1682, unsold: 49, soldPct: 97.1 },
+  { d: 'D2', name: 'Tanjong Pagar / Anson', seg: 'CCR', proj: 1, units: 246, unsold: 48, soldPct: 80.5 },
+  { d: 'D18', name: 'Tampines / Pasir Ris', seg: 'OCR', proj: 2, units: 1765, unsold: 41, soldPct: 97.7 },
+  { d: 'D27', name: 'Sembawang / Yishun', seg: 'OCR', proj: 1, units: 376, unsold: 37, soldPct: 90.2 },
+  { d: 'D19', name: 'Serangoon / Hougang / Punggol', seg: 'OCR', proj: 1, units: 916, unsold: 33, soldPct: 96.4 },
+  { d: 'D25', name: 'Woodlands / Kranji', seg: 'OCR', proj: 1, units: 348, unsold: 33, soldPct: 90.5 },
+  { d: 'D6', name: 'City Hall / Clarke Quay', seg: 'RCR', proj: 1, units: 696, unsold: 7, soldPct: 99.0 },
+  { d: 'D11', name: 'Novena / Newton', seg: 'CCR', proj: 2, units: 188, unsold: 2, soldPct: 98.9 },
+  { d: 'D24', name: 'Lim Chu Kang / Tengah', seg: 'OCR', proj: 1, units: 863, unsold: 2, soldPct: 99.8 },
+];
+
+// Districts with resale activity but no project in this month's developer-sales file.
+const QUIET = [
+  { d: 'D4', name: 'Sentosa / Harbourfront' },
+  { d: 'D8', name: 'Little India / Farrer Park' },
+  { d: 'D13', name: 'Macpherson / Potong Pasir' },
+  { d: 'D14', name: 'Geylang / Eunos' },
+  { d: 'D20', name: 'Bishan / Ang Mo Kio' },
+];
+
+// Recomputed from ROWS so the prose can never drift from the bars.
+const TOT_UNSOLD = ROWS.reduce((s, r) => s + r.unsold, 0);
+const TOT_UNITS = ROWS.reduce((s, r) => s + r.units, 0);
+const TOT_SOLD_PCT = (1 - TOT_UNSOLD / TOT_UNITS) * 100;
+const MAX = Math.max(...ROWS.map((r) => r.unsold));
+const TOP3 = ROWS.slice(0, 3).reduce((s, r) => s + r.unsold, 0);
+const TOP3_PCT = (TOP3 / TOT_UNSOLD) * 100;
+const TOP5_PCT = (ROWS.slice(0, 5).reduce((s, r) => s + r.unsold, 0) / TOT_UNSOLD) * 100;
+const bar = (v: number) => Math.max((v / MAX) * 100, 0.8);
+const n = (v: number) => v.toLocaleString('en-SG');
+
+const SEGS = [
+  { k: 'OCR', label: 'Outside central' },
+  { k: 'RCR', label: 'Rest of central' },
+  { k: 'CCR', label: 'Core central' },
+];
+---
+
+<figure class="ds">
+  <figcaption class="ds-cap">
+    <h4>The unsold stock is concentrated, not spread</h4>
+    <p>Unsold new homes by district, across {BASIS}, as at {ASOF}.
+    Three districts hold {TOP3_PCT.toFixed(0)}% of it. Five have no active launch at all.</p>
+  </figcaption>
+
+  <div class="ds-legend">
+    {SEGS.map((s) => (
+      <span class="ds-lg"><i class={`ds-dot ${s.k}`}></i>{s.label}</span>
+    ))}
+    <span class="ds-hint">bar length = units the developer has not yet sold</span>
+  </div>
+
+  <div class="ds-head">
+    <span class="ds-h-name">District</span>
+    <span class="ds-h-bar">Unsold units</span>
+    <span class="ds-h-pct">% sold<em>cumulative</em></span>
+  </div>
+
+  <ol class="ds-rows">
+    {ROWS.map((r) => (
+      <li class="ds-row">
+        <span class="ds-name" title={`${r.d} ${r.name}`}><b>{r.d}</b> <span class="ds-nm">{r.name}</span></span>
+        <span class="ds-barwrap">
+          <span class="ds-track">
+            <span class={`ds-bar ${r.seg}`} style={`width:${bar(r.unsold)}%`}
+              role="img"
+              aria-label={`${r.d} ${r.name}, ${r.seg}. ${n(r.unsold)} unsold of ${n(r.units)} launched across ${r.proj} project${r.proj === 1 ? '' : 's'}, ${r.soldPct.toFixed(1)} per cent sold.`}></span>
+          </span>
+          <span class="ds-val">{n(r.unsold)}</span>
+        </span>
+        <span class="ds-pct">{r.soldPct.toFixed(0)}%</span>
+      </li>
+    ))}
+  </ol>
+
+  <div class="ds-quiet">
+    <div class="ds-qh">No active launch in this month&rsquo;s file</div>
+    <ul class="ds-qlist">
+      {QUIET.map((q) => (<li><b>{q.d}</b> {q.name}</li>))}
+    </ul>
+    <p class="ds-qnote">Not &ldquo;a little unsold stock&rdquo; &mdash; no project in these districts recorded
+    developer sales this month. That is a narrower claim than zero unsold homes: a project that has
+    sold out, or has not launched, does not appear at all.</p>
+  </div>
+
+  <p class="ds-foot">Across every project still selling, <b>{n(TOT_UNSOLD)}</b> units were unsold out of{' '}
+  <b>{n(TOT_UNITS)}</b> launched &mdash; {TOT_SOLD_PCT.toFixed(0)}% sold overall. The top three districts
+  hold <b>{TOP3_PCT.toFixed(0)}%</b> of everything unsold and the top five hold <b>{TOP5_PCT.toFixed(0)}%</b>.
+  Note that a long bar and a low per cent sold are different problems: some districts appear high
+  because they launched a great deal and are selling it, others because they are not selling.</p>
+
+  <p class="ds-src">Computed by us from URA&rsquo;s developer-sales record for {ASOF}, covering
+  {ROWS.length} districts with at least one project still selling. <b>Per cent sold is cumulative
+  since launch, not a rate</b> &mdash; the published file carries no launch date, so a long-selling
+  project and a new one cannot be told apart in it, and the figure should not be read as demand in
+  either direction. New sales only; resale listings are excluded throughout. Districts 6 and 24
+  carry too few private resales for our district table to name them, so they use the standard
+  postal-district descriptors.</p>
+</figure>
+
+<style is:global>
+.ds{
+  --ds-ocr:#2563EB; --ds-rcr:#B45309; --ds-ccr:#7C3AED;   /* validated triple, light card */
+  --ds-rule:var(--color-border); --ds-ink:var(--color-dark);
+  --ds-body:var(--color-body); --ds-muted:var(--color-muted);
+  --ds-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--ds-rule);border-radius:12px
+}
+@media (prefers-color-scheme: dark){
+  .ds{ --ds-ocr:#4E86DD; --ds-rcr:#B8842E; --ds-ccr:#9575E0; }
+}
+.post-content .ds-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .ds-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--ds-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .ds-cap p{margin:0;font-size:12.5px;color:var(--ds-muted);line-height:1.5}
+
+.ds-legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-bottom:14px;font-size:11.5px}
+.ds-lg{display:flex;align-items:center;gap:6px;color:var(--ds-body)}
+.ds-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.ds-dot.OCR{background:var(--ds-ocr)} .ds-dot.RCR{background:var(--ds-rcr)} .ds-dot.CCR{background:var(--ds-ccr)}
+.ds-hint{color:var(--ds-muted);font-style:italic}
+
+/* 215px clears the longest district name (209px at this size), so nothing truncates
+   at article width. The bar track keeps ~460px, which is ample for proportional bars.
+   Below that the column shrinks and ellipsis takes over; the full name is always in
+   the row's aria-label and title. */
+.ds-head,.ds-row{display:grid;grid-template-columns:minmax(96px,215px) 1fr 44px;gap:10px;align-items:center}
+.ds-head{padding:0 0 6px;border-bottom:1px solid var(--ds-rule);margin-bottom:6px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ds-muted)}
+.ds-h-pct{text-align:right;line-height:1.25}
+.ds-h-pct em{display:block;font-style:normal;font-weight:600;letter-spacing:.02em;
+  text-transform:none;opacity:.75}
+
+.post-content ol.ds-rows{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.post-content ol.ds-rows li{margin:0;padding:0}
+/* The theme paints a numbered badge on every .post-content ol li (and a bullet on
+   every ul li), absolutely positioned at the left edge. Both land on top of this
+   component's own row content, so suppress them here only. */
+.post-content ol.ds-rows li::before,
+.post-content ul.ds-qlist li::before{content:none;display:none}
+.ds-row{padding:2px 0}
+.ds-name{font-size:12px;color:var(--ds-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-name b{font-family:var(--ds-mono);font-size:11.5px;color:var(--ds-ink)}
+.ds-nm{color:var(--ds-muted)}
+/* Grid, not flex: the bar's percentage width must resolve against a definite track.
+   In a content-sized flex parent it resolves against nothing and collapses to min-width. */
+.ds-barwrap{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;min-width:0}
+.ds-track{position:relative;height:15px;min-width:0}
+.ds-bar{display:block;height:15px;border-radius:3px;min-width:2px}
+.ds-bar.OCR{background:var(--ds-ocr)} .ds-bar.RCR{background:var(--ds-rcr)} .ds-bar.CCR{background:var(--ds-ccr)}
+.ds-val{font-family:var(--ds-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
+  font-weight:600;color:var(--ds-ink);flex:0 0 auto}
+.ds-pct{font-family:var(--ds-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
+  color:var(--ds-muted);text-align:right}
+
+.ds-quiet{margin-top:16px;padding:12px 14px;border:1px dashed var(--ds-rule);border-radius:8px}
+.ds-qh{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ds-muted);margin-bottom:8px}
+.post-content ul.ds-qlist{list-style:none;margin:0 0 8px;padding:0;
+  display:flex;flex-wrap:wrap;gap:5px 8px}
+.post-content ul.ds-qlist li{margin:0;font-size:11.5px;color:var(--ds-body);
+  border:1px solid var(--ds-rule);border-radius:999px;padding:2px 9px}
+.post-content ul.ds-qlist li b{font-family:var(--ds-mono);color:var(--ds-ink)}
+.post-content p.ds-qnote{margin:0;font-size:11.5px;line-height:1.5;color:var(--ds-muted)}
+
+.post-content p.ds-foot{margin:14px 0 0;font-size:12.5px;line-height:1.6;color:var(--ds-body)}
+.post-content p.ds-src{margin:10px 0 0;padding-top:10px;border-top:1px solid var(--ds-rule);
+  font-size:11.5px;line-height:1.55;color:var(--ds-muted)}
+
+@media (max-width:640px){
+  .ds{padding:16px 14px 13px}
+  .ds-head,.ds-row{grid-template-columns:minmax(74px,104px) 1fr 38px;gap:8px}
+  .ds-name{font-size:11.5px}
+  .ds-nm{display:none}           /* code alone on a phone; full name stays in the aria-label */
+  .ds-hint{display:none}
+  /* iOS legibility floor: nothing under 11px on a phone (C:/dev/MOBILE_CHECK.md) */
+  .ds-head,.ds-qh{font-size:11px;letter-spacing:.04em}
+}
+</style>
