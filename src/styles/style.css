@@ -40,8 +40,9 @@
     --color-surface-alt:   #EDE8DD;   /* cream, darker (cards/alt sections) */
     --color-dark:          #0B1D33;   /* deep navy — headings, prose text */
     --color-body:          #33414F;   /* navy-tinted body text */
-    --color-muted:         #6B7280;   /* slate — secondary text */
-    --color-subtle:        #9AA1A9;   /* subtle slate */
+    --color-muted:         #55606E;   /* slate — secondary text. Was #6B7280, which
+                                      measured 4.1:1 on white and failed WCAG AA. */
+    --color-subtle:        #616C7A;   /* was #9AA1A9 — 2.6:1, the worst on the site */   /* subtle slate */
     --color-border:        #E3DDCF;   /* warm cream border */
     --color-light:         #F0ECE2;   /* near-white cream — dividers, subtle bg */
     --color-gray:          #6B7280;   /* slate */
@@ -361,6 +362,10 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 
 /* Table */
 .post-content table {
+  /* Lining, equal-width figures so columns of numbers align down the page. Markdown tables
+     carry most of the data on this site and were setting numerals proportionally. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1.6em;
@@ -388,6 +393,10 @@ h4.text-heading, h5.text-heading, h6.text-heading {
    scroll horizontally. Mobile-only, so desktop table layout is untouched. */
 @media (max-width: 640px) {
   .post-content table {
+  /* Lining, equal-width figures so columns of numbers align down the page. Markdown tables
+     carry most of the data on this site and were setting numerals proportionally. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -435,9 +444,14 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 .post-content .post-notes p { margin: 0; }
 .post-content .post-notes h4 {
     font-family: var(--font-body);
-    font-size: 10.5px;
+    /* iOS legibility floor: nothing under 11px (C:/dev/MOBILE_CHECK.md). These uppercase
+       section labels were 10.5px and were the only type on an article page below it —
+       measured at real 390px portrait and 844px landscape viewports. Set unconditionally
+       rather than inside the 560px query, because landscape on a phone is 844px wide and
+       a media query keyed to portrait width silently misses it. */
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: .09em;
+    letter-spacing: .07em;
     text-transform: uppercase;
     color: var(--color-subtle);
     margin: 0 0 .3rem;
@@ -494,4 +508,60 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 .post-content .notes-fold > *:not(summary) { margin-top: .9rem; }
 @media (prefers-reduced-motion: reduce) {
     .post-content .notes-fold > summary::before { transition: none; }
+}
+
+/* Lead summary. The article runs long by design — the method is the point — but a buyer
+   deciding in three weeks should not have to reach 67% of the scroll for the number that
+   decides it. This carries the conclusions; everything after it is the working. */
+.post-content .tldr {
+  margin: 26px 0 30px; padding: 18px 20px 16px;
+  background: #f6f8fb; border-left: 3px solid #2a78d6; border-radius: 4px;
+}
+.post-content .tldr .tldr-h {
+  margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: #5b6b7f;
+}
+.post-content .tldr ul { margin: 0; padding-left: 18px; }
+.post-content .tldr li { margin: 0 0 9px; font-size: 15px; line-height: 1.55; }
+.post-content .tldr li:last-child { margin-bottom: 0; }
+.post-content .tldr li::before { content: none; }
+@media (max-width: 640px) {
+  .post-content .tldr { padding: 15px 15px 13px; }
+  .post-content .tldr li { font-size: 14.5px; }
+}
+
+/* Take-this-with-you checklist. The closing section was six prose paragraphs of 50-70 words
+   that looked identical on the page — the wrong shape for the one part of the article a reader
+   is meant to act on, and far too long to screenshot. Action first, reason demoted. */
+.post-content .ck {
+  margin: 24px 0 28px; padding: 17px 19px 15px;
+  border: 1px solid var(--color-light); border-radius: 6px; background: #fff;
+}
+.post-content .ck ol { list-style: none; margin: 0; padding: 0; counter-reset: ck; }
+.post-content .ck li { margin: 0 0 11px; padding: 0 0 0 28px; position: relative; }
+.post-content .ck li::before {
+  counter-increment: ck; content: counter(ck);
+  position: absolute; left: 0; top: 1px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #eef3fa; color: #1d4ed8;
+  font-size: 11.5px; font-weight: 700; line-height: 20px; text-align: center;
+}
+.post-content .ck li b { color: var(--color-dark); font-weight: 700; }
+.post-content .ck li > span {
+  display: block; margin-top: 2px;
+  font-size: 13.5px; line-height: 1.45; color: var(--color-body);
+}
+/* Group labels: not steps, so they take no number and reset nothing. */
+.post-content .ck li.ck-g { margin: 0 0 9px; padding: 0; counter-increment: none; }
+.post-content .ck li.ck-g::before { content: none; }
+.post-content .ck li.ck-g + li { margin-top: 0; }
+.post-content .ck li.ck-g:not(:first-child) { margin-top: 16px; }
+.post-content .ck li.ck-g > span {
+  margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--color-muted);
+}
+@media (max-width: 640px) {
+  .post-content .ck { padding: 14px 13px 11px; }
+  .post-content .ck li { padding-left: 26px; }
+  .post-content .ck li > span { font-size: 13px; }
 }

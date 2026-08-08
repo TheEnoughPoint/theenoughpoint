@@ -1,0 +1,137 @@
+---
+// The standing home of the three-way condominium comparison.
+//
+// It exists as a page and not only as a figure inside one article because the tool is general and
+// the article is not: someone weighing two blocks in Serangoon has no reason to read a piece about
+// a launch in Bishan. On this page the opening three are left to the component's own default —
+// the most-traded buildings in the data — so the page starts with no local bias.
+//
+// What this page must never become: a ranking. The component reports leaders only on the three
+// measures that have a direction, refuses to score the four that do not, and adds nothing up. The
+// copy here has to hold that line too, because a standalone tool page is exactly where a "best
+// condo in Singapore" framing would creep in.
+import MainLayout from '@src/layouts/MainLayout.astro';
+import CondoCompare from '@src/components/CondoCompare.astro';
+import CategoryWidget from '@src/components/CategoryWidget.astro';
+import FeaturedPostWidget from '@src/components/FeaturedPostWidget.astro';
+import TagsWidget from '@src/components/TagsWidget.astro';
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+
+const title = 'Compare Three Singapore Condominiums on the Public Record';
+const description =
+  'Put any three of 309 Singapore condominiums side by side on median resale price, how often ' +
+  'units change hands, lease remaining, the walk to a station, the size that actually trades, ' +
+  'and where each sits against its own district. Free, computed from URA and LTA records, and ' +
+  'deliberately unscored.';
+
+const DATA_ASOF = 'August 2026';
+const VERIFIED = '8 August 2026';
+
+const site = Astro.site ?? new URL('https://theenoughpoint.com');
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: title,
+  description,
+  url: new URL('/condo-compare/', site).href,
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'SGD' },
+  inLanguage: 'en-SG',
+  isPartOf: { '@type': 'WebSite', name: 'TheEnoughPoint', url: site.href },
+};
+---
+
+<MainLayout title={title} description={description}>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+  <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 py-6">
+      <div class="max-lg:mb-12 lg:col-span-2 py-4">
+        <h1 class="text-2xl md:text-3xl font-heading font-bold text-navy py-4">
+          Compare three condominiums, on the public record
+        </h1>
+
+        <div class="pb-4 w-full flex flex-wrap items-center gap-4 text-sm text-muted border-b border-cream-dark">
+          <span class="flex items-center gap-1.5">
+            <Icon name="bi:calendar" class="size-3.5" />
+            Data to {DATA_ASOF} · checked {VERIFIED}
+          </span>
+          <a href={url('/author/fi')} rel="author" class="flex items-center gap-1.5 hover:text-brand-600">
+            <Icon name="bi:person" class="size-3.5" />
+            FI
+          </a>
+          <a href={url('/build-enough')} class="flex items-center gap-1.5 hover:text-brand-600">
+            <Icon name="bi:bookmark" class="size-3.5" />
+            Build Enough
+          </a>
+        </div>
+
+        <div class="relative post-content pt-6">
+          <p>Property listings will tell you a building is well connected, well held and well
+          priced. The public record can actually check two of those, and it is free.</p>
+
+          <p>This puts any three condominiums side by side on seven measures drawn from URA
+          transaction data and LTA station locations: what units there actually resell for, how
+          often they change hands, how much lease is left, how far the nearest station really is,
+          the size that genuinely trades, the typical price paid, and where each sits against
+          same-size resale in its own district.</p>
+
+          <CondoCompare reference={true} />
+
+          <h2>Why there is no winner at the bottom</h2>
+
+          <p>Because three of these seven measures have a better end and four of them do not, and
+          adding the two kinds together would be arithmetic pretending to be judgement.</p>
+
+          <p>More lease is more lease. More resales mean an easier exit. A shorter walk is a
+          shorter walk. Those three have a direction, so the tool marks who leads and by how far.
+          But a higher price per square foot is good news for an owner and bad news for a buyer.
+          A larger typical unit suits one household and not the next. Sitting above your district
+          can mean a newer block, a higher floor or a shorter walk just as easily as it can mean
+          paying up. There is no honest way to score those without deciding, on your behalf, what
+          you want &mdash; so the tool reports them and stops.</p>
+
+          <h2>What it cannot see</h2>
+
+          <p>A median is a median. It mixes the ground-floor unit facing the car park with the
+          high floor facing the reserve, and the one renovated last year with the one untouched
+          since handover. Two buildings can differ on this page for reasons that have nothing to
+          do with either building.</p>
+
+          <p>It also only covers the liquid end of the market. A project appears only if at least
+          ten units resold in the last twelve months, which 309 of roughly 1,135 condominiums
+          manage. Below that a median moves on a single unusual sale, and a number resting on two
+          transactions is worse than no number. If a building you are considering is missing, that
+          is usually why &mdash; and the thinness is itself worth knowing before you buy into it.</p>
+
+          <p>Nothing here is a recommendation, a valuation or a forecast, and no building on this
+          page is being put forward as a good or bad buy. It is a free reading of what the public
+          record says, so you can arrive at a viewing with the checkable part already checked.</p>
+
+          <div class="post-notes">
+            <p class="note-aside">A note on what this is not. We are not recommending any
+            development, district or developer, and we take no view on whether property belongs in
+            anyone's plan. Buildings are named because a comparison tool is useless without names,
+            and every figure carries its source and the number of sales behind it. We build a free
+            Singapore property decision tool, sell no property, mortgages or advice, carry no
+            advertising, and earn nothing from any link on this page.</p>
+
+            <p class="note-legal">General information and education only. This is not financial,
+            mortgage or tax advice and takes no account of your objectives, situation or needs.
+            Property is illiquid and its transaction costs are large. Transaction records are
+            revised and medians move; check current figures at their primary source before relying
+            on anything here.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="lg:col-span-1 flex flex-col gap-6 py-4">
+        <CategoryWidget />
+        <FeaturedPostWidget />
+        <TagsWidget />
+      </aside>
+    </div>
+  </div>
+</MainLayout>

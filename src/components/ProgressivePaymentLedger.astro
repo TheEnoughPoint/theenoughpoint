@@ -1,0 +1,223 @@
+---
+// Progressive payment vs resale — money that is gone, decomposed.
+//
+// The belief under test is "a new launch is easier on cash flow". It is a claim about
+// CASH OUT, and cash out is the wrong ledger: it counts principal repayment, which is
+// money moved rather than money spent. So this figure shows only money that never comes
+// back — interest and rent — over the identical window for both buyers, from the day each
+// decides to the day the launch buyer's loan is fully disbursed.
+//
+// COLOUR IS ONE MEANING: which KIND of money it is (VOICE.md C10). Two tints of a single
+// navy ramp rather than two hues, because both parts belong to one total and a hue change
+// would imply they differ in kind rather than in category. Nothing here is green or red:
+// rent is not "bad money" and interest is not "good money", and the piece's finding is
+// that the trade between them depends entirely on the reader's own situation. Segments are
+// separated by a white rule and every value is printed, so meaning never rests on colour.
+//
+// STAMP DUTY IS DEDUCTED FROM BOTH BARS, not drawn. It is S$44,600 either way, so drawing
+// it added equal width to both sides and told the reader nothing about the difference —
+// while forcing a third tint into the ramp, which pushed adjacent segments to 2.5:1
+// against each other (measured). Two segments clear 5:1 against each other and 3:1 against
+// the card. The net difference is identical either way, because the duty cancels.
+//
+// SEGMENTS are emitted from a month-by-month simulation, not hand-typed. The schedule is
+// statutory (Housing Developers Rules, First Schedule, clause 5.1, verified 8 Aug 2026);
+// the construction dates are our assumption and are the single largest input, which is
+// why the figure states them and why SCENARIOS shows what a longer build does. Totals and
+// the net difference are recomputed from SEGMENTS below so the prose cannot drift.
+const PRICE = 1_500_000;
+const RATE = '1.6%';
+const TOP_M = 42;
+const FULL_DRAW_M = 54;
+const RENT_M = 4300;
+const DUTY = 44_600; // identical on both sides, so stated rather than drawn
+
+// `how` is printed beside each value so both bars can be checked by hand. Without it the
+// rent blocks are two numbers a reader has to take on trust, and the larger of them is the
+// entire finding — the same defect the affordability tool had when it folded stamp duty
+// into a total without showing it.
+interface Seg { k: string; label: string; v: number; how: string }
+interface Side { who: string; note: string; segs: Seg[] }
+
+const RENT_MONTHS_LAUNCH = 44;   // months 0 to 43: booking through one month past keys
+const RENT_MONTHS_RESALE = 3;    // months 0 to 2: booking through completion
+
+const SIDES: Side[] = [
+  {
+    who: 'Resale',
+    note: 'completes in month 3, lives in it from then',
+    segs: [
+      { k: 'int', label: 'Interest', v: 72_266, how: 'on S$1,125,000 from month 3' },
+      { k: 'rent', label: 'Rent', v: 12_900, how: `${RENT_MONTHS_RESALE} × S$${RENT_M.toLocaleString('en-SG')}` },
+    ],
+  },
+  {
+    who: 'New launch',
+    note: `keys at month ${TOP_M}, rents until then`,
+    segs: [
+      { k: 'int', label: 'Interest', v: 28_000, how: 'on the drawn balance only' },
+      { k: 'rent', label: 'Rent', v: 189_200, how: `${RENT_MONTHS_LAUNCH} × S$${RENT_M.toLocaleString('en-SG')}` },
+    ],
+  },
+];
+
+// What moves the answer, in order of how much it moves it. Net = new launch minus resale,
+// so a positive number is money the launch buyer spends and the resale buyer does not.
+const SCENARIOS = [
+  { label: 'Build runs to 4½ years instead of 3½', net: 171_521 },
+  { label: 'Base case above', net: 132_034, base: true },
+  { label: 'Mortgage rate 3.0% instead of 1.6%', net: 91_775 },
+  { label: 'Mortgage rate 4.0% instead of 1.6%', net: 62_329 },
+  { label: 'You live rent-free while it is built', net: -44_266 },
+];
+
+const tot = (s: Side) => s.segs.reduce((a, b) => a + b.v, 0);
+const MAX = Math.max(...SIDES.map(tot));
+const NET = tot(SIDES[1]) - tot(SIDES[0]);
+const INT_SAVED = SIDES[0].segs[0].v - SIDES[1].segs[0].v;
+const RENT_EXTRA = SIDES[1].segs[1].v - SIDES[0].segs[1].v;
+const RATIO = RENT_EXTRA / INT_SAVED;
+const SMAX = Math.max(...SCENARIOS.map((s) => Math.abs(s.net)));
+const n = (v: number) => `S$${Math.round(v).toLocaleString('en-SG')}`;
+const pct = (v: number) => (v / MAX) * 100;
+---
+
+<figure class="pp">
+  <figcaption class="pp-cap">
+    <h4>Money that does not come back, over the same {FULL_DRAW_M} months</h4>
+    <p>Two buyers, both needing somewhere to live, both paying {n(PRICE)} at {RATE} on a loan of{' '}
+    {n(PRICE * 0.75)}.
+    Principal repayment is excluded on purpose: it is money moved, not money spent. Stamp duty is
+    excluded too &mdash; it is {n(DUTY)} either way, so it adds equal width to both bars and says
+    nothing about the difference.</p>
+  </figcaption>
+
+  <div class="pp-legend">
+    {SIDES[0].segs.map((s) => (<span class="pp-lg"><i class={`pp-key ${s.k}`}></i>{s.label}</span>))}
+  </div>
+
+  {SIDES.map((s) => (
+    <div class="pp-block">
+      <div class="pp-who"><b>{s.who}</b> <span class="pp-note">{s.note}</span><span class="pp-tot">{n(tot(s))}</span></div>
+      <div class="pp-track">
+        {s.segs.map((g) => (
+          <span class={`pp-seg ${g.k}`} style={`width:${pct(g.v)}%`}
+            role="img" aria-label={`${s.who}: ${g.label} ${n(g.v)}.`}></span>
+        ))}
+      </div>
+      <div class="pp-vals">
+        {s.segs.map((g) => (
+          <span class="pp-v"><i class={`pp-key ${g.k}`}></i>{g.label} <b>{n(g.v)}</b> <em>{g.how}</em></span>
+        ))}
+      </div>
+    </div>
+  ))}
+
+  <p class="pp-head">The new launch costs <b>{n(NET)}</b> more &mdash; and the two halves of that
+  pull in opposite directions. Staging the loan genuinely saves <b>{n(INT_SAVED)}</b> of interest.
+  Renting while it is built costs <b>{n(RENT_EXTRA)}</b>, about <b>{RATIO.toFixed(1)} times</b> the saving.</p>
+
+  <div class="pp-sc">
+    <div class="pp-sch">What moves the answer &mdash; net difference, new launch minus resale</div>
+    <ol class="pp-scrows">
+      {SCENARIOS.map((s) => (
+        <li class={`pp-scrow${s.base ? ' is-base' : ''}`}>
+          <span class="pp-sclab">{s.label}</span>
+          <span class="pp-scbar">
+            <span class="pp-sczero"></span>
+            <span class={`pp-scfill ${s.net < 0 ? 'neg' : 'pos'}`}
+              style={`width:${(Math.abs(s.net) / SMAX) * 50}%;${s.net < 0 ? 'right:50%' : 'left:50%'}`}
+              role="img"
+              aria-label={`${s.label}: the new launch costs ${n(Math.abs(s.net))} ${s.net < 0 ? 'less' : 'more'}.`}></span>
+          </span>
+          {/* A real minus sign, not "&minus;": an HTML entity inside a JSX expression is
+              escaped and renders as its own source text. */}
+          <span class="pp-scval">{s.net > 0 ? '+' : '−'}{n(Math.abs(s.net)).replace('S$', '')}</span>
+        </li>
+      ))}
+    </ol>
+    <p class="pp-scnote">Bars run left and right of the same centre line, so direction is readable
+    without colour. The interest saving grows with the mortgage rate while the rent does not &mdash;
+    which is why the new launch looks <em>worse</em> the cheaper borrowing gets, and why the one
+    scenario that flips the sign is not about money markets at all.</p>
+  </div>
+
+  <p class="pp-src">Computed by us. The instalment schedule is statutory &mdash; Housing Developers
+  Rules, First Schedule, clause 5.1 &mdash; and is the same for every uncompleted private home in
+  Singapore. Rent is the median district gross yield applied to an equal home, {n(RENT_M)} a month
+  here. <b>The construction period is an assumption and is the largest input on the page</b>: nothing
+  is published, so we use {TOP_M} months to keys and {FULL_DRAW_M} to the final payment, and show
+  above what a year longer does. Interest is charged on the drawn balance only until the loan is
+  fully disbursed. Both loans run 30 years; the launch loan simply starts later. Renovation,
+  maintenance, property tax and agent fees are excluded from both sides.</p>
+</figure>
+
+<style is:global>
+.pp{
+  /* One ramp, two stops: parts of one total, not two different kinds of thing.
+     Measured against each other 5.1:1, and each against the white card 16.8:1 and 3.3:1. */
+  --pp-int:#0B1D33; --pp-rent:#7C8FA6;
+  --pp-ink:var(--color-dark); --pp-body:var(--color-body); --pp-muted:var(--color-muted);
+  --pp-rule:var(--color-border);
+  --pp-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--pp-rule);border-radius:12px
+}
+/* No dark-scheme override: the card is pinned white in both schemes, so the ink follows
+   the card rather than the page. Lightening these tints would put pale ink on white. */
+.post-content .pp-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .pp-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--pp-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .pp-cap p{margin:0;font-size:12.5px;color:var(--pp-muted);line-height:1.5}
+
+.pp-legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-bottom:14px;font-size:11.5px}
+.pp-lg{display:flex;align-items:center;gap:6px;color:var(--pp-body)}
+.pp-key{width:11px;height:11px;border-radius:2px;display:inline-block;flex:0 0 auto}
+.pp-key.int{background:var(--pp-int)} .pp-key.rent{background:var(--pp-rent)}
+
+.pp-block{margin-bottom:14px}
+.pp-who{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:12.5px;
+  color:var(--pp-muted);margin-bottom:5px}
+.pp-who b{color:var(--pp-ink);font-size:13px}
+.pp-note{flex:1 1 auto}
+.pp-tot{font-family:var(--pp-mono);font-variant-numeric:tabular-nums;font-weight:700;
+  color:var(--pp-ink);font-size:12.5px;margin-left:auto}
+.pp-track{display:flex;height:22px;border-radius:3px;overflow:hidden;background:var(--color-light)}
+.pp-seg{display:block;height:22px;min-width:2px;box-shadow:inset -1px 0 0 #fff}
+.pp-seg.int{background:var(--pp-int)} .pp-seg.rent{background:var(--pp-rent)}
+.pp-vals{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:11.5px;color:var(--pp-body)}
+.pp-v{display:flex;align-items:baseline;gap:5px;font-variant-numeric:tabular-nums}
+.pp-v b{font-weight:700;color:var(--pp-ink)}
+.pp-v em{font-style:normal;color:var(--pp-muted)}
+
+.post-content p.pp-head{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--pp-rule);
+  font-size:13px;line-height:1.6;color:var(--pp-body)}
+
+.pp-sc{margin-top:16px;padding:12px 14px;border:1px dashed var(--pp-rule);border-radius:8px}
+.pp-sch{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--pp-muted);margin-bottom:10px}
+.post-content ol.pp-scrows{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.post-content ol.pp-scrows li{margin:0;padding:0}
+/* The theme paints a numbered badge on every .post-content ol li, absolutely positioned
+   at the left edge, which would land on top of these rows. */
+.post-content ol.pp-scrows li::before{content:none;display:none}
+.pp-scrow{display:grid;grid-template-columns:minmax(96px,190px) 1fr 62px;gap:10px;align-items:center}
+.pp-scrow.is-base .pp-sclab{color:var(--pp-ink);font-weight:600}
+.pp-sclab{font-size:11.5px;color:var(--pp-body);line-height:1.3}
+.pp-scbar{position:relative;height:14px;min-width:0}
+.pp-sczero{position:absolute;left:50%;top:-1px;bottom:-1px;width:1px;background:var(--pp-muted);opacity:.6}
+.pp-scfill{position:absolute;top:1px;height:12px;background:var(--pp-int);border-radius:2px;min-width:2px}
+.pp-scval{font-family:var(--pp-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
+  font-weight:600;color:var(--pp-ink);text-align:right}
+.post-content p.pp-scnote{margin:10px 0 0;font-size:11.5px;line-height:1.5;color:var(--pp-muted)}
+
+.post-content p.pp-src{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--pp-rule);
+  font-size:11.5px;line-height:1.55;color:var(--pp-muted)}
+
+@media (max-width:640px){
+  .pp{padding:16px 14px 13px}
+  .pp-scrow{grid-template-columns:minmax(84px,130px) 1fr 54px;gap:8px}
+  .pp-note{display:none}      /* the timing is in the prose and in each bar's aria-label */
+  .pp-sch{font-size:11px;letter-spacing:.04em}
+}
+</style>

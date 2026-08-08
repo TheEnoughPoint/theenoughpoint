@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="The same S$2.4 million is about 828 square feet in a building not yet built, or 1,022 to 1,319 square feet in an existing block you could move into next month">
+  <!-- Cover for the Thomson Reserve piece. House system: navy field, gold figure.
+       The reader value is the trade made physical, so the figure is the floor area the
+       same money buys either way — not the land multiple, which is a working step.
+       Stacked, following cover-unsold-districts and cover-new-launch-resale.
+       Safe zone: square thumbnail crops to x 300-900. -->
+  <defs>
+    <radialGradient id="bgTR" cx="50%" cy="42%" r="76%">
+      <stop offset="0%" stop-color="#10233D"/>
+      <stop offset="100%" stop-color="#081627"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#bgTR)"/>
+
+  <text x="600" y="120" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">THE SAME S$2.4 MILLION, DISTRICT 20</text>
+
+  <text x="600" y="212" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="40"
+        fill="#F6F4EF" opacity="0.62">828 sq ft, finished some years from now</text>
+
+  <text x="600" y="352" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="112"
+        fill="#C89A3C">1,022&#8211;1,319</text>
+
+  <text x="600" y="402" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600"
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.9">square feet you could move into next month</text>
+
+  <line x1="450" y1="452" x2="750" y2="452" stroke="#C89A3C" stroke-width="1.5" opacity="0.5"/>
+
+  <text x="600" y="502" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">The arithmetic, done before</text>
+  <text x="600" y="542" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="27"
+        fill="#F6F4EF" opacity="0.86">the price list lands.</text>
+</svg>

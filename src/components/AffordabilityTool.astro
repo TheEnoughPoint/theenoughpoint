@@ -1,0 +1,313 @@
+---
+// Run the gates on your own numbers.
+//
+// Mirrors src/utils/affordability.ts — see that module for the derivation and for why
+// each published rule is here. If you change one, change both.
+//
+// Why sliders rather than a fixed table: the article's three-row table answers the
+// question for three imaginary buyers, and the reader is not one of them. Every input
+// that moves the answer is a control here — price per square foot, size, age, and
+// whether it is a first property — because each one moves it a lot, and age moves it
+// for reasons that have nothing to do with the property.
+//
+// The price slider carries a shaded band and a tick. The band is what the eight
+// land-and-launch pairs in the article imply on this site's verified land cost; the tick
+// is the median of those pairs. That is there so the default is not a number we simply
+// asserted — the reader can see where it came from and that it sits inside a derived
+// range rather than at its edge. It is NOT a forecast and the label says so.
+//
+// COLOUR CARRIES NO VERDICT (VOICE.md C10). The band is one neutral tint marking a
+// derived range, not a "good price" zone; nothing here is green or red, because the tool
+// takes no view on whether any price is worth paying. The two result columns are
+// distinguished by heading, not by hue.
+//
+// No result is a recommendation and none is a valuation: the left column is what the
+// published rules demand of you, the right is what your own entry price implies about a
+// break-even. Both stop where the judgement starts.
+const COMPARABLE = 2165;   // D20 modern-leasehold median $psf, the exit comparable
+const HOLD_YEARS = 9;
+const ROUND_TRIP = 0.06;
+const PKG_RATE = 0.016;    // curated current-market package rate, for contrast only
+const IMPLIED_LO = 2500, IMPLIED_HI = 3300, IMPLIED_MID = 2722;
+const PSF_MIN = 2000, PSF_MAX = 3600;
+const band = (v: number) => ((v - PSF_MIN) / (PSF_MAX - PSF_MIN)) * 100;
+---
+
+<figure class="af">
+  <figcaption class="af-cap">
+    <h4>Run it on your own numbers</h4>
+    <p>Every input below moves the answer, and one of them is your age. Nothing is saved
+    and nothing is sent anywhere &mdash; the arithmetic runs in your browser.</p>
+  </figcaption>
+
+  <div class="af-controls">
+    <div class="af-ctl">
+      <label for="af-psf">Price per square foot <output id="af-psf-o">S$2,900</output></label>
+      <div class="af-slot">
+        <span class="af-implied" style={`left:${band(IMPLIED_LO)}%;width:${band(IMPLIED_HI) - band(IMPLIED_LO)}%`}></span>
+        <span class="af-tick" style={`left:${band(IMPLIED_MID)}%`}></span>
+        <input type="range" id="af-psf" min={PSF_MIN} max={PSF_MAX} step="25" value="2900"
+          aria-describedby="af-psf-note" />
+      </div>
+      <p class="af-note" id="af-psf-note">Shaded: <b>S${IMPLIED_LO.toLocaleString('en-SG')}&ndash;{IMPLIED_HI.toLocaleString('en-SG')}</b>,
+      what the eight land-and-launch pairs above imply on this site&rsquo;s verified land cost.
+      Tick: their median, S${IMPLIED_MID.toLocaleString('en-SG')}. A derived range, not a forecast
+      and not anyone&rsquo;s quote.</p>
+    </div>
+
+    <div class="af-row">
+      <div class="af-ctl">
+        <label for="af-sqft">Unit size <output id="af-sqft-o">950 sq ft</output></label>
+        <div class="af-slot"><input type="range" id="af-sqft" min="450" max="1700" step="10" value="950" /></div>
+      </div>
+      <div class="af-ctl">
+        <label for="af-age">Your age today <output id="af-age-o">35</output></label>
+        <div class="af-slot"><input type="range" id="af-age" min="25" max="58" step="1" value="35" /></div>
+      </div>
+    </div>
+
+    <div class="af-ctl af-ctl-sel">
+      <label for="af-buyer">Who is buying</label>
+      <select id="af-buyer">
+        <option value="SC1" selected>Singapore citizen &mdash; first property</option>
+        <option value="SC2">Singapore citizen &mdash; second property</option>
+        <option value="PR1">Permanent resident &mdash; first property</option>
+        <option value="PR2">Permanent resident &mdash; second property</option>
+        <option value="F1">Foreigner &mdash; any property</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="af-out" id="af-out" aria-live="polite">
+    <div class="af-col">
+      <div class="af-colh">Can you carry it</div>
+      <div class="af-line af-hero"><span>Price</span><b id="af-price">&mdash;</b></div>
+      {/* The upfront bill is built as an addition rather than stated as a total with
+          "of which" lines under it. A reader could not otherwise tell whether stamp duty
+          was inside the number — and on this page that is the second-largest component. */}
+      <div class="af-line af-sub"><span>Downpayment, 25%</span><b id="af-down">&mdash;</b></div>
+      <div class="af-line af-sub"><span>Buyer&rsquo;s Stamp Duty</span><b id="af-bsd">&mdash;</b></div>
+      <div class="af-line af-sub"><span id="af-absd-l">Additional Buyer&rsquo;s Stamp Duty</span><b id="af-absd">&mdash;</b></div>
+      <div class="af-line af-sub"><span>Legal fees, allowance</span><b id="af-legal">&mdash;</b></div>
+      <div class="af-line af-hero af-sum"><span>Cash + CPF upfront</span><b id="af-upfront">&mdash;</b></div>
+      <div class="af-line"><span id="af-cash-l">of which cash, not CPF</span><b id="af-cash">&mdash;</b></div>
+      <div class="af-line"><span>Loan at 75%</span><b id="af-loan">&mdash;</b></div>
+      <div class="af-line"><span>Longest loan at your age</span><b id="af-tenure">&mdash;</b></div>
+      <div class="af-line af-hero"><span>Household income needed</span><b id="af-income">&mdash;</b></div>
+      <div class="af-line"><span>Instalment at 4% (the test)</span><b id="af-stress">&mdash;</b></div>
+      <div class="af-line"><span>Instalment at 1.6% (what you pay)</span><b id="af-actual">&mdash;</b></div>
+    </div>
+
+    <div class="af-col">
+      <div class="af-colh">What that price implies</div>
+      <div class="af-line af-hero"><span>Above same-size District 20 resale</span><b id="af-gap">&mdash;</b></div>
+      <div class="af-line"><span>Same-size resale median</span><b id="af-bandpsf">&mdash;</b></div>
+      <div class="af-line af-hero"><span>District 20 must compound at</span><b id="af-cagr">&mdash;</b></div>
+      <div class="af-line"><span>just to break even over</span><b>{HOLD_YEARS} years</b></div>
+      <div class="af-line"><span>Same money, existing block nearby</span><b id="af-samemoney">&mdash;</b></div>
+      <p class="af-alt" id="af-alt"></p>
+    </div>
+  </div>
+
+  <p class="af-say" id="af-say"></p>
+
+  <p class="af-src">Computed in your browser from published rules: 55% Total Debt Servicing Ratio
+  tested at the 4% medium-term floor, 75% loan-to-value available only where the loan runs no more
+  than 30 years <b>and</b> ends by age 65, Buyer&rsquo;s Stamp Duty at the rates effective 15 February
+  2023 and Additional Buyer&rsquo;s Stamp Duty at those effective 27 April 2023 (MAS and IRAS).
+  Income assumes <b>no other debt at all</b>; every dollar of car or study loan raises it. The cash
+  line is the 5% minimum deposit that CPF cannot cover, plus any Additional Buyer&rsquo;s Stamp Duty,
+  which falls due within 14 days of signing and cannot be borrowed; the rest of the downpayment may
+  come from CPF subject to your own balances and the usual limits. The 1.6%
+  package rate is a curated current-market figure with no public feed &mdash; indicative only, and it
+  changes nothing about whether you qualify, because the bank tests you at 4% regardless. Resale
+  medians and the S${COMPARABLE.toLocaleString('en-SG')} exit comparable are our own computation from
+  URA records, twelve months to August 2026. Legal fees are a conventional S$3,000 allowance, not a
+  quote. <b>This is an illustration of published rules, not advice, not a valuation and not a
+  forecast</b> &mdash; and clearing these gates is not the same question as whether a purchase is
+  wise.</p>
+</figure>
+
+<script is:inline define:vars={{ COMPARABLE, HOLD_YEARS, ROUND_TRIP, PKG_RATE }}>
+(function(){
+const $ = id => document.getElementById(id);
+const sgd = n => 'S$' + Math.round(n).toLocaleString('en-SG');
+const k = n => 'S$' + Math.round(n).toLocaleString('en-SG');
+
+/* Mirrors src/utils/affordability.ts — see that module for the derivation. */
+const RULES = { tdsr:0.55, stressRate:0.04, ltvFull:0.75, ltvReduced:0.55,
+  cashMinFull:0.05, tenureCap:30, ageCap:65, legalFees:3000 };
+const ABSD = { SC:[0,0.20,0.30], PR:[0.05,0.30,0.35], F:[0.60,0.60,0.60] };
+const D20_BAND_PSF = [1966, 2205, 2042, 1763];
+const bandOf = s => s < 600 ? 0 : s < 850 ? 1 : s < 1150 ? 2 : 3;
+
+function bsd(price){
+  const B = [[180000,.01],[360000,.02],[1000000,.03],[1500000,.04],[3000000,.05],[Infinity,.06]];
+  let d = 0, prev = 0;
+  for (const [cap, r] of B){ d += Math.max(0, Math.min(price, cap) - prev) * r; prev = cap; if (price <= cap) break; }
+  return d;
+}
+function instalment(p, ar, yrs){
+  if (p <= 0 || yrs <= 0) return 0;
+  const r = ar/12, n = yrs*12;
+  return r === 0 ? p/n : (p*r)/(1 - Math.pow(1+r, -n));
+}
+
+function update(){
+  const psf = +$('af-psf').value, sqft = +$('af-sqft').value, age = +$('af-age').value;
+  const code = $('af-buyer').value;
+  const profile = code.slice(0, -1) === 'F' ? 'F' : code.slice(0, -1);
+  const count = +code.slice(-1);
+
+  $('af-psf-o').textContent = sgd(psf);
+  $('af-sqft-o').textContent = sqft.toLocaleString('en-SG') + ' sq ft';
+  $('af-age-o').textContent = String(age);
+
+  const price = psf * sqft;
+  const tenure = Math.max(1, Math.min(RULES.tenureCap, RULES.ageCap - age));
+  const loan = price * RULES.ltvFull;
+  const duty = bsd(price);
+  const absdRate = (ABSD[profile] || ABSD.SC)[count - 1] || 0;
+  const absd = price * absdRate;
+  const upfront = (price - loan) + duty + absd + RULES.legalFees;
+  const stress = instalment(loan, RULES.stressRate, tenure);
+  const income = stress / RULES.tdsr;
+
+  $('af-price').textContent = sgd(price);
+  $('af-down').textContent = sgd(price - loan);
+  $('af-bsd').textContent = sgd(duty);
+  $('af-legal').textContent = sgd(RULES.legalFees);
+  $('af-upfront').textContent = sgd(upfront);
+  $('af-absd').textContent = absd > 0 ? sgd(absd) : 'none';
+  $('af-absd-l').innerHTML = absd > 0
+    ? 'Additional Buyer&rsquo;s Stamp Duty, ' + Math.round(absdRate*100) + '%'
+    : 'Additional Buyer&rsquo;s Stamp Duty';
+  // The 5% minimum cash deposit is the floor CPF cannot cover. ABSD sits on top of it and
+  // is payable in cash within 14 days, so showing the 5% alone would understate the cash a
+  // second-property buyer actually has to find.
+  $('af-cash').textContent = sgd(price * RULES.cashMinFull + absd);
+  $('af-cash-l').textContent = absd > 0
+    ? 'of which cash, not CPF (5% + ABSD)'
+    : 'of which cash, not CPF (the 5%)';
+  $('af-loan').textContent = sgd(loan);
+  $('af-tenure').textContent = tenure + (tenure === 1 ? ' year' : ' years');
+  $('af-income').textContent = sgd(income) + ' / mo';
+  $('af-stress').textContent = sgd(stress) + ' / mo';
+  $('af-actual').textContent = sgd(instalment(loan, PKG_RATE, tenure)) + ' / mo';
+
+  const bp = D20_BAND_PSF[bandOf(sqft)];
+  const gap = psf / bp - 1;
+  const cagr = Math.pow((psf * (1 + ROUND_TRIP)) / COMPARABLE, 1 / HOLD_YEARS) - 1;
+  $('af-bandpsf').textContent = sgd(bp) + ' psf';
+  $('af-gap').textContent = (gap >= 0 ? '+' : '−') + Math.abs(gap * 100).toFixed(0) + '%';
+  $('af-cagr').textContent = (cagr * 100).toFixed(1) + '% a year';
+  $('af-samemoney').textContent = Math.round(price / COMPARABLE).toLocaleString('en-SG') + ' sq ft';
+
+  // The alternative nobody mentions: a longer loan is allowed, it just costs you at the front.
+  const altLoan = price * RULES.ltvReduced;
+  const altUpfront = (price - altLoan) + duty + absd + RULES.legalFees;
+  $('af-alt').innerHTML = tenure < RULES.tenureCap
+    ? 'At ' + age + ', a loan running past 65 is allowed &mdash; the ceiling just drops to 55%, '
+      + 'so you would put <b>' + sgd(altUpfront) + '</b> down instead of ' + sgd(upfront)
+      + '. The choice is a shorter loan or a larger cheque, and there is no third option.'
+    : 'A loan longer than 30 years, or one running past 65, drops the ceiling to 55% &mdash; '
+      + '<b>' + sgd(altUpfront) + '</b> down instead of ' + sgd(upfront) + '.';
+
+  const yrsLost = RULES.tenureCap - tenure;
+  $('af-say').innerHTML = 'On these inputs you would need <b>' + sgd(income) + ' a month</b> and '
+    + '<b>' + sgd(upfront) + '</b> on the table'
+    + (absd > 0 ? ', <b>' + sgd(absd) + '</b> of it Additional Buyer&rsquo;s Stamp Duty due within 14 days in cash' : '')
+    + '. '
+    + (yrsLost > 0
+        ? 'Your age has taken <b>' + yrsLost + (yrsLost === 1 ? ' year' : ' years') + '</b> off the longest loan you can '
+          + 'have at the full 75%, which is why the income figure is higher than it would be for a younger buyer of the '
+          + 'identical home. '
+        : '')
+    + 'Then the other side: at ' + sgd(psf) + ' per square foot you would enter <b>'
+    + (gap >= 0 ? '+' : '−') + Math.abs(gap*100).toFixed(0) + '%</b> above what same-size District 20 resale trades at, '
+    + 'and the district would have to compound at <b>' + (cagr*100).toFixed(1) + '% a year for ' + HOLD_YEARS
+    + ' years</b> for you to sell at your own entry price after costs. Whether that is a trade worth making is not '
+    + 'something this tool can tell you.';
+}
+
+function init(){
+  ['af-psf','af-sqft','af-age','af-buyer'].forEach(id => $(id).addEventListener('input', update));
+  update();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+})();
+</script>
+
+<style is:global>
+.af{
+  --af-ink:var(--color-dark); --af-body:var(--color-body); --af-muted:var(--color-muted);
+  --af-rule:var(--color-border); --af-fill:#0B1D33; --af-soft:#EDF1F5;
+  --af-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  margin:26px 0;padding:20px 22px 16px;background:#fff;
+  border:1px solid var(--af-rule);border-radius:12px
+}
+/* No dark-scheme override: the card is pinned white in both schemes, so the ink follows
+   the card rather than the page. */
+.post-content .af-cap{margin:0 0 14px;padding:0;text-align:left}
+.post-content .af-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--af-ink);
+  font-family:var(--font-body);letter-spacing:0}
+.post-content .af-cap p{margin:0;font-size:12.5px;color:var(--af-muted);line-height:1.5}
+
+.af-controls{display:grid;gap:14px;margin-bottom:16px}
+.af-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.af-ctl label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  font-size:12px;font-weight:600;color:var(--af-body);margin-bottom:6px}
+.af-ctl output{font-family:var(--af-mono);font-variant-numeric:tabular-nums;
+  font-size:13.5px;font-weight:700;color:var(--af-ink)}
+.af-slot{position:relative;padding:9px 0}   /* pads the hit area past the 44px guidance */
+.af-implied{position:absolute;top:16px;height:6px;background:var(--af-soft);
+  border-radius:3px;pointer-events:none}
+.af-tick{position:absolute;top:13px;width:2px;height:12px;background:var(--af-muted);
+  opacity:.75;pointer-events:none}
+.af input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;
+  background:transparent;position:relative;margin:0;display:block}
+.af input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;
+  background:var(--af-rule)}
+.af input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--af-rule)}
+.af input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  width:24px;height:24px;border-radius:50%;background:var(--af-fill);border:3px solid #fff;
+  box-shadow:0 0 0 1px var(--af-rule);margin-top:-9px;cursor:pointer}
+.af input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;
+  background:var(--af-fill);border:3px solid #fff;box-shadow:0 0 0 1px var(--af-rule);cursor:pointer}
+.af input[type=range]:focus-visible{outline:2px solid var(--af-fill);outline-offset:4px}
+.post-content p.af-note{margin:4px 0 0;font-size:11.5px;line-height:1.5;color:var(--af-muted)}
+.af-ctl-sel label{display:block}
+.af select{width:100%;font-family:inherit;font-size:13px;color:var(--af-ink);background:#fff;
+  border:1px solid var(--af-rule);border-radius:6px;padding:11px 10px;min-height:44px}
+.af select:focus-visible{outline:2px solid var(--af-fill);outline-offset:2px}
+
+.af-out{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding-top:14px;
+  border-top:1px solid var(--af-rule)}
+.af-colh{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--af-muted);margin-bottom:8px}
+.af-line{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:4px 0;font-size:12px;color:var(--af-muted);border-bottom:1px solid var(--color-light)}
+.af-line b{font-family:var(--af-mono);font-variant-numeric:tabular-nums;font-size:12.5px;
+  font-weight:600;color:var(--af-body);text-align:right;white-space:nowrap}
+.af-hero{color:var(--af-body)}
+.af-hero b{font-size:14px;font-weight:700;color:var(--af-ink)}
+/* The four components that add to the upfront bill, indented and rule-less so the
+   addition reads as one block ending at the total. */
+.af-sub{padding-left:12px;border-bottom:0;padding-top:2px;padding-bottom:2px}
+.af-sub span::before{content:'+';margin-right:5px;opacity:.5}
+.af-sum{border-top:1px solid var(--af-rule);margin-top:3px;padding-top:6px}
+.post-content p.af-alt{margin:10px 0 0;font-size:11.5px;line-height:1.55;color:var(--af-muted)}
+
+.post-content p.af-say{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--af-rule);
+  font-size:13px;line-height:1.65;color:var(--af-body)}
+.post-content p.af-src{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--af-rule);
+  font-size:11.5px;line-height:1.55;color:var(--af-muted)}
+
+@media (max-width:640px){
+  .af{padding:16px 14px 13px}
+  .af-row,.af-out{grid-template-columns:1fr}
+  .af-out{gap:14px}
+  .af-colh{font-size:11px;letter-spacing:.04em}
+}
+</style>
