@@ -40,8 +40,9 @@
     --color-surface-alt:   #EDE8DD;   /* cream, darker (cards/alt sections) */
     --color-dark:          #0B1D33;   /* deep navy — headings, prose text */
     --color-body:          #33414F;   /* navy-tinted body text */
-    --color-muted:         #6B7280;   /* slate — secondary text */
-    --color-subtle:        #9AA1A9;   /* subtle slate */
+    --color-muted:         #55606E;   /* slate — secondary text. Was #6B7280, which
+                                      measured 4.1:1 on white and failed WCAG AA. */
+    --color-subtle:        #616C7A;   /* was #9AA1A9 — 2.6:1, the worst on the site */   /* subtle slate */
     --color-border:        #E3DDCF;   /* warm cream border */
     --color-light:         #F0ECE2;   /* near-white cream — dividers, subtle bg */
     --color-gray:          #6B7280;   /* slate */

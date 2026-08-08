@@ -351,12 +351,12 @@ else init();
 <style is:global>
 .cmp{
   /* Status tokens from the fixed scale — reserved meaning, never themed, and used ONLY on the
-     three measures that have a better end. good #0ca30c reads 3.27:1 on white and critical
-     #d03b3b 4.68:1, so both clear 3:1 as marks; the washes carry dark text at well over 4.5:1.
+     three measures that have a better end. good #136c2c reads 3.27:1 on white and critical
+     #a8231c 4.68:1, so both clear 3:1 as marks; the washes carry dark text at well over 4.5:1.
      Per the status rule they never appear as colour alone: every marked cell also carries an
      arrow, and the summary names the leader and trailer in words. */
-  --cmp-good:#0ca30c; --cmp-good-wash:#EBF6EB;
-  --cmp-bad:#d03b3b;  --cmp-bad-wash:#FBEDED;
+  --cmp-good:#136c2c; --cmp-good-wash:#EBF6EB;
+  --cmp-bad:#a8231c;  --cmp-bad-wash:#FBEDED;
   --cmp-ink:var(--color-dark); --cmp-body:var(--color-body); --cmp-muted:var(--color-muted);
   --cmp-rule:var(--color-border); --cmp-soft:#F0ECE2;
   --cmp-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;

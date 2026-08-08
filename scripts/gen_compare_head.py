@@ -55,7 +55,7 @@ HEAD = '''---
 //                  not a hedge — it is what stops the figure becoming a scorecard for a named
 //                  development, which is the one thing this tool must never be.
 //
-// Status tokens come from the fixed scale and are not themed: good #0ca30c, critical #d03b3b. Per
+// Status tokens come from the fixed scale and are not themed: good #136c2c, critical #a8231c. Per
 // the status rule they never appear as colour alone — every marked cell also carries an arrow and
 // a factual word ("longest", "furthest", never "best"), so the reading survives greyscale, colour
 // blindness and a monochrome print. Measured on the page: the green mark reads 3.02:1 on its own
