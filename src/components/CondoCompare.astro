@@ -259,9 +259,11 @@ const METRICS = [
   // implies the project decides the price when the floor and the stack decide more of it.
   { label: 'Median resale price', short: 'price per square foot', dir: 'none', lead: '', trail: '', kind: 'ratio',
     fmt: r => sgd(r.psf) + ' psf', brief: r => sgd(r.psf), val: r => r.psf,
+    // "range 1,991–2,589 (30%)" left the bracket unexplained. The cell now says what the range is
+    // — the middle 8 in 10 sales — and what the percentage measures.
     sub: r => showRange(r)
-      ? 'range ' + num(r.lo) + '–' + num(r.hi) + ' (' + Math.round((r.hi / r.lo - 1) * 100) + '%)'
-      : 'range withheld · ' + r.v + ' sales',
+      ? '8 in 10 sales ' + num(r.lo) + '–' + num(r.hi) + ', ' + Math.round((r.hi / r.lo - 1) * 100) + '% apart'
+      : 'spread withheld · only ' + r.v + ' sales',
     note: 'no better end — cheaper suits a buyer, dearer is what the market pays. The range beneath is the 10th to 90th percentile WITHIN that building, which is usually wider than the gap between buildings. It is withheld below 20 sales, where a p10–p90 is barely more than the smallest and largest that happened to trade' },
   { label: 'Price change, 12 months', short: 'which way it is moving', dir: 'none', lead: '', trail: '',
     kind: 'pp',
@@ -275,7 +277,7 @@ const METRICS = [
   { label: 'Against its district', short: 'standing vs its district', dir: 'none', lead: '', trail: '', kind: 'pp',
     fmt: r => signed((r.psf / r.b - 1) * 100) + '%', brief: r => signed((r.psf / r.b - 1) * 100) + '%',
     val: r => r.psf / r.b - 1,
-    sub: r => 'vs ' + num(r.b) + ' · ' + r.bl + ' sq ft',
+    sub: r => 'vs ' + num(r.b) + ', the ' + r.bl + ' sq ft band',
     note: 'no better end — a position vs same-size resale nearby, not a discount. Each building is measured against its OWN size band, so the benchmarks differ: a building that sells small units is compared with small units. Worth knowing because the rate per square foot moves with size, and not in a simple way — the largest band is the cheapest per square foot in 16 of our 22 fully-measured districts, but the smallest band is the dearest in only 9' },
   // NOT marked, and the reason matters. A raw count of resales tracks how many units a building
   // HAS at least as much as how readily they sell — a 1,200-unit project will out-trade a
@@ -514,17 +516,17 @@ else init();
 .post-content .cmp-t thead th{background:var(--cmp-soft);color:var(--cmp-ink);text-align:right;
   font-size:12px;font-weight:700;text-transform:none;letter-spacing:0;padding:9px 10px;
   border-bottom:2px solid var(--cmp-ink);vertical-align:bottom}
-.post-content .cmp-t thead th b{display:block;font-size:12.5px;line-height:1.25}
-.post-content .cmp-t thead th span{display:block;font-size:11px;font-weight:400;
-  color:var(--cmp-muted);margin-top:1px}
+.post-content .cmp-t thead th b{display:block;font-size:13.5px;line-height:1.25}
+.post-content .cmp-t thead th span{display:block;font-size:11.5px;font-weight:400;
+  color:var(--cmp-muted);margin-top:2px}
 .post-content .cmp-t thead th.cmp-corner{text-align:left;font-size:11px;font-weight:600;
   text-transform:uppercase;letter-spacing:.05em;color:var(--cmp-muted)}
-.post-content .cmp-t tbody th{background:transparent;color:var(--cmp-body);text-align:left;
-  font-size:11.5px;font-weight:600;text-transform:none;letter-spacing:0;padding:7px 10px;
-  border-bottom:1px solid var(--color-light)}
-.post-content .cmp-t tbody th i{font-style:normal;font-size:11px;font-weight:400;
+.post-content .cmp-t tbody th{background:transparent;color:var(--cmp-ink);text-align:left;
+  font-size:12.5px;font-weight:600;text-transform:none;letter-spacing:0;padding:8px 10px;
+  border-bottom:1px solid var(--color-light);line-height:1.35}
+.post-content .cmp-t tbody th i{font-style:normal;font-size:11.5px;font-weight:400;
   color:var(--cmp-muted);margin-left:5px}
-.cmp-note{display:block;font-size:11px;font-weight:400;color:var(--cmp-muted);line-height:1.45;
+.cmp-note{display:block;font-size:11.5px;font-weight:400;color:var(--cmp-body);line-height:1.5;
   margin-top:4px;padding:6px 8px;background:var(--cmp-soft);border-radius:5px}
 .cmp-note[hidden]{display:none}
 /* A 44px tap target around a 17px glyph — the button is the hit area, the circle is the mark. */
@@ -537,14 +539,16 @@ else init();
 .cmp-q[aria-expanded="true"]{background:var(--cmp-ink);border-color:var(--cmp-ink);color:#fff}
 .cmp-q:focus-visible{outline:2px solid var(--cmp-ink);outline-offset:2px}
 .post-content .cmp-t tr.lvl th,.post-content .cmp-t tr.lvl td{color:var(--cmp-muted)}
-.post-content .cmp-t td{padding:7px 10px;border-bottom:1px solid var(--color-light);text-align:right;
-  font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;color:var(--cmp-body);
-  white-space:nowrap;vertical-align:top}
+/* Body font with tabular figures, not monospace. Consolas at 12px is narrow and thin in a dense
+   table; the body face at 13px with tabular-nums keeps the columns aligned and reads far better. */
+.post-content .cmp-t td{padding:8px 10px;border-bottom:1px solid var(--color-light);text-align:right;
+  font-family:var(--font-body);font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;
+  color:var(--cmp-ink);white-space:nowrap;vertical-align:top;line-height:1.35}
 .post-content .cmp-t td i{font-style:normal;font-size:11px;margin-left:3px}
 /* The within-building range sits under its median, in muted type, so the median never reads as
    the whole story about a price. */
-.cmp-sub{display:block;font-size:11px;font-weight:400;color:var(--cmp-muted);margin-top:1px;
-  white-space:nowrap}
+.cmp-sub{display:block;font-family:var(--font-body);font-size:11.5px;font-weight:400;
+  color:var(--cmp-muted);margin-top:3px;white-space:nowrap;line-height:1.4}
 .post-content .cmp-t td.is-best{background:var(--cmp-good-wash);color:var(--cmp-good);font-weight:700}
 .post-content .cmp-t td.is-worst{background:var(--cmp-bad-wash);color:var(--cmp-bad);font-weight:700}
 .post-content p.cmp-empty{margin:0;font-size:12.5px;color:var(--cmp-muted)}
