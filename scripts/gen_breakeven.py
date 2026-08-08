@@ -63,6 +63,16 @@ MID = PRICES[len(PRICES) // 2]
 EST_RISE = sorted(round((MID * ROUND_TRIP / b - 1) * 100) for b in EST.values())
 EST_LINE = ' · '.join(f'{k} S${b:,.0f}' for k, b in EST.items())
 
+# The bigger assumption by far, and the one a reader is most likely to object to: the table puts
+# the building at the MIDDLE of its future cohort. A new project could settle at the top of it.
+# That is not a rebuttal to be argued, it is a number — and it moves the answer about four times
+# as much as the choice of average does, so it belongs above the averaging note, not below it.
+DEAR, CHEAP = comps[-1], comps[0]
+POS_LO = round((MID * ROUND_TRIP / DEAR['median_psf'] - 1) * 100)    # lands at the dearest
+POS_HI = round((MID * ROUND_TRIP / CHEAP['median_psf'] - 1) * 100)   # lands at the cheapest
+DEAR_NM, CHEAP_NM = DEAR['project'].title(), CHEAP['project'].title()
+MID_RISE = round((MID * ROUND_TRIP / BASE - 1) * 100)
+
 hdr_years = ''.join(
     f'<th scope="col">{n}<span class="be-u">yrs</span></th>' for n in HORIZONS)
 
@@ -114,11 +124,14 @@ const BASE = {BASE};
     <tbody>
 {body}    </tbody>
   </table>
-  <p class="be-note">The exit base is <b>S${BASE:,}</b>, from {len(comps)} District 20 buildings with
-  {LEASE_MIN}+ years of lease and at least {VOL_MIN} resales — {sum(r['vol_12m'] for r in comps)} sales in all.
-  Which average you take moves the answer: {EST_LINE}. On the middle row that is a spread of{{' '}}
-  <b>+{EST_RISE[0]}% to +{EST_RISE[-1]}%</b>, so read the column as about that wide, not as a point. Five
-  buildings is a thin set, and the median of five is really one of them.</p>
+  <p class="be-note"><b>This assumes it ends up an ordinary building in its own neighbourhood.</b>{{' '}}
+  The exit base is S${BASE:,}, the middle of {len(comps)} District 20 blocks with {LEASE_MIN}+ years of lease
+  and at least {VOL_MIN} resales. If it settles at the dearest of them ({DEAR_NM}, S${DEAR['median_psf']:,}) the
+  middle row needs <b>+{POS_LO}%</b> instead of +{MID_RISE}%;
+  at the cheapest ({CHEAP_NM}, S${CHEAP['median_psf']:,}) it needs <b>+{POS_HI}%</b>. Where it lands in that
+  cohort is worth roughly four times the choice of average, which moves it only{{' '}}
+  +{EST_RISE[0]}% to +{EST_RISE[-1]}% ({EST_LINE}). Five buildings is a thin set, and the median of five is
+  really one of them.</p>
 </figure>
 
 <style is:global>

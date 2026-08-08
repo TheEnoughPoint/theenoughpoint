@@ -47,7 +47,14 @@ def find(text, label='template'):
         nxt = lines[i + 1]
         if SAFE_TAIL.search(line):
             continue
-        if re.search(r'[A-Za-z0-9,;:)]$', line.rstrip()) and re.match(r'\s*(\{|<[a-zA-Z])', nxt):
+        text_then_tag = (re.search(r'[A-Za-z0-9,;:)]$', line.rstrip())
+                         and re.match(r'\s*(\{|<[a-zA-Z])', nxt))
+        # The mirror image, which shipped once: a line ending in a closing tag or an expression,
+        # followed by a line starting with a word. "...neighbourhood.</b>" + "The exit base" ran
+        # together as "neighbourhood.The".
+        tag_then_text = (re.search(r'(</[a-zA-Z][^>]*>|\})$', line.rstrip())
+                         and re.match(r'\s*[A-Za-z0-9]', nxt))
+        if text_then_tag or tag_then_text:
             # a line that is pure code, not prose, is not at risk
             if re.search(r'[;{}]\s*$', line) or line.lstrip().startswith('//'):
                 continue
