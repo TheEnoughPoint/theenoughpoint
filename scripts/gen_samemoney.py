@@ -15,9 +15,11 @@ TPL = '''---
 // version dropped four buildings where the budget bought more space than the building has ever
 // sold, then explained the exclusion in a note longer than the chart. That was worse on both
 // counts: it hid buildings a reader might want, and it spent its longest paragraph on absence.
-// Now the bar runs solid to the largest unit that has actually traded there and continues hatched
-// to what the money would notionally buy — so "your budget outgrows this building" is a thing you
-// SEE, in the same row, instead of a paragraph you have to read and trust.
+// Every bar is now the LARGEST SINGLE HOME the budget actually buys there — limited by the price
+// on five of them and by the building itself on four, where nothing bigger has ever been sold. An
+// intermediate version drew a ghosted stretch on to the notional figure; it read as more bar
+// rather than as absent space, which was the opposite of its point, so the bar simply stops at
+// what exists and the row says "their biggest" beside the number. Nothing left to interpret.
 //
 // That also puts Braddell View back on the chart, which matters: it is the row that shows the real
 // trade in this neighbourhood most starkly — far more space, at half the remaining lease.
@@ -28,10 +30,10 @@ TPL = '''---
 // so no figure in the prose can drift from a bar.
 //
 // COLOUR CARRIES NO VERDICT (VOICE.md C10). Every bar measures the same quantity — square feet —
-// so every bar is the same ink. What varies is PATTERN: solid for floor area you could actually
-// buy, hatched for the stretch past the largest unit ever sold, dashed outline for the building
-// that does not exist yet. More space is not "better" here; it is the trade, and the lease and the
-// walk in the same row are what it is traded against.
+// so every bar is the same ink, and the only pattern is the dashed outline on the building that
+// does not exist yet. More space is not "better" here; it is the trade, and the lease and the walk
+// in the same row are what it is traded against — Braddell View offers the most floor area in the
+// district and has 54 years left against the baseline's fresh 99.
 //
 // Two filters, both mechanical and both stated on the figure: within 400 m of an MRT entrance, and
 // at least 10 resales in the twelve months so a median is not one odd unit. Nothing else is
@@ -41,17 +43,16 @@ const BUDGET = 2_400_000;
 const NEW_PSF = 2900; // the middle of the illustrative band the article derives; NOT a quote
 
 interface Row { p: string; psf: number; n: number; l: number | string; m: number; x: string;
-  sq: number; cap: number; over: boolean; pct: number }
+  got: number; want: number; capped: boolean; pct: number }
 
 const ROWS: Row[] = __DATA__;
 
 const BASE = Math.round(BUDGET / NEW_PSF);
-const MAX = Math.max(BASE, ...ROWS.map((r) => r.sq));
+const MAX = Math.max(BASE, ...ROWS.map((r) => r.got));
 const w = (v: number) => (v / MAX) * 100;
-const OVER = ROWS.filter((r) => r.over);
-const FITS = ROWS.filter((r) => !r.over);
-const MIN_PCT = Math.min(...FITS.map((r) => r.pct));
-const MAX_PCT = Math.max(...FITS.map((r) => r.pct));
+const CAPPED = ROWS.filter((r) => r.capped);
+const MIN_PCT = Math.min(...ROWS.map((r) => r.pct));
+const MAX_PCT = Math.max(...ROWS.map((r) => r.pct));
 const n = (v: number) => v.toLocaleString('en-SG');
 const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 ---
@@ -65,8 +66,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   </figcaption>
 
   <div class="sm-legend">
-    <span class="sm-lg"><i class="sm-key sm-key-old"></i>what you can buy here</span>
-    <span class="sm-lg"><i class="sm-key sm-key-over"></i>bigger than any unit here</span>
+    <span class="sm-lg"><i class="sm-key sm-key-old"></i>largest home {money(BUDGET)} buys there</span>
     <span class="sm-lg"><i class="sm-key sm-key-new"></i>not built yet</span>
   </div>
 
@@ -98,31 +98,27 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
           <span class="sm-nm-s">{r.l} yrs &middot; {r.m}m</span></span>
         <span class="sm-track">
           <span class="sm-ghost" style={`width:${w(BASE)}%`} aria-hidden="true"></span>
-          <span class={`sm-bar sm-bar-old${r.over ? ' is-capped' : ''}`}
-            style={`width:${w(r.over ? r.cap : r.sq)}%`}
+          <span class="sm-bar sm-bar-old" style={`width:${w(r.got)}%`}
             role="img"
-            aria-label={`${r.p}. Median S$${n(r.psf)} per square foot over ${r.n} resales, ${r.l} years of lease remaining, ${r.m} metres to ${r.x} station. ${money(BUDGET)} buys ${n(r.sq)} square feet, ${r.pct} per cent more floor area than the new-build baseline.${r.over ? ` The largest unit ever sold there is ${n(r.cap)} square feet, so the budget stretches past anything this building offers.` : ''}`}></span>
-          {r.over && (
-            <span class="sm-bar sm-bar-over"
-              style={`left:${w(r.cap)}%;width:${w(r.sq - r.cap)}%`} aria-hidden="true"></span>
-          )}
+            aria-label={`${r.p}. Median S$${n(r.psf)} per square foot over ${r.n} resales, ${r.l} years of lease remaining, ${r.m} metres to ${r.x} station. The largest home ${money(BUDGET)} buys there is ${n(r.got)} square feet, ${r.pct} per cent against the new-build baseline.${r.capped ? ` That is the biggest unit the building has; the budget alone would stretch to ${n(r.want)} square feet.` : ''}`}></span>
         </span>
-        <span class="sm-val">{n(r.sq)}{r.over && <i class="sm-cap-note">biggest {n(r.cap)}</i>}</span>
-        <span class="sm-pct">+{r.pct}%</span>
+        {/* The bar stops at what the building actually offers. An earlier version drew a ghosted
+            stretch to the notional figure, which read as more bar rather than as absent space. */}
+        <span class="sm-val">{n(r.got)}{r.capped && <i class="sm-cap-note">their biggest</i>}</span>
+        <span class="sm-pct">{r.pct >= 0 ? '+' : '−'}{Math.abs(r.pct)}%</span>
       </li>
     ))}
   </ol>
 
-  <p class="sm-foot">The same {money(BUDGET)} is <b>{n(BASE)} square feet</b> in a building that does
-  not exist yet. In the {FITS.length} buildings that can actually offer what it buys, it is{' '}
-  <b>{n(MIN_PCT)}% to {n(MAX_PCT)}% more floor area</b>, available next month. On the other{' '}
-  {OVER.length} it buys more square feet than the biggest unit they have &mdash; the ghosted stretch
-  is space that is simply not on offer there, whatever your budget. That extra area is
-  the entry gap made physical, and it is <b>not</b> money lost: part of it is what a new building, a
-  fresh 99-year lease and no near-term repair bill genuinely cost. The lease column is where the
-  biggest jumps show their price &mdash; the row offering {n(Math.max(...ROWS.map((r) => r.pct)))}%
-  more space has {ROWS.find((r) => r.pct === Math.max(...ROWS.map((x) => x.pct))).l} years left
-  against the baseline&rsquo;s fresh 99.</p>
+  <p class="sm-foot">Every bar is the <b>largest single home {money(BUDGET)} actually buys</b> in that
+  building &mdash; limited by the price on {ROWS.length - CAPPED.length} of them and by the building
+  itself on {CAPPED.length}, where nothing bigger has ever been sold. Against{' '}
+  <b>{n(BASE)} square feet</b> in a building that does not exist yet, the range runs from{' '}
+  <b>{MIN_PCT >= 0 ? '+' : '−'}{n(Math.abs(MIN_PCT))}%</b> to <b>+{n(MAX_PCT)}%</b>. That extra area is the entry gap made physical, and
+  it is <b>not</b> money lost: part of it is what a new building, a fresh 99-year lease and no
+  near-term repair bill genuinely cost. The lease column is where the biggest jumps show their
+  price &mdash; the row offering the most space has{' '}
+  {ROWS.find((r) => r.pct === MAX_PCT).l} years left against the baseline&rsquo;s fresh 99.</p>
 
   <p class="sm-src">Computed by us from URA private resale transactions, District 20, twelve months to
   {ASOF}; walking distances are straight-line to the nearest station entrance, so a real walk is
@@ -156,8 +152,6 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm-key-new{border:1.5px dashed var(--sm-fill);background:
   repeating-linear-gradient(45deg,transparent,transparent 3px,var(--sm-ghost) 3px,var(--sm-ghost) 6px)}
 .sm-key-old{background:var(--sm-fill)}
-.sm-key-over{background:repeating-linear-gradient(45deg,transparent,transparent 3px,
-  var(--sm-ghost) 3px,var(--sm-ghost) 6px);border:1px dashed var(--sm-muted)}
 
 /* An explicit header row: the bars had no column labels at all, so a reader met three numbers
    with no idea which was which until they reached the footnote. */
@@ -182,15 +176,8 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm-track{position:relative;height:17px;min-width:0}
 .sm-bar{position:absolute;left:0;top:0;display:block;height:17px;border-radius:3px;min-width:2px}
 .sm-bar-old{background:var(--sm-fill)}
-.sm-bar-old.is-capped{border-radius:3px 0 0 3px}
 /* The stretch past the largest unit the building has ever sold. Same ink, hatched, so it reads as
    "this part is not available" rather than as a different kind of thing. */
-/* Ghost fill and a dashed edge, deliberately NOT the solid bar's ink: this stretch is space the
-   building does not have, so it has to read as absent rather than as more bar. Sharing the fill
-   made it look like part of what you could buy, which is the opposite of the point. */
-.sm-bar-over{background:repeating-linear-gradient(45deg,transparent,transparent 3px,
-  var(--sm-ghost) 3px,var(--sm-ghost) 6px);border:1px dashed var(--sm-muted);border-left:0;
-  border-radius:0 3px 3px 0}
 .sm-bar-new{background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--sm-ghost) 3px,var(--sm-ghost) 6px);
   border:1.5px dashed var(--sm-fill);box-sizing:border-box}
 /* The baseline repeated behind every bar, so the overhang past it is visible on each row. */
@@ -224,4 +211,4 @@ out = TPL.replace('__DATA__', DATA)
 path = r'C:\\TheEnoughPoint-wt-newlaunch\\src\\components\\SameMoneySize.astro'
 io.open(path, 'w', encoding='utf-8').write(out)
 print('written', len(out), 'bytes ·', len(rows), 'buildings ·',
-      sum(1 for r in rows if r['over']), 'exceed their stock ceiling')
+      sum(1 for r in rows if r['capped']), 'capped by the building')

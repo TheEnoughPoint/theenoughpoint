@@ -231,13 +231,19 @@ function render(){
   });
   h += '</tr></thead><tbody>';
 
-  METRICS.forEach(mt => {
+  METRICS.forEach((mt, i) => {
     const level = cols > 1 && spreadOf(mt, picked) < CLOSE;
     const tag = level ? '<i>level</i>'
               : mt.nomark ? '<i>' + mt.nomark + '</i>'
               : mt.dir === 'none' ? '<i>no better end</i>' : '';
+    // The explanation used to sit under every label, so eight paragraphs competed with the
+    // numbers the reader came for. It is one tap away now; the short tag stays visible because it
+    // is the compressed version of the same point.
+    const nid = 'cmp-n' + i;
     h += '<tr class="' + (level ? 'lvl' : '') + '"><th>' + esc(mt.label) + tag
-       + '<span class="cmp-note">' + esc(mt.note) + '</span></th>';
+       + '<button type="button" class="cmp-q" aria-expanded="false" aria-controls="' + nid
+       + '" aria-label="Explain ' + esc(mt.label) + '">?</button>'
+       + '<span class="cmp-note" id="' + nid + '" hidden>' + esc(mt.note) + '</span></th>';
     picked.forEach(r => {
       const rank = rankOf(mt, picked, r);
       const mark = rank === 'best' ? ' <i>▲</i>' : rank === 'worst' ? ' <i>▼</i>' : '';
@@ -278,6 +284,16 @@ function render(){
 
 function init(){
   [0,1,2].forEach(i => $('cmp-s'+i).addEventListener('change', render));
+  // Delegated: the table is rebuilt on every change, so a handler bound to the buttons would be
+  // thrown away with them.
+  $('cmp-out').addEventListener('click', e => {
+    const b = e.target.closest('.cmp-q');
+    if (!b) return;
+    const note = document.getElementById(b.getAttribute('aria-controls'));
+    const open = b.getAttribute('aria-expanded') === 'true';
+    b.setAttribute('aria-expanded', String(!open));
+    note.hidden = open;
+  });
   render();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -350,8 +366,18 @@ else init();
   border-bottom:1px solid var(--color-light)}
 .post-content .cmp-t tbody th i{font-style:normal;font-size:11px;font-weight:400;
   color:var(--cmp-muted);margin-left:5px}
-.cmp-note{display:block;font-size:11px;font-weight:400;color:var(--cmp-muted);line-height:1.4;
-  margin-top:1px}
+.cmp-note{display:block;font-size:11px;font-weight:400;color:var(--cmp-muted);line-height:1.45;
+  margin-top:4px;padding:6px 8px;background:var(--cmp-soft);border-radius:5px}
+.cmp-note[hidden]{display:none}
+/* A 44px tap target around a 17px glyph — the button is the hit area, the circle is the mark. */
+.cmp-q{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
+  margin-left:6px;padding:0;border:1px solid var(--cmp-rule);border-radius:50%;background:#fff;
+  color:var(--cmp-muted);font-size:11px;font-weight:700;font-family:inherit;line-height:1;
+  cursor:pointer;position:relative;vertical-align:-3px}
+.cmp-q::after{content:'';position:absolute;top:-14px;right:-14px;bottom:-14px;left:-14px}
+.cmp-q:hover{border-color:var(--cmp-ink);color:var(--cmp-ink)}
+.cmp-q[aria-expanded="true"]{background:var(--cmp-ink);border-color:var(--cmp-ink);color:#fff}
+.cmp-q:focus-visible{outline:2px solid var(--cmp-ink);outline-offset:2px}
 .post-content .cmp-t tr.lvl th,.post-content .cmp-t tr.lvl td{color:var(--cmp-muted)}
 .post-content .cmp-t td{padding:7px 10px;border-bottom:1px solid var(--color-light);text-align:right;
   font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;color:var(--cmp-body);
@@ -395,7 +421,6 @@ else init();
   .post-content .cmp-t thead th b{white-space:normal;overflow-wrap:anywhere}
   .post-content .cmp-t tbody th i{display:block;margin-left:0}
   .post-content .cmp-t td{white-space:normal;overflow-wrap:anywhere}
-  .cmp-note{display:none}   /* the per-measure note is desktop-only; the tag carries the gist */
 }
 </style>
 '''
