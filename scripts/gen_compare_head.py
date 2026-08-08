@@ -75,7 +75,8 @@ const MIN_SALES = 10;
 const TOTAL_PROJECTS = 1135;
 
 interface Row { p: string; d: string; n: string; g: 'CCR' | 'RCR' | 'OCR'; psf: number; v: number;
-  l: number | string; m: number; x: string; s: number; b: number; q: number }
+  l: number | string; m: number; x: string; s: number; b: number; q: number;
+  lo: number; hi: number; mo: number | null }
 
 const ROWS: Row[] = __DATA__;
 

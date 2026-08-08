@@ -4,8 +4,10 @@ BODY = r'''
 <figure class="cmp">
   <figcaption class="cmp-cap">
     <h4>Compare three, on the public record</h4>
-    <p>Seven measures, {n(ROWS.length)} condominiums, {DISTRICTS.length} districts, twelve months
-    to {ASOF}. Three of the seven have a better end and are marked with it. Four do not, and say so.</p>
+    {/* The counts are written by the script from METRICS, not typed here, so adding or
+        unmarking a measure cannot leave the caption claiming something untrue. */}
+    <p>{n(ROWS.length)} condominiums, {DISTRICTS.length} districts, twelve months
+    to {ASOF}. <span id="cmp-count"></span></p>
   </figcaption>
 
   <div class="cmp-picks">
@@ -31,7 +33,7 @@ BODY = r'''
   {/* Collapsible, but open on load: a reader who has picked three buildings wants the numbers,
       and the summary above is the headline rather than a replacement for them. */}
   <details class="cmp-fold" open>
-    <summary>All seven measures, side by side</summary>
+    <summary>Every measure, side by side</summary>
     <div class="cmp-out" id="cmp-out"></div>
   </details>
 
@@ -67,17 +69,33 @@ function signed(x){
 // the measure has no better end and the tool must not invent one. `lead`/`trail` are factual
 // words — "longest", "furthest" — never "best" or "worst".
 const METRICS = [
+  // The sub-line is the point of this row. Between these buildings the medians differ by about
+  // 13%; inside one of them the 10th-to-90th percentile can run 28%. Showing only the median
+  // implies the project decides the price when the floor and the stack decide more of it.
   { label: 'Median resale price', short: 'price per square foot', dir: 'none', lead: '', trail: '', kind: 'ratio',
     fmt: r => sgd(r.psf) + ' psf', brief: r => sgd(r.psf), val: r => r.psf,
-    note: 'no better end — cheaper suits a buyer, dearer is what the market pays' },
+    sub: r => 'range ' + num(r.lo) + '–' + num(r.hi) + ' (' + Math.round((r.hi / r.lo - 1) * 100) + '%)',
+    note: 'no better end — cheaper suits a buyer, dearer is what the market pays. The range beneath is the 10th to 90th percentile WITHIN that building, which is usually wider than the gap between buildings' },
+  { label: 'Price change, 12 months', short: 'which way it is moving', dir: 'none', lead: '', trail: '',
+    kind: 'pp',
+    fmt: r => r.mo === null ? '—' : signed(r.mo * 100) + '%',
+    brief: r => r.mo === null ? 'not available' : signed(r.mo * 100) + '%',
+    val: r => r.mo === null ? 0 : r.mo,
+    note: 'no better end — a rise is good news for an owner and bad for a buyer. Median against median, so a change in which units sold moves it too' },
   { label: 'Against its district', short: 'standing vs its district', dir: 'none', lead: '', trail: '', kind: 'pp',
     fmt: r => signed((r.psf / r.b - 1) * 100) + '%', brief: r => signed((r.psf / r.b - 1) * 100) + '%',
     val: r => r.psf / r.b - 1,
     note: 'no better end — a position vs same-size resale nearby, not a discount' },
-  { label: 'Resales in 12 months', short: 'how often units sell', dir: 'more', lead: 'most traded',
-    trail: 'least traded', kind: 'ratio',
+  // NOT marked, and the reason matters. A raw count of resales tracks how many units a building
+  // HAS at least as much as how readily they sell — a 1,200-unit project will out-trade a
+  // 400-unit one at identical turnover. The feed carries no unit count, so the tool cannot
+  // normalise it, and marking a leader on a measure it cannot normalise would be calling building
+  // size liquidity. The number is still worth reporting: it is also the sample size behind that
+  // building's median on every other row.
+  { label: 'Resales in 12 months', short: 'the resale count', dir: 'none', lead: '', trail: '',
+    kind: 'ratio', nomark: 'not size-adjusted',
     fmt: r => num(r.v), brief: r => num(r.v) + ' sales', val: r => r.v,
-    note: 'more changes of hand = easier to leave when you need to' },
+    note: 'not marked — a bigger building trades more at the same turnover, and no unit count is published to divide by. It is also the sample size behind this building’s median' },
   { label: 'Lease remaining', short: 'lease left', dir: 'more', lead: 'longest', trail: 'shortest',
     kind: 'ratio', fh: true,
     fmt: r => r.l === 'FH' ? 'Freehold' : r.l + ' yrs',
@@ -215,21 +233,28 @@ function render(){
 
   METRICS.forEach(mt => {
     const level = cols > 1 && spreadOf(mt, picked) < CLOSE;
-    const tag = level ? '<i>level</i>' : mt.dir === 'none' ? '<i>no better end</i>' : '';
+    const tag = level ? '<i>level</i>'
+              : mt.nomark ? '<i>' + mt.nomark + '</i>'
+              : mt.dir === 'none' ? '<i>no better end</i>' : '';
     h += '<tr class="' + (level ? 'lvl' : '') + '"><th>' + esc(mt.label) + tag
        + '<span class="cmp-note">' + esc(mt.note) + '</span></th>';
     picked.forEach(r => {
       const rank = rankOf(mt, picked, r);
       const mark = rank === 'best' ? ' <i>▲</i>' : rank === 'worst' ? ' <i>▼</i>' : '';
       h += '<td class="is-' + rank + '" aria-label="' + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r)
+        + (mt.sub ? ', ' + mt.sub(r) : '')
         + (rank === 'best' ? ', ' + mt.lead : rank === 'worst' ? ', ' + mt.trail : '')) + '">'
-        + esc(mt.fmt(r)) + mark + '</td>';
+        + esc(mt.fmt(r)) + mark
+        + (mt.sub ? '<span class="cmp-sub">' + esc(mt.sub(r)) + '</span>' : '') + '</td>';
     });
     h += '</tr>';
   });
   h += '</tbody></table>';
   $('cmp-out').innerHTML = h;
   renderLead(picked);
+  const dirN = METRICS.filter(m => m.dir !== 'none').length;
+  $('cmp-count').innerHTML = METRICS.length + ' measures. <b>' + dirN + '</b> of them have a better '
+    + 'end and are marked with it; the other ' + (METRICS.length - dirN) + ' do not, and say so.';
 
   if (cols < 2){
     $('cmp-say').innerHTML = 'Add a second building and every row will show how far apart they are.';
@@ -239,13 +264,16 @@ function render(){
   // better end, and it is stated as a tally rather than a score.
   const dirMetrics = METRICS.filter(m => m.dir !== 'none');
   const tally = picked.map(r => dirMetrics.filter(mt => rankOf(mt, picked, r) === 'best').length);
-  $('cmp-say').innerHTML = 'On the ' + dirMetrics.length + ' measures that have a better end '
-    + '(lease, liquidity, distance), the count runs '
+  // Named from dirMetrics, not typed: unmarking the resale count left the old hand-written list
+  // claiming liquidity was still directional.
+  $('cmp-say').innerHTML = 'On the ' + dirMetrics.length + ' measure'
+    + (dirMetrics.length === 1 ? '' : 's') + ' that have a better end ('
+    + dirMetrics.map(m => m.short).join(' and ') + '), the count runs '
     + picked.map((r, i) => '<b>' + esc(r.p) + '</b> ' + tally[i]).join(' &middot; ') + '. '
-    + 'The other four have no better end, so they are reported and not scored &mdash; and the three '
-    + 'that do are not worth the same to everyone, which is why this tool will not add them up for '
-    + 'you. What none of it can tell you is which unit, on which floor, facing what, and that is '
-    + 'usually the difference that decides a purchase.';
+    + 'The rest have no better end, or cannot be compared fairly, so they are reported and not '
+    + 'scored &mdash; and the ones that do are not worth the same to everyone, which is why this '
+    + 'tool will not add them up for you. What none of it can tell you is which unit, on which '
+    + 'floor, facing what, and on these buildings that spread is wider than the gap between them.';
 }
 
 function init(){
@@ -329,6 +357,10 @@ else init();
   font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;color:var(--cmp-body);
   white-space:nowrap;vertical-align:top}
 .post-content .cmp-t td i{font-style:normal;font-size:11px;margin-left:3px}
+/* The within-building range sits under its median, in muted type, so the median never reads as
+   the whole story about a price. */
+.cmp-sub{display:block;font-size:11px;font-weight:400;color:var(--cmp-muted);margin-top:1px;
+  white-space:nowrap}
 .post-content .cmp-t td.is-best{background:var(--cmp-good-wash);color:var(--cmp-good);font-weight:700}
 .post-content .cmp-t td.is-worst{background:var(--cmp-bad-wash);color:var(--cmp-bad);font-weight:700}
 .post-content p.cmp-empty{margin:0;font-size:12.5px;color:var(--cmp-muted)}
