@@ -121,20 +121,10 @@ const n = (v) => v.toLocaleString('en-SG');
     ))}
   </div>
 
-  <div class="cmp-legend">
-    <span class="cmp-scale is-best"><b>&#9650;</b> leads this measure</span>
-    <span class="cmp-scale is-worst"><b>&#9660;</b> trails it</span>
-    <span class="cmp-scale is-flat">no better end &mdash; not marked</span>
-    <span class="cmp-hint">Green and red show standing <em>within one row</em>, on the three
-    measures that have a better end. They never say which building is the better buy &mdash; a
-    project can lead on lease and trail on the walk, and only you know which you are buying.</span>
-  </div>
-
   <div class="cmp-lead" id="cmp-lead" aria-live="polite"></div>
 
-  {/* Open by default: the summary answers "what differs", but a reader who has picked three
-      specific buildings usually wants the numbers straight away, and a closed fold makes them
-      ask for what they came for. It stays collapsible for anyone who only wants the headline. */}
+  {/* Collapsible, but open on load: a reader who has picked three buildings wants the numbers,
+      and the summary above is the headline rather than a replacement for them. */}
   <details class="cmp-fold" open>
     <summary>All seven measures, side by side</summary>
     <div class="cmp-out" id="cmp-out"></div>
@@ -149,11 +139,10 @@ const n = (v) => v.toLocaleString('en-SG');
   traded</b>, mixing floor, stack, facing, condition and renovation, so it is not a valuation of any
   particular unit. Distances are straight-line to the nearest station entrance; a real walk is
   typically 20&ndash;40% further. &ldquo;Against its district&rdquo; compares a project with resale
-  of the <b>same size band</b> in the same district &mdash; a position, not a discount, which a
-  newer building, a higher floor or a shorter walk can each explain. Buildings are labelled by
-  postal district, which is exact. We do not show a market-segment tag: the upstream
-  classification is an approximation and disagrees with itself inside some districts. <b>There is no overall score
-  and there will not be one</b>: the weights belong to whoever is buying.</p>
+  of the <b>same size band</b> in the same district. Buildings are labelled by postal district,
+  which is exact; we do not show a market-segment tag, because the upstream classification is an
+  approximation and disagrees with itself inside some districts. <b>There is no overall score and
+  there will not be one</b>: the weights belong to whoever is buying.</p>
 </figure>
 
 <script is:inline define:vars={{ ROWS }}>
@@ -164,119 +153,90 @@ const num = v => Math.round(v).toLocaleString('en-SG');
 const BY = Object.fromEntries(ROWS.map(r => [r.p, r]));
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-// `dir` is the honest part. 'more'/'less' name a direction the data genuinely has; 'none' means
-// the measure has no better end and the tool must not invent one. `lead` is the word used for the
-// front-runner — factual ("longest lease"), never evaluative ("best").
-// `short` is the summary's wording, `brief` formats a value compactly for it, and `kind` says how
-// to measure the spread between buildings \u2014 a ratio for counts and money, percentage points for
-// the one measure that is already a percentage.
+function signed(x){
+  const r = Math.abs(x).toFixed(0);
+  return r === '0' ? '0' : (x >= 0 ? '+' : '−') + r;
+}
+
+// `dir` is the honest part: 'more'/'less' name a direction the data genuinely has, 'none' means
+// the measure has no better end and the tool must not invent one. `lead`/`trail` are factual
+// words — "longest", "furthest" — never "best" or "worst".
 const METRICS = [
-  { label: 'Median resale price', short: 'price per square foot', dir: 'none', lead: '', kind: 'ratio',
+  { label: 'Median resale price', short: 'price per square foot', dir: 'none', lead: '', trail: '', kind: 'ratio',
     fmt: r => sgd(r.psf) + ' psf', brief: r => sgd(r.psf), val: r => r.psf,
-    delta: (v, ref) => pctDelta(v, ref),
-    note: 'no better end \u2014 cheaper suits a buyer, dearer is what the market pays' },
-  { label: 'Against its district', short: 'standing vs its district', dir: 'none', lead: '', kind: 'pp',
+    note: 'no better end — cheaper suits a buyer, dearer is what the market pays' },
+  { label: 'Against its district', short: 'standing vs its district', dir: 'none', lead: '', trail: '', kind: 'pp',
     fmt: r => signed((r.psf / r.b - 1) * 100) + '%', brief: r => signed((r.psf / r.b - 1) * 100) + '%',
     val: r => r.psf / r.b - 1,
-    delta: (v, ref) => ppDelta(v * 100, ref * 100),
-    note: 'no better end \u2014 a position vs same-size resale nearby, not a discount' },
-  { label: 'Resales in 12 months', short: 'how often units sell', dir: 'more', lead: 'most traded', trail: 'least traded', kind: 'ratio',
+    note: 'no better end — a position vs same-size resale nearby, not a discount' },
+  { label: 'Resales in 12 months', short: 'how often units sell', dir: 'more', lead: 'most traded',
+    trail: 'least traded', kind: 'ratio',
     fmt: r => num(r.v), brief: r => num(r.v) + ' sales', val: r => r.v,
-    delta: (v, ref) => absDelta(v, ref, ''),
     note: 'more changes of hand = easier to leave when you need to' },
-  // `fh` marks the ONE measure that uses 999 as a freehold sentinel. Without it the spread and
-  // phrase helpers treated any value over 999 as freehold — which is every price and every floor
-  // area — and silently scored them as zero spread. That reported a 2.2x price gap between
-  // Braddell View and Jadescape as "much the same". Caught by reading the summary against the
-  // detail grid rather than trusting it.
-  { label: 'Lease remaining', short: 'lease left', dir: 'more', lead: 'longest', trail: 'shortest', kind: 'ratio', fh: true,
+  { label: 'Lease remaining', short: 'lease left', dir: 'more', lead: 'longest', trail: 'shortest',
+    kind: 'ratio', fh: true,
     fmt: r => r.l === 'FH' ? 'Freehold' : r.l + ' yrs',
     brief: r => r.l === 'FH' ? 'freehold' : r.l + ' yrs',
     val: r => r.l === 'FH' ? 999 : Number(r.l),
-    delta: (v, ref) => (v >= 999 || ref >= 999) ? ''
-      : absDelta(v, ref, Math.abs(v - ref) === 1 ? ' yr' : ' yrs'),
     note: 'more years is more, and under 60 the CPF and lending rules tighten' },
-  { label: 'To the nearest MRT', short: 'the walk to a station', dir: 'less', lead: 'nearest', trail: 'furthest', kind: 'ratio',
-    fmt: r => num(r.m) + ' m \u00b7 ' + r.x, brief: r => num(r.m) + ' m', val: r => r.m,
-    delta: (v, ref) => absDelta(v, ref, ' m'),
-    note: 'nearer is nearer \u2014 whether that beats quiet is yours to weigh' },
-  { label: 'Size that actually trades', short: 'the size that trades', dir: 'none', lead: '', kind: 'ratio',
+  { label: 'To the nearest MRT', short: 'the walk to a station', dir: 'less', lead: 'nearest',
+    trail: 'furthest', kind: 'ratio',
+    fmt: r => num(r.m) + ' m · ' + r.x, brief: r => num(r.m) + ' m', val: r => r.m,
+    note: 'nearer is nearer — whether that beats quiet is yours to weigh' },
+  { label: 'Size that actually trades', short: 'the size that trades', dir: 'none', lead: '', trail: '',
+    kind: 'ratio',
     fmt: r => num(r.s) + ' sq ft', brief: r => num(r.s) + ' sq ft', val: r => r.s,
-    delta: (v, ref) => absDelta(v, ref, ' sq ft'),
-    note: 'no better end \u2014 the right size is the one you need' },
-  { label: 'Typical price paid', short: 'the typical cheque', dir: 'none', lead: '', kind: 'ratio',
+    note: 'no better end — the right size is the one you need' },
+  { label: 'Typical price paid', short: 'the typical cheque', dir: 'none', lead: '', trail: '',
+    kind: 'ratio',
     fmt: r => sgd(r.q), brief: r => sgd(r.q), val: r => r.q,
-    delta: (v, ref) => pctDelta(v, ref),
-    note: 'no better end \u2014 it tracks the size that trades as much as the price' },
+    note: 'no better end — it tracks the size that trades as much as the price' },
 ];
+const CLOSE = 0.15;   // below 15% apart, the buildings are level on that measure
 
-// How far apart the selected buildings are on a measure, on a scale comparable across measures.
-// A ratio measure uses max/min - 1; the percentage-point measure uses its range in points over a
-// 20pp reference, so 5pp of spread reads like 25% and the two kinds can be ranked together.
+// `fh` marks the ONE measure using 999 as a freehold sentinel. Without it these helpers treated
+// any value over 999 as freehold — every price and every floor area — and scored them zero spread,
+// which once reported a 2.2x price gap as "much the same".
 function spreadOf(mt, picked){
   const vals = picked.map(mt.val);
   const hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
   if (mt.kind === 'pp') return Math.abs(hi - lo) * 100 / 20;
-  if (mt.fh && hi >= 999) return 0;              // freehold in the set makes the ratio meaningless
+  if (mt.fh && hi >= 999) return 0;
   return lo > 0 ? (hi / lo) - 1 : 0;
 }
-
-// Plain-language size of the gap. "Nearly three times" beats "+195%" for a reader deciding
-// whether a difference is worth caring about.
 function gapPhrase(mt, picked){
   const vals = picked.map(mt.val);
   const hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
   if (mt.kind === 'pp') return Math.round(Math.abs(hi - lo) * 100) + ' points apart';
   if (mt.fh && hi >= 999) return 'one is freehold';
   const ratio = lo > 0 ? hi / lo : 0;
-  if (ratio >= 1.8) return 'about ' + (Math.round(ratio * 10) / 10) + ' times';
-  const pct = Math.round((ratio - 1) * 100);
-  return pct + '% apart';
+  if (ratio >= 1.8) return 'about ' + (Math.round(ratio * 10) / 10) + '× apart';
+  return Math.round((ratio - 1) * 100) + '% apart';
+}
+function rankOf(mt, picked, r){
+  if (mt.dir === 'none' || picked.length < 2 || spreadOf(mt, picked) < CLOSE) return 'flat';
+  const vals = picked.map(mt.val);
+  const ordered = [...new Set(vals)].sort((a, b) => mt.dir === 'more' ? b - a : a - b);
+  if (ordered.length < 2) return 'flat';
+  const idx = ordered.indexOf(mt.val(r));
+  return idx === 0 ? 'best' : idx === ordered.length - 1 ? 'worst' : 'mid';
 }
 
-// A value that rounds to zero gets no sign: "\u22120%" reads as a bug, not as "level".
-function signed(x){
-  const r = Math.abs(x).toFixed(0);
-  return r === '0' ? '0' : (x >= 0 ? '+' : '\u2212') + r;
-}
-function absDelta(v, ref, unit){
-  const d = v - ref;
-  if (Math.round(Math.abs(d)) === 0) return 'same';
-  return signed(d) + unit;
-}
-function pctDelta(v, ref){
-  if (!ref) return '';
-  const d = (v / ref - 1) * 100;
-  if (Math.abs(d) < 0.5) return 'same';
-  return signed(d) + '%';
-}
-function ppDelta(v, ref){
-  const d = v - ref;
-  if (Math.abs(d) < 0.5) return 'same';
-  return signed(d) + ' pp';
-}
-
-// The summary that answers the question a reader actually arrives with: what is different here,
-// and by how much? Seven rows of equal weight made them do that synthesis themselves. Measures are
-// ranked by how far apart the selected buildings sit, the biggest three are stated in words, and
-// everything the buildings agree on is collapsed to a single line — because "these are basically
-// the same on lease and price" is itself the finding most of the time.
-const CLOSE = 0.15;   // below 15% apart, the buildings are alike on that measure
-
+// ---- the summary: what differs, in sentences, with the figures annotated -------------------
 function renderLead(picked){
   if (picked.length < 2){ $('cmp-lead').innerHTML = ''; return; }
-  // Freehold against leasehold is a difference in KIND, not a percentage. The sentinel makes its
-  // ratio meaningless, so the measure is set aside and named — it must not fall into "much the
-  // same", which is what a zero spread would otherwise say about freehold versus 91 years.
+
+  // Freehold against leasehold is a difference in KIND. Its ratio is meaningless, so it is set
+  // aside and named rather than allowed to fall into "level", which would say 91 years and
+  // freehold are alike.
   const mixedTenure = METRICS.filter(mt => mt.fh).filter(mt => {
     const v = picked.map(mt.val);
     return Math.max.apply(null, v) >= 999 && Math.min.apply(null, v) < 999;
   });
   const ranked = METRICS.filter(mt => !mixedTenure.includes(mt))
     .map(mt => ({ mt, s: spreadOf(mt, picked) })).sort((a, b) => b.s - a.s);
-  // Every measure lands in exactly one of these three. An earlier version sliced the top three
-  // and filtered the rest on `s < CLOSE`, so a measure that differed but ranked fourth appeared in
-  // neither list and silently disappeared from the summary.
+  // Every measure lands in exactly one bucket; an earlier version let a measure that differed but
+  // ranked fourth fall into neither and vanish.
   const differing = ranked.filter(x => x.s >= CLOSE);
   const apart = differing.slice(0, 3);
   const alsoApart = differing.slice(3);
@@ -284,31 +244,33 @@ function renderLead(picked){
 
   let h = '';
   if (apart.length){
-    h += '<div class="cmp-leadh">Where they differ most</div><ul class="cmp-diffs">';
-    apart.forEach(({ mt, s }) => {
+    h += '<div class="cmp-leadh">Where they differ most</div>';
+    apart.forEach(({ mt }) => {
       const vals = picked.map(mt.val);
       const hiV = Math.max.apply(null, vals), loV = Math.min.apply(null, vals);
       const hi = picked[vals.indexOf(hiV)], lo = picked[vals.indexOf(loV)];
-      // On a ranked measure name the front-runner; on an unranked one just show the two ends, in
-      // the order the data happens to give, so the sentence carries no preference.
-      const front = mt.dir === 'more' ? hi : mt.dir === 'less' ? lo : null;
-      const other = front === hi ? lo : hi;
-      h += '<li><b>' + esc(mt.short) + '</b> &mdash; <span class="cmp-gap">' + gapPhrase(mt, picked)
-        + '</span><br>'
-        + (front
-            ? esc(front.p) + ' ' + esc(mt.brief(front)) + ' <em>(' + mt.lead + ')</em>, '
-              + esc(other.p) + ' ' + esc(mt.brief(other))
-            : esc(hi.p) + ' ' + esc(mt.brief(hi)) + ', ' + esc(lo.p) + ' ' + esc(mt.brief(lo)))
-        + '</li>';
+      // On a ranked measure the front-runner leads the sentence; on an unranked one the two ends
+      // are simply shown, untinted, so the sentence carries no preference.
+      const ranked2 = mt.dir !== 'none';
+      const front = !ranked2 ? hi : (mt.dir === 'more' ? hi : lo);
+      const back = front === hi ? lo : hi;
+      h += '<div class="cmp-p"><h5>' + esc(mt.label) + '<em>' + gapPhrase(mt, picked) + '</em></h5><p>'
+        + '<b>' + esc(front.p) + '</b> <span class="cmp-chip' + (ranked2 ? ' good' : '') + '">'
+        + esc(mt.brief(front)) + '</span>'
+        + (ranked2 ? ' <i class="cmp-ti good">▲ ' + mt.lead + '</i>' : '')
+        + ' <span class="cmp-vs">against</span> '
+        + '<b>' + esc(back.p) + '</b> <span class="cmp-chip' + (ranked2 ? ' bad' : '') + '">'
+        + esc(mt.brief(back)) + '</span>'
+        + (ranked2 ? ' <i class="cmp-ti bad">▼ ' + mt.trail + '</i>' : '')
+        + '</p></div>';
     });
-    h += '</ul>';
   }
   if (mixedTenure.length){
-    const fhNames = picked.filter(r => r.l === 'FH').map(r => esc(r.p));
-    const lhNames = picked.filter(r => r.l !== 'FH').map(r => esc(r.p) + ' ' + r.l + ' yrs');
-    h += '<p class="cmp-alike"><b>Different in kind, not degree</b> &mdash; '
-      + fhNames.join(' and ') + (fhNames.length > 1 ? ' are freehold' : ' is freehold')
-      + '; ' + lhNames.join(', ') + '. That is not a percentage gap and we do not state one.</p>';
+    const fh = picked.filter(r => r.l === 'FH').map(r => esc(r.p));
+    const lh = picked.filter(r => r.l !== 'FH').map(r => esc(r.p) + ' ' + r.l + ' yrs');
+    h += '<p class="cmp-alike"><b>Different in kind, not degree</b> — ' + fh.join(' and ')
+      + (fh.length > 1 ? ' are freehold' : ' is freehold') + '; ' + lh.join(', ')
+      + '. That is not a percentage gap and we do not state one.</p>';
   }
   if (alsoApart.length){
     h += '<p class="cmp-alike"><b>Also apart on</b> '
@@ -316,99 +278,65 @@ function renderLead(picked){
       + '.</p>';
   }
   if (alike.length){
-    h += '<p class="cmp-alike"><b>Much the same on</b> '
-      + alike.map(x => esc(x.mt.short)).join(' &middot; ')
-      + '. Where buildings agree, the measure is not the deciding one.</p>';
+    h += '<p class="cmp-alike"><b>Level on</b> ' + alike.map(x => esc(x.mt.short)).join(' &middot; ')
+      + ' — those will not decide it.</p>';
   }
   if (!apart.length){
     h = '<div class="cmp-leadh">These are close on everything measured here</div>'
       + '<p class="cmp-alike">No measure separates them by more than ' + Math.round(CLOSE * 100)
-      + '%. Whatever decides between them is not in the public record &mdash; it is the unit, the '
+      + '%. Whatever decides between them is not in the public record — it is the unit, the '
       + 'floor and the outlook.</p>';
   }
   $('cmp-lead').innerHTML = h;
 }
 
+// ---- the facts table ------------------------------------------------------------------------
 function render(){
   const picked = [0,1,2].map(i => BY[$('cmp-s'+i).value]).filter(Boolean);
   if (!picked.length){
     $('cmp-out').innerHTML = '<p class="cmp-empty">Choose at least one building to compare.</p>';
-    $('cmp-say').textContent = '';
+    $('cmp-lead').innerHTML = ''; $('cmp-say').textContent = '';
     return;
   }
   const cols = picked.length;
-  let h = '<div class="cmp-heads" style="--cols:' + cols + '">';
-  picked.forEach((r, i) => {
-    h += '<div class="cmp-head"><b>' + esc(r.p)
-      + '</b><span class="cmp-meta">' + r.d + ' \u00b7 ' + esc(r.n) + '</span></div>';
+  // The header carries the identity for the whole table, so it names the building, then its
+  // district and district name beneath — three bare names left a reader mapping them back to the
+  // prose with no hint the buildings sit in different districts.
+  let h = '<table class="cmp-t"><thead><tr><th class="cmp-corner">Measure</th>';
+  picked.forEach(r => {
+    h += '<th><b>' + esc(r.p) + '</b><span>' + r.d + '<em> · ' + esc(r.n) + '</em></span></th>';
   });
-  h += '</div>';
+  h += '</tr></thead><tbody>';
 
   METRICS.forEach(mt => {
-    const vals = picked.map(mt.val);
-    const max = Math.max.apply(null, vals);
-    const min = Math.min.apply(null, vals);
-    const ref = mt.dir === 'more' ? max : min;
-    // Rank on distinct values so ties share a state. A measure with no better end, or a single
-    // selection, has no ranking at all and every cell stays flat.
-    // GSMArena's differences mechanic, adopted from the survey: a row whose values are level is a
-    // row that cannot help you decide, so it recedes and is labelled as such. It also stops the
-    // tool over-marking — 92, 91 and 90 years was getting a green and a red for a two-year gap,
-    // which is exactly the false precision that makes a comparison feel untrustworthy.
     const level = cols > 1 && spreadOf(mt, picked) < CLOSE;
-    const ordered = mt.dir === 'none' || cols < 2 || level ? null
-      : [...new Set(vals)].sort((a, b) => mt.dir === 'more' ? b - a : a - b);
-    const rankOf = (v) => {
-      if (!ordered || ordered.length < 2) return 'flat';
-      const idx = ordered.indexOf(v);
-      return idx === 0 ? 'best' : idx === ordered.length - 1 ? 'worst' : 'mid';
-    };
-
-    h += '<div class="cmp-metric' + (level ? ' is-level' : '') + '"><div class="cmp-mlabel">'
-       + mt.label
-       + (level ? '<span class="cmp-tag cmp-tag-l">level &mdash; will not decide it</span>'
-                : mt.dir === 'none' ? '<span class="cmp-tag cmp-tag-n">no better end</span>' : '')
-       + '<em>' + mt.note + '</em></div>'
-       + '<div class="cmp-mrows" style="--cols:' + cols + '">';
-    picked.forEach((r, i) => {
-      const rank = rankOf(vals[i]);
-      const isRef = mt.dir === 'none' && vals[i] === ref;
-      const gap = cols > 1 && rank !== 'best'
-        ? (isRef ? 'lowest here' : mt.delta(vals[i], ref)) : '';
-      const mark = rank === 'best' ? '<span class="cmp-mark">\u25B2</span> ' + mt.lead
-                 : rank === 'worst' ? '<span class="cmp-mark">\u25BC</span> ' + mt.trail
-                 : '';
-      h += '<div class="cmp-cell is-' + rank + '" role="group" aria-label="'
-        + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r)
-              + (rank === 'best' ? ', ' + mt.lead : rank === 'worst' ? ', ' + mt.trail : '')
-              + (gap ? ', ' + gap : '') + '.') + '">'
-        + '<span class="cmp-v">' + esc(mt.fmt(r)) + '</span>'
-        + (mark ? '<span class="cmp-state">' + mark + '</span>' : '')
-        + (gap ? '<span class="cmp-delta">' + gap + '</span>' : '')
-        + '</div>';
+    const tag = level ? '<i>level</i>' : mt.dir === 'none' ? '<i>no better end</i>' : '';
+    h += '<tr class="' + (level ? 'lvl' : '') + '"><th>' + esc(mt.label) + tag
+       + '<span class="cmp-note">' + esc(mt.note) + '</span></th>';
+    picked.forEach(r => {
+      const rank = rankOf(mt, picked, r);
+      const mark = rank === 'best' ? ' <i>▲</i>' : rank === 'worst' ? ' <i>▼</i>' : '';
+      h += '<td class="is-' + rank + '" aria-label="' + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r)
+        + (rank === 'best' ? ', ' + mt.lead : rank === 'worst' ? ', ' + mt.trail : '')) + '">'
+        + esc(mt.fmt(r)) + mark + '</td>';
     });
-    h += '</div></div>';
+    h += '</tr>';
   });
+  h += '</tbody></table>';
   $('cmp-out').innerHTML = h;
-  // The legend is static markup now: it describes the ramp, not the selection, because colour no
-  // longer names anybody. Nothing to re-render.
   renderLead(picked);
 
   if (cols < 2){
     $('cmp-say').innerHTML = 'Add a second building and every row will show how far apart they are.';
     return;
   }
-  // Count leads only across the measures that HAVE a direction. This is a tally, not a score:
-  // it is never summed with the four that do not, and it is stated as such.
+  // A tally across the directional measures only. It is never summed with the four that have no
+  // better end, and it is stated as a tally rather than a score.
   const dirMetrics = METRICS.filter(m => m.dir !== 'none');
-  const tally = picked.map(r => dirMetrics.filter(mt => {
-    const vals = picked.map(mt.val);
-    const v = mt.val(r);
-    return mt.dir === 'more' ? v === Math.max.apply(null, vals) : v === Math.min.apply(null, vals);
-  }).length);
-  const parts = picked.map((r, i) => '<b>' + esc(r.p) + '</b> ' + tally[i]);
+  const tally = picked.map(r => dirMetrics.filter(mt => rankOf(mt, picked, r) === 'best').length);
   $('cmp-say').innerHTML = 'On the ' + dirMetrics.length + ' measures that have a better end '
-    + '(lease, liquidity, distance), the count runs ' + parts.join(' &middot; ') + '. '
+    + '(lease, liquidity, distance), the count runs '
+    + picked.map((r, i) => '<b>' + esc(r.p) + '</b> ' + tally[i]).join(' &middot; ') + '. '
     + 'The other four have no better end, so they are reported and not scored &mdash; and the three '
     + 'that do are not worth the same to everyone, which is why this tool will not add them up for '
     + 'you. What none of it can tell you is which unit, on which floor, facing what, and that is '
@@ -426,122 +354,87 @@ else init();
 
 <style is:global>
 .cmp{
-  /* Status tokens from the validated fixed scale — reserved meaning, never themed, and used
-     ONLY on the three measures that have a better end. good #0ca30c is 3.27:1 on white and
-     critical #d03b3b is 4.68:1, so both clear 3:1 as graphical marks; the washes behind them are
-     tints of the same hues, carrying dark body text at well over 4.5:1. Per the status rule these
-     never appear as colour alone: every marked cell also shows an arrow glyph and a word
-     ("longest", "furthest"), so the reading survives greyscale and colour blindness. */
+  /* Status tokens from the fixed scale — reserved meaning, never themed, and used ONLY on the
+     three measures that have a better end. good #0ca30c reads 3.27:1 on white and critical
+     #d03b3b 4.68:1, so both clear 3:1 as marks; the washes carry dark text at well over 4.5:1.
+     Per the status rule they never appear as colour alone: every marked cell also carries an
+     arrow, and the summary names the leader and trailer in words. */
   --cmp-good:#0ca30c; --cmp-good-wash:#EBF6EB;
   --cmp-bad:#d03b3b;  --cmp-bad-wash:#FBEDED;
---cmp-ink:var(--color-dark); --cmp-body:var(--color-body); --cmp-muted:var(--color-muted);
+  --cmp-ink:var(--color-dark); --cmp-body:var(--color-body); --cmp-muted:var(--color-muted);
   --cmp-rule:var(--color-border); --cmp-soft:#F0ECE2;
   --cmp-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
   margin:26px 0;padding:20px 22px 16px;background:#fff;
   border:1px solid var(--cmp-rule);border-radius:12px
 }
 /* No dark-scheme override: the card is pinned white in both schemes, so the ink follows the card
-   rather than the page, and the triple is the light-card variant for that reason. */
+   rather than the page. */
 .post-content .cmp-cap{margin:0 0 14px;padding:0;text-align:left}
 .post-content .cmp-cap h4{margin:0 0 3px;font-size:15.5px;font-weight:700;color:var(--cmp-ink);
   font-family:var(--font-body);letter-spacing:0}
 .post-content .cmp-cap p{margin:0;font-size:12.5px;color:var(--cmp-muted);line-height:1.5}
 
-.cmp-picks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-.cmp-pick label{display:flex;align-items:center;font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.05em;color:var(--cmp-muted);margin-bottom:4px}
+.cmp-picks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.cmp-pick label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--cmp-muted);margin-bottom:4px}
 .cmp select{width:100%;font-family:inherit;font-size:12.5px;color:var(--cmp-ink);background:#fff;
   border:1px solid var(--cmp-rule);border-radius:6px;padding:11px 8px;min-height:44px}
 .cmp select:focus-visible{outline:2px solid var(--cmp-ink);outline-offset:2px}
 
-.cmp-legend{display:flex;flex-wrap:wrap;gap:5px 16px;align-items:center;margin-bottom:12px;font-size:11.5px}
-.cmp-lg{display:flex;align-items:center;gap:6px;color:var(--cmp-body)}
-.cmp-key{width:10px;height:10px;border-radius:3px;display:inline-block;flex:0 0 auto;
-  margin-right:6px;vertical-align:-1px}
-.cmp-scale{display:flex;align-items:center;gap:5px;color:var(--cmp-body);
-  border-radius:5px;padding:2px 8px}
-.cmp-scale b{font-size:11px;line-height:1}
-.cmp-scale.is-best{background:var(--cmp-good-wash)} .cmp-scale.is-best b{color:var(--cmp-good)}
-.cmp-scale.is-worst{background:var(--cmp-bad-wash)} .cmp-scale.is-worst b{color:var(--cmp-bad)}
-.cmp-scale.is-flat{border:1px solid var(--cmp-rule);color:var(--cmp-muted)}
-.cmp-hint{color:var(--cmp-muted);flex-basis:100%}
-
-.cmp-heads,.cmp-mrows{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:10px}
-/* Sticky identity strip, taken from the Apple/Zillow pattern in the survey: with seven measures
-   the column labels rode off the top and a reader lost which building was which by the fourth
-   row. Riding along costs nothing and needs no script. */
-.cmp-heads{padding:8px 0;border-bottom:1px solid var(--cmp-rule);margin-bottom:10px;
-  position:sticky;top:64px;z-index:2;background:#fff}
-/* top:64px, not 0 — the site header is itself `sticky top-0` at h-16, so a strip pinned to 0
-   slides underneath it and is invisible exactly when it is needed. Measured, not assumed. */
-.cmp-head b{display:block;font-size:13px;color:var(--cmp-ink);line-height:1.25}
-.cmp-head .cmp-key{margin-right:5px}
-.cmp-meta{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--cmp-muted);margin-top:2px}
-
-.cmp-metric{margin-bottom:13px}
-.cmp-mlabel{font-size:11.5px;font-weight:600;color:var(--cmp-body);margin-bottom:5px}
-.cmp-mlabel em{display:block;font-style:normal;font-weight:400;font-size:11px;color:var(--cmp-muted)}
-.cmp-tag{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.01em;
-  border:1px solid var(--cmp-rule);border-radius:999px;padding:0 7px;color:var(--cmp-muted)}
-/* A level row recedes by losing its emphasis and its tint, never by losing contrast: values stay
-   fully legible because a reader may still want the number. */
-.cmp-metric.is-level .cmp-mlabel{color:var(--cmp-muted);font-weight:500}
-.cmp-metric.is-level .cmp-cell{background:transparent;border-left-color:var(--cmp-rule)}
-.cmp-metric.is-level .cmp-v{font-weight:500;color:var(--cmp-body)}
-/* The 21 bars are gone. Each was normalised to its own row, so none could be compared with any
-   other, and stacking seven identical triplets read as wallpaper rather than as information. A
-   tinted cell says the same thing in a third of the height and is legible at a glance. */
-.cmp-cell{min-width:0;padding:6px 8px;border-radius:6px;border-left:3px solid transparent}
-.cmp-cell.is-best{background:var(--cmp-good-wash);border-left-color:var(--cmp-good)}
-.cmp-cell.is-worst{background:var(--cmp-bad-wash);border-left-color:var(--cmp-bad)}
-.cmp-cell.is-mid,.cmp-cell.is-flat{background:var(--color-light)}
-.cmp-state{display:block;margin-top:2px;font-size:11px;font-weight:700;line-height:1.3}
-.cmp-cell.is-best .cmp-state{color:var(--cmp-good)}
-.cmp-cell.is-worst .cmp-state{color:var(--cmp-bad)}
-/* 11px, not 9: MOBILE_CHECK.md sets an iOS legibility floor of 11px and it applies to glyphs,
-   not just words. check_page.py did not catch this one — measuring the rendered page did. */
-.cmp-mark{font-size:11px;line-height:1;vertical-align:0}
-/* Emphasis, not valence. The leading value takes full ink and weight; the others step back one
-   notch. This is the "highlight one, recede the rest" move — it sharpens the hierarchy a reader
-   asked for without a green that would assert the leader is GOOD. Three of these seven measures
-   have a direction; none of them has a virtue. Longest lease is not better than nearest station,
-   and the tool's own copy says whether nearness beats quiet is the reader's to weigh. Status
-   colour is reserved for things that genuinely mean good or bad, and naming a winner among named
-   developments is the one thing this tool must never do. */
-.cmp-v{display:block;font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;font-size:12px;
-  font-weight:600;color:var(--cmp-ink);line-height:1.3}
-.cmp-delta{display:block;margin-top:2px;font-family:var(--cmp-mono);
-  font-variant-numeric:tabular-nums;font-size:11px;color:var(--cmp-muted)}
-/* Leadership is a word, never a colour: it must survive greyscale and colour blindness, and a
-   green "winner" would assert a preference the data cannot support.
-   Named .cmp-best, not .cmp-lead — .cmp-lead is the summary container, and sharing the name put
-   font-weight:700 on every line of the summary and a stray margin on this tag. */
-.cmp-best{color:var(--cmp-ink);font-weight:700}
-.post-content p.cmp-empty{margin:0;font-size:12.5px;color:var(--cmp-muted)}
-
-/* The summary carries the weight now, so it gets the emphasis the seven-row grid used to have. */
-.cmp-lead{margin-bottom:4px}
+/* ---- summary ---- */
 .cmp-leadh{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
-  color:var(--cmp-muted);margin-bottom:8px}
-.post-content ul.cmp-diffs{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:9px}
-.post-content ul.cmp-diffs li{margin:0;padding:0 0 9px;border-bottom:1px solid var(--color-light);
-  font-size:12.5px;line-height:1.5;color:var(--cmp-body)}
-.post-content ul.cmp-diffs li:last-child{border-bottom:0;padding-bottom:0}
-.post-content ul.cmp-diffs li::before{content:none;display:none}
-.cmp-diffs b{color:var(--cmp-ink);font-weight:700}
-.cmp-diffs em{font-style:normal;color:var(--cmp-muted)}
-.cmp-gap{font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;font-size:11.5px;
-  font-weight:700;color:var(--cmp-ink)}
-.post-content p.cmp-alike{margin:0 0 4px;font-size:12px;line-height:1.55;color:var(--cmp-muted)}
+  color:var(--cmp-muted);margin-bottom:9px}
+.cmp-p{margin-bottom:11px;padding-bottom:10px;border-bottom:1px solid var(--color-light)}
+.cmp-p:last-of-type{border-bottom:0}
+.post-content .cmp-p h5{margin:0 0 4px;font-size:12.5px;font-weight:700;color:var(--cmp-ink);
+  font-family:var(--font-body)}
+.post-content .cmp-p h5 em{font-style:normal;font-family:var(--cmp-mono);font-size:11.5px;
+  color:var(--cmp-muted);font-weight:400;margin-left:7px}
+.post-content .cmp-p p{margin:0;font-size:12.5px;line-height:1.85;color:var(--cmp-body)}
+.cmp-chip{font-family:var(--cmp-mono);font-size:12px;font-weight:700;padding:2px 7px;
+  border-radius:5px;background:var(--cmp-soft);color:var(--cmp-ink)}
+.cmp-chip.good{background:var(--cmp-good-wash);color:var(--cmp-good)}
+.cmp-chip.bad{background:var(--cmp-bad-wash);color:var(--cmp-bad)}
+.cmp-ti{font-style:normal;font-size:11px;font-weight:700}
+.cmp-ti.good{color:var(--cmp-good)} .cmp-ti.bad{color:var(--cmp-bad)}
+.cmp-vs{color:var(--cmp-muted)}
+.post-content p.cmp-alike{margin:0 0 5px;font-size:12px;line-height:1.55;color:var(--cmp-muted)}
 .cmp-alike b{color:var(--cmp-body)}
 
-.cmp-fold{margin:10px 0 0;border-top:1px solid var(--cmp-rule);padding-top:10px}
+/* ---- facts table ---- */
+.post-content table.cmp-t{width:100%;border-collapse:collapse;margin:0;font-size:12px}
+/* The header band and its 2px rule are what stop it reading as a first row of data. */
+.post-content .cmp-t thead th{background:var(--cmp-soft);color:var(--cmp-ink);text-align:right;
+  font-size:12px;font-weight:700;text-transform:none;letter-spacing:0;padding:9px 10px;
+  border-bottom:2px solid var(--cmp-ink);vertical-align:bottom}
+.post-content .cmp-t thead th b{display:block;font-size:12.5px;line-height:1.25}
+.post-content .cmp-t thead th span{display:block;font-size:11px;font-weight:400;
+  color:var(--cmp-muted);margin-top:1px}
+.post-content .cmp-t thead th.cmp-corner{text-align:left;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--cmp-muted)}
+.post-content .cmp-t tbody th{background:transparent;color:var(--cmp-body);text-align:left;
+  font-size:11.5px;font-weight:600;text-transform:none;letter-spacing:0;padding:7px 10px;
+  border-bottom:1px solid var(--color-light)}
+.post-content .cmp-t tbody th i{font-style:normal;font-size:11px;font-weight:400;
+  color:var(--cmp-muted);margin-left:5px}
+.cmp-note{display:block;font-size:11px;font-weight:400;color:var(--cmp-muted);line-height:1.4;
+  margin-top:1px}
+.post-content .cmp-t tr.lvl th,.post-content .cmp-t tr.lvl td{color:var(--cmp-muted)}
+.post-content .cmp-t td{padding:7px 10px;border-bottom:1px solid var(--color-light);text-align:right;
+  font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;color:var(--cmp-body);
+  white-space:nowrap;vertical-align:top}
+.post-content .cmp-t td i{font-style:normal;font-size:11px;margin-left:3px}
+.post-content .cmp-t td.is-best{background:var(--cmp-good-wash);color:var(--cmp-good);font-weight:700}
+.post-content .cmp-t td.is-worst{background:var(--cmp-bad-wash);color:var(--cmp-bad);font-weight:700}
+.post-content p.cmp-empty{margin:0;font-size:12.5px;color:var(--cmp-muted)}
+
+.cmp-fold{margin:14px 0 0;border-top:1px solid var(--cmp-rule);padding-top:6px}
 .post-content .cmp-fold>summary{cursor:pointer;list-style:none;font-size:11.5px;font-weight:600;
   color:var(--cmp-muted);padding:6px 0;min-height:44px;display:flex;align-items:center}
 .post-content .cmp-fold>summary::-webkit-details-marker{display:none}
 .post-content .cmp-fold>summary::before{content:'+';margin-right:7px;font-family:var(--cmp-mono);
   font-weight:700;color:var(--cmp-ink)}
-.post-content .cmp-fold[open]>summary::before{content:'–'}
+.post-content .cmp-fold[open]>summary::before{content:'\2013'}
 .post-content .cmp-fold>summary:hover{color:var(--cmp-ink)}
 .post-content .cmp-fold>summary:focus-visible{outline:2px solid var(--cmp-ink);outline-offset:2px}
 
@@ -553,14 +446,18 @@ else init();
 @media (max-width:640px){
   .cmp{padding:16px 14px 13px}
   .cmp-picks{grid-template-columns:1fr;gap:8px}
-  .cmp-hint{display:none}
-  .cmp-head b{font-size:12px}
-  /* Three columns leave ~102px each on a phone, which truncated the longest value
-     ("388 m · Queenstown") and ate the station name. Values wrap instead of ellipsing;
-     uneven cell heights are harmless because each measure is its own block. */
-  .cmp-v{font-size:11px;white-space:normal;line-height:1.3}
-  .cmp-mlabel{font-size:11px}
-  .cmp-mlabel em{font-size:11px}
-  .cmp-delta{font-size:11px}
+  .post-content .cmp-p p{line-height:2}
+  /* Three condo names plus a measure column will not fit 390px on natural widths — measured at
+     567px against a 328px container. Fixed layout instead, so names wrap rather than the table
+     scrolling sideways; the descriptive district name is desktop-only, the code carries context. */
+  .post-content .cmp-t{table-layout:fixed;width:100%}
+  .post-content .cmp-t thead th span em{display:none}
+  .post-content .cmp-t thead th,.post-content .cmp-t td,.post-content .cmp-t tbody th{padding:7px 5px}
+  .post-content .cmp-t thead th{width:23%}
+  .post-content .cmp-t thead th.cmp-corner{width:31%}
+  .post-content .cmp-t thead th b{white-space:normal;overflow-wrap:anywhere}
+  .post-content .cmp-t tbody th i{display:block;margin-left:0}
+  .post-content .cmp-t td{white-space:normal;overflow-wrap:anywhere}
+  .cmp-note{display:none}   /* the per-measure note is desktop-only; the tag carries the gist */
 }
 </style>
