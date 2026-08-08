@@ -91,10 +91,13 @@ const BY_D = DISTRICTS.map((d) => ({
 // project wants its own neighbourhood, the standalone page wants no local bias — but a name that
 // is not in ROWS is dropped rather than silently rendering an empty column, and the data's own
 // answer (most traded) fills any gap.
-interface Props { defaults?: string[] }
+interface Props { defaults?: string[]; reference?: boolean }
 const BY_VOLUME = [...ROWS].sort((a, b) => b.v - a.v).map((r) => r.p);
+const REFON = Astro.props.reference === true;
 const asked = (Astro.props.defaults ?? []).filter((name) => ROWS.some((r) => r.p === name));
 const DEFAULTS = [...asked, ...BY_VOLUME.filter((p) => !asked.includes(p))].slice(0, 3);
+
+const REF = __REF__;
 
 const SEGS = [{ k: 'OCR', label: 'Outside central' }, { k: 'RCR', label: 'Rest of central' },
               { k: 'CCR', label: 'Core central' }];

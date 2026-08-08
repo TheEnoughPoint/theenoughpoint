@@ -52,7 +52,7 @@ BODY = r'''
   there will not be one</b>: the weights belong to whoever is buying.</p>
 </figure>
 
-<script is:inline define:vars={{ ROWS }}>
+<script is:inline define:vars={{ ROWS, REF, REFON }}>
 (function(){
 const $ = id => document.getElementById(id);
 const sgd = v => 'S$' + Math.round(v).toLocaleString('en-SG');
@@ -161,11 +161,11 @@ function renderLead(picked){
       h += '<div class="cmp-p"><h5>' + esc(mt.label) + '<em>' + gapPhrase(mt, picked) + '</em></h5><p>'
         + '<b>' + esc(front.p) + '</b> <span class="cmp-chip' + (ranked2 ? ' good' : '') + '">'
         + esc(mt.brief(front)) + '</span>'
-        + (ranked2 ? ' <i class="cmp-ti good">▲ ' + mt.lead + '</i>' : '')
+        + (ranked2 ? ' <i class="cmp-ti good">' + mt.lead + '</i>' : '')
         + ' <span class="cmp-vs">against</span> '
         + '<b>' + esc(back.p) + '</b> <span class="cmp-chip' + (ranked2 ? ' bad' : '') + '">'
         + esc(mt.brief(back)) + '</span>'
-        + (ranked2 ? ' <i class="cmp-ti bad">▼ ' + mt.trail + '</i>' : '')
+        + (ranked2 ? ' <i class="cmp-ti bad">' + mt.trail + '</i>' : '')
         + '</p></div>';
     });
   }
@@ -203,13 +203,26 @@ function render(){
     return;
   }
   const cols = picked.length;
+  // The reference column is only meaningful beside buildings in its own district. On the article
+  // all three defaults are D20 so it always shows; on the standalone tool it appears when you pick
+  // something in D20 and stays out of the way otherwise, rather than floating a named project next
+  // to three unrelated districts.
+  const showRef = REFON && picked.some(r => r.d === REF.d);
   // The header carries the identity for the whole table, so it names the building, then its
   // district and district name beneath — three bare names left a reader mapping them back to the
   // prose with no hint the buildings sit in different districts.
-  let h = '<table class="cmp-t"><thead><tr><th class="cmp-corner">Measure</th>';
+  let h = '<table class="cmp-t' + (showRef ? ' has-ref' : '') + '"><thead><tr>'
+        + '<th class="cmp-corner">Measure</th>';
   picked.forEach(r => {
     h += '<th><b>' + esc(r.p) + '</b><span>' + r.d + '<em> · ' + esc(r.n) + '</em></span></th>';
   });
+  // The estimated column sits OUTSIDE `picked`, which is what makes it safe. Everything that
+  // ranks, marks or measures a gap reads `picked`, so an assumption can never be scored against
+  // transacted prices, and can never be named as leading or trailing anything.
+  if (showRef){
+    h += '<th class="cmp-est"><b>' + esc(REF.p) + '</b><span class="cmp-esttag">estimated</span>'
+       + '<span>' + REF.d + '<em> · ' + esc(REF.n) + '</em></span></th>';
+  }
   h += '</tr></thead><tbody>';
 
   // Discriminating measures first, level ones last — see orderFor() for why.
@@ -221,19 +234,31 @@ function render(){
     // numbers the reader came for. It is one tap away now; the short tag stays visible because it
     // is the compressed version of the same point.
     const nid = 'cmp-n' + i;
-    h += '<tr class="' + (level ? 'lvl' : '') + '"><th>' + esc(mt.label) + tag
-       + '<button type="button" class="cmp-q" aria-expanded="false" aria-controls="' + nid
-       + '" aria-label="Explain ' + esc(mt.label) + '">?</button>'
-       + '<span class="cmp-note" id="' + nid + '" hidden>' + esc(mt.note) + '</span></th>';
+    h += '<tr class="' + (level ? 'lvl' : '') + '"><th>'
+       + '<span class="cmp-ml">' + esc(mt.label) + '</span>'
+       + '<span class="cmp-mmeta">' + tag
+       + '<button type="button" class="cmp-q" aria-describedby="' + nid
+       + '" aria-expanded="false" aria-label="What ' + esc(mt.label) + ' means">?</button></span>'
+       + '<span class="cmp-note" id="' + nid + '" role="tooltip" hidden>' + esc(mt.note) + '</span></th>';
     picked.forEach(r => {
       const rank = rankOf(mt, picked, r);
-      const mark = rank === 'best' ? ' <i>▲</i>' : rank === 'worst' ? ' <i>▼</i>' : '';
+      // No arrow. Up and down mean movement to almost every reader, and this table has a real
+      // "Price change" row where that is exactly what they would mean. Here the mark is rank, so
+      // it is a word — which also survives greyscale and colour blindness without a glyph.
+      const mark = rank === 'best' ? ' <i>' + mt.lead + '</i>'
+                 : rank === 'worst' ? ' <i>' + mt.trail + '</i>' : '';
       h += '<td class="is-' + rank + '" aria-label="' + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r)
         + (mt.sub ? ', ' + mt.sub(r) : '')
         + (rank === 'best' ? ', ' + mt.lead : rank === 'worst' ? ', ' + mt.trail : '')) + '">'
         + esc(mt.fmt(r)) + mark
         + (mt.sub ? '<span class="cmp-sub">' + esc(mt.sub(r)) + '</span>' : '') + '</td>';
     });
+    if (showRef){
+      const c = REF.cells[mt.label] || ['—', ''];
+      h += '<td class="cmp-est" aria-label="' + esc(REF.p + ', estimated, ' + mt.label + ': ' + c[0])
+         + '">' + esc(c[0])
+         + (c[1] ? '<span class="cmp-sub">' + esc(c[1]) + '</span>' : '') + '</td>';
+    }
     h += '</tr>';
   });
   h += '</tbody></table>';
@@ -241,7 +266,10 @@ function render(){
   renderLead(picked);
   const dirN = METRICS.filter(m => m.dir !== 'none').length;
   $('cmp-count').innerHTML = METRICS.length + ' measures. <b>' + dirN + '</b> of them have a better '
-    + 'end and are marked with it; the other ' + (METRICS.length - dirN) + ' do not, and say so.';
+    + 'end and are marked with it; the other ' + (METRICS.length - dirN) + ' do not, and say so.'
+    + (showRef ? ' <b>' + esc(REF.p) + '</b> is shown alongside for reference and is not scored on '
+             + 'any of them &mdash; it has no transaction record, because nothing has been resold.'
+             : '');
 
   if (cols < 2){
     $('cmp-say').innerHTML = 'Add a second building and every row will show how far apart they are.';
@@ -265,15 +293,53 @@ function render(){
 
 function init(){
   [0,1,2].forEach(i => $('cmp-s'+i).addEventListener('change', render));
-  // Delegated: the table is rebuilt on every change, so a handler bound to the buttons would be
+  // Delegated: the table is rebuilt on every change, so handlers bound to the buttons would be
   // thrown away with them.
-  $('cmp-out').addEventListener('click', e => {
+  //
+  // Hover alone would be unusable on a phone and click alone makes a desktop reader work for a
+  // one-line definition, so it is both: hovering or focusing reveals, clicking pins it open, and
+  // Escape or a click elsewhere dismisses. The note is an overlay, not a block in the flow — as an
+  // expanding block it shoved every row below it down the page on each open.
+  const noteOf = b => document.getElementById(b.getAttribute('aria-describedby'));
+  const show = (b, pin) => {
+    const n = noteOf(b);
+    if (!n) return;
+    n.hidden = false;
+    b.setAttribute('aria-expanded', 'true');
+    if (pin) b.dataset.pinned = '1';
+  };
+  const hide = (b, force) => {
+    const n = noteOf(b);
+    if (!n || (b.dataset.pinned && !force)) return;
+    n.hidden = true;
+    b.setAttribute('aria-expanded', 'false');
+    delete b.dataset.pinned;
+  };
+  const out = $('cmp-out');
+  out.addEventListener('pointerover', e => {
+    const b = e.target.closest('.cmp-q');
+    if (b && e.pointerType === 'mouse') show(b, false);
+  });
+  out.addEventListener('pointerout', e => {
+    const b = e.target.closest('.cmp-q');
+    if (b && e.pointerType === 'mouse') hide(b, false);
+  });
+  out.addEventListener('focusin', e => { const b = e.target.closest('.cmp-q'); if (b) show(b, false); });
+  out.addEventListener('focusout', e => { const b = e.target.closest('.cmp-q'); if (b) hide(b, false); });
+  out.addEventListener('click', e => {
     const b = e.target.closest('.cmp-q');
     if (!b) return;
-    const note = document.getElementById(b.getAttribute('aria-controls'));
-    const open = b.getAttribute('aria-expanded') === 'true';
-    b.setAttribute('aria-expanded', String(!open));
-    note.hidden = open;
+    e.preventDefault();
+    const open = b.dataset.pinned === '1';
+    out.querySelectorAll('.cmp-q[data-pinned]').forEach(x => hide(x, true));
+    if (!open) show(b, true);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('.cmp-q')) return;
+    out.querySelectorAll('.cmp-q[data-pinned]').forEach(x => hide(x, true));
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') out.querySelectorAll('.cmp-q[data-pinned]').forEach(x => hide(x, true));
   });
   render();
 }
@@ -346,13 +412,22 @@ else init();
   font-size:12.5px;font-weight:600;text-transform:none;letter-spacing:0;padding:8px 10px;
   border-bottom:1px solid var(--color-light);line-height:1.35}
 .post-content .cmp-t tbody th i{font-style:normal;font-size:11.5px;font-weight:400;
-  color:var(--cmp-muted);margin-left:5px}
-.cmp-note{display:block;font-size:11.5px;font-weight:400;color:var(--cmp-body);line-height:1.5;
-  margin-top:4px;padding:6px 8px;background:var(--cmp-soft);border-radius:5px}
+  color:var(--cmp-muted);margin-left:0}
+/* An overlay, not a block in the flow: as an expanding block it pushed every row below it down
+   the page each time one opened. */
+.cmp-note{position:absolute;z-index:6;left:8px;top:calc(100% - 4px);width:max-content;
+  max-width:min(280px,74vw);font-size:11.5px;font-weight:400;color:var(--cmp-body);line-height:1.5;
+  padding:8px 10px;background:#fff;border:1px solid var(--cmp-rule);border-radius:6px;
+  box-shadow:0 6px 18px rgba(11,29,51,.14);text-align:left;white-space:normal}
 .cmp-note[hidden]{display:none}
+/* The label sits on its own line and the tag and ? on a second, so a narrow column no longer
+   interleaves "Size that actually trades" with "no better end" across four ragged lines. */
+.cmp-ml{display:block}
+.cmp-mmeta{display:flex;flex-wrap:wrap;align-items:center;gap:3px 6px;margin-top:3px}
+.post-content .cmp-t tbody th{position:relative}
 /* A 44px tap target around a 17px glyph — the button is the hit area, the circle is the mark. */
 .cmp-q{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
-  margin-left:6px;padding:0;border:1px solid var(--cmp-rule);border-radius:50%;background:#fff;
+  flex:0 0 auto;margin-left:0;padding:0;border:1px solid var(--cmp-rule);border-radius:50%;background:#fff;
   color:var(--cmp-muted);font-size:11px;font-weight:700;font-family:inherit;line-height:1;
   cursor:pointer;position:relative;vertical-align:-3px}
 .cmp-q::after{content:'';position:absolute;top:-14px;right:-14px;bottom:-14px;left:-14px}
@@ -365,11 +440,26 @@ else init();
 .post-content .cmp-t td{padding:8px 10px;border-bottom:1px solid var(--color-light);text-align:right;
   font-family:var(--font-body);font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;
   color:var(--cmp-ink);white-space:nowrap;vertical-align:top;line-height:1.35}
-.post-content .cmp-t td i{font-style:normal;font-size:11px;margin-left:3px}
+.post-content .cmp-t td i{display:block;font-style:normal;font-size:11px;font-weight:700;
+  margin-top:2px;letter-spacing:.01em}
 /* The within-building range sits under its median, in muted type, so the median never reads as
    the whole story about a price. */
 .cmp-sub{display:block;font-family:var(--font-body);font-size:11.5px;font-weight:400;
   color:var(--cmp-muted);margin-top:3px;white-space:nowrap;line-height:1.4}
+/* Estimated column: visually set apart, and never eligible for is-best / is-worst. The rule down
+   its left edge is the boundary between what was transacted and what was assumed. */
+.post-content .cmp-t th.cmp-est,.post-content .cmp-t td.cmp-est{border-left:2px solid var(--cmp-rule);
+  background:repeating-linear-gradient(135deg,transparent,transparent 5px,rgba(11,29,51,.028) 5px,
+  rgba(11,29,51,.028) 10px);color:var(--cmp-muted);font-weight:400}
+.post-content .cmp-t thead th.cmp-est b{color:var(--cmp-muted)}
+.cmp-esttag{display:block;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--cmp-muted);overflow-wrap:anywhere}
+.post-content .cmp-t.has-ref{table-layout:fixed}
+.post-content .cmp-t.has-ref td,.post-content .cmp-t.has-ref .cmp-sub{white-space:normal}
+.post-content .cmp-t.has-ref thead th{width:20%}
+.post-content .cmp-t.has-ref thead th.cmp-corner{width:17%}
+.post-content .cmp-t.has-ref thead th.cmp-est{width:23%}
+.post-content .cmp-t td,.post-content .cmp-t tbody th{overflow-wrap:break-word}
 .post-content .cmp-t td.is-best{background:var(--cmp-good-wash);color:var(--cmp-good);font-weight:700}
 .post-content .cmp-t td.is-worst{background:var(--cmp-bad-wash);color:var(--cmp-bad);font-weight:700}
 .post-content p.cmp-empty{margin:0;font-size:12.5px;color:var(--cmp-muted)}
@@ -400,6 +490,10 @@ else init();
   .post-content .cmp-t thead th span em{display:none}
   .post-content .cmp-t thead th,.post-content .cmp-t td,.post-content .cmp-t tbody th{padding:7px 5px}
   .post-content .cmp-t thead th{width:23%}
+  .cmp-esttag{letter-spacing:.02em}
+  .post-content .cmp-t.has-ref thead th{width:17%}
+  .post-content .cmp-t.has-ref thead th.cmp-corner{width:28%}
+  .post-content .cmp-t.has-ref thead th.cmp-est{width:21%}
   .post-content .cmp-t thead th.cmp-corner{width:31%}
   .post-content .cmp-t thead th b{white-space:normal;overflow-wrap:anywhere}
   .post-content .cmp-t tbody th i{display:block;margin-left:0}
