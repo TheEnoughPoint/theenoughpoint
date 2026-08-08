@@ -395,6 +395,14 @@ else init();
   .post-content .cmp-t thead th b{white-space:normal;overflow-wrap:anywhere}
   .post-content .cmp-t tbody th i{display:block;margin-left:0}
   .post-content .cmp-t td{white-space:normal;overflow-wrap:anywhere}
+  /* The price range sub-line is nowrap on desktop; at 390px that alone pushed the fixed-layout
+     table 265px wider than its container. It wraps on a phone. Measured, not assumed. */
+  .cmp-sub{white-space:normal}
+  /* The theme sets white-space:nowrap on every .post-content table below 640px, which no
+     overflow-wrap can beat — that is why "To the nearest MRT" plus its ? button overran its cell.
+     Reset it here, and hold display:table so the fixed layout above is not turned into a block. */
+  .post-content .cmp-t{display:table;white-space:normal}
+  .post-content .cmp-t tbody th{overflow-wrap:anywhere;white-space:normal}
 }
 </style>
 '''

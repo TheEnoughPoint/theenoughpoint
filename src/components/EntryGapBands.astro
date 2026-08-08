@@ -14,6 +14,9 @@
 // building, which the caption says — and colouring the largest band red would assert a
 // judgement the piece explicitly refuses to make.
 //
+// DATA as at live.json fetched 2026-08-08T12:13:55Z (all feeds clean; nothing carried forward).
+// These four values are hand-maintained and are covered by scripts/check_figures.py, which fails
+// the build if they drift from the feed — that check is how the 8 Aug refresh was caught.
 // BANDS are emitted from data/live.json in the sg-property-decision repo (URA resale
 // transactions, District 20, twelve months to Aug 2026, size-band percentiles). Bands
 // mirror the pipeline exactly: <600, 600-850, 850-1150, >=1150 sq ft. Every gap is
@@ -25,10 +28,10 @@ const PRICES = [2600, 2900, 3100];
 
 interface Band { label: string; psf: number }
 const BANDS: Band[] = [
-  { label: 'Under 600 sq ft', psf: 1966 },
-  { label: '600 – 850 sq ft', psf: 2205 },
+  { label: 'Under 600 sq ft', psf: 1965 },
+  { label: '600 – 850 sq ft', psf: 2199 },
   { label: '850 – 1,150 sq ft', psf: 2042 },
-  { label: '1,150 sq ft and over', psf: 1763 },
+  { label: '1,150 sq ft and over', psf: 1739 },
 ];
 
 const gap = (price: number, psf: number) => (price / psf - 1) * 100;

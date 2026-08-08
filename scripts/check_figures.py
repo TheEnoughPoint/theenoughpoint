@@ -16,6 +16,7 @@ introduced rather than a year later. Run it after a build.
 Run: python scripts/check_figures.py   (exit 1 on any mismatch)
 """
 import io
+import re
 import os
 import sys
 
@@ -70,7 +71,14 @@ def main():
         print('build the site first — not found:\n  ' + '\n  '.join(missing))
         return 2
 
-    text = ''.join(io.open(p, encoding='utf-8').read() for p in paths)
+    # Strip <script> blocks before searching. CondoCompare embeds 318 projects as JSON, so a raw
+    # substring search over the HTML matches almost any four-digit number and passes everything —
+    # this check reported "ok" on five stale figures before that was fixed. Only what a reader can
+    # actually read counts.
+    text = ''
+    for p in paths:
+        html = io.open(p, encoding='utf-8').read()
+        text += re.sub(r'<script\b[^>]*>.*?</script>', ' ', html, flags=re.S | re.I)
 
     print('checking the built pages: ' + ', '.join(PAGES))
     print(f'  against {provenance}\n')
