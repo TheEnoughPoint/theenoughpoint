@@ -65,9 +65,9 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   </figcaption>
 
   <div class="sm-legend">
+    <span class="sm-lg"><i class="sm-key sm-key-old"></i>what you can buy here</span>
+    <span class="sm-lg"><i class="sm-key sm-key-over"></i>bigger than any unit here</span>
     <span class="sm-lg"><i class="sm-key sm-key-new"></i>not built yet</span>
-    <span class="sm-lg"><i class="sm-key sm-key-old"></i>floor area you could buy</span>
-    <span class="sm-lg"><i class="sm-key sm-key-over"></i>more than this building has ever sold</span>
   </div>
 
   <div class="sm-head">
@@ -107,7 +107,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
               style={`left:${w(r.cap)}%;width:${w(r.sq - r.cap)}%`} aria-hidden="true"></span>
           )}
         </span>
-        <span class="sm-val">{n(r.sq)}{r.over && <i class="sm-cap-note">max {n(r.cap)}</i>}</span>
+        <span class="sm-val">{n(r.sq)}{r.over && <i class="sm-cap-note">biggest {n(r.cap)}</i>}</span>
         <span class="sm-pct">+{r.pct}%</span>
       </li>
     ))}
@@ -116,8 +116,8 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   <p class="sm-foot">The same {money(BUDGET)} is <b>{n(BASE)} square feet</b> in a building that does
   not exist yet. In the {FITS.length} buildings that can actually offer what it buys, it is{' '}
   <b>{n(MIN_PCT)}% to {n(MAX_PCT)}% more floor area</b>, available next month. On the other{' '}
-  {OVER.length} the budget runs past the largest unit ever sold there &mdash; the hatched stretch
-  &mdash; which is its own answer: you cannot buy space a building does not have. That extra area is
+  {OVER.length} it buys more square feet than the biggest unit they have &mdash; the ghosted stretch
+  is space that is simply not on offer there, whatever your budget. That extra area is
   the entry gap made physical, and it is <b>not</b> money lost: part of it is what a new building, a
   fresh 99-year lease and no near-term repair bill genuinely cost. The lease column is where the
   biggest jumps show their price &mdash; the row offering {n(Math.max(...ROWS.map((r) => r.pct)))}%
@@ -156,8 +156,8 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm-key-new{border:1.5px dashed var(--sm-fill);background:
   repeating-linear-gradient(45deg,transparent,transparent 3px,var(--sm-ghost) 3px,var(--sm-ghost) 6px)}
 .sm-key-old{background:var(--sm-fill)}
-.sm-key-over{background:repeating-linear-gradient(45deg,var(--sm-fill),var(--sm-fill) 2px,
-  transparent 2px,transparent 5px);border:1px solid var(--sm-fill)}
+.sm-key-over{background:repeating-linear-gradient(45deg,transparent,transparent 3px,
+  var(--sm-ghost) 3px,var(--sm-ghost) 6px);border:1px dashed var(--sm-muted)}
 
 /* An explicit header row: the bars had no column labels at all, so a reader met three numbers
    with no idea which was which until they reached the footnote. */
@@ -185,9 +185,12 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 .sm-bar-old.is-capped{border-radius:3px 0 0 3px}
 /* The stretch past the largest unit the building has ever sold. Same ink, hatched, so it reads as
    "this part is not available" rather than as a different kind of thing. */
-.sm-bar-over{background:repeating-linear-gradient(45deg,var(--sm-fill),var(--sm-fill) 2px,
-  transparent 2px,transparent 5px);border:1px solid var(--sm-fill);border-left:0;
-  border-radius:0 3px 3px 0;opacity:.85}
+/* Ghost fill and a dashed edge, deliberately NOT the solid bar's ink: this stretch is space the
+   building does not have, so it has to read as absent rather than as more bar. Sharing the fill
+   made it look like part of what you could buy, which is the opposite of the point. */
+.sm-bar-over{background:repeating-linear-gradient(45deg,transparent,transparent 3px,
+  var(--sm-ghost) 3px,var(--sm-ghost) 6px);border:1px dashed var(--sm-muted);border-left:0;
+  border-radius:0 3px 3px 0}
 .sm-bar-new{background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--sm-ghost) 3px,var(--sm-ghost) 6px);
   border:1.5px dashed var(--sm-fill);box-sizing:border-box}
 /* The baseline repeated behind every bar, so the overhang past it is visible on each row. */
