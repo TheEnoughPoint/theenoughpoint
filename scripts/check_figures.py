@@ -46,7 +46,20 @@ def build_checks(data):
              and int(r['lease']) >= 85 and r['vol_12m'] >= 10]
     comps_median = sorted(r['median_psf'] for r in comps)[len(comps) // 2]
 
-    return [
+    # The break-even grid. Every one of these fifteen cells is a function of comps_median, so a
+    # feed refresh moves all of them at once while the typed table sits still. This is the drift the
+    # module exists to catch, and the table is the part of the article a reader is most likely to
+    # screenshot and act on.
+    ROUND_TRIP = 1.06
+    grid = []
+    for entry in (2600, 2900, 3100):
+        need = entry * ROUND_TRIP / comps_median
+        grid.append((f'break-even: {entry} psf, total rise', f'+{round((need - 1) * 100)}%'))
+        for yrs in (7, 9, 12, 15):
+            rate = (need ** (1 / yrs) - 1) * 100
+            grid.append((f'break-even: {entry} psf over {yrs}y', f'{rate:.1f}%'))
+
+    return grid + [
         ('D20 resale median $psf', fmt(d20['median_psf'])),
         ('D20 twelve-month resale count', fmt(d20['vol_12m'])),
         ('size band <600 median', fmt(bands[0][2])),
