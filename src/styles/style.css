@@ -508,3 +508,23 @@ h4.text-heading, h5.text-heading, h6.text-heading {
 @media (prefers-reduced-motion: reduce) {
     .post-content .notes-fold > summary::before { transition: none; }
 }
+
+/* Lead summary. The article runs long by design — the method is the point — but a buyer
+   deciding in three weeks should not have to reach 67% of the scroll for the number that
+   decides it. This carries the conclusions; everything after it is the working. */
+.post-content .tldr {
+  margin: 26px 0 30px; padding: 18px 20px 16px;
+  background: #f6f8fb; border-left: 3px solid #2a78d6; border-radius: 4px;
+}
+.post-content .tldr .tldr-h {
+  margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: #5b6b7f;
+}
+.post-content .tldr ul { margin: 0; padding-left: 18px; }
+.post-content .tldr li { margin: 0 0 9px; font-size: 15px; line-height: 1.55; }
+.post-content .tldr li:last-child { margin-bottom: 0; }
+.post-content .tldr li::before { content: none; }
+@media (max-width: 640px) {
+  .post-content .tldr { padding: 15px 15px 13px; }
+  .post-content .tldr li { font-size: 14.5px; }
+}
