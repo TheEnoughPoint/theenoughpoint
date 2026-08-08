@@ -33,7 +33,8 @@
 //
 // The states are pattern, never a second hue:
 //   solid bar      floor area the budget buys there
-//   upright mark   the p90 of sizes that actually trade there. Replaced a hatched bar, which was
+//   upright mark   the p90 of sizes that actually trade there, named as such in the legend:
+//                  "biggest size that usually trades" reads as a maximum, which p90 is not. Replaced a hatched bar, which was
 //                  the loudest mark in the chart while carrying a footnote, lowered the apparent
 //                  ink of the longest bars so the encoding fought itself, and could not show HOW
 //                  far past the ceiling a bar ran, because a texture has no position.
@@ -86,7 +87,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 
   <div class="sm-legend">
     <span class="sm-lg"><i class="sm-key sm-key-old"></i>floor area {money(BUDGET)} buys there</span>
-    <span class="sm-lg"><i class="sm-key sm-key-p90"></i>biggest size that usually trades there</span>
+    <span class="sm-lg"><i class="sm-key sm-key-p90"></i>nine in ten sales are smaller (90th percentile)</span>
     <span class="sm-lg"><i class="sm-key sm-key-new"></i>not built yet</span>
   </div>
 
@@ -141,8 +142,9 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   median price per square foot. Nothing is capped: if the money reaches a bigger home there, the bar
   shows it.</p>
 
-  <p class="sm-foot sm-foot-2">The upright mark on each bar is the biggest size that usually trades
-  in that building &mdash; nine in ten of its resales were smaller. On {ABOVE.length} of them the bar
+  <p class="sm-foot sm-foot-2">The upright mark on each bar is the 90th percentile of sizes that
+  actually trade in that building &mdash; nine in ten of its resales were smaller than that. It is not
+  the largest unit there; it is where the top tenth begins. On {ABOVE.length} of them the bar
   runs <b>past</b> that mark, and how far past is the whole point &mdash; at <b>{WIDEST.p}</b> the
   budget implies {n(WIDEST.sq)} sq ft against a usual ceiling of {n(WIDEST.p90)}, while{' '}
   {NARROW.length > 0 ? <>at <b>{NARROW[0].p}</b> it clears the mark by {n(NARROW[0].sq - NARROW[0].p90)} sq

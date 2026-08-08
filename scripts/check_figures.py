@@ -88,10 +88,17 @@ def main():
     # substring search over the HTML matches almost any four-digit number and passes everything —
     # this check reported "ok" on five stale figures before that was fixed. Only what a reader can
     # actually read counts.
+    #
+    # Then strip the markup itself, for the same reason from the other direction: a figure is often
+    # split across tags for typography — the break-even table sets its "%" in a span so it can be
+    # sized down — and searching raw HTML would report a number missing that a reader can see
+    # perfectly well. Compare against rendered text, which is the only thing the reader gets.
     text = ''
     for p in paths:
         html = io.open(p, encoding='utf-8').read()
-        text += re.sub(r'<script\b[^>]*>.*?</script>', ' ', html, flags=re.S | re.I)
+        html = re.sub(r'<(script|style)\b[^>]*>.*?</\1>', ' ', html, flags=re.S | re.I)
+        html = re.sub(r'<[^>]+>', '', html)
+        text += re.sub(r'[ \t\r\n]+', ' ', html)
 
     print('checking the built pages: ' + ', '.join(PAGES))
     print(f'  against {provenance}\n')
