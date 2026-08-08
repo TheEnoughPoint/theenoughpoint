@@ -382,12 +382,13 @@ function render(){
       const d = cols > 1 && !lead
         ? (isRef ? (cols > 1 ? 'lowest here' : '') : mt.delta(vals[i], ref))
         : '';
-      h += '<div class="cmp-cell"><span class="cmp-v">' + esc(mt.fmt(r)) + '</span>'
+      h += '<div class="cmp-cell' + (lead ? ' is-lead' : '') + '"><span class="cmp-v">'
+        + esc(mt.fmt(r)) + '</span>'
         + '<span class="cmp-track"><span class="cmp-bar ' + stepOf(vals[i]) + '" style="width:'
         + Math.max(2, (vals[i] / scale) * 100) + '%" role="img" aria-label="'
         + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r) + (lead ? ', ' + mt.lead : '')
               + (d ? ', ' + d + ' ' + refLabel : '') + '.') + '"></span></span>'
-        + (lead ? '<span class="cmp-delta cmp-lead">\u25B2 ' + mt.lead + '</span>'
+        + (lead ? '<span class="cmp-delta cmp-best">\u25B2 ' + mt.lead + '</span>'
                 : d ? '<span class="cmp-delta">' + d + '</span>' : '<span class="cmp-delta"></span>')
         + '</div>';
     });
@@ -478,8 +479,16 @@ else init();
 .cmp-tag{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.01em;
   border:1px solid var(--cmp-rule);border-radius:999px;padding:0 7px;color:var(--cmp-muted)}
 .cmp-cell{min-width:0}
+/* Emphasis, not valence. The leading value takes full ink and weight; the others step back one
+   notch. This is the "highlight one, recede the rest" move — it sharpens the hierarchy a reader
+   asked for without a green that would assert the leader is GOOD. Three of these seven measures
+   have a direction; none of them has a virtue. Longest lease is not better than nearest station,
+   and the tool's own copy says whether nearness beats quiet is the reader's to weigh. Status
+   colour is reserved for things that genuinely mean good or bad, and naming a winner among named
+   developments is the one thing this tool must never do. */
 .cmp-v{display:block;font-family:var(--cmp-mono);font-variant-numeric:tabular-nums;font-size:12px;
-  font-weight:600;color:var(--cmp-ink);margin-bottom:3px}
+  font-weight:500;color:var(--cmp-body);margin-bottom:3px}
+.cmp-cell.is-lead .cmp-v{font-weight:700;color:var(--cmp-ink)}
 .cmp-track{display:block;height:10px;background:var(--cmp-soft);border-radius:0 4px 4px 0}
 /* 4px rounded data-end, thin mark, no border — separation comes from the 10px grid gap
    between cells rather than a stroke around each bar. */
@@ -489,8 +498,10 @@ else init();
 .cmp-delta{display:block;min-height:15px;margin-top:3px;font-family:var(--cmp-mono);
   font-variant-numeric:tabular-nums;font-size:11px;color:var(--cmp-muted)}
 /* Leadership is a word, never a colour: it must survive greyscale and colour blindness, and a
-   green "winner" would assert a preference the data cannot support. */
-.cmp-lead{color:var(--cmp-ink);font-weight:700}
+   green "winner" would assert a preference the data cannot support.
+   Named .cmp-best, not .cmp-lead — .cmp-lead is the summary container, and sharing the name put
+   font-weight:700 on every line of the summary and a stray margin on this tag. */
+.cmp-best{color:var(--cmp-ink);font-weight:700}
 .post-content p.cmp-empty{margin:0;font-size:12.5px;color:var(--cmp-muted)}
 
 /* The summary carries the weight now, so it gets the emphasis the seven-row grid used to have. */
