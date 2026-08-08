@@ -60,6 +60,11 @@ const num = v => Math.round(v).toLocaleString('en-SG');
 const BY = Object.fromEntries(ROWS.map(r => [r.p, r]));
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+// ---- decision rules, inlined verbatim from scripts/compare_logic.mjs -------------------------
+// Tested by scripts/compare_logic.test.mjs. Do not edit here; edit the module and regenerate.
+__LOGIC__
+// ---------------------------------------------------------------------------------------------
+
 function signed(x){
   const r = Math.abs(x).toFixed(0);
   return r === '0' ? '0' : (x >= 0 ? '+' : '−') + r;
@@ -74,8 +79,10 @@ const METRICS = [
   // implies the project decides the price when the floor and the stack decide more of it.
   { label: 'Median resale price', short: 'price per square foot', dir: 'none', lead: '', trail: '', kind: 'ratio',
     fmt: r => sgd(r.psf) + ' psf', brief: r => sgd(r.psf), val: r => r.psf,
-    sub: r => 'range ' + num(r.lo) + '–' + num(r.hi) + ' (' + Math.round((r.hi / r.lo - 1) * 100) + '%)',
-    note: 'no better end — cheaper suits a buyer, dearer is what the market pays. The range beneath is the 10th to 90th percentile WITHIN that building, which is usually wider than the gap between buildings' },
+    sub: r => showRange(r)
+      ? 'range ' + num(r.lo) + '–' + num(r.hi) + ' (' + Math.round((r.hi / r.lo - 1) * 100) + '%)'
+      : 'range withheld · ' + r.v + ' sales',
+    note: 'no better end — cheaper suits a buyer, dearer is what the market pays. The range beneath is the 10th to 90th percentile WITHIN that building, which is usually wider than the gap between buildings. It is withheld below 20 sales, where a p10–p90 is barely more than the smallest and largest that happened to trade' },
   { label: 'Price change, 12 months', short: 'which way it is moving', dir: 'none', lead: '', trail: '',
     kind: 'pp',
     fmt: r => r.mo === null ? '—' : signed(r.mo * 100) + '%',
@@ -97,10 +104,10 @@ const METRICS = [
     fmt: r => num(r.v), brief: r => num(r.v) + ' sales', val: r => r.v,
     note: 'not marked — a bigger building trades more at the same turnover, and no unit count is published to divide by. It is also the sample size behind this building’s median' },
   { label: 'Lease remaining', short: 'lease left', dir: 'more', lead: 'longest', trail: 'shortest',
-    kind: 'ratio', fh: true,
-    fmt: r => r.l === 'FH' ? 'Freehold' : r.l + ' yrs',
-    brief: r => r.l === 'FH' ? 'freehold' : r.l + ' yrs',
-    val: r => r.l === 'FH' ? 999 : Number(r.l),
+    kind: 'ratio', fhAware: true,
+    fmt: r => r.fh ? 'Freehold' : r.lyr + ' yrs',
+    brief: r => r.fh ? 'freehold' : r.lyr + ' yrs',
+    val: r => r.fh ? Infinity : r.lyr,
     note: 'more years is more, and under 60 the CPF and lending rules tighten' },
   { label: 'To the nearest MRT', short: 'the walk to a station', dir: 'less', lead: 'nearest',
     trail: 'furthest', kind: 'ratio',
@@ -115,55 +122,23 @@ const METRICS = [
     fmt: r => sgd(r.q), brief: r => sgd(r.q), val: r => r.q,
     note: 'no better end — it tracks the size that trades as much as the price' },
 ];
-const CLOSE = 0.15;   // below 15% apart, the buildings are level on that measure
-
-// `fh` marks the ONE measure using 999 as a freehold sentinel. Without it these helpers treated
-// any value over 999 as freehold — every price and every floor area — and scored them zero spread,
-// which once reported a 2.2x price gap as "much the same".
-function spreadOf(mt, picked){
-  const vals = picked.map(mt.val);
-  const hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
-  if (mt.kind === 'pp') return Math.abs(hi - lo) * 100 / 20;
-  if (mt.fh && hi >= 999) return 0;
-  return lo > 0 ? (hi / lo) - 1 : 0;
-}
 function gapPhrase(mt, picked){
   const vals = picked.map(mt.val);
   const hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
   if (mt.kind === 'pp') return Math.round(Math.abs(hi - lo) * 100) + ' points apart';
-  if (mt.fh && hi >= 999) return 'one is freehold';
+  if (mt.fhAware && mixedTenure(picked)) return 'one is freehold';
   const ratio = lo > 0 ? hi / lo : 0;
   if (ratio >= 1.8) return 'about ' + (Math.round(ratio * 10) / 10) + '× apart';
   return Math.round((ratio - 1) * 100) + '% apart';
-}
-function rankOf(mt, picked, r){
-  if (mt.dir === 'none' || picked.length < 2 || spreadOf(mt, picked) < CLOSE) return 'flat';
-  const vals = picked.map(mt.val);
-  const ordered = [...new Set(vals)].sort((a, b) => mt.dir === 'more' ? b - a : a - b);
-  if (ordered.length < 2) return 'flat';
-  const idx = ordered.indexOf(mt.val(r));
-  return idx === 0 ? 'best' : idx === ordered.length - 1 ? 'worst' : 'mid';
 }
 
 // ---- the summary: what differs, in sentences, with the figures annotated -------------------
 function renderLead(picked){
   if (picked.length < 2){ $('cmp-lead').innerHTML = ''; return; }
 
-  // Freehold against leasehold is a difference in KIND. Its ratio is meaningless, so it is set
-  // aside and named rather than allowed to fall into "level", which would say 91 years and
-  // freehold are alike.
-  const mixedTenure = METRICS.filter(mt => mt.fh).filter(mt => {
-    const v = picked.map(mt.val);
-    return Math.max.apply(null, v) >= 999 && Math.min.apply(null, v) < 999;
-  });
-  const ranked = METRICS.filter(mt => !mixedTenure.includes(mt))
-    .map(mt => ({ mt, s: spreadOf(mt, picked) })).sort((a, b) => b.s - a.s);
-  // Every measure lands in exactly one bucket; an earlier version let a measure that differed but
-  // ranked fourth fall into neither and vanish.
-  const differing = ranked.filter(x => x.s >= CLOSE);
-  const apart = differing.slice(0, 3);
-  const alsoApart = differing.slice(3);
-  const alike = ranked.filter(x => x.s < CLOSE);
+  // bucket() guarantees every measure lands in exactly one list, including the freehold-vs-
+  // leasehold case, which is set aside rather than allowed to read as "level".
+  const { apart, alsoApart, alike, setAside } = bucket(METRICS, picked);
 
   let h = '';
   if (apart.length){
@@ -188,9 +163,9 @@ function renderLead(picked){
         + '</p></div>';
     });
   }
-  if (mixedTenure.length){
-    const fh = picked.filter(r => r.l === 'FH').map(r => esc(r.p));
-    const lh = picked.filter(r => r.l !== 'FH').map(r => esc(r.p) + ' ' + r.l + ' yrs');
+  if (setAside.length){
+    const fh = picked.filter(r => r.fh).map(r => esc(r.p));
+    const lh = picked.filter(r => !r.fh).map(r => esc(r.p) + ' ' + r.lyr + ' yrs');
     h += '<p class="cmp-alike"><b>Different in kind, not degree</b> — ' + fh.join(' and ')
       + (fh.length > 1 ? ' are freehold' : ' is freehold') + '; ' + lh.join(', ')
       + '. That is not a percentage gap and we do not state one.</p>';
@@ -232,10 +207,9 @@ function render(){
   h += '</tr></thead><tbody>';
 
   METRICS.forEach((mt, i) => {
-    const level = cols > 1 && spreadOf(mt, picked) < CLOSE;
-    const tag = level ? '<i>level</i>'
-              : mt.nomark ? '<i>' + mt.nomark + '</i>'
-              : mt.dir === 'none' ? '<i>no better end</i>' : '';
+    const tagText = tagFor(mt, picked);
+    const level = tagText === 'level';
+    const tag = tagText ? '<i>' + tagText + '</i>' : '';
     // The explanation used to sit under every label, so eight paragraphs competed with the
     // numbers the reader came for. It is one tap away now; the short tag stays visible because it
     // is the compressed version of the same point.

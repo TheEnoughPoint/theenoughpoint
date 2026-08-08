@@ -1,10 +1,9 @@
-"""Generate CondoCompare.astro with its dataset emitted mechanically from live.json."""
-import io, json
-
-rows = json.load(io.open('cmp_rows.json', encoding='utf-8'))
-DATA = json.dumps(rows, separators=(',', ':'), ensure_ascii=False)
+"""The Astro frontmatter for CondoCompare.astro. Data and provenance are injected by
+gen_compare.py; this file holds only the template."""
 
 HEAD = '''---
+// DATA PROVENANCE: __PROVENANCE__
+// Regenerate with scripts/gen_compare.py — never edit this file by hand.
 // Compare up to three condominiums, side by side, on what the public record can actually say.
 //
 // ROWS is emitted mechanically from data/live.json in the sg-property-decision repo (URA
@@ -74,8 +73,8 @@ const ASOF = 'August 2026';
 const MIN_SALES = 10;
 const TOTAL_PROJECTS = 1135;
 
-interface Row { p: string; d: string; n: string; g: 'CCR' | 'RCR' | 'OCR'; psf: number; v: number;
-  l: number | string; m: number; x: string; s: number; b: number; q: number;
+interface Row { p: string; d: string; n: string; psf: number; v: number;
+  fh: 0 | 1; lyr: number | null; m: number; x: string; s: number; b: number; q: number;
   lo: number; hi: number; mo: number | null }
 
 const ROWS: Row[] = __DATA__;

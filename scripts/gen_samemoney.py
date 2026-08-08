@@ -1,10 +1,46 @@
-"""Generate SameMoneySize.astro — all nine qualifying buildings, with the stock ceiling drawn."""
-import io, json
+"""Generate SameMoneySize.astro — every qualifying building, with the stock ceiling drawn.
 
-rows = json.load(io.open('sm_rows.json', encoding='utf-8'))
+Rows are derived here from live.json rather than a checked-in extract, and the feed is loaded
+through feed_guard so a run that did not actually fetch cannot be frozen into a published figure.
+"""
+import io, json, os, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from feed_guard import load_live, rows_for_compare
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+LIVE = os.environ.get('LIVE_JSON', r'C:/dev/sg-property-decision/data/live.json')
+BUDGET_PY, NEW_PSF_PY = 2_400_000, 2900
+BASE_PY = round(BUDGET_PY / NEW_PSF_PY)
+
+data, provenance = load_live(LIVE, ['projects', 'districts'])
+rows = []
+for r in rows_for_compare(data):
+    if r['d'] != 'D20' or r['m'] > 400:
+        continue
+    want = round(BUDGET_PY / r['psf'])
+    # `hi` is the 90th percentile of sizes that TRADED — not the building's largest unit. The cap
+    # therefore means "9 in 10 sales there were smaller", which the figure states in words.
+    cap = r['hi'] if False else None
+    rows.append(r)
+# the size ceiling comes from the projects feed's size_r, which rows_for_compare does not carry,
+# so re-read it here against the same guarded data
+_sz = {x['project'].title(): x['size_r'] for x in data['projects']['rows']}
+out = []
+for r in rows:
+    want = round(BUDGET_PY / r['psf'])
+    cap = _sz[r['p']][1]
+    got = min(want, cap)
+    out.append(dict(p=r['p'], psf=r['psf'], n=r['v'], l=('FH' if r['fh'] else r['lyr']),
+                    m=r['m'], x=r['x'], got=got, want=want, capped=want > cap,
+                    pct=round((got / BASE_PY - 1) * 100)))
+out.sort(key=lambda x: x['got'])
+rows = out
 DATA = json.dumps(rows, separators=(',', ':'), ensure_ascii=False)
 
 TPL = '''---
+// DATA PROVENANCE: __PROVENANCE__
+// Regenerate with scripts/gen_samemoney.py — never edit this file by hand.
 // Hold the budget still and let the size move.
 //
 // The article's problem is that a percentage entry gap ("new build costs 34% more per square
@@ -216,7 +252,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 </style>
 '''
 
-out = TPL.replace('__DATA__', DATA)
+out = TPL.replace('__DATA__', DATA).replace('__PROVENANCE__', provenance)
 path = r'C:\\TheEnoughPoint-wt-newlaunch\\src\\components\\SameMoneySize.astro'
 io.open(path, 'w', encoding='utf-8').write(out)
 print('written', len(out), 'bytes ·', len(rows), 'buildings ·',
