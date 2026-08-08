@@ -1,4 +1,10 @@
----
+"""Generate SameMoneySize.astro — all nine qualifying buildings, with the stock ceiling drawn."""
+import io, json
+
+rows = json.load(io.open('sm_rows.json', encoding='utf-8'))
+DATA = json.dumps(rows, separators=(',', ':'), ensure_ascii=False)
+
+TPL = '''---
 // Hold the budget still and let the size move.
 //
 // The article's problem is that a percentage entry gap ("new build costs 34% more per square
@@ -37,7 +43,7 @@ const NEW_PSF = 2900; // the middle of the illustrative band the article derives
 interface Row { p: string; psf: number; n: number; l: number | string; m: number; x: string;
   sq: number; cap: number; over: boolean; pct: number }
 
-const ROWS: Row[] = [{"p":"Jadescape","psf":2349,"n":62,"l":91,"m":327,"x":"Marymount","sq":1022,"cap":1259,"over":false,"pct":23},{"p":"Sky Vue","psf":2199,"n":15,"l":86,"m":208,"x":"Bishan","sq":1091,"cap":807,"over":true,"pct":32},{"p":"Thomson Three","psf":2165,"n":21,"l":85,"m":194,"x":"Upper Thomson","sq":1109,"cap":1259,"over":false,"pct":34},{"p":"Thomson Impressions","psf":2146,"n":13,"l":88,"m":358,"x":"Bright Hill","sq":1118,"cap":1195,"over":false,"pct":35},{"p":"The Panorama","psf":2087,"n":31,"l":86,"m":351,"x":"Mayflower","sq":1150,"cap":1141,"over":true,"pct":39},{"p":"Centro Residences","psf":2024,"n":25,"l":80,"m":143,"x":"Ang Mo Kio","sq":1186,"cap":1281,"over":false,"pct":43},{"p":"Thomson Grand","psf":1819,"n":16,"l":83,"m":298,"x":"Bright Hill","sq":1319,"cap":1410,"over":false,"pct":59},{"p":"The Gardens At Bishan","psf":1809,"n":16,"l":70,"m":246,"x":"Bright Hill","sq":1327,"cap":1227,"over":true,"pct":60},{"p":"Braddell View","psf":1053,"n":25,"l":54,"m":377,"x":"Caldecott","sq":2279,"cap":1701,"over":true,"pct":175}];
+const ROWS: Row[] = __DATA__;
 
 const BASE = Math.round(BUDGET / NEW_PSF);
 const MAX = Math.max(BASE, ...ROWS.map((r) => r.sq));
@@ -209,3 +215,10 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   .sm-h-bar{display:none}
 }
 </style>
+'''
+
+out = TPL.replace('__DATA__', DATA)
+path = r'C:\\TheEnoughPoint-wt-newlaunch\\src\\components\\SameMoneySize.astro'
+io.open(path, 'w', encoding='utf-8').write(out)
+print('written', len(out), 'bytes ·', len(rows), 'buildings ·',
+      sum(1 for r in rows if r['over']), 'exceed their stock ceiling')
