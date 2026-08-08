@@ -81,9 +81,17 @@ CSS = r'''
 .ve-tag{font-style:normal;font-size:11px;font-weight:700;margin-left:4px}
 .ve-tag.good{color:var(--good)} .ve-tag.bad{color:var(--bad)}
 .post-content table.ve-t{width:100%;border-collapse:collapse;margin:16px 0 8px;font-size:12px}
-.post-content .ve-t thead th{background:transparent;color:var(--ink);text-align:right;font-size:12px;
-  font-weight:700;text-transform:none;letter-spacing:0;padding:6px 8px;border-bottom:1px solid var(--rule)}
-.post-content .ve-t thead th:first-child{text-align:left}
+/* The header carries the identity for the whole table, so it gets real weight: name on its own
+   line, district beneath it, a tinted band and a 2px rule so it reads as a header rather than as
+   a first row of data. */
+.post-content .ve-t thead th{background:var(--lite);color:var(--ink);text-align:right;font-size:12px;
+  font-weight:700;text-transform:none;letter-spacing:0;padding:9px 10px;
+  border-bottom:2px solid var(--ink);vertical-align:bottom}
+.post-content .ve-t thead th b{display:block;font-size:12.5px;line-height:1.25}
+.post-content .ve-t thead th span{display:block;font-size:11px;font-weight:400;color:var(--mut);
+  margin-top:1px}
+.post-content .ve-t thead th.ve-corner{text-align:left;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
 .post-content .ve-t tbody th{background:transparent;color:var(--body);text-align:left;font-size:11.5px;
   font-weight:600;text-transform:none;letter-spacing:0;padding:6px 8px;border-bottom:1px solid var(--lite)}
 .post-content .ve-t tbody th i{font-style:normal;font-size:11px;font-weight:400;color:var(--mut);margin-left:5px}
@@ -99,6 +107,19 @@ CSS = r'''
   .vc-track{margin:0 40px}
   .vc-dot em{font-size:11px}
   .ve-p p{line-height:1.9}
+  /* Three condo names plus a measure column cannot fit 390px on natural widths — measured at
+     567px against a 328px container, with the measure column alone taking 196. Rather than let it
+     scroll sideways, the table is fixed-layout on a phone: the measure column takes 31% and the
+     three buildings split the rest, so names wrap to two lines instead of pushing the table wide.
+     The descriptive district name is desktop-only; the code carries the context. */
+  .post-content .ve-t{table-layout:fixed;width:100%}
+  .post-content .ve-t thead th span em{display:none}
+  .post-content .ve-t thead th,.post-content .ve-t td,.post-content .ve-t tbody th{padding:7px 5px}
+  .post-content .ve-t thead th{width:23%}
+  .post-content .ve-t thead th.ve-corner{width:31%}
+  .post-content .ve-t thead th b{white-space:normal;overflow-wrap:anywhere}
+  .post-content .ve-t tbody th i{display:block;margin-left:0}
+  .post-content .ve-t td{white-space:normal;overflow-wrap:anywhere}
 }
 </style>
 '''

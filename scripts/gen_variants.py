@@ -147,8 +147,12 @@ def variant_e():
                ' <i class="ve-tag good">▲ %s</i>' % lead if d else '',
                've-n-bad' if d else '', back['p'], 'bad' if d else '', fmt(back),
                ' <i class="ve-tag bad">▼ %s</i>' % trail if d else ''))
-    h.append('<table class="ve-t"><thead><tr><th></th>%s</tr></thead><tbody>'
-             % ''.join('<th>%s</th>' % r['p'] for r in TRIO))
+    # The header was three bare names, which left the reader mapping them back to the prose above
+    # and gave no clue that these are different districts. Name, district and district name, with
+    # the first column labelled so the table reads as a table rather than a grid of numbers.
+    h.append('<table class="ve-t"><thead><tr><th class="ve-corner">Measure</th>%s</tr></thead><tbody>'
+             % ''.join('<th><b>%s</b><span>%s<em> &middot; %s</em></span></th>' % (r['p'], r['d'], r['n'])
+                       for r in TRIO))
     for label, key, d, lead, trail, fmt, short in M:
         lvlrow = spread(key) < CLOSE
         h.append('<tr class="%s"><th>%s%s</th>%s</tr>' % (
