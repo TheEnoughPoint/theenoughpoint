@@ -1,6 +1,6 @@
-"""Emit the five-variant prototype page. Imports the builders from gen_variants.py."""
+"""Emit the prototype page. Three variants now — A and D dropped on ZH's call."""
 import io
-from gen_variants import variant_a, variant_b, variant_c, variant_d, variant_e
+from gen_variants import variant_b, variant_c, variant_e
 
 CSS = r'''
 <style is:global>
@@ -11,118 +11,113 @@ CSS = r'''
 .post-content .vx-sec h3{margin:0 0 2px;font-size:16px;font-weight:700;color:var(--ink);font-family:var(--font-body)}
 .post-content .vx-sec p.vx-note{margin:0 0 16px;font-size:12.5px;line-height:1.5;color:var(--mut)}
 
-/* A - sticky spec matrix (what ships today) */
-.va-heads{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-bottom:8px;
-  border-bottom:1px solid var(--rule);margin-bottom:10px}
-.va-heads b{display:block;font-size:13px;color:var(--ink)}
-.va-heads span{font-size:11px;color:var(--mut)}
-.va-m{margin-bottom:12px}
-.va-l{font-size:11.5px;font-weight:600;color:var(--body);margin-bottom:5px}
-.va-m.lvl .va-l{color:var(--mut);font-weight:500}
-.va-l .tag{display:inline-block;margin-left:6px;font-style:normal;font-size:11px;font-weight:600;
-  border:1px solid var(--rule);border-radius:999px;padding:0 7px;color:var(--mut)}
-.va-r{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.va-c{padding:6px 8px;border-radius:6px;border-left:3px solid transparent;background:var(--lite)}
-.va-c.is-best{background:var(--goodw);border-left-color:var(--good)}
-.va-c.is-worst{background:var(--badw);border-left-color:var(--bad)}
-.va-m.lvl .va-c{background:transparent;border-left-color:var(--rule)}
-.va-c .v{display:block;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink)}
-.va-c .s{display:block;margin-top:2px;font-size:11px;font-weight:700}
-.va-c.is-best .s{color:var(--good)} .va-c.is-worst .s{color:var(--bad)}
-
-/* B - transposed screener */
+/* ---- B: transposed screener, with direction captions, a leads column and a spread footer ---- */
 .vb-wrap{overflow-x:auto}
-.post-content table.vb{width:100%;min-width:660px;border-collapse:collapse;margin:0;font-size:12px}
+.post-content table.vb{width:100%;min-width:820px;border-collapse:collapse;margin:0;font-size:12px}
 .post-content .vb th,.post-content .vb td{padding:8px 9px;text-align:right;border-bottom:1px solid var(--lite)}
 .post-content .vb thead th{background:var(--ink);color:#fff;font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.04em;text-align:right;white-space:nowrap}
+  text-transform:uppercase;letter-spacing:.04em;text-align:right;white-space:nowrap;vertical-align:bottom}
 .post-content .vb thead th:first-child{text-align:left}
+.post-content .vb thead th .dir{display:block;font-style:normal;font-size:11px;font-weight:400;
+  text-transform:none;letter-spacing:0;color:#B8C4D2}
+.post-content .vb thead th .dir.none{color:#8794A6}
 .post-content .vb tbody th{text-align:left;font-size:12.5px;color:var(--ink);white-space:nowrap;background:#fff}
 .post-content .vb tbody th span{display:block;font-size:11px;font-weight:400;color:var(--mut)}
 .post-content .vb td{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--body);white-space:nowrap}
 .post-content .vb td i{font-style:normal;margin-left:5px;font-size:11px}
+.post-content .vb td .sub{display:block;font-family:var(--font-body);font-size:11px;color:var(--mut)}
 .post-content .vb td.is-best{background:var(--goodw);color:var(--ink);font-weight:700}
 .post-content .vb td.is-best i{color:var(--good)}
 .post-content .vb td.is-worst{background:var(--badw);color:var(--ink);font-weight:700}
 .post-content .vb td.is-worst i{color:var(--bad)}
+.post-content .vb td.lead-col{font-family:var(--font-body);white-space:normal;min-width:130px}
+.post-content .vb td.lead-col b{display:block;font-size:11.5px;color:var(--good);font-weight:700}
+.post-content .vb td.lead-col em{font-style:normal;font-size:11.5px;color:var(--mut)}
+.post-content .vb tfoot th{text-align:left;font-size:11px;color:var(--mut);font-weight:600;background:#fff}
+.post-content .vb tfoot td{font-size:11px;color:var(--mut);border-bottom:0}
+.post-content .vb tfoot td.lvl{color:var(--mut);font-style:italic}
 
-/* C - dot plot per measure */
-.vc-m{margin-bottom:30px}
-.vc-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:26px}
+/* ---- C: dot plot, with a tinted span from trailing to leading and captioned ends ---- */
+.vc-m{margin-bottom:34px}
+.vc-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:28px}
 .vc-h b{font-size:12.5px;color:var(--ink)} .vc-h span{font-family:var(--mono);font-size:11px;color:var(--mut)}
 .vc-m.lvl .vc-h b{color:var(--mut);font-weight:500}
-/* 44px inset, not 10: a dot at 0% or 100% centres its label on the track end, so half the label
-   hangs outside. The widest label here is a price at about 72px, so 44px of inset clears it.
-   Measured against the card's padding box, not guessed. */
-.vc-track{position:relative;height:36px;margin:0 44px}
-.vc-rail{position:absolute;left:0;right:0;top:16px;height:2px;background:var(--lite);border-radius:1px}
-.vc-end{position:absolute;top:25px;left:0;font-size:11px;color:var(--mut)}
+/* 44px inset: a dot at 0% or 100% centres its label on the track end, so half the label would
+   hang outside the card. The widest label is a price at about 72px. Measured, not guessed. */
+.vc-track{position:relative;height:38px;margin:0 44px}
+.vc-rail{position:absolute;left:0;right:0;top:17px;height:4px;background:var(--lite);border-radius:2px}
+/* The span is the point of this variant: it makes the DISTANCE between the trailing and leading
+   value a visible object, running red-to-green in the direction the measure improves. */
+.vc-span{position:absolute;top:17px;height:4px;border-radius:2px;opacity:.85}
+.vc-end{position:absolute;top:26px;left:0;font-size:11px;color:var(--mut);white-space:nowrap}
 .vc-end.r{left:auto;right:0}
-.vc-dot{position:absolute;top:10px;transform:translateX(-50%);width:14px;height:14px;
-  border-radius:50%;background:var(--mut);border:2px solid #fff;box-shadow:0 0 0 1px var(--rule)}
-.vc-dot.is-best{background:var(--good)} .vc-dot.is-worst{background:var(--bad)}
-.vc-dot i{position:absolute;bottom:19px;left:50%;transform:translateX(-50%);font-style:normal;
+.vc-end.good{color:var(--good);font-weight:700}
+.vc-end.bad{color:var(--bad);font-weight:700}
+.vc-dot{position:absolute;top:12px;transform:translateX(-50%);width:14px;height:14px;
+  border-radius:50%;background:#fff;border:3px solid var(--mut);box-sizing:border-box}
+.vc-dot.is-best{border-color:var(--good);background:var(--good);width:18px;height:18px;top:10px;
+  box-shadow:0 0 0 3px var(--goodw)}
+.vc-dot.is-worst{border-color:var(--bad);background:var(--bad);width:18px;height:18px;top:10px;
+  box-shadow:0 0 0 3px var(--badw)}
+.vc-dot i{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-style:normal;
   font-size:11px;color:var(--mut);white-space:nowrap}
-.vc-dot em{position:absolute;bottom:31px;left:50%;transform:translateX(-50%);font-style:normal;
+.vc-dot em{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);font-style:normal;
   font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--ink);white-space:nowrap}
-.vc-dot.d1 i{bottom:auto;top:19px} .vc-dot.d1 em{bottom:auto;top:31px}
+.vc-dot.is-best em{color:var(--good)} .vc-dot.is-worst em{color:var(--bad)}
+/* The middle building drops below the rail so three labels never stack on one line. */
+.vc-dot.d1 i{bottom:auto;top:20px} .vc-dot.d1 em{bottom:auto;top:32px}
 
-/* D - building cards with position bullets */
-.vd{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.vd-card{border:1px solid var(--rule);border-radius:10px;padding:12px}
-.vd-top b{display:block;font-size:13px;color:var(--ink)}
-.vd-top span{display:block;font-size:11px;color:var(--mut);margin-bottom:10px}
-.vd-row{margin-bottom:10px}
-.vd-lab{display:block;font-size:11px;color:var(--mut)}
-.vd-bul{position:relative;display:block;height:5px;background:var(--lite);border-radius:3px;margin:4px 0 3px}
-.vd-bul i{position:absolute;top:-3px;width:11px;height:11px;border-radius:50%;
-  transform:translateX(-50%);background:var(--mut);border:2px solid #fff;box-shadow:0 0 0 1px var(--rule)}
-.vd-bul i.is-best{background:var(--good)} .vd-bul i.is-worst{background:var(--bad)}
-.vd-val{display:block;font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--ink)}
-
-/* E - editorial */
-.ve-p{margin-bottom:13px}
-.post-content .ve-p h5{margin:0 0 2px;font-size:12.5px;font-weight:700;color:var(--ink);font-family:var(--font-body)}
-.post-content .ve-p h5 em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--mut);font-weight:400}
-.post-content .ve-p p{margin:0;font-size:12.5px;line-height:1.55;color:var(--body)}
-.post-content .ve-p p i{font-style:normal;color:var(--mut)}
-.post-content table.ve-t{width:100%;border-collapse:collapse;margin:14px 0 8px;font-size:12px}
-.post-content .ve-t th{background:transparent;color:var(--mut);text-align:left;font-size:11.5px;
+/* ---- E: editorial, annotated and tinted ---- */
+.ve-p{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--lite)}
+.ve-p:last-of-type{border-bottom:0}
+.post-content .ve-p h5{margin:0 0 3px;font-size:12.5px;font-weight:700;color:var(--ink);font-family:var(--font-body)}
+.post-content .ve-p h5 em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--mut);font-weight:400;margin-left:6px}
+.post-content .ve-p p{margin:0;font-size:12.5px;line-height:1.7;color:var(--body)}
+.ve-p b.ve-n-good{color:var(--ink)} .ve-p b.ve-n-bad{color:var(--ink)}
+.ve-v{font-family:var(--mono);font-size:12px;font-weight:700;padding:2px 7px;border-radius:5px;
+  background:var(--lite);color:var(--ink)}
+.ve-v.good{background:var(--goodw);color:var(--good)}
+.ve-v.bad{background:var(--badw);color:var(--bad)}
+.ve-tag{font-style:normal;font-size:11px;font-weight:700;margin-left:4px}
+.ve-tag.good{color:var(--good)} .ve-tag.bad{color:var(--bad)}
+.post-content table.ve-t{width:100%;border-collapse:collapse;margin:16px 0 8px;font-size:12px}
+.post-content .ve-t thead th{background:transparent;color:var(--ink);text-align:right;font-size:12px;
+  font-weight:700;text-transform:none;letter-spacing:0;padding:6px 8px;border-bottom:1px solid var(--rule)}
+.post-content .ve-t thead th:first-child{text-align:left}
+.post-content .ve-t tbody th{background:transparent;color:var(--body);text-align:left;font-size:11.5px;
   font-weight:600;text-transform:none;letter-spacing:0;padding:6px 8px;border-bottom:1px solid var(--lite)}
+.post-content .ve-t tbody th i{font-style:normal;font-size:11px;font-weight:400;color:var(--mut);margin-left:5px}
+.post-content .ve-t tr.lvl th,.post-content .ve-t tr.lvl td{color:var(--mut)}
 .post-content .ve-t td{padding:6px 8px;border-bottom:1px solid var(--lite);text-align:right;
   font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--body);white-space:nowrap}
+.post-content .ve-t td.is-best{background:var(--goodw);color:var(--good);font-weight:700}
+.post-content .ve-t td.is-worst{background:var(--badw);color:var(--bad);font-weight:700}
 .post-content p.ve-n{margin:0;font-size:11.5px;color:var(--mut)}
 
 @media (max-width:640px){
   .vx-sec{padding:16px 14px 13px}
-  .va-heads,.va-r{gap:6px}
-  .va-heads b{font-size:11.5px} .va-c .v{font-size:11px} .va-c{padding:5px 6px}
-  .vd{grid-template-columns:1fr}
+  .vc-track{margin:0 40px}
   .vc-dot em{font-size:11px}
+  .ve-p p{line-height:1.9}
 }
 </style>
 '''
 
 SECS = [
-    ('A', 'Sticky spec matrix',
-     'What ships today. Columns are buildings, rows are measures, cells tint green or red only where '
-     'the measure has a better end. Honest and complete; visually it is a form.', variant_a()),
     ('B', 'Transposed screener',
-     'Buildings become rows and measures become columns, the way SquareFoot HK and a pricing table do '
-     'it. Reads as market data rather than a duel and fits far more on one screen &mdash; at the cost '
-     'of scrolling sideways on a phone.', variant_b()),
+     'Buildings as rows, measures as columns. Now carries the context the bare table lacked: each '
+     'column says which way it runs, the MRT cell names the station, a <b>Leads on</b> column '
+     'summarises what each building is ahead on, and a footer row gives the spread across the three '
+     'so a level measure announces itself.', variant_b()),
     ('C', 'Dot plot per measure',
-     'One axis per measure with the three buildings placed on it. The only variant where the SIZE of a '
-     'difference is visible rather than stated &mdash; two buildings sitting on top of each other says '
-     '&ldquo;level&rdquo; without needing a label.', variant_c()),
-    ('D', 'Cards with position bullets',
-     'One card per building; inside it every measure shows where that building sits within the trio. '
-     'Stacks natively on a phone and reads building-first, which is how people actually shortlist.',
-     variant_d()),
+     'One axis per measure. The positive and negative ends are now explicit: the rail carries a '
+     'tinted span running from the trailing value to the leading one, so the <em>distance</em> is a '
+     'visible object; the ends are captioned with which is which; and the leading and trailing dots '
+     'are enlarged, ringed and colour-matched to their labels.', variant_c()),
     ('E', 'Editorial, facts under prose',
-     'The Stacked Homes shape: lead with sentences naming the real differences, keep a compact facts '
-     'table underneath. Least tool-like, most readable, hardest to generate honestly for an arbitrary '
-     'trio.', variant_e()),
+     'Leads with the three real differences as sentences, now annotated &mdash; figures sit in tinted '
+     'chips, the leader and trailer are named inline, and the facts table underneath carries the same '
+     'green and red marks so the prose and the table agree at a glance.', variant_e()),
 ]
 
 body = [CSS, '<div class="vx">']
@@ -132,22 +127,24 @@ for k, title, note, html in SECS:
 body.append('</div>')
 
 PAGE = '''---
-// PROTOTYPE - five visual treatments of the same three-building comparison, for choosing between.
-// Not linked from navigation. Static on purpose: the trio is fixed and every number is computed at
-// build time by scripts/gen_condo_variants.py, because the question here is which treatment reads
-// best, not whether the selectors work. Whichever wins gets wired back into CondoCompare.astro.
+// PROTOTYPE - three visual treatments of the same three-building comparison, for choosing between.
+// A (spec matrix) and D (cards) were dropped on ZH's call after the first round.
 //
-// All five obey the same two rules the real component does: only the three measures with a genuine
-// direction are marked, and no variant produces a composite score.
+// Not linked from navigation. Static on purpose: the trio is fixed and every number is computed at
+// build time by scripts/gen_variants.py, because the question is which treatment reads best, not
+// whether the selectors work. Whichever wins gets wired back into CondoCompare.astro.
+//
+// All three obey the same two rules the real component does: only the three measures with a genuine
+// direction are marked, and none produces a composite score.
 import MainLayout from '@src/layouts/MainLayout.astro';
 
-const title = 'Prototype - five ways to show a condominium comparison';
+const title = 'Prototype - three ways to show a condominium comparison';
 ---
 
-<MainLayout title={title} description="Internal prototype. Five visual treatments of the same comparison.">
+<MainLayout title={title} description="Internal prototype. Three visual treatments of the same comparison.">
   <div class="container xl:max-w-7xl mx-auto px-4">
     <div class="py-6 max-w-4xl">
-      <h1 class="text-2xl md:text-3xl font-heading font-bold text-navy py-4">Five ways to show the same comparison</h1>
+      <h1 class="text-2xl md:text-3xl font-heading font-bold text-navy py-4">Three ways to show the same comparison</h1>
       <p class="text-sm text-muted pb-6">Same three buildings, same seven measures, same data throughout
       &mdash; Parc Clematis, Treasure at Tampines and Stirling Residences. Only the presentation changes.
       Internal prototype; not linked from anywhere.</p>

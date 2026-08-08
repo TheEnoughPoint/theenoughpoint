@@ -56,50 +56,67 @@ def gap_phrase(key):
 NAMES = [r['p'] for r in TRIO]
 SHORT = ['Parc Clematis', 'Treasure', 'Stirling']
 
+
 # ---------------------------------------------------------------- variant builders
-def variant_a():
-    h = ['<div class="va">']
-    h.append('<div class="va-heads">' + ''.join(
-        '<div><b>%s</b><span>%s</span></div>' % (r['p'], r['d'] + ' · ' + r['n']) for r in TRIO) + '</div>')
+def leads_of(r):
+    """Measures this building leads — used by B's summary column and E's annotations."""
+    out = []
     for label, key, d, lead, trail, fmt, short in M:
-        lvl = spread(key) < CLOSE
-        tag = ('<i class="tag">level — will not decide it</i>' if lvl
-               else '<i class="tag">no better end</i>' if d is None else '')
-        h.append('<div class="va-m%s"><div class="va-l">%s%s</div><div class="va-r">' % (' lvl' if lvl else '', label, tag))
-        for r in TRIO:
-            k = rank(key, d, r)
-            mark = ('▲ ' + lead) if k == 'best' else ('▼ ' + trail) if k == 'worst' else ''
-            h.append('<div class="va-c is-%s"><span class="v">%s</span>%s</div>'
-                     % (k, fmt(r), '<span class="s">%s</span>' % mark if mark else ''))
-        h.append('</div></div>')
-    h.append('</div>')
-    return '\n'.join(h)
+        if d and spread(key) >= CLOSE and rank(key, d, r) == 'best':
+            out.append((short, lead))
+    return out
 
 def variant_b():
+    """Transposed screener, now carrying the context the bare table lacked: the station name,
+    a per-building summary of what it leads, and a footer row giving each column's spread."""
     h = ['<div class="vb-wrap"><table class="vb"><thead><tr><th>Development</th>']
     for label, key, d, lead, trail, fmt, short in M:
-        h.append('<th>%s</th>' % short)
-    h.append('</tr></thead><tbody>')
+        arrow = ' <i class="dir">more is more</i>' if d == 'more' else \
+                ' <i class="dir">less is nearer</i>' if d == 'less' else \
+                ' <i class="dir none">no better end</i>'
+        h.append('<th>%s%s</th>' % (short, arrow))
+    h.append('<th>Leads on</th></tr></thead><tbody>')
     for r in TRIO:
-        h.append('<tr><th scope="row">%s<span>%s</span></th>' % (r['p'], r['d']))
+        h.append('<tr><th scope="row">%s<span>%s · %s</span></th>' % (r['p'], r['d'], r['n']))
         for label, key, d, lead, trail, fmt, short in M:
             k = rank(key, d, r)
-            h.append('<td class="is-%s">%s%s</td>' % (
-                k, fmt(r), '<i>%s</i>' % ('▲' if k == 'best' else '▼' if k == 'worst' else '')))
-        h.append('</tr>')
-    h.append('</tbody></table></div>')
+            extra = '<span class="sub">%s</span>' % r['x'] if short == 'to MRT' else ''
+            mark = '<i>▲</i>' if k == 'best' else '<i>▼</i>' if k == 'worst' else ''
+            h.append('<td class="is-%s">%s%s%s</td>' % (k, fmt(r), mark, extra))
+        led = leads_of(r)
+        h.append('<td class="lead-col">%s</td></tr>' % (
+            ''.join('<b>%s</b>' % l[1] for l in led) if led else '<em>none</em>'))
+    h.append('</tbody><tfoot><tr><th scope="row">Spread across the three</th>')
+    for label, key, d, lead, trail, fmt, short in M:
+        lvl = spread(key) < CLOSE
+        h.append('<td class="%s">%s</td>' % ('lvl' if lvl else '', 'level' if lvl else gap_phrase(key)))
+    h.append('<td></td></tr></tfoot></table></div>')
     return '\n'.join(h)
 
 def variant_c():
+    """Dot plot, with the positive and negative ends made explicit: the rail carries a tinted span
+    running from the trailing value to the leading one, the end captions say which way is which,
+    and the leading and trailing dots are enlarged and labelled."""
     h = ['<div class="vc">']
     for label, key, d, lead, trail, fmt, short in M:
         lvl = spread(key) < CLOSE
-        ends = ('<span class="vc-end">fewer</span><span class="vc-end r">more</span>' if d == 'more'
-                else '<span class="vc-end">nearer</span><span class="vc-end r">further</span>' if d == 'less'
-                else '<span class="vc-end">lower</span><span class="vc-end r">higher</span>')
+        if d and not lvl:
+            best = min(TRIO, key=lambda r: key(r)) if d == 'less' else max(TRIO, key=lambda r: key(r))
+            worst = max(TRIO, key=lambda r: key(r)) if d == 'less' else min(TRIO, key=lambda r: key(r))
+            pb, pw = pos(key, best) * 100, pos(key, worst) * 100
+            lo, hi = min(pb, pw), max(pb, pw)
+            grad = ('linear-gradient(90deg,var(--good),var(--bad))' if pb < pw
+                    else 'linear-gradient(90deg,var(--bad),var(--good))')
+            span = '<span class="vc-span" style="left:%.1f%%;width:%.1f%%;background:%s"></span>' % (lo, hi - lo, grad)
+            ends = ('<span class="vc-end bad">%s ▼</span><span class="vc-end good r">▲ %s</span>' % (trail, lead)
+                    if d == 'less' else
+                    '<span class="vc-end bad">▼ %s</span><span class="vc-end good r">%s ▲</span>' % (trail, lead))
+        else:
+            span = ''
+            ends = '<span class="vc-end">lower</span><span class="vc-end r">higher</span>'
         h.append('<div class="vc-m%s"><div class="vc-h"><b>%s</b><span>%s</span></div>' % (
-            ' lvl' if lvl else '', label, 'level' if lvl else gap_phrase(key)))
-        h.append('<div class="vc-track">%s<span class="vc-rail"></span>' % ends)
+            ' lvl' if lvl else '', label, 'level — will not decide it' if lvl else gap_phrase(key)))
+        h.append('<div class="vc-track"><span class="vc-rail"></span>%s%s' % (span, ends))
         for i, r in enumerate(TRIO):
             k = rank(key, d, r)
             h.append('<span class="vc-dot d%d is-%s" style="left:%.1f%%"><i>%s</i><em>%s</em></span>'
@@ -108,36 +125,39 @@ def variant_c():
     h.append('</div>')
     return '\n'.join(h)
 
-def variant_d():
-    h = ['<div class="vd">']
-    for i, r in enumerate(TRIO):
-        h.append('<div class="vd-card"><div class="vd-top"><b>%s</b><span>%s · %s</span></div>' % (
-            r['p'], r['d'], r['n']))
-        for label, key, d, lead, trail, fmt, short in M:
-            k = rank(key, d, r)
-            h.append('<div class="vd-row"><span class="vd-lab">%s</span>'
-                     '<span class="vd-bul"><i style="left:%.1f%%" class="is-%s"></i></span>'
-                     '<span class="vd-val">%s</span></div>' % (short, pos(key, r) * 100, k, fmt(r)))
-        h.append('</div>')
-    h.append('</div>')
-    return '\n'.join(h)
-
 def variant_e():
+    """Editorial, now annotated: the headline figures are tinted, the leader and trailer are named
+    inline, and the facts table carries the same green/red marks as the other variants."""
     ranked = sorted(M, key=lambda m: spread(m[1]), reverse=True)
     top = [m for m in ranked if spread(m[1]) >= CLOSE][:3]
     lvl = [m for m in ranked if spread(m[1]) < CLOSE]
     h = ['<div class="ve">']
     for label, key, d, lead, trail, fmt, short in top:
-        v = [(key(r), r) for r in TRIO]
-        hi = max(v)[1]; lo = min(v)[1]
-        front, back = (hi, lo) if d == 'more' else (lo, hi) if d == 'less' else (hi, lo)
-        h.append('<div class="ve-p"><h5>%s &mdash; <em>%s</em></h5><p>%s at <b>%s</b>%s; %s at <b>%s</b>.</p></div>'
-                 % (label, gap_phrase(key), front['p'], fmt(front),
-                    ' <i>(%s)</i>' % lead if d else '', back['p'], fmt(back)))
-    h.append('<table class="ve-t"><tbody>')
+        if d:
+            front = min(TRIO, key=key) if d == 'less' else max(TRIO, key=key)
+            back = max(TRIO, key=key) if d == 'less' else min(TRIO, key=key)
+        else:
+            front, back = max(TRIO, key=key), min(TRIO, key=key)
+        h.append(
+            '<div class="ve-p"><h5>%s <em>%s</em></h5><p>'
+            '<b class="%s">%s</b> <span class="ve-v %s">%s</span>%s '
+            '&nbsp;against&nbsp; <b class="%s">%s</b> <span class="ve-v %s">%s</span>%s</p></div>'
+            % (label, gap_phrase(key),
+               've-n-good' if d else '', front['p'], 'good' if d else '', fmt(front),
+               ' <i class="ve-tag good">▲ %s</i>' % lead if d else '',
+               've-n-bad' if d else '', back['p'], 'bad' if d else '', fmt(back),
+               ' <i class="ve-tag bad">▼ %s</i>' % trail if d else ''))
+    h.append('<table class="ve-t"><thead><tr><th></th>%s</tr></thead><tbody>'
+             % ''.join('<th>%s</th>' % r['p'] for r in TRIO))
     for label, key, d, lead, trail, fmt, short in M:
-        h.append('<tr><th>%s</th>%s</tr>' % (label, ''.join('<td>%s</td>' % fmt(r) for r in TRIO)))
+        lvlrow = spread(key) < CLOSE
+        h.append('<tr class="%s"><th>%s%s</th>%s</tr>' % (
+            'lvl' if lvlrow else '', label,
+            '<i>level</i>' if lvlrow else ('' if d else '<i>no better end</i>'),
+            ''.join('<td class="is-%s">%s</td>' % (rank(key, d, r), fmt(r)) for r in TRIO)))
     h.append('</tbody></table>')
-    h.append('<p class="ve-n">Level on %s.</p>' % ', '.join(m[6] for m in lvl))
+    if lvl:
+        h.append('<p class="ve-n">Level on %s &mdash; those will not decide it.</p>'
+                 % ', '.join(m[6] for m in lvl))
     h.append('</div>')
     return '\n'.join(h)
