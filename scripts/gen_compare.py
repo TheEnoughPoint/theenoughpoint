@@ -38,6 +38,8 @@ out = (HEAD
        + BODY.replace('__LOGIC__', LOGIC))
 
 path = os.path.join(HERE, '..', 'src', 'components', 'CondoCompare.astro')
+from jsx_space_lint import assert_clean
+assert_clean(out, 'CondoCompare.astro')   # a newline before an expression eats the space; five have shipped
 io.open(path, 'w', encoding='utf-8').write(out)
 print('written', len(out), 'bytes ·', len(rows), 'projects ·',
       len({r['d'] for r in rows}), 'districts')

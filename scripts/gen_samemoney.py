@@ -151,18 +151,25 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
     ))}
   </ol>
 
-  <p class="sm-foot">Every bar is the floor area {money(BUDGET)} buys in that building &mdash; set by
-  the price on {ROWS.length - CAPPED.length} of them, and on {CAPPED.length} capped at
-  <b> the top of what actually sells there</b>, meaning nine in ten sales in the year were smaller.
-  Against{' '}
-  <b>{n(BASE)} square feet</b> in a building that does not exist yet, the range runs from{' '}
-  <b>{MIN_PCT >= 0 ? '+' : '−'}{n(Math.abs(MIN_PCT))}%</b> to <b>+{n(MAX_PCT)}%</b>. That extra area is the entry gap made physical, and
-  it is <b>not</b> money lost: part of it is what a new building, a fresh 99-year lease and no
-  near-term repair bill genuinely cost. The lease column is where the biggest jumps show their
-  price &mdash; the row offering the most space has{' '}
-  {ROWS.find((r) => r.pct === MAX_PCT).l} years left against the baseline&rsquo;s fresh 99.</p>
+  {/* An earlier version said all of this in one sentence carrying three separate ideas, and a
+      reader stopped at it. One idea per sentence, with a worked example for the awkward case. */}
+  <p class="sm-foot">Each bar is how much space {money(BUDGET)} buys at that building&rsquo;s own
+  price per square foot. For {ROWS.length - CAPPED.length} of them that is plain arithmetic.
+  For the other {CAPPED.length} the sum came out bigger than almost anything they sell, so the bar
+  stops at the size nine in ten of their sales come under &mdash; at <b>{CAPPED[0].p}</b> the budget
+  works out to {n(CAPPED[0].want)} sq ft, but nine in ten homes sold there are under{' '}
+  <b>{n(CAPPED[0].got)}</b>.</p>
 
-  <p class="sm-src">Computed by us from URA private resale transactions, District 20, twelve months to
+  <p class="sm-foot sm-foot-2">Against <b>{n(BASE)} sq ft</b> in a building that does not exist yet,
+  that runs from {MIN_PCT < 0 ? `${Math.abs(MIN_PCT)}% less space` : `${MIN_PCT}% more`} to{' '}
+  {MAX_PCT >= 100 ? 'more than double' : `${MAX_PCT}% more`}.</p>
+
+  <p class="sm-foot sm-foot-2">The extra space is not money saved. Part of what you pay for a new
+  build is the building being new &mdash; a fresh 99-year lease, and nothing to repair for years.
+  The lease column is where the biggest jumps show their price: the row with the most space has{' '}
+  <b>{ROWS.find((r) => r.pct === MAX_PCT).l} years</b> left, against a fresh 99.</p>
+
+  <p class="sm-src">Computed by us from URA private resale transactions, District 20, twelve months to{' '}
   {ASOF}; walking distances are straight-line to the nearest station entrance, so a real walk is
   typically 20&ndash;40% further. Two filters, applied mechanically: within 400 m of an MRT entrance,
   and at least 10 resales in the period so no median rests on one unusual unit &mdash; which is why
@@ -237,6 +244,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 
 .post-content p.sm-foot{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--sm-rule);
   font-size:12.5px;line-height:1.6;color:var(--sm-body)}
+.post-content p.sm-foot-2{margin-top:9px;padding-top:0;border-top:0}
 .post-content p.sm-src{margin:10px 0 0;padding-top:10px;border-top:1px solid var(--sm-rule);
   font-size:11.5px;line-height:1.55;color:var(--sm-muted)}
 
@@ -254,6 +262,8 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
 
 out = TPL.replace('__DATA__', DATA).replace('__PROVENANCE__', provenance)
 path = r'C:\\TheEnoughPoint-wt-newlaunch\\src\\components\\SameMoneySize.astro'
+from jsx_space_lint import assert_clean
+assert_clean(out, 'SameMoneySize.astro')   # a newline before an expression eats the space; five have shipped
 io.open(path, 'w', encoding='utf-8').write(out)
 print('written', len(out), 'bytes ·', len(rows), 'buildings ·',
       sum(1 for r in rows if r['capped']), 'capped by the building')
