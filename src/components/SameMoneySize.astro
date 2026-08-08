@@ -9,11 +9,16 @@
 // version dropped four buildings where the budget bought more space than the building has ever
 // sold, then explained the exclusion in a note longer than the chart. That was worse on both
 // counts: it hid buildings a reader might want, and it spent its longest paragraph on absence.
-// Every bar is now the LARGEST SINGLE HOME the budget actually buys there — limited by the price
-// on five of them and by the building itself on four, where nothing bigger has ever been sold. An
-// intermediate version drew a ghosted stretch on to the notional figure; it read as more bar
-// rather than as absent space, which was the opposite of its point, so the bar simply stops at
-// what exists and the row says "their biggest" beside the number. Nothing left to interpret.
+// Every bar is the floor area the budget buys there, CAPPED at the top of what that building
+// actually sells. An intermediate version drew a ghosted stretch on to the uncapped figure; it
+// read as more bar rather than as absent space, so the bar simply stops.
+//
+// WHAT THE CAP IS, precisely, because an earlier label got this wrong twice. `size_r` in the feed
+// is the 10th and 90th percentile of the sizes that TRADED in the twelve months — not the
+// building's inventory, and not the largest unit in it. So the ceiling means "9 in 10 sales there
+// were smaller than this", which is a statement about what comes to market, not about what was
+// built. The row said "their biggest", which claimed both more than the data supports; it now
+// says "top of what sells" and the footer states the percentile outright.
 //
 // That also puts Braddell View back on the chart, which matters: it is the row that shows the real
 // trade in this neighbourhood most starkly — far more space, at half the remaining lease.
@@ -60,7 +65,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   </figcaption>
 
   <div class="sm-legend">
-    <span class="sm-lg"><i class="sm-key sm-key-old"></i>largest home {money(BUDGET)} buys there</span>
+    <span class="sm-lg"><i class="sm-key sm-key-old"></i>floor area {money(BUDGET)} buys there</span>
     <span class="sm-lg"><i class="sm-key sm-key-new"></i>not built yet</span>
   </div>
 
@@ -94,19 +99,20 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
           <span class="sm-ghost" style={`width:${w(BASE)}%`} aria-hidden="true"></span>
           <span class="sm-bar sm-bar-old" style={`width:${w(r.got)}%`}
             role="img"
-            aria-label={`${r.p}. Median S$${n(r.psf)} per square foot over ${r.n} resales, ${r.l} years of lease remaining, ${r.m} metres to ${r.x} station. The largest home ${money(BUDGET)} buys there is ${n(r.got)} square feet, ${r.pct} per cent against the new-build baseline.${r.capped ? ` That is the biggest unit the building has; the budget alone would stretch to ${n(r.want)} square feet.` : ''}`}></span>
+            aria-label={`${r.p}. Median S$${n(r.psf)} per square foot over ${r.n} resales, ${r.l} years of lease remaining, ${r.m} metres to ${r.x} station. ${money(BUDGET)} buys ${n(r.got)} square feet there, ${r.pct} per cent against the new-build baseline.${r.capped ? ` That is the top of what sells there — nine in ten sales were smaller — and the budget alone would stretch to ${n(r.want)} square feet.` : ''}`}></span>
         </span>
         {/* The bar stops at what the building actually offers. An earlier version drew a ghosted
             stretch to the notional figure, which read as more bar rather than as absent space. */}
-        <span class="sm-val">{n(r.got)}{r.capped && <i class="sm-cap-note">their biggest</i>}</span>
+        <span class="sm-val">{n(r.got)}{r.capped && <i class="sm-cap-note">top of what sells</i>}</span>
         <span class="sm-pct">{r.pct >= 0 ? '+' : '−'}{Math.abs(r.pct)}%</span>
       </li>
     ))}
   </ol>
 
-  <p class="sm-foot">Every bar is the <b>largest single home {money(BUDGET)} actually buys</b> in that
-  building &mdash; limited by the price on {ROWS.length - CAPPED.length} of them and by the building
-  itself on {CAPPED.length}, where nothing bigger has ever been sold. Against{' '}
+  <p class="sm-foot">Every bar is the floor area {money(BUDGET)} buys in that building &mdash; set by
+  the price on {ROWS.length - CAPPED.length} of them, and on {CAPPED.length} capped at
+  <b> the top of what actually sells there</b>, meaning nine in ten sales in the year were smaller.
+  Against{' '}
   <b>{n(BASE)} square feet</b> in a building that does not exist yet, the range runs from{' '}
   <b>{MIN_PCT >= 0 ? '+' : '−'}{n(Math.abs(MIN_PCT))}%</b> to <b>+{n(MAX_PCT)}%</b>. That extra area is the entry gap made physical, and
   it is <b>not</b> money lost: part of it is what a new building, a fresh 99-year lease and no
@@ -117,7 +123,10 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   <p class="sm-src">Computed by us from URA private resale transactions, District 20, twelve months to
   {ASOF}; walking distances are straight-line to the nearest station entrance, so a real walk is
   typically 20&ndash;40% further. Two filters, applied mechanically: within 400 m of an MRT entrance,
-  and at least 10 resales in the period so no median rests on one unusual unit. <b>A median mixes
+  and at least 10 resales in the period so no median rests on one unusual unit &mdash; which is why
+  some nearby blocks are absent: Sky Habitat, for one, recorded nine. Where a bar is capped, the
+  ceiling is the <b>90th percentile of sizes that traded</b>, not the largest unit the building
+  contains; the feed publishes what sold, not what exists. <b>A median mixes
   floor, stack, condition and renovation</b>, so no row is a price for any particular unit, and no
   row is a view on any building.</p>
 </figure>
