@@ -104,6 +104,12 @@ def build_checks(data):
         ('D20 gross yield', f"{d20['yield'] * 100:.1f}%"),
         ('2026 land award average $psf ppr', fmt(data['gls']['avg_psf_ppr_year']['2026'])),
         ('2025 land award average $psf ppr', fmt(data['gls']['avg_psf_ppr_year']['2025'])),
+        # Rule-derived, not feed-derived, but stated twice in the article and worth pinning:
+        # ABSD at 20% on the worked 950 sq ft unit, and a year of District 20 rent on 1,100 sq ft.
+        ('ABSD, second property, 950 sq ft at 2,900', fmt(950 * 2900 * 0.20)),
+        # The card says "about S$61,000", so the guard asserts the same rounding the article
+        # applies rather than the raw product -- otherwise it fails on a deliberate round.
+        ('one year of D20 rent on 1,100 sq ft', fmt(round(5100 * 12, -3))),
         ('Jadescape median $psf', fmt(projects['JADESCAPE']['median_psf'])),
         ('Jadescape resale count', fmt(projects['JADESCAPE']['vol_12m'])),
         ('Braddell View median $psf', fmt(projects['BRADDELL VIEW']['median_psf'])),
