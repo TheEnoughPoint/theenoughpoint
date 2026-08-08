@@ -26,31 +26,38 @@
 // table, which the venture's red lines prohibit and which would be dishonest anyway — the weights
 // are the reader's and nobody else's. The figure says so in as many words.
 //
-// COLOUR IDENTIFIES THE BUILDING — one hue per column, held down every row.
+// COLOUR SHOWS RELATIVE STANDING WITHIN EACH ROW — never who the building is.
 //
-// It used to mark market segment, and that was wrong here for a reason the default set makes
-// obvious: compare three District 20 buildings and all three are RCR, so all three bars came out
-// the same colour and the channel carried nothing at all. Segment is a property of the building,
-// not of the comparison; it is now text in the column header ("D20 · RCR") where it belongs.
+// Two earlier attempts were both wrong, and the second failed in a way worth recording.
 //
-// The rule this follows is the dataviz standard: colour follows the entity, never its rank, and
-// categorical hues are assigned in fixed order. Because the reader chooses who occupies each
-// column, the hue is bound to the name in three places at once — the picker label, the column
-// header chip, and every bar beneath it — so identity is read off the page and never has to be
-// remembered across a change.
+// First it marked market segment, which the article's own default exposed: three District 20
+// buildings are all RCR, so all three bars came out identical and the channel carried nothing.
 //
-// Palette: slots 1-3 of the validated categorical theme, #2a78d6 / #eb6834 / #1baf7a. Checked
-// with the skill's validator under --pairs all (every pair matters here, not just neighbours):
-// lightness band PASS, chroma floor PASS, worst all-pairs CVD deltaE 9.2 deutan / 9.6 tritan
-// against a target of 8, worst normal-vision deltaE 24.0 against a floor of 15. One WARN: aqua
-// sits at 2.82:1 on white, under 3:1, which obliges visible labels — satisfied by construction,
-// since every mark here has its value, its delta and its building name printed beside it.
-// Deliberately NOT the segment triple used by DistrictYieldChart and DistrictSupplyChart: there
-// that ink means segment, and reusing it for entity identity would give one colour two meanings
-// across the site.
+// Then it identified the building — one hue per column, blue/orange/aqua. That answered "which
+// column is which" but introduced a fairness problem: those hues are not emotionally neutral. The
+// building that happened to be picked third got the green one. Nobody chose that, and no reader
+// can un-see it. A comparison tool that hands out a favourable tone by slot order is putting a
+// thumb on the scale by accident, which is worse than doing it on purpose.
 //
-// Leadership is still marked by a text tag, never by hue, so it survives greyscale and colour
-// blindness and never implies a value judgement the data cannot support.
+// So colour now encodes RANK WITHIN THE ROW, on a single hue, and no project owns a tone. A
+// building that leads on lease and trails on price is dark on one row and light on the next —
+// which is the honest picture. Identity is carried by the column header, which never moves.
+//
+//   ranked rows    one blue ordinal ramp: darkest leads, lightest trails.
+//   unranked rows  a flat neutral grey on all three, because "strength" is undefined for price,
+//                  standing-vs-district, unit size and typical quantum. Colouring those would
+//                  invent the preference the tool explicitly refuses to hold.
+//
+// Palette, validated rather than eyeballed. Ordinal ramp #86b6ef / #3987e5 / #1c5cab checked with
+// --ordinal: lightness monotone PASS, adjacent delta-L PASS, light-end contrast 2.11:1 against
+// the 2:1 ordinal floor PASS, single hue (3 degrees spread) PASS. The unranked neutral #6b7280
+// was then checked AGAINST the ramp, because both appear in one figure: normal-vision deltaE 22.6
+// and deutan 21.8 against the lightest step, so the "no ranking here" grey cannot be mistaken for
+// a ramp step. An earlier candidate sat at deltaE 13.7 and was rejected on that test.
+//
+// Leadership is still ALSO marked by a text tag and an explicit delta, so the ranking survives
+// greyscale, colour blindness and a monochrome print — colour is reinforcement here, never the
+// only carrier.
 //
 // The class prefix is `cmp-`, not `cc-`: src/pages/cashback-calendar.astro already owns `cc-` and
 // both files ship `is:global` styles, so sharing a prefix would collide the moment they met.
@@ -96,7 +103,7 @@ const n = (v) => v.toLocaleString('en-SG');
   <div class="cmp-picks">
     {[0, 1, 2].map((i) => (
       <div class="cmp-pick">
-        <label for={`cmp-s${i}`}><i class={`cmp-key s${i}`}></i>{SLOTS[i]}</label>
+        <label for={`cmp-s${i}`}>{SLOTS[i]}</label>
         <select id={`cmp-s${i}`}>
           <option value="">&mdash; none &mdash;</option>
           {BY_D.map((grp) => (
@@ -111,7 +118,15 @@ const n = (v) => v.toLocaleString('en-SG');
     ))}
   </div>
 
-  <div class="cmp-legend" id="cmp-legend"></div>
+  <div class="cmp-legend">
+    <span class="cmp-scale">
+      <i class="cmp-key r3"></i><i class="cmp-key r2"></i><i class="cmp-key r1"></i>
+      darker leads this row, lighter trails
+    </span>
+    <span class="cmp-scale"><i class="cmp-key n"></i>no better end &mdash; not ranked</span>
+    <span class="cmp-hint">Colour shows standing <em>within a row</em>, never which building it is
+    &mdash; so no project owns a shade, and one that leads on lease can trail on price.</span>
+  </div>
 
   <div class="cmp-out" id="cmp-out" aria-live="polite"></div>
 
@@ -203,7 +218,7 @@ function render(){
   const cols = picked.length;
   let h = '<div class="cmp-heads" style="--cols:' + cols + '">';
   picked.forEach((r, i) => {
-    h += '<div class="cmp-head"><b><i class="cmp-key s' + i + '"></i>' + esc(r.p)
+    h += '<div class="cmp-head"><b>' + esc(r.p)
       + '</b><span class="cmp-meta">' + r.d + ' \u00b7 ' + esc(r.n) + '</span></div>';
   });
   h += '</div>';
@@ -221,6 +236,15 @@ function render(){
     // Bars stay proportional to the value, never to the gap: exaggerating a small spread to fill
     // the track would make two near-identical buildings look far apart.
     const scale = max || 1;
+    // Rank within the row, on distinct values so ties share a step. Index 0 is the leading value
+    // and takes the darkest step; unranked measures return the neutral.
+    const ordered = mt.dir === 'none' ? null
+      : [...new Set(vals)].sort((a, b) => mt.dir === 'more' ? b - a : a - b);
+    const stepOf = (v) => {
+      if (!ordered) return 'n';
+      const ladder = ordered.length <= 1 ? ['r3'] : ordered.length === 2 ? ['r3','r1'] : ['r3','r2','r1'];
+      return ladder[Math.min(ordered.indexOf(v), ladder.length - 1)];
+    };
 
     h += '<div class="cmp-metric"><div class="cmp-mlabel">' + mt.label
        + (mt.dir === 'none' ? '<span class="cmp-tag cmp-tag-n">no better end</span>' : '')
@@ -235,7 +259,7 @@ function render(){
         ? (isRef ? (cols > 1 ? 'lowest here' : '') : mt.delta(vals[i], ref))
         : '';
       h += '<div class="cmp-cell"><span class="cmp-v">' + esc(mt.fmt(r)) + '</span>'
-        + '<span class="cmp-track"><span class="cmp-bar s' + i + '" style="width:'
+        + '<span class="cmp-track"><span class="cmp-bar ' + stepOf(vals[i]) + '" style="width:'
         + Math.max(2, (vals[i] / scale) * 100) + '%" role="img" aria-label="'
         + esc(r.p + ', ' + mt.label + ': ' + mt.fmt(r) + (lead ? ', ' + mt.lead : '')
               + (d ? ', ' + d + ' ' + refLabel : '') + '.') + '"></span></span>'
@@ -246,10 +270,8 @@ function render(){
     h += '</div></div>';
   });
   $('cmp-out').innerHTML = h;
-  $('cmp-legend').innerHTML = picked.map((r, i) =>
-    '<span class="cmp-lg"><i class="cmp-key s' + i + '"></i>' + esc(r.p) + '</span>').join('')
-    + '<span class="cmp-hint">colour identifies the building &middot; '
-    + '<b>▲</b> marks the leading value</span>';
+  // The legend is static markup now: it describes the ramp, not the selection, because colour no
+  // longer names anybody. Nothing to re-render.
 
   if (cols < 2){
     $('cmp-say').innerHTML = 'Add a second building and every row will show how far apart they are.';
@@ -283,10 +305,11 @@ else init();
 
 <style is:global>
 .cmp{
-  /* Categorical slots 1-3 of the validated theme — colour is WHICH BUILDING, held down every
-     row. Validated under --pairs all against a #fff surface: worst CVD deltaE 9.2, worst
-     normal-vision deltaE 24.0. Not the segment triple; that ink means segment elsewhere. */
-  --cmp-s0:#2a78d6; --cmp-s1:#eb6834; --cmp-s2:#1baf7a;
+  /* One ordinal blue ramp — darkest leads its row, lightest trails. Validated with --ordinal
+     against a #fff surface: monotone lightness, visible step gaps, light end 2.11:1 over the 2:1
+     ordinal floor, hue spread 3 degrees. Plus one neutral for rows that cannot be ranked, checked
+     against the ramp at normal-vision deltaE 22.6 so it can never read as a step. */
+  --cmp-r3:#1c5cab; --cmp-r2:#3987e5; --cmp-r1:#86b6ef; --cmp-n:#6b7280;
   --cmp-ink:var(--color-dark); --cmp-body:var(--color-body); --cmp-muted:var(--color-muted);
   --cmp-rule:var(--color-border); --cmp-soft:#F0ECE2;
   --cmp-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
@@ -311,7 +334,11 @@ else init();
 .cmp-lg{display:flex;align-items:center;gap:6px;color:var(--cmp-body)}
 .cmp-key{width:10px;height:10px;border-radius:3px;display:inline-block;flex:0 0 auto;
   margin-right:6px;vertical-align:-1px}
-.cmp-key.s0{background:var(--cmp-s0)} .cmp-key.s1{background:var(--cmp-s1)} .cmp-key.s2{background:var(--cmp-s2)}
+.cmp-key.r3{background:var(--cmp-r3)} .cmp-key.r2{background:var(--cmp-r2)}
+.cmp-key.r1{background:var(--cmp-r1)} .cmp-key.n{background:var(--cmp-n)}
+.cmp-scale{display:flex;align-items:center;color:var(--cmp-body)}
+.cmp-scale .cmp-key{margin-right:2px}
+.cmp-scale .cmp-key:last-of-type{margin-right:6px}
 .cmp-hint{color:var(--cmp-muted);flex-basis:100%}
 
 .cmp-heads,.cmp-mrows{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:10px}
@@ -332,7 +359,8 @@ else init();
 /* 4px rounded data-end, thin mark, no border — separation comes from the 10px grid gap
    between cells rather than a stroke around each bar. */
 .cmp-bar{display:block;height:10px;border-radius:0 4px 4px 0;min-width:3px}
-.cmp-bar.s0{background:var(--cmp-s0)} .cmp-bar.s1{background:var(--cmp-s1)} .cmp-bar.s2{background:var(--cmp-s2)}
+.cmp-bar.r3{background:var(--cmp-r3)} .cmp-bar.r2{background:var(--cmp-r2)}
+.cmp-bar.r1{background:var(--cmp-r1)} .cmp-bar.n{background:var(--cmp-n)}
 .cmp-delta{display:block;min-height:15px;margin-top:3px;font-family:var(--cmp-mono);
   font-variant-numeric:tabular-nums;font-size:11px;color:var(--cmp-muted)}
 /* Leadership is a word, never a colour: it must survive greyscale and colour blindness, and a
