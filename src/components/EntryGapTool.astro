@@ -11,7 +11,19 @@
 //
 //   gapPct  — median of new-sale $psf against the resale median in the SAME
 //             district and SAME quarter, within size band and tenure class.
-//             1,373 quarterly comparisons, 2021Q3–2026Q3, URA caveats.
+//             1,181 quarterly comparisons, 2021Q3–2026Q3, URA caveats.
+//
+//             CORRECTED 2026-08-09. These were 34.4 / 62.1 / 82.7 on n=493/547/333.
+//             That run keyed its comparator pool on a district field URA carries on
+//             the transaction, not on the project, so every district merged into one
+//             national pool — which flattered CCR (priced against cheap suburban
+//             resale) and understated OCR (priced against dear central resale). The
+//             segment order reverses. See sg-property-decision
+//             reviews/2026-08-09_lease-matched-entry-gap.md.
+//
+//             Not matched on lease. Restricting the resale side to 85+ years
+//             remaining takes all three to about +30%, so roughly a third of what is
+//             shown here is vintage rather than newness.
 //   psf     — the segment's own resale median $psf over the last 12 months,
 //             URA transactions, all sizes and tenures pooled.
 //
@@ -23,9 +35,9 @@
 // the district, including thirty-year-old stock, so part of the gap buys a
 // genuinely newer building. The component must never imply otherwise.
 const SEGMENTS = [
-  { key: 'OCR', name: 'Outside Central', gapPct: 34.4, n: 493, psf: 1872 },
-  { key: 'RCR', name: 'Rest of Central', gapPct: 62.1, n: 547, psf: 2362 },
-  { key: 'CCR', name: 'Core Central',    gapPct: 82.7, n: 333, psf: 2756 },
+  { key: 'OCR', name: 'Outside Central', gapPct: 52.0, n: 405, psf: 1872 },
+  { key: 'RCR', name: 'Rest of Central', gapPct: 46.9, n: 483, psf: 2362 },
+  { key: 'CCR', name: 'Core Central',    gapPct: 42.2, n: 293, psf: 2756 },
 ];
 
 const DEFAULT_BUDGET = 1_500_000;
