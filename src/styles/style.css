@@ -215,6 +215,29 @@ h4.text-heading, h5.text-heading, h6.text-heading {
   color: var(--color-body);
 }
 
+/* Reading measure — C:/dev/MOBILE_CHECK.md: "Cap running prose near 66ch; let tables and
+   figures stay wider." Measured before this: 85.7 chars/line at 768px and 96.8 at 1280,
+   against a 65–75 target. At 390 it was already 42.6, so this is a tablet-and-desktop fix
+   and the phone layout is untouched.
+
+   Direct children only, and deliberately not `max-width` on .post-content itself: the tables,
+   figures and interactive components are meant to stay wide, and capping the container would
+   take them with it. Left-aligned rather than centred, so prose shares its left edge with the
+   figures it sits between. */
+.post-content > p,
+.post-content > ul,
+.post-content > ol,
+.post-content > blockquote,
+.post-content > h2,
+.post-content > h3,
+.post-content > h4 {
+  /* 58ch, not the nominal 66. `ch` is the advance of "0", which in this face is wider than the
+     average lowercase letter, so a 66ch column measured 79.2 characters per line — still outside
+     the 65–75 target. 58ch measures ~70, the middle of the band. The spec's number is the
+     convention; the band is the requirement, and only one of them can be verified. */
+  max-width: 58ch;
+}
+
 /* Paragraphs */
 .post-content p {
   margin-bottom: 1.4em;
