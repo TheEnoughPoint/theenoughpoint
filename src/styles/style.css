@@ -245,7 +245,9 @@ h4.text-heading, h5.text-heading, h6.text-heading {
      average lowercase letter, so a 66ch column measured 79.2 characters per line — still outside
      the 65–75 target. 58ch measures ~70, the middle of the band. The spec's number is the
      convention; the band is the requirement, and only one of them can be verified. */
-  max-width: 58ch;
+  /* 62ch = the TOP of the 65-75 band rather than the middle, because the wider column reads
+     better and the constraint is a range, not a point. */
+  max-width: 62ch;
 }
 
 /* Paragraphs */
