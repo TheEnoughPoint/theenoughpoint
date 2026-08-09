@@ -210,9 +210,19 @@ h4.text-heading, h5.text-heading, h6.text-heading {
    post-content
 ══════════════════════════════════════ */
 .post-content {
-  font-size: 16px;
-  line-height: 1.85;
+  /* 18px above phone width. The reading measure was failing because an 814px column carries
+     96.8 characters at 16px — the column was always too wide for the type, and capping the prose
+     alone left 229px of empty gutter beside every paragraph while the figures ran full width.
+     Enlarging the type is the other way to fix a measure, and it closes most of that gap: the cap
+     below is in `ch`, which is font-relative, so the prose column widens with the text and the
+     characters per line stay put. Phones keep 16px — at 358px wide, 18px would drop them to ~38
+     characters, under the 40 floor. */
+  font-size: 19px;
+  line-height: 1.72;
   color: var(--color-body);
+}
+@media (max-width: 640px) {
+  .post-content { font-size: 16px; line-height: 1.85; }
 }
 
 /* Reading measure — C:/dev/MOBILE_CHECK.md: "Cap running prose near 66ch; let tables and
