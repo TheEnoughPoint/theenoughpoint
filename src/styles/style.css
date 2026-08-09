@@ -217,8 +217,8 @@ h4.text-heading, h5.text-heading, h6.text-heading {
      below is in `ch`, which is font-relative, so the prose column widens with the text and the
      characters per line stay put. Phones keep 16px — at 358px wide, 18px would drop them to ~38
      characters, under the 40 floor. */
-  font-size: 19px;
-  line-height: 1.72;
+  font-size: 18px;
+  line-height: 1.75;
   color: var(--color-body);
 }
 @media (max-width: 640px) {
