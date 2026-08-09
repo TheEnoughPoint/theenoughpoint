@@ -109,6 +109,16 @@ const BASE = 2162;
      scrolls at the figure, and doing it twice puts the header span out of register with the
      columns it spans. */
   .post-content figure.be table{display:table;overflow-x:visible}
+  /* Drop the desktop min-width and let the cells wrap. A real Samsung Fold showed this table
+     with 12 yrs and 15 yrs entirely off-screen and the spanning header sliced mid-word: the
+     430px floor plus nowrap held it at 491px inside a 358px phone, and the figure scrolled
+     silently. The values are "+27%" and "3.5%" - they do not need nowrap to stay whole. */
+  .post-content figure.be table{min-width:0;white-space:normal}
+  .post-content figure.be .be-hc th,
+  .post-content figure.be tbody th{white-space:normal}
+  .post-content figure.be tbody th,
+  .post-content figure.be tbody td{padding:10px 5px}
+  .post-content figure.be .be-hc th{padding:8px 5px}
   .post-content figure.be tbody th,
   .post-content figure.be tbody td{padding:10px 8px}
   .post-content figure.be .be-num{font-size:17px}
