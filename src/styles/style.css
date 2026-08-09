@@ -210,9 +210,44 @@ h4.text-heading, h5.text-heading, h6.text-heading {
    post-content
 ══════════════════════════════════════ */
 .post-content {
-  font-size: 16px;
-  line-height: 1.85;
+  /* 18px above phone width. The reading measure was failing because an 814px column carries
+     96.8 characters at 16px — the column was always too wide for the type, and capping the prose
+     alone left 229px of empty gutter beside every paragraph while the figures ran full width.
+     Enlarging the type is the other way to fix a measure, and it closes most of that gap: the cap
+     below is in `ch`, which is font-relative, so the prose column widens with the text and the
+     characters per line stay put. Phones keep 16px — at 358px wide, 18px would drop them to ~38
+     characters, under the 40 floor. */
+  font-size: 18px;
+  line-height: 1.75;
   color: var(--color-body);
+}
+@media (max-width: 640px) {
+  .post-content { font-size: 16px; line-height: 1.85; }
+}
+
+/* Reading measure — C:/dev/MOBILE_CHECK.md: "Cap running prose near 66ch; let tables and
+   figures stay wider." Measured before this: 85.7 chars/line at 768px and 96.8 at 1280,
+   against a 65–75 target. At 390 it was already 42.6, so this is a tablet-and-desktop fix
+   and the phone layout is untouched.
+
+   Direct children only, and deliberately not `max-width` on .post-content itself: the tables,
+   figures and interactive components are meant to stay wide, and capping the container would
+   take them with it. Left-aligned rather than centred, so prose shares its left edge with the
+   figures it sits between. */
+.post-content > p,
+.post-content > ul,
+.post-content > ol,
+.post-content > blockquote,
+.post-content > h2,
+.post-content > h3,
+.post-content > h4 {
+  /* 58ch, not the nominal 66. `ch` is the advance of "0", which in this face is wider than the
+     average lowercase letter, so a 66ch column measured 79.2 characters per line — still outside
+     the 65–75 target. 58ch measures ~70, the middle of the band. The spec's number is the
+     convention; the band is the requirement, and only one of them can be verified. */
+  /* 62ch = the TOP of the 65-75 band rather than the middle, because the wider column reads
+     better and the constraint is a range, not a point. */
+  max-width: 62ch;
 }
 
 /* Paragraphs */
@@ -400,10 +435,17 @@ h4.text-heading, h5.text-heading, h6.text-heading {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
+    /* Not nowrap. It was forcing every cell onto one line, which is what made these tables
+       742, 975 and 471px wide inside a 358px phone — up to 2.7 screens of sideways scrolling
+       for a five-column table. Wrapping is safe for the figures: a token like "S$1,885,000"
+       has no break opportunity in it, so numbers stay whole and only multi-word cells fold.
+       They still scroll if they need to; they mostly no longer need to. */
+    white-space: normal;
   }
+  /* Tighter on a phone, which buys back most of the width the wrapping does not. */
   .post-content th,
-  .post-content td { padding: 9px 11px; }
+  .post-content td { padding: 7px 8px; }
+  .post-content thead th { font-size: 12px; line-height: 1.25; }
 }
 /* Card hover */
 .article-card:hover .article-title { color: var(--color-brand-600); }
@@ -484,7 +526,11 @@ h4.text-heading, h5.text-heading, h6.text-heading {
     list-style: none;
     font-weight: 600;
     color: var(--color-body);
-    padding: 2px 0;
+    /* 44px minimum: measured at 25px, which is half a comfortable tap target. Padding rather
+       than height so the label keeps sitting on the text baseline it shares with the fold. */
+    padding: 11px 0;
+    min-height: 44px;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     gap: .45rem;

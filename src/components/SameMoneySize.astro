@@ -201,7 +201,10 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
    with no idea which was which until they reached the footnote. */
 .sm-head{display:grid;grid-template-columns:minmax(96px,190px) 1fr 62px 44px;gap:10px;
   align-items:end;padding-bottom:6px;border-bottom:1px solid var(--sm-rule);margin-bottom:7px;
-  font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  /* 11px unconditionally, not inside the phone query. This was 10.5px and raised to 11 only
+     below 640px, so it rendered 10.5 at 768, 1280 and - the case that matters - iPhone
+     landscape at 844. Exactly the bug C:/dev/MOBILE_CHECK.md was written about. */
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
   color:var(--sm-muted)}
 .sm-h-val,.sm-h-pct{text-align:right}
 
@@ -249,7 +252,7 @@ const money = (v: number) => `S$${(v / 1_000_000).toFixed(1)}m`;
   .sm-name{font-size:11.5px}
   .sm-nm{display:none}       /* the long meta line is desktop-only */
   .sm-nm-s{display:block}    /* a short one replaces it so lease and walk survive */
-  .sm-head{font-size:11px;letter-spacing:.04em}
+  .sm-head{letter-spacing:.04em}
   .sm-h-bar{display:none}
 }
 </style>
