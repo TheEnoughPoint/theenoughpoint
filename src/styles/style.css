@@ -443,8 +443,10 @@ h4.text-heading, h5.text-heading, h6.text-heading {
     white-space: normal;
   }
   /* Tighter on a phone, which buys back most of the width the wrapping does not. */
+  /* 6px horizontal, not 8. Across five columns that is 20px, which is what stood between the
+     land table and fitting a 390px phone outright instead of clipping its last column. */
   .post-content th,
-  .post-content td { padding: 7px 8px; }
+  .post-content td { padding: 7px 6px; }
   .post-content thead th { font-size: 12px; line-height: 1.25; }
 }
 /* Card hover */
