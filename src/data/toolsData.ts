@@ -23,4 +23,13 @@ export const tools: ToolEntry[] = [
       'When the next upsized window lands — the payday rhythm, the double-digit days, and a dated log of observed rates.',
     icon: 'bi:calendar',
   },
+  {
+    name: 'Compare three condominiums',
+    // No project or district count in the blurb: both are recomputed from URA's record on a
+    // weekly refresh, and this file is static, so a number here would drift silently.
+    href: '/condo-compare/',
+    blurb:
+      'Three buildings side by side on price per square foot, resales in the year, lease left, the walk to MRT and how each stands against its own district.',
+    icon: 'bi:house-door',
+  },
 ];
