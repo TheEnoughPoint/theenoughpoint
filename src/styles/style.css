@@ -435,10 +435,17 @@ h4.text-heading, h5.text-heading, h6.text-heading {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
+    /* Not nowrap. It was forcing every cell onto one line, which is what made these tables
+       742, 975 and 471px wide inside a 358px phone — up to 2.7 screens of sideways scrolling
+       for a five-column table. Wrapping is safe for the figures: a token like "S$1,885,000"
+       has no break opportunity in it, so numbers stay whole and only multi-word cells fold.
+       They still scroll if they need to; they mostly no longer need to. */
+    white-space: normal;
   }
+  /* Tighter on a phone, which buys back most of the width the wrapping does not. */
   .post-content th,
-  .post-content td { padding: 9px 11px; }
+  .post-content td { padding: 7px 8px; }
+  .post-content thead th { font-size: 12px; line-height: 1.25; }
 }
 /* Card hover */
 .article-card:hover .article-title { color: var(--color-brand-600); }
