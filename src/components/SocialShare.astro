@@ -138,8 +138,10 @@ const shares = [
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    /* 44px everywhere, not only on the narrow breakpoint below. These are the only controls
+       on the page besides the notes fold, and a 40px target fails the check at every width. */
+    width: 44px;
+    height: 44px;
     border: 1px solid var(--color-border);
     background: #fff;
     color: var(--color-navy);

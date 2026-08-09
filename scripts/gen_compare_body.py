@@ -426,7 +426,12 @@ else init();
 .cmp-mmeta{display:flex;flex-wrap:wrap;align-items:center;gap:3px 6px;margin-top:3px}
 .post-content .cmp-t tbody th{position:relative}
 /* A 44px tap target around a 17px glyph — the button is the hit area, the circle is the mark. */
-.cmp-q{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
+/* The visible dot stays 17px because it sits inline in a tight label column, but the thing a
+   thumb has to hit does not have to be the thing you can see. An ::after overlay gives it a 44px
+   target without adding a pixel to the layout — measured at 17px, which is a third of one. */
+.cmp-q::after{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;
+  transform:translate(-50%,-50%)}
+.cmp-q{position:relative;display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
   flex:0 0 auto;margin-left:0;padding:0;border:1px solid var(--cmp-rule);border-radius:50%;background:#fff;
   color:var(--cmp-muted);font-size:11px;font-weight:700;font-family:inherit;line-height:1;
   cursor:pointer;position:relative;vertical-align:-3px}
