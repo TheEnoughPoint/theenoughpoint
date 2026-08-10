@@ -127,9 +127,41 @@ def build_checks(data):
     ]
 
 
+# The decay figures come from the pre-registered test C, not from live.json, so they are guarded
+# against the study's own committed result rather than the feed. Same principle as everything
+# above: the reader must not be shown a number the source no longer supports. If the study is
+# re-run and the gradient moves, this fails and the prose has to be rewritten with it.
+STUDY = os.environ.get(
+    'STUDY_JSON', r'C:/dev/sg-property-decision/reviews/launch_vs_resale_result.json')
+
+
+def build_study_checks(path):
+    import json
+    if not os.path.exists(path):
+        return None
+    c = (json.load(io.open(path, encoding='utf-8')) or {}).get('test_c_age_decay')
+    if not c:
+        return None
+    g = c['gradient']
+    return [
+        ('decay: resales measured', fmt(sum(b['n'] for b in g.values()))),
+        ('decay: districts', str(max(b['districts'] for b in g.values()))),
+        # Prose rounds these to whole percents; assert the rounding the prose actually used, so a
+        # gradient that shifts by a point still trips the check rather than passing on a substring.
+        ('decay: age 6-10 premium', '+%d%%' % round(g['6-10']['median'])),
+        ('decay: age 21-30 premium', '\u2212%d%%' % round(abs(g['21-30']['median']))),
+        ('decay: zero crossing', str(round(c['zero_crossing_age']))),
+    ]
+
+
 def main():
     data, provenance = load_live(LIVE, ['projects', 'districts', 'new_launches', 'gls'], allow_stale=True)
     checks = build_checks(data)
+    study = build_study_checks(STUDY)
+    if study:
+        checks += study
+    else:
+        print(f'NOTE: study result not found at {STUDY} — decay figures unguarded this run')
 
     paths = [os.path.join(DIST, p, 'index.html') for p in PAGES]
     missing = [p for p in paths if not os.path.exists(p)]
