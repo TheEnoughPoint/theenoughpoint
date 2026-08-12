@@ -1,0 +1,150 @@
+---
+// The published KrisFlyer Saver ladder, indexed to economy.
+//
+// This is the single most load-bearing exhibit in the piece, and it is entirely
+// a fact about a published chart: no fare, no valuation, no forecast. Singapore
+// Airlines prices a business award at roughly two to two and a half times the
+// economy award, and a First/Suites award at about three times. Revenue
+// management does not price cash tickets on anything like that ladder, and the
+// gap between the two ladders is the whole reason premium-cabin redemptions
+// return more per mile.
+//
+// Figures: one-way Saver awards from Singapore, chart effective 1 November 2025.
+// Cross-checked across two independent transcriptions of Singapore Airlines'
+// award chart, with the pre- and post-devaluation deltas reconciling against
+// The MileLion's separately reported percentage changes. Verified 12 Aug 2026.
+import { Font } from 'astro:assets';
+import ToolBrand from '../ToolBrand.astro';
+
+// Miles are printed by SIA in thousands; stored here in full miles.
+const ZONES = [
+  { zone: 5,  label: 'Beijing, Shanghai',          y: 20500, j: 45000,  f: 61500  },
+  { zone: 8,  label: 'Perth, Darwin',              y: 20500, j: 42500,  f: 60500  },
+  { zone: 9,  label: 'Australia (others), NZ',     y: 29000, j: 72000,  f: 98000  },
+  { zone: 10, label: 'Africa, Middle East, Turkey',y: 32000, j: 68000,  f: 95000  },
+  { zone: 11, label: 'Europe',                     y: 44000, j: 108500, f: 148000 },
+];
+
+const rows = ZONES.map((z) => ({
+  ...z,
+  jx: z.j / z.y,
+  fx: z.f / z.y,
+}));
+
+const maxMiles = Math.max(...rows.map((r) => r.f));
+const jxLo = Math.min(...rows.map((r) => r.jx));
+const jxHi = Math.max(...rows.map((r) => r.jx));
+const fxLo = Math.min(...rows.map((r) => r.fx));
+const fxHi = Math.max(...rows.map((r) => r.fx));
+
+const n = (v: number) => v.toLocaleString('en-SG');
+const x = (v: number) => v.toFixed(2) + '×';
+---
+
+<Font cssVariable="--font-mono" />
+
+<div class="cl">
+  <div class="cl-head">
+    <span class="cl-lbl">The published ladder &mdash; one-way Saver awards from Singapore</span>
+    <span class="cl-lbl accent">Chart effective 1 Nov 2025</span>
+  </div>
+
+  <p class="cl-preset">Every figure below is the award chart, not an estimate. The multiples are
+  the point: a business award costs <b>{x(jxLo)}&ndash;{x(jxHi)}</b> the economy award, and a
+  First or Suites award <b>{x(fxLo)}&ndash;{x(fxHi)}</b>. Hold that ladder in mind, then price
+  the same three cabins in cash on any long-haul route you like.</p>
+
+  <div class="cl-rows">
+    {rows.map((r) => (
+      <div class="cl-row">
+        <div class="cl-zone">
+          <b>Zone {r.zone}</b><em>{r.label}</em>
+        </div>
+        <div class="cl-bars">
+          <div class="cl-bar">
+            <div class="cl-bar-l"><span>Economy</span><b class="num">{n(r.y)}<i>1.00&times;</i></b></div>
+            <div class="cl-track"><div class="cl-fill y" style={`width:${(r.y / maxMiles) * 100}%`}></div></div>
+          </div>
+          <div class="cl-bar">
+            <div class="cl-bar-l"><span>Business</span><b class="num">{n(r.j)}<i>{x(r.jx)}</i></b></div>
+            <div class="cl-track"><div class="cl-fill j" style={`width:${(r.j / maxMiles) * 100}%`}></div></div>
+          </div>
+          <div class="cl-bar">
+            <div class="cl-bar-l"><span>First / Suites</span><b class="num">{n(r.f)}<i>{x(r.fx)}</i></b></div>
+            <div class="cl-track"><div class="cl-fill f" style={`width:${(r.f / maxMiles) * 100}%`}></div></div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="cl-out">
+    {/* Keep "a <b>" on one line: a line break between text and an element is
+        collapsed away in .astro templates, which fuses the two words. */}
+    <div class="cl-out-s">The award chart is a <b>published ladder</b>. The fare table is
+    a <b>revenue-management decision</b>, remade daily, and on long-haul it separates the cabins by
+    far more than these multiples do. A mile does not know which cabin it is buying &mdash; which
+    is precisely why the cabin you point it at decides what it is worth.</div>
+  </div>
+
+  <div class="cl-notes">
+    <p><b>What this is.</b> Singapore Airlines' own one-way Saver award pricing from Singapore,
+    for five zones chosen because they carry the redemptions discussed in this piece. Premium
+    economy is omitted from the ladder for legibility, not for judgement.</p>
+    <p><b>What it is not.</b> A claim about availability. Saver seats are the cheapest rung and
+    the scarcest &mdash; a published price you cannot book is worth nothing, and no chart shows
+    you how many seats sit behind each number.</p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.cl{
+  --cl-bd:var(--color-border); --cl-t1:var(--color-dark); --cl-t2:var(--color-body);
+  --cl-t3:var(--color-muted); --cl-deep:var(--color-navy);
+  --cl-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--cl-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--cl-t1)
+}
+.cl .num{font-family:var(--cl-mono);font-variant-numeric:tabular-nums}
+.cl-head{padding:14px 22px;background:var(--color-surface);border-bottom:1px solid var(--cl-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cl-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cl-t3)}
+.cl-lbl.accent{color:var(--color-brand-700)}
+.post-content .cl-preset{font-size:12.5px;color:var(--cl-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--cl-bd)}
+.cl-preset b{color:var(--cl-t2);font-weight:600}
+
+.cl-rows{padding:6px 22px 16px}
+.cl-row{padding:14px 0;border-bottom:1px dashed var(--cl-bd)}
+.cl-row:last-child{border-bottom:none}
+.cl-zone{margin-bottom:9px}
+.cl-zone b{font-size:13px;font-weight:700;color:var(--cl-t1)}
+.cl-zone em{font-style:normal;font-size:12.5px;color:var(--cl-t3);margin-left:8px}
+.cl-bars{display:flex;flex-direction:column;gap:9px}
+.cl-bar-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:4px}
+.cl-bar-l span{font-size:13px;color:var(--cl-t2)}
+.cl-bar-l b{font-family:var(--cl-mono);font-size:14px;font-weight:600;color:var(--cl-t1)}
+.cl-bar-l i{font-style:normal;font-family:var(--font-body);font-size:11px;font-weight:700;
+  color:var(--cl-t3);margin-left:8px}
+.cl-track{height:9px;background:var(--color-surface-alt);border-radius:999px;overflow:hidden}
+.cl-fill{height:100%;border-radius:999px;min-width:2px}
+.cl-fill.y{background:#B9C4D2}
+.cl-fill.j{background:var(--color-brand-600)}
+.cl-fill.f{background:#9C7526}
+
+.cl-out{background:var(--cl-deep);color:#fff;padding:17px 22px}
+.cl-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.cl-out-s b{font-weight:600;color:#fff}
+
+.cl-notes{padding:15px 22px 17px;border-top:1px solid var(--cl-bd);background:var(--color-surface)}
+.post-content .cl-notes p{font-size:12.5px;line-height:1.55;color:var(--cl-t3);margin:0 0 7px}
+.post-content .cl-notes p:last-child{margin-bottom:0}
+.cl-notes b{color:var(--cl-t2)}
+@media(max-width:640px){
+  .cl-head{gap:4px}
+  .cl-rows{padding:6px 16px 14px}
+  .cl-bar-l span{font-size:12.5px}
+}
+</style>

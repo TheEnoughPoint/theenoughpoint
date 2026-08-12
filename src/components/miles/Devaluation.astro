@@ -1,0 +1,147 @@
+---
+// What happened to the chart on 1 November 2025.
+//
+// The single most important fact about a mile is that its price is set by the
+// party that issues it, and can be reset without your consent. This is not a
+// theoretical risk: it happened nine months ago, it fell hardest on exactly the
+// premium-cabin redemptions this piece argues for, and the new Access tier was
+// itself repriced upward within four months of launch.
+//
+// Before figures: the chart in force to 31 October 2025. After figures: the
+// chart effective 1 November 2025. Both transcribed from published award charts
+// and cross-checked; the resulting percentage moves reconcile against The
+// MileLion's separately reported changes (economy Saver down about 5% in zones
+// 1–9; business and First Saver up about 5%; Advantage up 15–18%; zone 10 up
+// most). Verified 12 August 2026.
+import ToolBrand from '../ToolBrand.astro';
+
+const ROWS = [
+  { zone: 'Zone 5 — Beijing, Shanghai',           cabin: 'Economy, Saver',        before: 21500,  after: 20500  },
+  { zone: 'Zone 5 — Beijing, Shanghai',           cabin: 'Business, Saver',       before: 43000,  after: 45000  },
+  { zone: 'Zone 5 — Beijing, Shanghai',           cabin: 'Business, Advantage',   before: 65000,  after: 75000  },
+  { zone: 'Zone 5 — Beijing, Shanghai',           cabin: 'First, Advantage',      before: 98000,  after: 112500 },
+  { zone: 'Zone 10 — Africa, Middle East, Turkey',cabin: 'Business, Saver',       before: 56500,  after: 68000  },
+  { zone: 'Zone 10 — Africa, Middle East, Turkey',cabin: 'Business, Advantage',   before: 103500, after: 122000 },
+  { zone: 'Zone 10 — Africa, Middle East, Turkey',cabin: 'First, Advantage',      before: 148500, after: 171000 },
+  { zone: 'Zone 11 — Europe',                     cabin: 'Business, Saver',       before: 103500, after: 108500 },
+  { zone: 'Zone 11 — Europe',                     cabin: 'Business, Advantage',   before: 123000, after: 141500 },
+  { zone: 'Zone 11 — Europe',                     cabin: 'First/Suites, Advantage',before: 225500, after: 259500 },
+];
+
+const rows = ROWS.map((r) => ({ ...r, pct: ((r.after - r.before) / r.before) * 100 }));
+const maxAbs = Math.max(...rows.map((r) => Math.abs(r.pct)));
+const worst = rows.reduce((a, b) => (b.pct > a.pct ? b : a));
+
+const n = (v: number) => v.toLocaleString('en-SG');
+const pct = (v: number) => (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+---
+
+<div class="dv">
+  <div class="dv-head">
+    <span class="dv-lbl">The chart is not a promise &mdash; what changed on 1 November 2025</span>
+    <span class="dv-lbl accent">One-way awards</span>
+  </div>
+
+  <p class="dv-preset">Not one of these seats got better. The same flight, the same cabin, the
+  same airline &mdash; repriced overnight by the party that issues the currency. Note where the
+  increases land: the <b>Advantage</b> awards you actually get to book, and <b>{worst.zone.split(' — ')[0]}</b>,
+  which had been the best value on the chart.</p>
+
+  <div class="dv-rows">
+    {rows.map((r) => (
+      <div class="dv-row">
+        <div class="dv-k">
+          <b>{r.cabin}</b><em>{r.zone}</em>
+        </div>
+        <div class="dv-v">
+          <span class="num dv-was">{n(r.before)}</span>
+          <span class="dv-arw">&rarr;</span>
+          <span class="num dv-now">{n(r.after)}</span>
+        </div>
+        <div class="dv-b">
+          <div class="dv-track">
+            <div class={`dv-fill ${r.pct > 0 ? 'up' : 'down'}`}
+                 style={`width:${(Math.abs(r.pct) / maxAbs) * 100}%`}></div>
+          </div>
+          <b class={`num ${r.pct > 0 ? 'up' : 'down'}`}>{pct(r.pct)}</b>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="dv-out">
+    <div class="dv-out-s">A mile is a liability on someone else&rsquo;s balance sheet, and they
+    hold the pen. <b>Miles held are exposed; miles booked are not.</b> That is the entire case for
+    redeeming on a plan rather than saving toward a someday trip &mdash; and the reason the
+    balance sitting in your account is not an asset with a known value.</div>
+  </div>
+
+  <div class="dv-notes">
+    <p><b>What this shows.</b> Ten award prices that exist on both the chart in force to 31
+    October 2025 and the chart effective 1 November 2025, in the three zones this piece uses.
+    It is a sample of the revision, not the whole of it.</p>
+    <p><b>The other direction, in fairness.</b> Economy Saver awards in zones 1&ndash;9 came
+    <em>down</em> by about 5% in the same revision &mdash; the first row here is one of them.
+    The pattern is consistent rather than random: the cheap cabin got cheaper and the front of
+    the aircraft got dearer.</p>
+    <p><b>And since.</b> Access awards, introduced at that same revision, were themselves repriced
+    upward on 28 March 2026, by up to about 11% in economy and premium economy &mdash; four months
+    after launch, against no published chart.</p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.dv{
+  --dv-bd:var(--color-border); --dv-t1:var(--color-dark); --dv-t2:var(--color-body);
+  --dv-t3:var(--color-muted); --dv-deep:var(--color-navy);
+  --dv-up:#9A3B2E; --dv-dn:var(--color-brand-700);
+  --dv-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--dv-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--dv-t1)
+}
+.dv .num{font-family:var(--dv-mono);font-variant-numeric:tabular-nums}
+.dv-head{padding:14px 22px;background:var(--color-surface);border-bottom:1px solid var(--dv-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dv-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--dv-t3)}
+.dv-lbl.accent{color:var(--color-brand-700)}
+.post-content .dv-preset{font-size:12.5px;color:var(--dv-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--dv-bd)}
+.dv-preset b{color:var(--dv-t2);font-weight:600}
+
+.dv-rows{padding:6px 22px 14px}
+.dv-row{display:grid;grid-template-columns:1.5fr 1fr 1.2fr;gap:16px;align-items:center;
+  padding:10px 0;border-bottom:1px dashed var(--dv-bd)}
+.dv-row:last-child{border-bottom:none}
+.dv-k b{display:block;font-size:13.5px;font-weight:600;color:var(--dv-t1);line-height:1.3}
+.dv-k em{display:block;font-style:normal;font-size:11.5px;color:var(--dv-t3);margin-top:1px}
+.dv-v{display:flex;align-items:baseline;gap:7px;font-size:13.5px;justify-content:flex-end}
+.dv-was{color:var(--dv-t3);text-decoration:line-through;text-decoration-thickness:1px}
+.dv-arw{color:var(--dv-t3);font-size:12px}
+.dv-now{color:var(--dv-t1);font-weight:600}
+.dv-b{display:flex;align-items:center;gap:10px}
+.dv-track{flex:1;height:8px;background:var(--color-surface-alt);border-radius:999px;overflow:hidden}
+.dv-fill{height:100%;border-radius:999px;min-width:2px}
+.dv-fill.up{background:var(--dv-up)}
+.dv-fill.down{background:var(--dv-dn)}
+.dv-b b{font-size:13px;font-weight:600;width:5.5ch;text-align:right;flex:none}
+.dv-b b.up{color:var(--dv-up)}
+.dv-b b.down{color:var(--dv-dn)}
+
+.dv-out{background:var(--dv-deep);color:#fff;padding:17px 22px}
+.dv-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.dv-out-s b{font-weight:600;color:#fff}
+
+.dv-notes{padding:15px 22px 17px;border-top:1px solid var(--dv-bd);background:var(--color-surface)}
+.post-content .dv-notes p{font-size:12.5px;line-height:1.55;color:var(--dv-t3);margin:0 0 7px}
+.post-content .dv-notes p:last-child{margin-bottom:0}
+.dv-notes b{color:var(--dv-t2)}
+.dv-notes em{font-style:italic}
+
+@media(max-width:640px){
+  .dv-rows{padding:6px 16px 12px}
+  .dv-row{grid-template-columns:1fr;gap:6px;padding:12px 0}
+  .dv-v{justify-content:flex-start}
+}
+</style>

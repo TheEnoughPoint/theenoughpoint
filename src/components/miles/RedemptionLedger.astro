@@ -1,0 +1,191 @@
+---
+// Our own redemption ledger — nine confirmed KrisFlyer bookings.
+//
+// Every figure here is transcribed from the Singapore Airlines confirmation
+// emails, not reconstructed from an award chart. Miles and taxes are exactly as
+// billed. Award tier is read from the booking class printed on each itinerary:
+// (I) is the Saver bucket, (D) the Advantage bucket, (A) First/Suites.
+//
+// Travel years are not printed on the confirmations — only "04 Jun (Thu)" and
+// the like — so each was resolved by matching the printed weekday against the
+// calendar with a date library. Every one resolved to exactly one year in the
+// plausible range, so none of these dates is a guess.
+//
+// PRIVACY: the source folder is explicitly private. Booking references,
+// passenger names, KrisFlyer membership numbers and card digits appear in those
+// confirmations and appear NOWHERE here, by design. What is published is the
+// commercial shape of each booking — route, cabin, tier, passengers, miles,
+// tax — which is what the argument needs and all it needs.
+import ToolBrand from '../ToolBrand.astro';
+
+const TRIPS = [
+  {
+    name: 'Shanghai, then home from Hong Kong',
+    when: 'Flown December 2024 · booked January 2024, eleven months ahead',
+    legs: [
+      { route: 'Singapore → Shanghai',   date: 'Sat 7 Dec 2024',  cabin: 'Business', tier: 'Saver',     pax: 6, miles: 258000, tax: 391.20 },
+      { route: 'Hong Kong → Singapore',  date: 'Sun 22 Dec 2024', cabin: 'First',    tier: 'Award',     pax: 2, miles: 146000, tax: 670.00 },
+      { route: 'Hong Kong → Singapore',  date: 'Sun 22 Dec 2024', cabin: 'Business', tier: 'Saver',     pax: 4, miles: 136000, tax: 1100.00 },
+    ],
+  },
+  {
+    name: 'Bali, the whole family',
+    when: 'Flown September 2025 · booked January 2025',
+    legs: [
+      { route: 'Singapore → Denpasar',   date: 'Fri 5 Sep 2025',  cabin: 'Business', tier: 'Saver',     pax: 4, miles: 168000, tax: 341.20, both: true },
+    ],
+  },
+  {
+    name: 'Cape Town and Johannesburg',
+    when: 'Flown June 2026 · booked June–July 2025, eleven and a half months ahead',
+    legs: [
+      { route: 'Singapore → Cape Town',  date: 'Thu 4 Jun 2026',  cabin: 'Business', tier: 'Saver',     pax: 2, miles: 113000, tax: 130.40 },
+      { route: 'Singapore → Cape Town',  date: 'Thu 4 Jun 2026',  cabin: 'Business', tier: 'Advantage', pax: 2, miles: 207000, tax: 130.40, flag: true },
+      { route: 'Johannesburg → Singapore', date: 'Fri 12 Jun 2026', cabin: 'Business', tier: 'Saver',   pax: 4, miles: 226000, tax: 2236.68, tax_flag: true },
+    ],
+  },
+  {
+    name: 'Sydney in Suites, home from Brisbane',
+    when: 'Booked November 2025 · flies October 2026 — not yet flown',
+    legs: [
+      { route: 'Singapore → Sydney',     date: 'Mon 19 Oct 2026', cabin: 'Suites',   tier: 'Advantage', pax: 1, miles: 178500, tax: 104.70 },
+      { route: 'Brisbane → Singapore',   date: 'Sat 24 Oct 2026', cabin: 'Business', tier: 'Saver',     pax: 1, miles: 72000,  tax: 110.77 },
+    ],
+  },
+];
+
+const allLegs = TRIPS.flatMap((t) => t.legs);
+const totalMiles = allLegs.reduce((s, l) => s + l.miles, 0);
+const totalTax = allLegs.reduce((s, l) => s + l.tax, 0);
+// One-way premium-cabin journeys per passenger. The Bali booking is a return,
+// so it carries two journeys per passenger; everything else is a one-way.
+const journeys = allLegs.reduce((s, l) => s + l.pax * (l.both ? 2 : 1), 0);
+const floorValue = totalMiles * 0.01;
+
+const n = (v: number) => v.toLocaleString('en-SG');
+const sgd = (v: number) => 'S$' + v.toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const sgd0 = (v: number) => 'S$' + Math.round(v).toLocaleString('en-SG');
+---
+
+<div class="rl">
+  <div class="rl-head">
+    <span class="rl-lbl">Our redemption ledger &mdash; nine confirmed bookings</span>
+    <span class="rl-lbl accent">From the confirmations</span>
+  </div>
+
+  <p class="rl-preset">Miles and taxes exactly as billed by the airline, not reconstructed from a
+  chart. The tier column is read from the booking class printed on each itinerary. Booking
+  references, names and membership numbers are deliberately absent.</p>
+
+  {TRIPS.map((t) => (
+    <div class="rl-trip">
+      <div class="rl-trip-h"><b>{t.name}</b><em>{t.when}</em></div>
+      <div class="rl-tblwrap">
+        <table class="rl-tbl">
+          <thead>
+            <tr><th>Sector</th><th>Cabin</th><th>Tier</th><th>Pax</th><th>Miles</th><th>Tax</th></tr>
+          </thead>
+          <tbody>
+            {t.legs.map((l) => (
+              <tr>
+                <td>{l.route}{l.both ? ' and back' : ''}<em>{l.date}</em></td>
+                <td>{l.cabin}</td>
+                <td><span class={`rl-tier ${l.tier.toLowerCase()}`}>{l.tier}</span></td>
+                <td class="num">{l.pax}</td>
+                <td class={`num${l.flag ? ' hot' : ''}`}>{n(l.miles)}<em>{n(Math.round(l.miles / (l.pax * (l.both ? 2 : 1))))} each way</em></td>
+                <td class={`num${l.tax_flag ? ' hot' : ''}`}>{sgd(l.tax)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ))}
+
+  <div class="rl-tot">
+    <div class="rl-tot-i"><span>Miles surrendered</span><b class="num">{n(totalMiles)}</b></div>
+    <div class="rl-tot-i"><span>Cash paid in taxes</span><b class="num">{sgd0(totalTax)}</b></div>
+    <div class="rl-tot-i"><span>Premium-cabin journeys</span><b class="num">{journeys}</b></div>
+    <div class="rl-tot-i"><span>Same miles at the floor</span><b class="num">{sgd0(floorValue)}</b></div>
+  </div>
+
+  <div class="rl-out">
+    <div class="rl-out-s">Those same {n(totalMiles)} miles, taken at the guaranteed one-cent rate,
+    would have been <b>{sgd0(floorValue)}</b> of KrisShop vouchers. Instead they became
+    <b>{journeys} one-way journeys</b> in business, First and Suites &mdash; for
+    <b>{sgd0(totalTax)}</b> of tax paid in cash. Whether that was a good trade depends entirely on
+    what we would have spent otherwise, which is the one number no ledger can show you.</div>
+  </div>
+
+  <div class="rl-notes">
+    <p><b>How the years were established.</b> Singapore Airlines prints the day and month on a
+    confirmation but not the year &mdash; &ldquo;04 Jun (Thu)&rdquo;. Each date here was resolved
+    by matching the printed weekday against the calendar, and every one resolved to exactly one
+    year in the plausible range. None is a guess.</p>
+    <p><b>What is missing.</b> These are the nine confirmations we hold, not necessarily every
+    flight of every trip &mdash; positioning sectors bought with cash or flown on other airlines
+    do not appear, and neither does anything redeemed before 2024.</p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.rl{
+  --rl-bd:var(--color-border); --rl-t1:var(--color-dark); --rl-t2:var(--color-body);
+  --rl-t3:var(--color-muted); --rl-deep:var(--color-navy); --rl-gold:#9C7526;
+  --rl-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--rl-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--rl-t1)
+}
+.rl .num{font-family:var(--rl-mono);font-variant-numeric:tabular-nums}
+.rl-head{padding:14px 22px;background:var(--color-surface);border-bottom:1px solid var(--rl-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.rl-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--rl-t3)}
+.rl-lbl.accent{color:var(--color-brand-700)}
+.post-content .rl-preset{font-size:12.5px;color:var(--rl-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--rl-bd)}
+.rl-preset b{color:var(--rl-t2);font-weight:600}
+
+.rl-trip{padding:14px 22px 4px;border-bottom:1px dashed var(--rl-bd)}
+.rl-trip-h{margin-bottom:8px}
+.rl-trip-h b{font-size:14.5px;font-weight:700;color:var(--rl-t1)}
+.rl-trip-h em{display:block;font-style:normal;font-size:11.5px;color:var(--rl-t3);margin-top:1px}
+.rl-tblwrap{overflow-x:auto}
+.post-content .rl-tbl{width:100%;border-collapse:collapse;font-size:13px;margin:0 0 8px;min-width:520px}
+.post-content .rl-tbl th{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;
+  color:#C9D3E0;font-weight:700;text-align:right;padding:6px 10px;border-bottom:1px solid var(--rl-bd)}
+.post-content .rl-tbl th:first-child{text-align:left;color:#fff}
+.post-content .rl-tbl td{padding:8px 10px;border-bottom:1px dashed var(--rl-bd);
+  text-align:right;color:var(--rl-t2);vertical-align:top}
+.post-content .rl-tbl td:first-child{text-align:left;color:var(--rl-t1);line-height:1.3}
+.rl-tbl td em{display:block;font-style:normal;font-size:10.5px;color:var(--rl-t3);margin-top:1px;
+  font-family:var(--font-body)}
+.rl-tbl td.hot{color:var(--rl-gold);font-weight:600}
+.rl-tier{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.4px;
+  padding:2px 7px;border-radius:999px;border:1px solid var(--rl-bd);color:var(--rl-t3)}
+.rl-tier.saver{color:var(--color-brand-700);border-color:rgba(20,110,90,.3)}
+.rl-tier.advantage{color:var(--rl-gold);border-color:rgba(156,117,38,.35)}
+
+.rl-tot{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rl-bd);
+  border-top:1px solid var(--rl-bd);border-bottom:1px solid var(--rl-bd)}
+.rl-tot-i{background:#fff;padding:14px 16px;text-align:center}
+.rl-tot-i span{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--rl-t3);margin-bottom:4px;line-height:1.3}
+.rl-tot-i b{font-size:21px;font-weight:600;color:var(--rl-t1)}
+
+.rl-out{background:var(--rl-deep);color:#fff;padding:17px 22px}
+.rl-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.rl-out-s b{font-family:var(--rl-mono);font-weight:600;color:#fff}
+
+.rl-notes{padding:15px 22px 17px;border-top:1px solid var(--rl-bd);background:var(--color-surface)}
+.post-content .rl-notes p{font-size:12.5px;line-height:1.55;color:var(--rl-t3);margin:0 0 7px}
+.post-content .rl-notes p:last-child{margin-bottom:0}
+.rl-notes b{color:var(--rl-t2)}
+
+@media(max-width:640px){
+  .rl-trip{padding:12px 16px 4px}
+  .rl-tot{grid-template-columns:1fr 1fr}
+  .rl-tot-i b{font-size:18px}
+}
+</style>
