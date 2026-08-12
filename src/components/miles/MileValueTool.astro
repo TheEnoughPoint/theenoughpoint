@@ -29,18 +29,18 @@ import ToolBrand from '../ToolBrand.astro';
     <span class="mv-lbl accent">Interactive</span>
   </div>
 
-  <p class="mv-preset">The <b>miles</b> in each preset are the published Saver or Advantage
-  award chart, effective 1 November 2025, multiplied out for passengers and legs &mdash; those
-  figures are exact. Every <b>fare</b> is an <b>illustrative placeholder</b>: airfares are reset
-  daily and we will not publish numbers we cannot check. Put in the fares you actually saw, and
-  the answer becomes yours rather than ours.</p>
+  <p class="mv-preset">The <b>miles</b> and <b>taxes</b> in each preset are our own bookings,
+  transcribed from the airline&rsquo;s confirmation emails &mdash; those figures are exact. Every
+  <b>fare</b> is an <b>illustrative placeholder</b>: airfares are reset daily, we cannot verify
+  what a seat cost on a date that has passed, and we will not publish numbers we cannot check.
+  Put in the fares you actually saw, and the answer becomes yours rather than ours.</p>
 
   <div class="mv-chips">
-    <button type="button" class="mv-chip" data-p="0">Six to Shanghai, business, return</button>
-    <button type="button" class="mv-chip" data-p="1">Four to Johannesburg, business, return</button>
-    <button type="button" class="mv-chip" data-p="2">One Suite to Sydney, one way</button>
-    <button type="button" class="mv-chip" data-p="3">One to Europe, business, return</button>
-    <button type="button" class="mv-chip" data-p="4">One to Europe, economy, return</button>
+    <button type="button" class="mv-chip" data-p="0">Shanghai &amp; Hong Kong, 6 pax</button>
+    <button type="button" class="mv-chip" data-p="1">South Africa, 4 pax</button>
+    <button type="button" class="mv-chip" data-p="2">Sydney in Suites, 1 pax</button>
+    <button type="button" class="mv-chip" data-p="3">Cape Town &mdash; the Advantage pair</button>
+    <button type="button" class="mv-chip" data-p="4">Bali, 4 pax return</button>
   </div>
 
   <div class="mv-body">
@@ -51,15 +51,15 @@ import ToolBrand from '../ToolBrand.astro';
       </label>
       <label class="mv-f">
         <span>Cash paid on the award<em>taxes, fees and any surcharges</em></span>
-        <span class="mv-in"><i>S$</i><input type="text" id="mv-t" value="1,100" inputmode="numeric"></span>
+        <span class="mv-in"><i>S$</i><input type="text" id="mv-t" value="2,161" inputmode="numeric"></span>
       </label>
       <label class="mv-f">
         <span>Cash fare, cabin you flew<em>illustrative &mdash; use the fare you saw</em></span>
-        <span class="mv-in"><i>S$</i><input type="text" id="mv-fr" value="18,000" inputmode="numeric" class="w-lg"></span>
+        <span class="mv-in"><i>S$</i><input type="text" id="mv-fr" value="24,000" inputmode="numeric" class="w-lg"></span>
       </label>
       <label class="mv-f">
         <span>Cash fare you would actually have bought<em>illustrative &mdash; the honest counterfactual</em></span>
-        <span class="mv-in"><i>S$</i><input type="text" id="mv-fa" value="4,800" inputmode="numeric" class="w-lg"></span>
+        <span class="mv-in"><i>S$</i><input type="text" id="mv-fa" value="7,200" inputmode="numeric" class="w-lg"></span>
       </label>
     </div>
 
@@ -266,11 +266,13 @@ const FLOOR = 0.01;
    preset opens at 100% because both fares are the same seat — there is no
    premium to haircut. */
 const PRESETS = [
-  { m: 540000, t: 1100, fr: 18000, fa: 4800,  w: 50 },  // 6 pax x 2 legs x 45,000 (Zone 5 business Saver)
-  { m: 544000, t: 1600, fr: 22000, fa: 6400,  w: 50 },  // 4 pax x 2 legs x 68,000 (Zone 10 business Saver)
-  { m: 178500, t: 120,  fr: 7500,  fa: 3200,  w: 40 },  // 1 pax one way (Zone 9 First Advantage)
-  { m: 217000, t: 450,  fr: 6500,  fa: 1500,  w: 50 },  // 1 pax x 2 legs x 108,500 (Zone 11 business Saver)
-  { m: 88000,  t: 450,  fr: 1500,  fa: 1500,  w: 100},  // 1 pax x 2 legs x 44,000 (Zone 11 economy Saver)
+  // Miles and taxes are EXACT, transcribed from our own booking confirmations.
+  // Fares remain illustrative placeholders, as labelled in the UI.
+  { m: 540000, t: 2161, fr: 24000, fa: 7200,  w: 50 },  // Dec 2024: SIN-PVG x6 J, HKG-SIN x2 F + x4 J
+  { m: 546000, t: 2497, fr: 36000, fa: 10000, w: 50 },  // Jun 2026: SIN-CPT x4 J (2 Saver, 2 Advantage), JNB-SIN x4 J
+  { m: 250500, t: 215,  fr: 12000, fa: 3000,  w: 40 },  // Oct 2026: SIN-SYD Suites Advantage, BNE-SIN J Saver
+  { m: 207000, t: 130,  fr: 9000,  fa: 2600,  w: 50 },  // Jun 2026: the two Advantage seats alone, 103,500 each
+  { m: 168000, t: 341,  fr: 6400,  fa: 2400,  w: 50 },  // Sep 2025: SIN-DPS-SIN x4 J
 ];
 
 const TIERS = [
