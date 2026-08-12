@@ -14,7 +14,7 @@ readTime: 16
 inlineShare: true
 figuresAsOf: "Award chart effective 1 November 2025; card, cashback and programme rules as at 12 August 2026; our own redemptions from nine Singapore Airlines booking confirmations, December 2024 to October 2026; the historical comparison from our own December 2013 workbook"
 takeaways:
-  - "Every KrisFlyer mile has a <strong>guaranteed exit at one cent</strong> — Miles+Cash, Kris+, KrisShop and Pelago were all harmonised at 100 miles = S$1 from 1 July 2025. That floor quietly settles most of the argument: a 1.4 mpd card is a <strong>1.4% rebate</strong> before you do anything clever at all."
+  - "Every KrisFlyer mile has a one-cent exit — Miles+Cash, Kris+, KrisShop and Pelago were harmonised at 100 miles = S$1 from 1 July 2025 — but it is a <strong>ceiling, not a floor</strong>. The rate is honoured; the value depends on whether the price was real. Headphones at <strong>S$559 on KrisShop against S$507.76 on Amazon</strong> return <strong>0.91 cents</strong> a mile, not one."
   - "The published award chart prices a business seat at <strong>2.07–2.48×</strong> the economy award, and First or Suites at <strong>2.95–3.38×</strong>. Cash fares separate the same cabins by far more. <strong>That gap is the entire business case for premium redemptions</strong> — not loyalty, not status, not the lounge."
   - "One formula, unchanged since we first wrote it down: <strong>(the fare you would genuinely have paid − the taxes you still pay) ÷ miles used</strong>. The word carrying the weight is <em>genuinely</em>. Value a Suite at a fare you would never have bought and you have not measured value, you have measured the brochure."
   - "The hurdle is arithmetic, not opinion: a card needs <strong>cashback ÷ miles-per-dollar</strong> cents per mile just to draw level. At 1.7% and 1.4 mpd that is <strong>1.21 cents</strong> — comfortably cleared in business class, routinely missed on a cheap economy seat."
@@ -22,9 +22,10 @@ takeaways:
   - "Our own December 2013 workbook priced a London business return at <strong>136,000 miles</strong>. The same seat today costs <strong>217,000</strong> — <strong>up 59.6%</strong>, about <strong>3.8% a year</strong>. Miles are a currency whose issuer also sets the price, and revises it without asking."
 authorId: "fi"
 excerpt: |
-  Thirteen years ago we built a spreadsheet to answer one question: which credit card should we actually carry? It priced Singapore Airlines redemptions against cash fares, turned the answer into an effective rebate per card, and settled the matter. It also contained a flattering mistake that most miles comparisons still make today. This is that sheet rebuilt for 2026 — the one-cent floor that anchors everything, the reason business class is where miles stop being a rounding error, the honest haircut for the seat you would never have bought with cash, and what nine months of devaluation says about holding a currency somebody else prices. With our own ledger opened: nine confirmed bookings, 1,504,500 miles, and what they actually bought.
+  Thirteen years ago we built a spreadsheet to answer one question: which credit card should we actually carry? It priced Singapore Airlines redemptions against cash fares, turned the answer into an effective rebate per card, and settled the matter. It also contained a flattering mistake that most miles comparisons still make today. This is that sheet rebuilt for 2026 — the one-cent exit that turns out to be a ceiling rather than a floor, the reason business class is where miles stop being a rounding error, the honest haircut for the seat you would never have bought with cash, and what nine months of devaluation says about holding a currency somebody else prices. With our own ledger opened: nine confirmed bookings, 1,504,500 miles, and what they actually bought.
 ---
 
+import ShortVersion from '@src/components/miles/ShortVersion.astro';
 import MileValueTool from '@src/components/miles/MileValueTool.astro';
 import RedemptionLedger from '@src/components/miles/RedemptionLedger.astro';
 import CabinLadder from '@src/components/miles/CabinLadder.astro';
@@ -41,6 +42,8 @@ The sheet worked. It picked the card, the card earned the miles, and the miles t
 
 It also contained a mistake. A flattering one, and the same one almost every miles comparison on the internet still makes. We will come to it, because correcting it is most of what this piece is for.
 
+<ShortVersion />
+
 ## The formula that has not changed
 
 Here it is, and it is the whole of the technical content:
@@ -55,17 +58,25 @@ The second line is an identity rather than a claim — cents per mile multiplied
 
 The first line is where every disagreement lives, and it is worth saying plainly that we did not invent it. It is the standard framing in the Singapore miles community, set out most clearly by [The MileLion](https://milelion.com/airlines/what-is-the-value-of-a-mile/), Aaron Wong's site, which has been the reference work on this subject here for well over a decade. His two-sided version is worth stating as he does: there is a price you should be *willing to pay* to acquire a mile, and a value you should *insist on getting* when you spend one — he puts those at roughly 1.5 cents and 1.7 cents respectively, with the gap standing in for the effort involved. Much of what follows is our arithmetic laid over his framework, and where we have leaned on his reporting for a programme rule or a fee, we have said so.
 
-## The floor: one cent, guaranteed
+## The one-cent exit — and why it is a ceiling, not a floor
 
-Start at the bottom, because it settles more than people expect.
+Start at the bottom, because it settles more than people expect — though not in the direction most write-ups claim, and we had this the wrong way round ourselves until we checked it properly.
 
 From **1 July 2025**, Singapore Airlines harmonised the redemption rate across its own ecosystem: Miles+Cash on SIA and Scoot tickets, Kris+ at partner merchants, KrisShop, and Pelago bookings all pay **100 miles = S$1**. One cent a mile, no seat to hunt for, no date to work around, no availability to wait on. Before that the rate wandered between roughly 0.67 and 0.95 cents depending on which door you used; now it does not.
 
-That single fact does more work than any tactic in this article.
+The tempting conclusion is that a mile is therefore never worth less than a cent. **It is not true, and the reason is worth understanding**, because it is the difference between a rate and a value.
 
-It means a mile is **never** worth less than a cent to you, so a card earning 1.4 miles per dollar is, at absolute worst, a **1.4% rebate** — and one earning 4 miles per dollar in a bonus category is a **4% rebate** — with no cleverness required. It also means every hour spent hunting award space is measured against that floor, not against zero. If a redemption returns 1.1 cents a mile, the hunting bought you 10% more than doing nothing would have.
+One cent a mile is what the airline *credits* you. What you *receive* depends on what the thing you bought was really worth. The MileLion's worked example is the one to remember: a pair of Sony headphones priced **S$507.76 on Amazon and S$559 on KrisShop**. Pay the KrisShop price in miles at the official rate and you have spent 55,900 miles on S$507.76 of headphones — **0.91 cents a mile**, not one. The rate was honoured exactly. The value was not there to begin with.
 
-And it sets the question the rest of this piece answers: **what has to be true for a mile to be worth several times its floor?**
+So the honest statement is narrower, and it splits by door:
+
+- **Kris+**, where partner merchants charge their normal prices, comes closest to a genuine cent.
+- **Miles+Cash against a ticket you were buying anyway** is close too — but not clean, because an award-discounted ticket earns you fewer miles than the cash fare would have, and that forgone earn is a cost.
+- **KrisShop** is where one cent becomes a **ceiling**: it is the most you can get, and you get it only where the sticker matches the market. Price-controlled goods come close; anything the shop can mark up does not.
+
+Which means the one-cent exit is better described as **the rate you get for doing nothing** than as a floor beneath you. It still does real work in this article — it is the benchmark every redemption should be measured against, and it is why a 1.4 mpd card is worth *roughly* 1.4% even if you never book an award seat. But treat it as a soft benchmark that leaks a little at the edges, not a guarantee.
+
+If anything, that makes the rest of this piece matter more. **A soft benchmark is a weaker reason to hold miles, and a stronger reason to have somewhere specific to spend them.** Which sets the question the rest of this piece answers: what has to be true for a mile to be worth several times that?
 
 ## Why the front of the aircraft
 
@@ -77,13 +88,15 @@ Singapore Airlines publishes its award chart. That chart prices cabins on a ladd
 
 Two to two and a half times the miles for business. About three times for a Suite. Those are not our estimates; they are division applied to a published document.
 
+One qualification belongs here rather than in a footnote: **the ladder is flat in price and steep in availability.** Business Saver seats are released in far smaller numbers than economy Saver seats, so the cheap rung of the premium cabin is the hardest one in the programme to actually stand on. The price is published; the seat is not promised. Our own Cape Town booking further down is what that looks like when it goes against you.
+
 Now hold that against the other ladder — the cash fare table — which is not published in advance, is remade daily by revenue management, and on a long-haul route separates economy from business by a great deal more than 2.5 times. We are deliberately not putting a number on that gap, because it is not ours to assert: it moves by route, season and how far ahead you look, and the only fare that belongs in your calculation is the one you actually saw on the day.
 
 But the *mechanism* is not in dispute, and it is the reason this article exists. **The airline sells you the front cabin at a steep premium in dollars and a modest premium in miles.** A mile does not know which cabin it is buying. Point it at the cabin where the two ladders diverge most, and it is worth multiples of what it is worth pointed anywhere else.
 
-This is also why the intuitive move — spending miles on a cheap economy ticket because it feels thrifty — is usually the worst available use of them. A discounted economy fare is the one seat the airline is already selling cheaply for cash. Redeeming against it means surrendering a currency worth a guaranteed cent to buy something the market has marked down.
+This is also why the intuitive move — spending miles on a cheap economy ticket because it feels thrifty — is usually the worst available use of them. A discounted economy fare is the one seat the airline is already selling cheaply for cash. Redeeming against it means surrendering a currency with a one-cent exit to buy something the market has already marked down.
 
-Our 2013 sheet showed exactly this, on its own numbers. Singapore to London: at the full-flexibility economy fare, a mile came out at **3.24 cents**; at the same route's deepest economy sale fare, **0.91 cents** — below the floor that exists today. In business, **4.67 cents**. The same mile, five times the value, decided entirely by what it was pointed at.
+Our 2013 sheet showed exactly this, on its own numbers. Singapore to London: at the full-flexibility economy fare, a mile came out at **3.24 cents**; at the same route's deepest economy sale fare, **0.91 cents** — below the one-cent exit that exists today. In business, **4.67 cents**. The same mile, five times the value, decided entirely by what it was pointed at.
 
 ## The haircut, which is the honest part
 
@@ -124,9 +137,11 @@ At the **1.7%** currently available on the best uncapped flat-cashback card in S
 | 2.4 mpd — overseas spend | **0.71 cents** |
 | 4.0 mpd — capped bonus category | **0.43 cents** |
 
-Read that table against the one-cent floor and a hard conclusion falls out: **a general-spending miles card earning 1.2 to 1.4 miles per dollar does not beat cashback on the floor alone.** It needs a redemption at 1.21 to 1.42 cents a mile merely to draw level — so if the miles end up in KrisShop or a Miles+Cash ticket, the cashback card would have paid more, and paid it without the annual fee or the three-year expiry clock.
+Read that table against the one-cent exit and a hard conclusion falls out: **a general-spending miles card earning 1.2 to 1.4 miles per dollar does not beat cashback on that rate alone.** It needs a redemption at 1.21 to 1.42 cents a mile merely to draw level — so if the miles end up in KrisShop or a Miles+Cash ticket, the cashback card would have paid more, and paid it without the annual fee or the three-year expiry clock.
 
-Above 2 miles per dollar the hurdle drops below the floor, and the miles card wins even if you never book an award seat at all. This is why the modern Singapore approach has moved away from a single general-spend card toward bonus-category cards at 4 miles per dollar, capped monthly — a shift The MileLion's [2026 strategy](https://milelion.com/2026/05/11/the-milelions-2026-credit-card-strategy/) documents in detail, along with its real cost: a fistful of cards, monthly caps to track, and points scattered across currencies that each want a **S$25 to S$30** conversion fee to move.
+One caveat on the bottom row, because it is the one most easily misread: **4 miles per dollar is a rate on a slice of your spending, not on your spending.** Those cards cap the bonus rate at roughly S$1,000 a month each, so that line describes what happens inside the cap and nothing outside it. A household putting everything through one card lands far closer to the 1.2 and 1.4 rows, and the blended rate across all of your spending is the only one that decides whether cashback would have paid more.
+
+Above 2 miles per dollar the hurdle drops below one cent, and the miles card wins even if you never book an award seat at all. This is why the modern Singapore approach has moved away from a single general-spend card toward bonus-category cards at 4 miles per dollar, capped monthly — a shift The MileLion's [2026 strategy](https://milelion.com/2026/05/11/the-milelions-2026-credit-card-strategy/) documents in detail, along with its real cost: a fistful of cards, monthly caps to track, and points scattered across currencies that each want a **S$25 to S$30** conversion fee to move.
 
 Which lands on the sentence this whole section exists to produce. **The miles game is not free money; it is paid work.** The pay is the gap between your effective rebate and the cashback you declined. Decide whether you want the job before optimising how you do it.
 
@@ -142,7 +157,9 @@ We can put a precise price on that, because we paid it. Four of us flew to Cape 
 
 **Identical seats on an identical flight, 83% apart in price.** Not a better cabin, not a better date, not a more flexible ticket in any way that mattered to us — the entire difference was that two seats existed at the cheap price and two did not. Those two Advantage seats cost 94,000 miles more than the Saver pair, which is most of another long-haul business ticket, spent on nothing but arriving in the same seats on the same day.
 
-That is what scarcity costs, and it is the number to hold against every cheerful cents-per-mile figure you will read, including the ones in this article. An Access redemption at 2 cents a mile is a different financial object from a Saver redemption at 5, and on the day you book, the airline decides which one you are being offered.
+That is what scarcity costs, and it is the number to hold against every cheerful cents-per-mile figure you will read, including the ones in this article.
+
+One boundary on all of this, stated plainly: **this is a Singapore Airlines piece.** KrisFlyer also books Star Alliance partners on a separate chart, and those redemptions carry a complication SIA's own awards do not — several partners levy fuel surcharges that KrisFlyer passes straight through to you, which can consume a large part of a redemption before you have flown a metre. That deserves its own article and this one does not attempt it. An Access redemption at 2 cents a mile is a different financial object from a Saver redemption at 5, and on the day you book, the airline decides which one you are being offered.
 
 ## The chart is not a promise
 
@@ -152,7 +169,9 @@ And now the risk that no amount of optimisation removes.
 
 Nine months ago the price of these seats changed, and every mile already earned was worth less the next morning. Note where the increases concentrated: the **Advantage** awards that are actually available, and the zone that had been the chart's best value. Note also, in fairness, that economy Saver awards in the nearer zones got *cheaper* — the revision had a direction, and the direction was to charge more for the front of the aircraft, which is precisely where this article says the value is.
 
-The longer view is more sobering, and we can draw it from our own file. That December 2013 workbook priced a **Singapore–London business return at 136,000 miles**, including the 15% discount then given for booking online. The same return today, at Saver, is **217,000 miles**. That is **59.6% more miles for the same seat in twelve and a half years — about 3.8% a year, compounded.**
+The longer view is more sobering, and we can draw it from our own file. That December 2013 workbook priced a **Singapore–London business return at 136,000 miles**, including the 15% discount then given for booking online. The same return today, at Saver, is **217,000 miles**.
+
+There are two honest ways to read that, and they belong together rather than whichever one flatters the argument. **What a customer actually pays** went from 136,000 to 217,000 — up **59.6%**, or **3.8% a year** — because the online discount was itself withdrawn along the way. **What the chart charges** went from 160,000, the undiscounted 2013 price, to 217,000 — up **35.6%**, or **2.4% a year**. The first is the number your miles balance experiences; the second is the cleaner like-for-like. Neither is small, and both point the same way.
 
 Call that what it is: an inflation rate, on a currency you cannot hedge, set by the party that issues it, disclosed after the fact. It is not a reason to avoid miles. It is a decisive reason to treat a miles balance as a **perishable good rather than savings** — and it stacks on top of the programme's own three-year expiry, which independently guarantees that miles held too long become miles worth nothing.
 
@@ -182,7 +201,7 @@ Five steps, and the first two settle it for most people.
 
 1. **Answer the counterfactual honestly, before anything else.** Would you, with your own money, buy a premium-cabin long-haul ticket? If the answer is a clean no, and will stay no, then the case for miles over cashback is weak and the rest of this is a hobby you may still enjoy — just not one that should be filed under money management.
 
-2. **Work out your breakeven and check it against the floor.** Cashback rate divided by miles per dollar. If your card earns 1.2 to 1.4 on general spend, you need a real redemption above roughly 1.2 to 1.4 cents a mile to have been right, and the floor alone will not get you there.
+2. **Work out your breakeven and check it against the one-cent exit.** Cashback rate divided by miles per dollar. If your card earns 1.2 to 1.4 on general spend, you need a real redemption above roughly 1.2 to 1.4 cents a mile to have been right — and cashing out at KrisShop will not get you there.
 
 3. **Point the miles at the cabin where the two ladders diverge.** The award chart is flat across cabins; the fare table is not. That gap is the whole return, and it is largest on long-haul premium seats — which is also, unhelpfully, where Saver space is scarcest.
 
@@ -202,7 +221,8 @@ Five steps, and the first two settle it for most people.
 <details class="src-details">
 <summary><b>Sources and verification</b> — primary where it exists, verified 12 August 2026. Every load-bearing figure below, one line each.</summary>
 
-- **The one-cent floor** (100 KrisFlyer miles = S$1 across Miles+Cash on SIA and Scoot, Kris+, KrisShop and Pelago, harmonised from 1 July 2025, replacing rates that had ranged roughly 0.67–0.95 cents): [The MileLion's report of the change](https://milelion.com/2025/06/23/enhanced-redeem-krisflyer-miles-at-1-cent-each-across-sia-scoot-pelago-kris-and-krisshop/).
+- **The one-cent exit** (100 KrisFlyer miles = S$1 across Miles+Cash on SIA and Scoot, Kris+, KrisShop and Pelago, harmonised from 1 July 2025, replacing rates that had ranged roughly 0.67–0.95 cents): [The MileLion's report of the change](https://milelion.com/2025/06/23/enhanced-redeem-krisflyer-miles-at-1-cent-each-across-sia-scoot-pelago-kris-and-krisshop/).
+- **Why that rate is a ceiling rather than a floor** (KrisShop prices may sit above market, so the official rate overstates value received; the worked example of Sony headphones at S$559 on KrisShop against S$507.76 on Amazon, giving 0.91 cents a mile): [The MileLion, *What to do with expiring KrisFlyer miles*](https://milelion.com/2025/12/29/what-to-do-with-expiring-krisflyer-miles/). **This corrects an earlier version of this article, which described the one-cent rate as a floor beneath which a mile could not fall. That was wrong, and the correction is his.**
 - **The valuation framework** — value per mile as (revenue fare − award taxes) ÷ miles, and the discipline of only counting fares you would genuinely have paid, together with the 1.5-cent acquisition / 1.7-cent redemption guidance: [The MileLion, *What is the value of a mile?*](https://milelion.com/airlines/what-is-the-value-of-a-mile/). The framework in this article is his; the arithmetic laid over it is ours.
 - **Award chart figures** — one-way Saver and Advantage awards from Singapore, chart effective 1 November 2025, for Zone 5 (Beijing, Shanghai), Zone 8 (Perth, Darwin), Zone 9 (Australia others, New Zealand), Zone 10 (Africa, Middle East, Turkey) and Zone 11 (Europe). Singapore Airlines publishes this chart as a PDF; we could not retrieve that file directly, so the figures here are taken from **two independent transcriptions** of it, cross-checked against each other, and the resulting pre- to post-revision percentage moves were then reconciled against The MileLion's separately reported changes. Where they agree we have printed the figure; **we have printed no figure that appeared in only one source.** Confirm against Singapore Airlines' own chart before booking.
 - **The November 2025 devaluation** (effective 1 November 2025; economy Saver down about 5% in zones 1–9, business and First Saver up about 5%, zone 10 up 10–20%, Advantage awards up 15–18%; Europe business Saver 103,500 → 108,500 and Europe business Advantage 123,000 → 141,500 as the worked examples): [The MileLion's pre-devaluation briefing](https://milelion.com/2025/10/24/last-call-what-to-do-before-the-krisflyer-devaluation-hits/), reconciled against the two chart transcriptions above.

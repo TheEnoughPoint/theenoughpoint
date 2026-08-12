@@ -99,7 +99,7 @@ import ToolBrand from '../ToolBrand.astro';
       <em id="mv-cpm-s">&mdash;</em>
     </div>
     <div class="mv-stat">
-      <span class="mv-stat-k">Against the 1-cent floor</span>
+      <span class="mv-stat-k">Against a 1-cent cash-out</span>
       <b class="num" id="mv-floor">&mdash;</b>
       <em id="mv-floor-s">&mdash;</em>
     </div>
@@ -250,8 +250,10 @@ const r2 = v => isFinite(v) ? (Math.round(v * 100 + 1e-9) / 100).toFixed(2) : '�
 
 /* Mirrors src/utils/mileValue.ts — see that module for the derivation.
    SIA harmonised Miles+Cash, Kris+, KrisShop and Pelago at 100 miles = S$1 from
-   1 July 2025, so every mile has a guaranteed 1-cent exit. That is the floor a
-   redemption has to beat to have been worth hunting for. */
+   1 July 2025, so every mile has a 1-cent exit. It is a benchmark, NOT a floor:
+   the rate is honoured but the value is not, because KrisShop stickers can sit
+   above the market price. It is what doing nothing pays, and what a redemption
+   has to beat to have been worth hunting for. */
 const FLOOR = 0.01;
 
 /* Miles are the published chart (1 Nov 2025), multiplied for passengers and
@@ -260,7 +262,7 @@ const FLOOR = 0.01;
    Every premium preset opens at a 50% haircut rather than 0%. That is a
    deliberate editorial choice, not a default: 0% is the correct setting only
    for someone who would categorically never buy the front cabin, and opening
-   there would land every reader on a below-floor verdict before they have
+   there would land every reader on a below-benchmark verdict before they have
    understood what the slider does. 50% says "I would have paid for some of
    this, not all of it", which is where most honest answers sit. The economy
    preset opens at 100% because both fares are the same seat — there is no
@@ -342,8 +344,8 @@ function update(fromUser){
   // Against the floor
   $('mv-floor').textContent = r.vsFloor.toFixed(2) + '×';
   $('mv-floor').className = 'num ' + (r.belowFloor ? 'cold' : 'hot');
-  $('mv-floor-s').innerHTML = 'the same miles are worth <b>' + sgd(r.floorVal)
-    + '</b> at the guaranteed 1-cent rate';
+  $('mv-floor-s').innerHTML = 'cashing the same miles out at 1&cent; returns <b>'
+    + sgd(r.floorVal) + '</b> at most';
 
   // Effective rebate at the reader's own earn rate
   const reb = r.cpm * mpd;
@@ -368,13 +370,13 @@ function update(fromUser){
   let say;
   if (r.belowFloor){
     say = 'On these inputs this redemption returned <b>' + r.cpm.toFixed(2) + '¢</b> a mile — '
-      + '<b>below the 1-cent floor</b> that Kris+, KrisShop and Miles+Cash pay anyone, with no '
-      + 'seat to hunt for and no date to work around. Whatever else this booking was, it was not '
+      + '<b>less than simply cashing the miles out at 1&cent;</b> through Kris+, KrisShop or '
+      + 'Miles+Cash, with no seat to hunt for and no date to work around. Whatever else this booking was, it was not '
       + 'a good use of the miles. Redemptions land here most often when a cheap cash fare was the '
       + 'real alternative, or when award taxes ate the saving.';
   } else {
     say = 'On these inputs the miles returned <b>' + r.cpm.toFixed(2) + '¢</b> each — '
-      + '<b>' + r.vsFloor.toFixed(1) + ' times</b> the guaranteed floor — which turns a '
+      + '<b>' + r.vsFloor.toFixed(1) + ' times</b> a plain 1&cent; cash-out — which turns a '
       + mpd.toFixed(2).replace(/\.?0+$/,'') + ' mpd card into an effective rebate of <b>'
       + reb.toFixed(2) + '%</b> on everything you charged to it. '
       + (reb >= cb
