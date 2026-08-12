@@ -1,0 +1,418 @@
+---
+// What your miles are actually worth, and what that makes your card.
+//
+// The direct descendant of a December 2013 spreadsheet: value the seat, take
+// off the taxes you still pay in cash, divide by the miles, then multiply by
+// the card's earn rate to get an effective rebate. The one thing added in the
+// rebuild is the haircut — the slider that asks how much of the premium cabin
+// you would genuinely have paid for — because that is where every cheerful
+// miles valuation quietly overstates itself.
+//
+// The arithmetic and its derivation live in src/utils/mileValue.ts. The script
+// below mirrors that module; if you change one, change both.
+//
+// Miles prefills are the published award chart (effective 1 Nov 2025) and are
+// exact. Every FARE prefill is ILLUSTRATIVE and labelled as such — airfares are
+// set daily by revenue management, we cannot verify them, and the only fare
+// that belongs in this calculation is the one the reader actually saw.
+//
+// Deep-linkable: m, t, fr, fa, w, mpd, cb.
+import { Font } from 'astro:assets';
+import ToolBrand from '../ToolBrand.astro';
+---
+
+<Font cssVariable="--font-mono" />
+
+<div class="mv">
+  <div class="mv-head">
+    <span class="mv-lbl">What this redemption paid, per mile</span>
+    <span class="mv-lbl accent">Interactive</span>
+  </div>
+
+  <p class="mv-preset">The <b>miles</b> in each preset are the published Saver or Advantage
+  award chart, effective 1 November 2025, multiplied out for passengers and legs &mdash; those
+  figures are exact. Every <b>fare</b> is an <b>illustrative placeholder</b>: airfares are reset
+  daily and we will not publish numbers we cannot check. Put in the fares you actually saw, and
+  the answer becomes yours rather than ours.</p>
+
+  <div class="mv-chips">
+    <button type="button" class="mv-chip" data-p="0">Six to Shanghai, business, return</button>
+    <button type="button" class="mv-chip" data-p="1">Four to Johannesburg, business, return</button>
+    <button type="button" class="mv-chip" data-p="2">One Suite to Sydney, one way</button>
+    <button type="button" class="mv-chip" data-p="3">One to Europe, business, return</button>
+    <button type="button" class="mv-chip" data-p="4">One to Europe, economy, return</button>
+  </div>
+
+  <div class="mv-body">
+    <div class="mv-grid">
+      <label class="mv-f">
+        <span>Miles surrendered<em>whole booking &mdash; all passengers, all legs</em></span>
+        <span class="mv-in"><input type="text" id="mv-m" value="540,000" inputmode="numeric" class="w-lg"></span>
+      </label>
+      <label class="mv-f">
+        <span>Cash paid on the award<em>taxes, fees and any surcharges</em></span>
+        <span class="mv-in"><i>S$</i><input type="text" id="mv-t" value="1,100" inputmode="numeric"></span>
+      </label>
+      <label class="mv-f">
+        <span>Cash fare, cabin you flew<em>illustrative &mdash; use the fare you saw</em></span>
+        <span class="mv-in"><i>S$</i><input type="text" id="mv-fr" value="18,000" inputmode="numeric" class="w-lg"></span>
+      </label>
+      <label class="mv-f">
+        <span>Cash fare you would actually have bought<em>illustrative &mdash; the honest counterfactual</em></span>
+        <span class="mv-in"><i>S$</i><input type="text" id="mv-fa" value="4,800" inputmode="numeric" class="w-lg"></span>
+      </label>
+    </div>
+
+    <div class="mv-slider">
+      <div class="mv-slider-l">
+        <span>How much of the upgrade would you genuinely have paid for in cash?</span>
+        <b class="num" id="mv-wv">50%</b>
+      </div>
+      <input type="range" id="mv-w" min="0" max="100" step="5" value="50">
+      <div class="mv-scale">
+        <span>0% &mdash; I would have flown the cheaper cabin</span>
+        <span>100% &mdash; I would have bought this ticket outright</span>
+      </div>
+      <p class="mv-hint">This is the haircut, and it is the whole argument. At <b>0%</b> the miles
+      saved you only the fare you would really have paid; the better seat was a gift you would
+      never have bought, pleasant but not cash. At <b>100%</b> you were always going to buy the
+      front cabin, so the miles saved you every dollar of it. Most honest answers are in between
+      &mdash; and the number you choose here moves the result more than any other input.</p>
+    </div>
+
+    <div class="mv-cards">
+      <label class="mv-f">
+        <span>Your card earns<em>miles per dollar of spending</em></span>
+        <span class="mv-in"><input type="text" id="mv-mpd" value="1.4" inputmode="decimal"><i>mpd</i></span>
+      </label>
+      <label class="mv-f">
+        <span>Best flat cashback you could have taken instead<em>the hurdle</em></span>
+        <span class="mv-in"><input type="text" id="mv-cb" value="1.7" inputmode="decimal"><i>%</i></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="mv-res">
+    <div class="mv-stat">
+      <span class="mv-stat-k">Value per mile</span>
+      <b class="num" id="mv-cpm">&mdash;</b>
+      <em id="mv-cpm-s">&mdash;</em>
+    </div>
+    <div class="mv-stat">
+      <span class="mv-stat-k">Against the 1-cent floor</span>
+      <b class="num" id="mv-floor">&mdash;</b>
+      <em id="mv-floor-s">&mdash;</em>
+    </div>
+    <div class="mv-stat">
+      <span class="mv-stat-k">Effective rebate on your spending</span>
+      <b class="num" id="mv-reb">&mdash;</b>
+      <em id="mv-reb-s">&mdash;</em>
+    </div>
+  </div>
+
+  <div class="mv-tblwrap">
+    <table class="mv-tbl">
+      <thead>
+        <tr><th>What the card earns</th><th>Effective rebate</th><th>Beats 1.7% cashback?</th></tr>
+      </thead>
+      <tbody id="mv-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="mv-out">
+    <div class="mv-out-s" id="mv-say">&mdash;</div>
+  </div>
+
+  <div class="mv-notes">
+    <p><b>What this is.</b> One redemption, priced. The seat is valued at what you would genuinely
+    have spent without the miles, the cash you still paid is deducted, and the result is divided by
+    the miles it cost. Multiplying that by a card's earn rate turns it into the only figure that
+    compares like for like against a cashback card: cents returned per dollar spent.</p>
+    <p><b>What it leaves out.</b> Card annual fees and the roughly S$27 many banks charge to move
+    points across &mdash; both reduce the rebate, and neither is knowable from here. The
+    KrisFlyer miles you would have earned had you bought the ticket with cash, which an award
+    ticket does not pay. Change and cancellation fees. The time spent, which is not nothing. And
+    the value of the flexibility you gave up or gained, which no honest model prices.</p>
+    <p><b>What this is not.</b> A recommendation of any card, cabin or programme, or a forecast of
+    what a mile will be worth later. Award charts are revised at the airline's discretion &mdash;
+    the November 2025 devaluation is the standing proof &mdash; and a value per mile computed
+    today says nothing about the chart you will face when you come to book.</p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.mv{
+  --mv-bd:var(--color-border); --mv-bd2:#D5CDBB;
+  --mv-t1:var(--color-dark); --mv-t2:var(--color-body); --mv-t3:var(--color-muted);
+  --mv-g:var(--color-brand-600); --mv-g2:var(--color-brand-700);
+  --mv-deep:var(--color-navy); --mv-gold:#9C7526;
+  --mv-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--mv-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--mv-t1)
+}
+.mv .num{font-family:var(--mv-mono);font-variant-numeric:tabular-nums}
+.mv-head{padding:14px 22px;background:var(--color-surface);border-bottom:1px solid var(--mv-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.mv-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mv-t3)}
+.mv-lbl.accent{color:var(--mv-g2)}
+.post-content .mv-preset{font-size:12.5px;color:var(--mv-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--mv-bd)}
+.mv-preset b{color:var(--mv-t2);font-weight:600}
+
+.mv-chips{display:flex;flex-wrap:wrap;gap:7px;padding:12px 22px;border-bottom:1px dashed var(--mv-bd)}
+.mv-chip{font-family:inherit;font-size:12px;font-weight:600;color:var(--mv-t2);
+  background:var(--color-surface);border:1px solid var(--mv-bd);border-radius:999px;
+  padding:5px 12px;cursor:pointer;line-height:1.35}
+.mv-chip:hover{border-color:var(--mv-g);color:var(--mv-g2)}
+.mv-chip[aria-pressed="true"]{background:var(--mv-deep);border-color:var(--mv-deep);color:#fff}
+
+.mv-body{padding:16px 22px 8px}
+.mv-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
+.mv-f{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0}
+.mv-f > span:first-child{font-size:13.5px;color:var(--mv-t2);line-height:1.35}
+.mv-f em{display:block;font-style:normal;font-size:11px;color:var(--mv-t3);margin-top:2px}
+.mv-in{display:inline-flex;align-items:baseline;font-family:var(--mv-mono);font-size:15px;font-weight:600;flex:none}
+.mv-in i{font-style:normal;color:var(--mv-t3);font-size:13px;margin:0 3px}
+.mv-in input{font-family:var(--mv-mono);font-size:15px;font-weight:600;color:var(--mv-t1);
+  background:none;border:none;border-bottom:1px dashed var(--mv-bd2);text-align:right;
+  width:5ch;padding:0 0 1px}
+.mv-in input.w-lg{width:8ch}
+.mv-in input:focus{outline:none;border-bottom:1px solid var(--mv-g);color:var(--mv-g2);box-shadow:none}
+
+.mv-slider{margin:18px 0 4px;padding:14px 16px;background:var(--color-surface);
+  border:1px solid var(--mv-bd);border-radius:9px}
+.mv-slider-l{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:9px}
+.mv-slider-l span{font-size:13.5px;color:var(--mv-t2);line-height:1.35}
+.mv-slider-l b{font-size:17px;font-weight:600;color:var(--mv-g2)}
+.mv-slider input[type=range]{width:100%;accent-color:var(--mv-g);margin:0;display:block}
+.mv-scale{display:flex;justify-content:space-between;gap:12px;margin-top:5px}
+.mv-scale span{font-size:10.5px;color:var(--mv-t3);line-height:1.3}
+.mv-scale span:last-child{text-align:right}
+.post-content .mv-hint{font-size:12px;color:var(--mv-t3);line-height:1.55;margin:9px 0 0}
+.mv-hint b{color:var(--mv-t2);font-weight:600}
+
+.mv-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px;margin:16px 0 4px;
+  padding-top:14px;border-top:1px dashed var(--mv-bd)}
+
+.mv-res{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--mv-bd);
+  border-top:1px solid var(--mv-bd);border-bottom:1px solid var(--mv-bd);margin-top:14px}
+.mv-stat{background:#fff;padding:15px 18px;text-align:center}
+.mv-stat-k{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.9px;color:var(--mv-t3);margin-bottom:5px}
+.mv-stat b{display:block;font-size:26px;font-weight:600;color:var(--mv-t1);line-height:1.15}
+.mv-stat b.hot{color:var(--mv-g2)}
+.mv-stat b.cold{color:#9A3B2E}
+.mv-stat em{display:block;font-style:normal;font-size:11.5px;color:var(--mv-t3);margin-top:4px;line-height:1.35}
+
+.mv-tblwrap{overflow-x:auto}
+.post-content .mv-tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:0;min-width:440px}
+.post-content .mv-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;
+  color:#C9D3E0;font-weight:700;text-align:right;padding:8px 14px;border-bottom:1px solid var(--mv-bd)}
+.post-content .mv-tbl th:first-child{text-align:left;color:#fff}
+.post-content .mv-tbl td{padding:8px 14px;border-bottom:1px dashed var(--mv-bd);text-align:right}
+.post-content .mv-tbl td:first-child{text-align:left;color:var(--mv-t2)}
+.mv-tbl td em{display:block;font-style:normal;font-size:11px;color:var(--mv-t3);margin-top:1px}
+.mv-tbl .yes{color:var(--mv-g2);font-weight:700}
+.mv-tbl .no{color:#9A3B2E;font-weight:700}
+
+.mv-out{background:var(--mv-deep);color:#fff;padding:17px 22px}
+.mv-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.mv-out-s b{font-family:var(--mv-mono);font-weight:600;color:#fff}
+
+.mv-notes{padding:15px 22px 17px;border-top:1px solid var(--mv-bd);background:var(--color-surface)}
+.post-content .mv-notes p{font-size:12.5px;line-height:1.55;color:var(--mv-t3);margin:0 0 7px}
+.post-content .mv-notes p:last-child{margin-bottom:0}
+.mv-notes b{color:var(--mv-t2)}
+
+@media(max-width:640px){
+  .mv-grid,.mv-cards{grid-template-columns:1fr;gap:12px}
+  .mv-body{padding:14px 16px 8px}
+  .mv-chips{padding:10px 16px}
+  .mv-res{grid-template-columns:1fr}
+  .mv-stat{padding:13px 16px}
+  .mv-stat b{font-size:23px}
+}
+@media(prefers-reduced-motion:reduce){.mv *{transition:none!important}}
+</style>
+
+<script is:inline>
+(function(){
+const $ = id => document.getElementById(id);
+const numOf = el => { const n = parseFloat(String(el.value).replace(/[^\d.\-]/g,'')); return isFinite(n) ? n : 0; };
+const sgd = n => (n < 0 ? '-S$' : 'S$') + Math.round(Math.abs(n)).toLocaleString('en-SG');
+const grp = n => Math.round(n).toLocaleString('en-SG');
+/* Round half-up to 2dp. Plain toFixed(2) rounds 1.7/4.0 = 0.425 down to "0.42",
+   because the binary double for 0.425 is fractionally below it — which made the
+   tool disagree with the breakeven table printed in the article. */
+const r2 = v => isFinite(v) ? (Math.round(v * 100 + 1e-9) / 100).toFixed(2) : '—';
+
+/* Mirrors src/utils/mileValue.ts — see that module for the derivation.
+   SIA harmonised Miles+Cash, Kris+, KrisShop and Pelago at 100 miles = S$1 from
+   1 July 2025, so every mile has a guaranteed 1-cent exit. That is the floor a
+   redemption has to beat to have been worth hunting for. */
+const FLOOR = 0.01;
+
+/* Miles are the published chart (1 Nov 2025), multiplied for passengers and
+   legs. Fares are illustrative placeholders and labelled as such in the UI.
+
+   Every premium preset opens at a 50% haircut rather than 0%. That is a
+   deliberate editorial choice, not a default: 0% is the correct setting only
+   for someone who would categorically never buy the front cabin, and opening
+   there would land every reader on a below-floor verdict before they have
+   understood what the slider does. 50% says "I would have paid for some of
+   this, not all of it", which is where most honest answers sit. The economy
+   preset opens at 100% because both fares are the same seat — there is no
+   premium to haircut. */
+const PRESETS = [
+  { m: 540000, t: 1100, fr: 18000, fa: 4800,  w: 50 },  // 6 pax x 2 legs x 45,000 (Zone 5 business Saver)
+  { m: 544000, t: 1600, fr: 22000, fa: 6400,  w: 50 },  // 4 pax x 2 legs x 68,000 (Zone 10 business Saver)
+  { m: 178500, t: 120,  fr: 7500,  fa: 3200,  w: 40 },  // 1 pax one way (Zone 9 First Advantage)
+  { m: 217000, t: 450,  fr: 6500,  fa: 1500,  w: 50 },  // 1 pax x 2 legs x 108,500 (Zone 11 business Saver)
+  { m: 88000,  t: 450,  fr: 1500,  fa: 1500,  w: 100},  // 1 pax x 2 legs x 44,000 (Zone 11 economy Saver)
+];
+
+const TIERS = [
+  { mpd: 1.2, label: 'General spend, entry tier',  note: '1.2 mpd' },
+  { mpd: 1.4, label: 'General spend, higher tier', note: '1.4 mpd' },
+  { mpd: 2.4, label: 'Overseas spend',             note: '2.4 mpd' },
+  { mpd: 4.0, label: 'Bonus category, capped',     note: '4.0 mpd' },
+];
+
+function compute(){
+  const m  = Math.max(0, numOf($('mv-m')));
+  const t  = Math.max(0, numOf($('mv-t')));
+  const hi = Math.max(0, numOf($('mv-fr')));
+  const lo = Math.max(0, numOf($('mv-fa')));
+  const w  = Math.min(100, Math.max(0, numOf($('mv-w')))) / 100;
+
+  const premium   = Math.max(0, hi - lo);
+  const seatValue = lo + w * premium;
+  const cashSaved = seatValue - t;
+  const cpm       = m > 0 ? (cashSaved / m) * 100 : 0;
+  const floorVal  = m * FLOOR;
+  const vsFloor   = floorVal > 0 ? cashSaved / floorVal : 0;
+
+  return { m, t, seatValue, cashSaved, cpm, floorVal, vsFloor, belowFloor: m > 0 && cashSaved < floorVal };
+}
+
+function writeLink(){
+  try {
+    const p = new URLSearchParams(window.location.search);
+    [['m','mv-m'],['t','mv-t'],['fr','mv-fr'],['fa','mv-fa'],['w','mv-w'],['mpd','mv-mpd'],['cb','mv-cb']]
+      .forEach(([k,id]) => p.set(k, $(id).value));
+    history.replaceState(null, '', window.location.pathname + '?' + p.toString() + window.location.hash);
+  } catch(err){}
+}
+
+function readLink(){
+  try {
+    const p = new URLSearchParams(window.location.search);
+    [['m','mv-m'],['t','mv-t'],['fr','mv-fr'],['fa','mv-fa'],['w','mv-w'],['mpd','mv-mpd'],['cb','mv-cb']]
+      .forEach(([k,id]) => { if (p.has(k)) $(id).value = p.get(k); });
+  } catch(err){}
+}
+
+function update(fromUser){
+  const r   = compute();
+  const mpd = Math.max(0, numOf($('mv-mpd')));
+  const cb  = Math.max(0, numOf($('mv-cb')));
+
+  $('mv-wv').textContent = Math.round(numOf($('mv-w'))) + '%';
+
+  if (r.m <= 0){
+    $('mv-cpm').textContent = '—';
+    $('mv-cpm-s').textContent = 'Enter the miles this booking cost.';
+    $('mv-floor').textContent = '—'; $('mv-floor-s').textContent = '—';
+    $('mv-reb').textContent = '—';   $('mv-reb-s').textContent = '—';
+    $('mv-tbody').innerHTML = '';
+    $('mv-say').textContent = 'Enter the miles the booking cost to price it.';
+    return;
+  }
+
+  // Value per mile
+  const cpmEl = $('mv-cpm');
+  cpmEl.textContent = r.cpm.toFixed(2) + '¢';
+  cpmEl.className = 'num ' + (r.belowFloor ? 'cold' : 'hot');
+  $('mv-cpm-s').innerHTML = sgd(r.cashSaved) + ' of cash not spent, over ' + grp(r.m) + ' miles';
+
+  // Against the floor
+  $('mv-floor').textContent = r.vsFloor.toFixed(2) + '×';
+  $('mv-floor').className = 'num ' + (r.belowFloor ? 'cold' : 'hot');
+  $('mv-floor-s').innerHTML = 'the same miles are worth <b>' + sgd(r.floorVal)
+    + '</b> at the guaranteed 1-cent rate';
+
+  // Effective rebate at the reader's own earn rate
+  const reb = r.cpm * mpd;
+  $('mv-reb').textContent = reb.toFixed(2) + '%';
+  $('mv-reb').className = 'num ' + (reb >= cb ? 'hot' : 'cold');
+  $('mv-reb-s').innerHTML = 'at ' + mpd.toFixed(2).replace(/\.?0+$/,'') + ' mpd, against '
+    + cb.toFixed(2).replace(/\.?0+$/,'') + '% cashback';
+
+  // The 2013 sheet's columns, rebuilt
+  $('mv-tbody').innerHTML = TIERS.map(tier => {
+    const tr = r.cpm * tier.mpd;
+    const be = tier.mpd > 0 ? cb / tier.mpd : Infinity;
+    const ok = tr >= cb;
+    return '<tr><td>' + tier.label + '<em>' + tier.note + ' &middot; needs '
+      + r2(be) + '¢ a mile to match cashback</em></td><td class="num">'
+      + tr.toFixed(2) + '%</td><td class="' + (ok ? 'yes' : 'no') + '">'
+      + (ok ? 'Yes' : 'No') + '</td></tr>';
+  }).join('');
+
+  // The sentence
+  const beMine = mpd > 0 ? cb / mpd : Infinity;
+  let say;
+  if (r.belowFloor){
+    say = 'On these inputs this redemption returned <b>' + r.cpm.toFixed(2) + '¢</b> a mile — '
+      + '<b>below the 1-cent floor</b> that Kris+, KrisShop and Miles+Cash pay anyone, with no '
+      + 'seat to hunt for and no date to work around. Whatever else this booking was, it was not '
+      + 'a good use of the miles. Redemptions land here most often when a cheap cash fare was the '
+      + 'real alternative, or when award taxes ate the saving.';
+  } else {
+    say = 'On these inputs the miles returned <b>' + r.cpm.toFixed(2) + '¢</b> each — '
+      + '<b>' + r.vsFloor.toFixed(1) + ' times</b> the guaranteed floor — which turns a '
+      + mpd.toFixed(2).replace(/\.?0+$/,'') + ' mpd card into an effective rebate of <b>'
+      + reb.toFixed(2) + '%</b> on everything you charged to it. '
+      + (reb >= cb
+          ? 'That beats the ' + cb.toFixed(2).replace(/\.?0+$/,'') + '% cashback you could have taken instead.'
+          : 'That still loses to the ' + cb.toFixed(2).replace(/\.?0+$/,'') + '% cashback you could have taken instead.')
+      + ' Your card needs <b>' + (isFinite(beMine) ? r2(beMine) + '¢' : '—')
+      + '</b> a mile just to draw level with cashback; everything above that line is what the '
+      + 'hunting was for. Now drag the haircut slider and watch how much of this answer was the '
+      + 'seat you would never have bought.';
+  }
+  $('mv-say').innerHTML = say;
+
+  if (fromUser) writeLink();
+}
+
+function applyPreset(i){
+  const p = PRESETS[i]; if (!p) return;
+  $('mv-m').value  = grp(p.m);
+  $('mv-t').value  = grp(p.t);
+  $('mv-fr').value = grp(p.fr);
+  $('mv-fa').value = grp(p.fa);
+  $('mv-w').value  = String(p.w);
+  document.querySelectorAll('.mv-chip').forEach(c =>
+    c.setAttribute('aria-pressed', String(Number(c.dataset.p) === i)));
+  update(true);
+}
+
+function init(){
+  readLink();
+  ['mv-m','mv-t','mv-fr','mv-fa','mv-mpd','mv-cb'].forEach(id =>
+    $(id).addEventListener('input', () => {
+      document.querySelectorAll('.mv-chip').forEach(c => c.setAttribute('aria-pressed','false'));
+      update(true);
+    }));
+  $('mv-w').addEventListener('input', () => update(true));
+  document.querySelectorAll('.mv-chip').forEach(c =>
+    c.addEventListener('click', () => applyPreset(Number(c.dataset.p))));
+  update(false);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+})();
+</script>

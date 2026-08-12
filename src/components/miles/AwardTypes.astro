@@ -1,0 +1,131 @@
+---
+// The four doors into a KrisFlyer seat.
+//
+// Most people meet only two of these — the cheap one that is never available,
+// and the expensive one that always is — and conclude the programme is broken.
+// It is not broken; it is four products with four prices, and knowing which one
+// you are being shown is most of the skill.
+//
+// Rules and fees as documented by The MileLion, November 2025, following the
+// 1 November 2025 chart revision. Fees are per passenger and payable in cash.
+// Verified 12 August 2026 — check before booking, because these change.
+import ToolBrand from '../ToolBrand.astro';
+
+const TYPES = [
+  {
+    name: 'Promo',
+    price: 'About 30% below Saver',
+    avail: 'Only in the monthly Spontaneous Escapes window, on selected routes, for travel the following month',
+    stop: 'None',
+    flex: 'No changes, no refunds',
+    wait: 'No',
+    note: 'The cheapest miles in the programme, sold on the airline’s terms rather than yours.',
+  },
+  {
+    name: 'Saver',
+    price: 'The chart price — the baseline',
+    avail: 'Every route, all year, in genuinely limited numbers',
+    stop: 'One on a return',
+    flex: 'S$25 to change a date; S$75 to refund',
+    wait: 'Yes — clears close to departure if at all',
+    note: 'Where nearly all the value in this piece comes from, and the reason plans start eleven months out.',
+  },
+  {
+    name: 'Advantage',
+    price: 'Roughly 80% above Saver on average',
+    avail: 'Every route, all year, in far greater supply',
+    stop: 'Two on a return',
+    flex: 'Free date changes; S$25 other changes; S$50 to refund',
+    wait: 'Yes',
+    note: 'The seat that is actually there when you look. You are paying miles for certainty.',
+  },
+  {
+    name: 'Access',
+    price: 'Dynamic — marked up over Advantage, up to about double it in business',
+    avail: 'Last seat, any date, including peak periods',
+    stop: 'Two on a return',
+    flex: 'Free date changes; S$25 other changes; S$50 to refund',
+    wait: 'No',
+    note: 'Introduced 1 November 2025 and already repriced upward once. The emergency door, priced like one.',
+  },
+];
+---
+
+<div class="at">
+  <div class="at-head">
+    <span class="at-lbl">Four doors into the same cabin</span>
+    <span class="at-lbl accent">Rules as at Aug 2026</span>
+  </div>
+
+  <div class="at-tblwrap">
+    <table class="at-tbl">
+      <thead>
+        <tr>
+          <th>Award</th><th>What it costs</th><th>When you can get it</th>
+          <th>Stopovers</th><th>Changes &amp; refunds</th><th>Waitlist</th>
+        </tr>
+      </thead>
+      <tbody>
+        {TYPES.map((t) => (
+          <tr>
+            <td class="at-name"><b>{t.name}</b><em>{t.note}</em></td>
+            <td>{t.price}</td>
+            <td>{t.avail}</td>
+            <td>{t.stop}</td>
+            <td>{t.flex}</td>
+            <td>{t.wait}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="at-out">
+    <div class="at-out-s">The chart price and the price you will be shown are different numbers,
+    and the difference is availability. <b>Saver is a price with a queue behind it. Access is a
+    price with a seat behind it.</b> Any valuation built on Saver figures is really a statement
+    about how far ahead you are willing to plan.</div>
+  </div>
+
+  <div class="at-notes">
+    {/* "by <a" must stay on one line — a line break between text and an element
+        is collapsed in .astro templates, fusing the two words together. */}
+    <p><b>Source.</b> Award-type rules and fees as documented
+    by <a href="https://milelion.com/2025/11/29/krisflyer-promo-saver-and-advantage-awards-whats-the-difference/" rel="nofollow noopener" target="_blank">The MileLion</a>,
+    November 2025. Fees are per passenger, payable in cash, and revisable by the airline &mdash;
+    confirm against Singapore Airlines&rsquo; own terms before you book.</p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.at{
+  --at-bd:var(--color-border); --at-t1:var(--color-dark); --at-t2:var(--color-body);
+  --at-t3:var(--color-muted); --at-deep:var(--color-navy);
+  background:#fff;border:1px solid var(--at-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--at-t1)
+}
+.at-head{padding:14px 22px;background:var(--color-surface);border-bottom:1px solid var(--at-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.at-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--at-t3)}
+.at-lbl.accent{color:var(--color-brand-700)}
+.at-tblwrap{overflow-x:auto}
+.post-content .at-tbl{width:100%;border-collapse:collapse;font-size:13px;margin:0;min-width:760px}
+.post-content .at-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;
+  color:#C9D3E0;font-weight:700;text-align:left;padding:9px 14px;border-bottom:1px solid var(--at-bd)}
+.post-content .at-tbl th:first-child{color:#fff}
+.post-content .at-tbl td{padding:11px 14px;border-bottom:1px dashed var(--at-bd);
+  vertical-align:top;color:var(--at-t2);line-height:1.45}
+.post-content .at-tbl tr:last-child td{border-bottom:none}
+.at-tbl .at-name{min-width:190px}
+.at-tbl .at-name b{font-size:14.5px;color:var(--at-t1)}
+.at-tbl .at-name em{display:block;font-style:normal;font-size:11.5px;color:var(--at-t3);margin-top:3px}
+.at-out{background:var(--at-deep);color:#fff;padding:17px 22px}
+.at-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.at-out-s b{font-weight:600;color:#fff}
+.at-notes{padding:15px 22px 17px;border-top:1px solid var(--at-bd);background:var(--color-surface)}
+.post-content .at-notes p{font-size:12.5px;line-height:1.55;color:var(--at-t3);margin:0 0 7px}
+.post-content .at-notes p:last-child{margin-bottom:0}
+.at-notes b{color:var(--at-t2)}
+</style>
