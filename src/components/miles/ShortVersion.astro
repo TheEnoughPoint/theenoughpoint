@@ -1,0 +1,75 @@
+---
+// The whole argument in three numbers, placed early.
+//
+// This is not a restatement of the takeaways above it. The takeaways carry the
+// findings; this carries the METHOD — the three things a reader needs to price
+// their own redemption and then close the tab, if that is all they came for.
+// Everything after it in the article is depth on these three lines.
+//
+// Deliberately not a component with inputs. A reader who wants to compute
+// something has the tool further down; this one only has to be readable.
+---
+
+<aside class="sv" aria-label="The short version">
+  <div class="sv-h">If you read nothing else</div>
+
+  <ol class="sv-list">
+    <li>
+      <b>One cent is what doing nothing pays.</b>{' '}
+      Every KrisFlyer mile can be cashed out at 100 miles = S$1 through Kris+, KrisShop,
+      Pelago or Miles+Cash. Treat it as a <em>ceiling</em> on the lazy option rather than a floor
+      beneath you &mdash; where the shop marks the price up, you get less than the cent.
+    </li>
+    <li>
+      <b>The cabin decides the value, not the airline.</b>{' '}
+      The award chart charges roughly <b>2.1&ndash;2.5&times;</b> for business and about
+      <b>3&times;</b> for a Suite. Cash fares separate those cabins by far more. Point a mile
+      where the two ladders diverge and it is worth multiples of what it is worth anywhere else.
+    </li>
+    <li>
+      <b>Your card has one number to beat.</b>{' '}
+      <span class="sv-eq">cashback rate &divide; miles per dollar</span>
+      is the value per mile you must actually achieve to have been right. At 1.7% cashback and a
+      1.4 mpd card, that is <b>1.21 cents</b>. Business class clears it comfortably. A cheap
+      economy seat does not.
+    </li>
+  </ol>
+
+  <p class="sv-f">And one honest test before any of it: <b>would you have paid cash for that
+  seat?</b> If the answer is no, the miles saved you the cheaper fare you would really have
+  bought &mdash; not the expensive one you enjoyed.</p>
+</aside>
+
+<style is:global>
+.sv{
+  --sv-bd:var(--color-border); --sv-t1:var(--color-dark); --sv-t2:var(--color-body);
+  --sv-t3:var(--color-muted); --sv-deep:var(--color-navy); --sv-gold:#9C7526;
+  --sv-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:var(--color-surface);border:1px solid var(--sv-bd);
+  border-left:3px solid var(--sv-gold);border-radius:10px;
+  padding:18px 22px 16px;margin:26px 0;color:var(--sv-t1)
+}
+.sv-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--sv-gold);margin-bottom:12px}
+.post-content ol.sv-list{margin:0;padding:0;list-style:none;counter-reset:sv}
+.post-content ol.sv-list li{
+  counter-increment:sv;position:relative;padding:0 0 0 30px;margin:0 0 12px;
+  font-size:14.5px;line-height:1.6;color:var(--sv-t2)}
+.post-content ol.sv-list li:last-child{margin-bottom:0}
+.post-content ol.sv-list li::before{
+  content:counter(sv);position:absolute;left:0;top:2px;
+  width:20px;height:20px;border-radius:50%;background:var(--sv-deep);color:#fff;
+  font-family:var(--sv-mono);font-size:11px;font-weight:600;
+  display:flex;align-items:center;justify-content:center}
+.sv-list b{color:var(--sv-t1);font-weight:700}
+.sv-eq{display:inline-block;font-family:var(--sv-mono);font-size:13px;font-weight:600;
+  color:var(--sv-deep);background:#fff;border:1px solid var(--sv-bd);border-radius:5px;
+  padding:1px 8px;margin:0 2px}
+.post-content p.sv-f{font-size:13.5px;line-height:1.6;color:var(--sv-t3);
+  margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--sv-bd)}
+.sv-f b{color:var(--sv-t2)}
+@media(max-width:640px){
+  .sv{padding:16px 16px 14px}
+  .post-content ol.sv-list li{font-size:14px}
+}
+</style>

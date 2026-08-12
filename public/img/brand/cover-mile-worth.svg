@@ -1,12 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="What a KrisFlyer mile is actually worth. Every mile has a guaranteed one-cent exit. The published award chart prices a business seat at about 2.2 times the economy award and a Suite at about 3 times, while cash fares separate the cabins by far more. The floor is guaranteed; the ceiling is a decision.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="What a KrisFlyer mile is actually worth. Every mile has a one-cent exit, but it is a ceiling rather than a floor. The published award chart prices a business seat at about 2.2 times the economy award and a Suite at about 3 times, while cash fares separate the cabins by far more. One cent is what doing nothing pays; the rest is a decision.">
   <!-- Cover for the miles piece ("A Mile Is Worth One Cent Until You Decide Otherwise").
        House system: navy field, gold serif figure, small-caps kicker, italic
        payoff, wordmark at foot.
 
        This cover leads with a FIGURE rather than a question because, unlike the
        gold taxonomy, this piece does have one hard number at its centre: the
-       1-cent floor Singapore Airlines guarantees across Miles+Cash, Kris+,
-       KrisShop and Pelago. Everything the article argues is measured against it.
+       1-cent exit Singapore Airlines offers across Miles+Cash, Kris+, KrisShop
+       and Pelago. Everything the article argues is measured against it.
+
+       It reads "at best" rather than "guaranteed" deliberately. An earlier
+       version of this cover said guaranteed; that was wrong. The RATE is
+       guaranteed, the VALUE is not, because KrisShop prices can sit above the
+       market — so one cent is the ceiling on the lazy option, not a floor.
 
        The three panels carry the published award-chart multiples (economy
        indexed to 1.00x), which are facts about a chart, not estimates — so
@@ -33,11 +38,11 @@
 
   <text x="600" y="216" text-anchor="middle"
         font-family="Georgia, 'Times New Roman', serif" font-size="104"
-        fill="#C89A3C">One cent, guaranteed</text>
+        fill="#C89A3C">One cent, at best</text>
 
   <text x="600" y="256" text-anchor="middle"
         font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600"
-        letter-spacing="0.4" fill="#F6F4EF" opacity="0.62">Miles+Cash &#183; Kris+ &#183; KrisShop &#183; Pelago &#8212; 100 miles = S$1, since 1 July 2025</text>
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.62">Miles+Cash &#183; Kris+ &#183; KrisShop &#183; Pelago &#8212; the rate is fixed, the value is not</text>
 
   <!-- The published Saver ladder, economy indexed to 1.00x. Facts about a chart. -->
   <g font-family="Arial, Helvetica, sans-serif" font-weight="700" text-anchor="middle">
@@ -63,7 +68,7 @@
 
   <text x="600" y="522" text-anchor="middle"
         font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="25"
-        fill="#F6F4EF" opacity="0.8">The floor is guaranteed. The ceiling is a decision.</text>
+        fill="#F6F4EF" opacity="0.8">That is what doing nothing pays. The rest is a decision.</text>
 
   <text x="600" y="572" text-anchor="middle"
         font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700"
