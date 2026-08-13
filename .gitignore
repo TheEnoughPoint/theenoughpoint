@@ -18,3 +18,9 @@ npm-debug.log*
 # Environment
 .env
 .env.*
+
+# Claude Code: share the project's skills and launch config, keep local state out.
+# Skills are project tooling — /preflight is referenced by CLAUDE.md, so it has
+# to travel with the repo rather than living on one machine.
+.claude/settings.local.json
+.claude/worktrees/

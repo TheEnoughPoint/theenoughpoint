@@ -19,6 +19,11 @@
     --color-gold:         #C89A3C;
     --color-gold-dark:    #9C7526;
     --color-gold-light:   #F3E4C0;
+    /* Gold that is legible as TEXT. The display golds above are for fills and
+       rules: #C89A3C measures 2.35:1 and #9C7526 3.83:1 against --color-surface,
+       both under the WCAG AA 4.5 minimum. This one measures 4.82:1 and reads as
+       the same colour at label sizes. Use it whenever gold carries words. */
+    --color-gold-ink:     #8A6520;
     --color-cream:        #F6F4EF;
     --color-cream-dark:   #EDE8DD;
     --color-slate:        #6B7280;
