@@ -373,6 +373,19 @@ h4.text-heading, h5.text-heading, h6.text-heading {
   text-decoration-color: var(--color-brand-600);
 }
 
+/* Button-styled links inside article prose.
+   `.post-content a` above sets a green link colour at specificity 0,1,1, which
+   beats Tailwind's `.text-white` utility (0,1,0). Every CTA button in a
+   comparison table was therefore rendering green-on-green — a 1.00:1 contrast
+   ratio, i.e. an invisible label — on both mobile and desktop. Found by
+   scripts/render-audit.js, 13 Aug 2026. Keep this rule beside the one it
+   corrects. */
+.post-content a.cta-btn {
+  color: #fff;
+  text-decoration: none;
+}
+.post-content a.cta-btn:hover { color: #fff; }
+
 /* Strong / em */
 /* 700, not 600. Against 400-weight body text, Inter's semibold is close to
    invisible at 16px — bolded sentences meant to guide a skimmer simply did not
