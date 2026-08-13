@@ -1,7 +1,8 @@
 ---
-title: "Which Credit Card to Carry? Your Spending Decides"
+title: "Your Miles Card Stops Paying After S$1,000 a Month"
 cover: "/img/brand/cover-which-card.svg"
 date: "2026-08-13"
+updated: "2026-08-13"
 category: "spend-with-value"
 tags:
   - Singapore
@@ -9,18 +10,18 @@ tags:
   - Miles
   - Cashback
   - Value Living
-readTime: 13
+readTime: 12
 inlineShare: true
 figuresAsOf: "Card rates, caps, fees and currency mechanics as at 13 August 2026; the cashback benchmark as at August 2026"
 takeaways:
-  - "The rate on the box is a rate on <em>a slice</em>. A card advertised at <strong>4 miles per dollar</strong> pays that on the first S$1,000 a month and <strong>0.4 mpd</strong> above it — so at S$4,000 a month it blends to <strong>1.30 mpd</strong>, less than an ordinary general-spend card."
-  - "Two ceilings bind, and they have opposite remedies: <strong>your caps</strong> and <strong>your spending</strong>. Another card raises the first and does nothing for the second — and for most households it is the second that binds."
-  - "Four cards look like 4.00 mpd and behave like <strong>2.56</strong> once only 60% of spending lands in a bonus category. Bonus capacity is <strong>category-shaped, not a pool</strong>."
-  - "At one cent a mile, miles-per-dollar and percentage rebate are <strong>the same number</strong> — 1 mpd × 1¢ = 1%. So against a 1.7% cashback card, the bar is a blended <strong>1.7 mpd</strong>, and you clear it by redeeming above a cent, not by collecting cards."
-  - "Every running cost — annual fees, conversion fees, stranded points, minimum spends — argues the same way: <strong>toward fewer cards than the optimum</strong>. The stack that wins on a spreadsheet never forgets which card is for groceries."
+  - "The bonus rate on your card applies to about the <strong>first S$1,000 you spend each month</strong>. Everything after that earns roughly <strong>a tenth as much</strong> — and the card keeps calling itself a 4-miles-per-dollar card the whole time."
+  - "Put S$4,000 a month through one such card and you earn an average of <strong>1.3 miles per dollar — about 1.3% back</strong>. That is less than a plain no-bonus card, and less than a simple cashback card that asks nothing of you."
+  - "The fix everyone reaches for is another card. It only works if the cap is what is stopping you. If the problem is that your spending is <strong>groceries, insurance, school fees and rent</strong>, a second card changes nothing, because none of those earn a bonus anywhere."
+  - "Rule of thumb: <strong>1 mile per dollar ≈ 1% back</strong> if you cash miles out. So against a 1.7% cashback card, your real average has to beat <strong>1.7 miles per dollar</strong> — or your miles have to be worth more than a cent, which is a different article."
+  - "Most people should carry <strong>fewer cards than the optimum</strong>. The spreadsheet stack never misses a minimum spend, never forgets which card is for groceries, and never pays an annual fee it meant to have waived. You will."
 authorId: "fi"
 excerpt: |
-  The companion question to the last piece, and the one our 2013 spreadsheet was actually built to answer: which card should you carry? The honest answer is not a card. It is an arithmetic problem with two ceilings — the caps on your cards and the shape of your own spending — and for most households the second one binds, which means the extra card everyone reaches for changes nothing. Here is the mechanism, the running costs nobody prices, and a calculator that tells you which ceiling is actually costing you.
+  Somebody puts S$4,000 a month on a card advertising 4 miles per dollar, and assumes they are earning 4 miles per dollar. They are earning 1.3. Nothing went wrong and nobody was misled — the bonus rate simply stops after the first S$1,000 each month, and everything above it earns about a tenth as much. This is what that costs, why the obvious fix usually does not work, and how to tell in five minutes whether the whole exercise is beating a cashback card you could carry without thinking about it.
 ---
 
 import ShortVersion from '@src/components/ShortVersion.astro';
@@ -30,113 +31,121 @@ import Friction from '@src/components/cards/Friction.astro';
 import AffiliateDisclosureBox from '@src/components/AffiliateDisclosureBox.astro';
 import SocialShare from '@src/components/SocialShare.astro';
 
-**[The last piece](/what-a-mile-is-worth) priced a mile. It left one question open, deliberately — the same question our December 2013 spreadsheet was built to settle: which credit card should you actually carry?**
+**Picture somebody sensible. They read a comparison, picked a card advertising 4 miles per dollar, and made it the card they use for everything. Groceries, dinners, the phone bill, the flights, the lot — around S$4,000 a month. A year later they check the balance and it is roughly a third of what they expected.**
 
-Here is why we held it back. Answering "which card" with a card is close to useless. Card terms in this market move monthly — one widely held rewards card is being withdrawn in October 2026 — so any list is decaying from the day it publishes. Worse, the list format hides the thing that actually decides your return, which is not the card at all.
+Nothing went wrong. Nobody was misled. They earned exactly what the card promised.
 
-It is your spending. Both its size and its shape.
+The card promised 4 miles per dollar **on the first S$1,000 each month**. Everything after that earned 0.4 — a tenth as much. Across a S$4,000 month, that averages out at **1.3 miles per dollar**.
+
+That is the entire subject of this article, and if it is new to you, it is the most valuable thing on this page.
 
 <ShortVersion>
   <li>
-    <b>The advertised rate is a rate on a slice.</b>{' '}
-    Bonus cards pay their headline rate up to a monthly cap and <b>0.4 mpd</b> above it &mdash; the
-    base rate common to Citi, DBS and UOB. What you earn is the weighted average, and it falls as
-    you spend more.
+    <b>Miles are easier to think about as percentages.</b>{' '}
+    A mile is worth roughly a cent if you cash it out, so <b>1 mile per dollar is about 1% back</b>.
+    A card advertising 4 miles per dollar is offering you something like 4% &mdash; on the slice
+    it applies to.
   </li>
   <li>
-    <b>Two ceilings bind, and only one is fixable with plastic.</b>{' '}
-    Your caps, and the share of spending that lands in a bonus category. Another card raises the
-    first. Nothing raises the second except changing what you buy or where you buy it.
+    <b>That slice is about S$1,000 a month.</b>{' '}
+    Past it, the same card pays around <b>0.4</b>, or 0.4%. So the advertised number describes the
+    first quarter of a S$4,000 month, and the average across the whole month is <b>1.3</b>.
   </li>
   <li>
-    <b>At one cent a mile, the comparison is free.</b>{' '}
-    <span class="sv-eq">1 mpd &times; 1&cent; = 1%</span>
-    so miles-per-dollar and percentage rebate are the same number. Against a <b>1.7%</b> cashback
-    card, your blended rate has to beat <b>1.7 mpd</b> &mdash; or your miles have to be worth more
-    than a cent, which is what the redemption piece is about.
+    <b>Before adding a card, find out which wall you are hitting.</b>{' '}
+    If you have bonus-eligible spending spilling past your caps, another card genuinely helps. If
+    your spending is rent, insurance, school fees and groceries, <b>it does not</b> &mdash; those
+    earn no bonus on any card, and a second one just adds a fee.
   </li>
-  <p slot="footer" class="sv-f">The practical shape of the answer: <b>fewer cards than the optimum,
-  chosen around the spending you already do</b> — not the spending a card would like you to do.</p>
+  <p slot="footer" class="sv-f">And the honest benchmark: a flat cashback card pays <b>1.7% on
+  everything</b>, forever, with no caps, no categories and no thinking. Whatever you build has to
+  beat that.</p>
 </ShortVersion>
 
-## The rate on the box is a rate on a slice
+## The number on the advertisement is a number about S$1,000
 
-Every bonus card in Singapore works the same way. It pays a headline rate — typically 4 miles per dollar — on eligible spending up to a monthly cap, and everything past that cap drops to a base rate. That base rate is remarkably consistent across the market: **0.4 miles per dollar**, whether it arrives as one point per dollar at Citi or one unit per five dollars at DBS and UOB. Different arithmetic, same landing place.
+Every bonus card in Singapore is built the same way. It pays a headline rate — usually 4 miles per dollar — on eligible spending up to a monthly cap, and everything past that cap earns a base rate.
 
-So the number on the advertisement describes the first S$1,000 of your month. Your wallet earns the weighted average across all of it.
+That base rate is the part worth memorising, because it is almost identical across the market: **0.4 miles per dollar**. It arrives as one point per dollar at one bank and one unit per five dollars at another, but it lands in the same place. Roughly **0.4% back**.
+
+So there are two rates, not one. The advertisement quotes the first. Your statement earns a blend of both, and the blend gets worse the more you spend.
 
 <CapCliff />
 
-That single chart is most of the article. A card advertised at 4 mpd, held alone by someone spending S$4,000 a month, blends to **1.30 mpd** — *below* a plain 1.4 mpd general-spend card that has no categories to track at all. The card did not underperform. The denominator grew.
+Read the solid red line, which is one card. At **S$1,000 a month** it earns the full 4. At **S$4,000** it earns **1.3** — worse than an ordinary card with no categories, no caps and nothing to remember. The card did not fail. There was simply four times as much spending to spread the bonus across.
 
-And notice what the chart says about the obvious fix. Adding cards genuinely does lift the ceiling: at S$4,000 a month, four caps' worth of capacity holds the blended rate at 4.00 where one card gives 1.30. Three times the miles, same spending, same headline rate.
+This is why "which card is best?" is close to an unanswerable question. The same card is excellent at S$800 a month and mediocre at S$4,000, and neither fact is about the card.
 
-Which is exactly where most write-ups stop, and where the honest version has to keep going.
+## The obvious fix, and when it does not work
 
-## Two ceilings, and only one of them takes a card
+If one cap is the problem, more caps are the answer. That is what the other lines on the chart show: at S$4,000 a month, four cards hold the full 4 where one card gives 1.3. Three times the miles, same spending.
 
-The four-card line above assumes something it never states: that your spending arrives pre-sorted into your cards' categories. That S$4,000 of monthly spending distributes neatly across the online cap, the contactless cap, the dining cap and the transport cap, in exactly the proportions those caps allow.
+Which is where nearly every guide stops. Here is what it leaves out.
 
-Real spending does nothing of the sort.
+**Those caps are not interchangeable.** A card capped at S$1,000 of *online* spending does nothing for money you spend in shops. A second online card does nothing once your online spending has run out. The caps sit on categories, and the categories are narrower than they sound.
 
-A card capped at S$1,000 of **online** spending does nothing for your contactless spending. A second online card does nothing once your online spending is exhausted. **Bonus capacity is category-shaped, not a pool** — and the categories are narrower than they sound. Groceries, insurance premiums, school fees, income tax, rent and mortgage payments are either excluded outright or cannot be charged to a card at all. For most households those are the largest lines in the budget.
+Now list where a household's money actually goes. Rent or mortgage. Insurance premiums. School fees. Income tax. Groceries. For most families those are the biggest lines in the budget, and they are almost all either excluded from bonus categories, impossible to put on a card at all, or chargeable only through a service that takes a **1.8% to 2.3%** fee — which is more than the miles are worth.
 
-The dashed line on the chart is the honest one: four cards, with 60% of spending landing somewhere a bonus applies, earn **2.56 mpd** rather than 4.00. Not because the cards failed, but because the spending was never eligible.
+So there are two different walls, and they need opposite responses:
 
-This gives the only diagnostic that matters, and the two answers point in opposite directions:
+- **Hitting the cap** — you have eligible spending spilling into the base rate. Another card genuinely helps, and the calculator below will tell you by how much.
+- **Running out of eligible spending** — you have unused bonus capacity sitting on cards you already hold. **Another card does nothing at all.** You would be paying an annual fee for capacity you are not using.
 
-- **If your caps are the binding constraint** — you have eligible spending overflowing into the base rate — then another card genuinely helps, and the arithmetic will tell you how much.
-- **If your categories are the binding constraint** — you have unused capacity sitting on cards you already hold — then **another card changes nothing at all**, and buying one is a fee in exchange for a rounding error.
+The dashed line on the chart is what the second wall looks like: four cards, but with only 60% of spending landing somewhere a bonus applies, earning **2.56** rather than 4. Most households, on how the exclusions actually work, are hitting the second wall while shopping for a solution to the first.
 
-Most households, on our reading of how the caps and exclusions actually work, are in the second position and believe they are in the first.
+## What the whole exercise costs to run
 
-## What the stack costs to run
-
-Before pricing the upside, price the machine. None of this appears in an earn-rate comparison, and together it decides whether the exercise was worth it.
+Before deciding it is worth it, price the machine. None of this appears in any earn-rate comparison.
 
 <Friction />
 
-Two of those deserve emphasis because they are the ones that quietly reverse a calculation.
+Two of those reverse the sums on their own.
 
-**Annual fees are not a rounding error on a stack.** Four cards at roughly S$196 each is about S$780 a year. On S$48,000 of annual spending that is **1.6 percentage points** — larger than the entire advantage of a flat cashback card. Most are waivable on request, and the waiver is at the bank's discretion, which means the assumption "I will just get it waived" is a forecast, not a fact.
+**Annual fees are not small against a stack.** Four cards at roughly S$196 each is about S$780 a year. On S$48,000 of spending that is **1.6% of everything you spend** — larger than the entire advantage of a flat cashback card. Most are waivable if you ask. "I will just get it waived" is a plan, not a fact.
 
-**Minimum spends are asymmetric.** Several bonus rates require a monthly floor. Miss it and you do not earn a reduced bonus; you earn the base rate on everything that month. A stack you are not actively operating does not degrade gracefully — it falls off a cliff, quietly, in the months you were busy.
+**Missing a minimum spend does not cost you a little.** Several bonus rates require a monthly floor. Miss it and you do not earn a smaller bonus, you earn the base rate on everything that month. A system you are not actively running does not fade gently; it drops off a cliff in exactly the months you were too busy to notice.
 
-## Price your own stack
+## Work out your own number
 
-Now put your own numbers in. The defaults are market-typical rather than any particular card, because the point is the shape, and because the specifics will have changed by the time you read this.
+Put your real figures in. The defaults are typical of the market rather than any particular card, because the specifics will have moved by the time you read this.
 
 <BlendedRateTool />
 
-The row worth studying is not the one matching your card count. It is the **next** one down — what one more card would actually add, before you apply for it. On plausible inputs that number is often small enough to be swallowed whole by the annual fee, which is the calculation the application form does not show you.
+The row to look at is not the one matching how many cards you hold. It is the **next one down** — what one more card would actually add, before you apply. On ordinary inputs that gain is often smaller than the annual fee, which is the calculation the application form does not show you.
 
-## At one cent, the comparison is free
+Watch what happens if you set the category share to 60%: the gain stops after the third card. The fourth and fifth add nothing whatever, because there is no eligible spending left for them to catch. That is the second wall, in numbers.
 
-The link back to the redemption piece is a coincidence of arithmetic worth memorising.
+## The comparison that settles it
 
-**One mile per dollar, redeemed at one cent a mile, is a 1% rebate.** So at exactly one cent, miles-per-dollar and percentage rebate are the same number. A blended 1.3 mpd stack is a 1.3% rebate. A blended 2.2 mpd stack is 2.2%.
+Here is the conversion that makes all of this legible, and it is worth remembering.
 
-Which makes the comparison against a cashback card immediate. At the **1.7%** available on the best uncapped flat cashback card, your blended rate simply has to beat **1.7 mpd** — if you cash the miles out at a cent. Below that, the cashback card was the better instrument and required no thought at all.
+**One mile per dollar, cashed out at a cent a mile, is a 1% rebate.** So miles per dollar and percent back are the same number, as long as you are cashing miles out rather than flying on them.
 
-Above a cent, everything improves, and that is the entire connection between these two articles: **the earning side sets your rate, the redemption side sets your multiplier, and you need both to be right.** A 4 mpd stack redeemed into inflated KrisShop stock is a worse outcome than a 1.7% cashback card. A 1.3 mpd stack redeemed into a business-class seat you would genuinely have paid for is a far better one. The card is half the answer, and it is the less important half.
+That makes the benchmark obvious. The best flat cashback card in Singapore pays **1.7% on everything**, with no caps, no categories, no minimum spends and no attention required. So your real average across all your spending has to beat **1.7 miles per dollar** just to draw level with the card you could have carried without ever thinking about it.
 
-## So what do you do?
+Our sensible person at 1.3 is not drawing level. They are behind, and they have been doing homework to get there.
 
-1. **Measure the shape of your spending before looking at any card.** Not the total — the split. How much is online, how much is contactless, how much is rent, tax, insurance and school fees that no card will reward. That distribution determines your ceiling, and no product can change it.
+There is one way out of that, and it is the subject of [the companion piece](/what-a-mile-is-worth): **redeem miles for more than a cent**. A mile spent on a business-class seat you would genuinely have paid for is worth several times a mile spent in the KrisShop catalogue. Get that right and a 1.3 average becomes a perfectly good return. Get it wrong and no amount of card-juggling saves you.
 
-2. **Work out which ceiling binds.** Unused capacity on cards you hold means categories bind, and another card is not the answer. Eligible spending overflowing into the base rate means caps bind, and another card is.
+**The earning side sets your rate. The redemption side sets your multiplier. You need both, and most people optimise only the first.**
 
-3. **Count the cards you will operate, not the ones you would like to own.** The honest number is the one you will still be routing correctly in the eleventh month, after a busy fortnight and a holiday.
+## What to actually do
 
-4. **Subtract the running costs before deciding**, and treat fee waivers as requests rather than entitlements.
+1. **Look at where your money goes, not at any card.** Split last month into what a bonus card could reward and what it could not. Rent, insurance, tax, school fees and most groceries fall in the second pile. That split sets your limit, and no product changes it.
 
-5. **Then check it against doing nothing.** If your blended rate is under about 1.7 mpd and your miles end up cashed out rather than flown, a single flat cashback card would have paid more, and cost you no attention whatsoever. That is a perfectly respectable answer, and for a great many households it is the right one.
+2. **Work out which wall you are hitting.** Unused capacity on cards you hold means another card is pointless. Eligible spending spilling into the base rate means another card helps.
 
-There is a version of this hobby that is genuinely lucrative, and our own [redemption ledger](/what-a-mile-is-worth) is evidence of it. There is also a version that is an elaborate way of earning 1.3% while feeling like you are earning 4. The arithmetic above is the only thing that tells you which one you are running.
+3. **Count the cards you will actually run** — the number you will still be routing correctly in month eleven, after a busy fortnight and a holiday. That is a smaller number than the one you would like it to be.
+
+4. **Take off the running costs** before deciding, and treat fee waivers as requests rather than rights.
+
+5. **Then compare it honestly to doing nothing.** If your average is under about 1.7 miles per dollar and your miles end up cashed out rather than flown, a single flat cashback card would have paid you more and asked nothing of you. For a great many households that is the right answer, and there is no shame in it.
+
+The version of this hobby that pays is real — our own [redemption ledger](/what-a-mile-is-worth) is 1.5 million miles of evidence. So is the version where somebody earns 1.3% while believing they earn 4. The only thing separating them is the arithmetic above.
 
 <AffiliateDisclosureBox
   title="No commercial relationship"
-  text="We hold no affiliate, referral or advertising relationship with any bank or card issuer, and nothing here is a paid placement. No card is recommended, and no card's current terms are asserted — issuers revise rates, caps and fees continually, and the figures here are market-typical examples for August 2026 rather than an offer summary. This is general information about how reward structures work, not financial advice, and not a view on what any individual should apply for, hold or spend."
+  text="We hold no affiliate, referral or advertising relationship with any bank or card issuer, and nothing here is a paid placement. No card is recommended, and no card's current terms are asserted — issuers revise rates, caps and fees continually, and the figures here are typical market examples for August 2026 rather than an offer summary. This is general information about how reward structures work, not financial advice, and not a view on what any individual should apply for, hold or spend."
 />
 
 <SocialShare />
@@ -146,16 +155,17 @@ There is a version of this hobby that is genuinely lucrative, and our own [redem
 <details class="src-details">
 <summary><b>Sources and verification</b> — verified 13 August 2026. Every load-bearing figure below, one line each.</summary>
 
-- **The 0.4 mpd base rate** that spending above a bonus cap falls to, consistent across Citi (1 ThankYou point per S$1), DBS and UOB (1 unit per S$5): confirmed against [The MileLion's Citi Rewards review](https://milelion.com/2026/02/27/review-citi-rewards-credit-card/) and independent market comparisons. It is the most important constant in this article and the one least often stated in card marketing.
-- **The S$1,000 monthly bonus cap** used throughout as the market-typical figure, and the observation that caps tightened during 2026 — one card's cap was cut from S$1,500 to S$1,000, and contactless sub-caps of S$600 to S$750 are now common: [The MileLion's 2026 credit card strategy](https://milelion.com/2026/05/11/the-milelions-2026-credit-card-strategy/) and his [card guide by category](https://milelion.com/credit-cards/guide/).
-- **Category rates and their caps** — 4 mpd on online and contactless spending, with higher narrow-category rates existing (6 mpd on certain e-commerce platforms, 10 mpd at selected grocery and transport merchants on a minimum spend): [The MileLion's card guide](https://milelion.com/credit-cards/guide/). We deliberately model 4 mpd rather than the outliers, because the outliers carry minimum spends and merchant lists that make them unrepresentative of a household's blended rate.
+- **The 0.4 miles-per-dollar base rate** that spending above a bonus cap falls to, consistent across Citi (1 ThankYou point per S$1), DBS and UOB (1 unit per S$5): confirmed against [The MileLion's Citi Rewards review](https://milelion.com/2026/02/27/review-citi-rewards-credit-card/) and independent market comparisons. It is the most important constant in this article and the one card marketing never leads with.
+- **The S$1,000 monthly bonus cap** used throughout as the typical figure, and the fact that caps tightened during 2026 — one card's cap was cut from S$1,500 to S$1,000, and contactless sub-caps of S$600 to S$750 are now common: [The MileLion's 2026 credit card strategy](https://milelion.com/2026/05/11/the-milelions-2026-credit-card-strategy/) and his [card guide by category](https://milelion.com/credit-cards/guide/).
+- **Category rates and their caps** — 4 miles per dollar on online and contactless spending, with higher narrow-category rates existing (6 on certain e-commerce platforms, 10 at selected grocery and transport merchants on a minimum spend): [The MileLion's card guide](https://milelion.com/credit-cards/guide/). We model 4 rather than the outliers, because the outliers carry minimum spends and merchant lists that make them unrepresentative of a household's average.
 - **The four-card "minipack"** for spenders below roughly S$3,800 a month — two cards covering online spending and two covering contactless — is Aaron Wong's framing in the [2026 strategy](https://milelion.com/2026/05/11/the-milelions-2026-credit-card-strategy/), as is the observation that most people will not need the full twelve-card stack he documents. Our contribution is the arithmetic underneath that advice, not the advice.
 - **Currency mechanics** — conversion fees of roughly S$25–30 per transfer with American Express and HSBC free, minimum transfer blocks of 10,000 miles at several issuers, and expiry ranging from none to 37 months: [The MileLion's comparison of Singapore points currencies](https://milelion.com/2026/02/25/which-bank-offers-the-best-points-currency/).
-- **Annual fees** of S$196.20 to S$261.60 on the main general-spend and bonus cards, first year commonly waived and subsequent waivers at the issuer's discretion: issuer terms and [The MileLion's card reviews](https://milelion.com/2026/02/27/review-citi-rewards-credit-card/).
+- **Annual fees** of S$196.20 to S$261.60 on the main general-spend and bonus cards, first year commonly waived and later waivers at the issuer's discretion: issuer terms and [The MileLion's card reviews](https://milelion.com/2026/02/27/review-citi-rewards-credit-card/).
 - **Bill-payment admin fees** of roughly 1.79% to 2.25% for routing rent, tax and similar through a payment service: [The MileLion's analysis of earning miles through cashback and bill payments](https://milelion.com/2024/12/10/should-you-earn-miles-with-a-cashback-card-instead/).
 - **The 1.7% cashback benchmark**, the highest uncapped flat rate available in Singapore as at August 2026, with 1.5–1.6% alternatives and exclusions that apply to all of them: compiled from published card terms and market comparisons. Rates change; check the issuer's page before treating the hurdle as settled.
-- **The blended-rate arithmetic and the category-fit model** are ours, set out in full in [the module behind the calculator](https://github.com/TheEnoughPoint/theenoughpoint/blob/main/src/utils/blendedRate.ts). The two-ceiling structure — caps and category eligibility, whichever binds lower — is the correction that separates this from a simple cap calculation, and an earlier draft of this article got it wrong by treating bonus capacity as a fungible pool.
+- **The averaging arithmetic and the two-wall model** are ours, set out in full in [the module behind the calculator](https://github.com/TheEnoughPoint/theenoughpoint/blob/main/src/utils/blendedRate.ts). The second wall — that bonus capacity is limited by eligible categories and not only by caps — is the correction that separates this from a simple cap calculation, and an earlier draft of this article got it wrong by treating capacity as a single pool.
+- **Rewritten 13 August 2026 for clarity**, on the reader's objection that the original was hard to follow. The argument and every figure are unchanged; the jargon is not. The piece now leads with what the reader experiences rather than with the mechanism, and states miles per dollar alongside percentage-back throughout, since the two are the same number at a one-cent redemption.
 
-**A standing credit.** As with [the redemption piece](/what-a-mile-is-worth), most of what Singapore knows about this subject was worked out in public by Aaron Wong at [The MileLion](https://milelion.com/). His card guide and annual strategy are the reference works here; where this article differs is in asking what the structure earns on an ordinary household's spending rather than on an optimiser's. If you want the card-by-card detail this piece deliberately avoids, his guide is where to go.
+**A standing credit.** As with [the redemption piece](/what-a-mile-is-worth), most of what Singapore knows about this subject was worked out in public by Aaron Wong at [The MileLion](https://milelion.com/). His card guide and annual strategy are the reference works; where this article differs is in asking what the structure earns on an ordinary household's spending rather than on an optimiser's. For the card-by-card detail this piece deliberately avoids, his guide is where to go.
 
 </details>
