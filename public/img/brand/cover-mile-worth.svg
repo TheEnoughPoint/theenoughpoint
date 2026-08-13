@@ -1,28 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="What a KrisFlyer mile is actually worth. Every mile has a one-cent exit, but it is a ceiling rather than a floor. The published award chart prices a business seat at about 2.2 times the economy award and a Suite at about 3 times, while cash fares separate the cabins by far more. One cent is what doing nothing pays; the rest is a decision.">
-  <!-- Cover for the miles piece ("What a KrisFlyer Mile Is Actually Worth").
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="What are your KrisFlyer miles worth? The same one hundred thousand miles are worth about one thousand Singapore dollars if you spend them in the shop, at roughly one cent each, or about five thousand dollars if you spend them on a business-class seat. Same balance, and the difference is your decision.">
+  <!-- Cover for the miles piece ("What Are KrisFlyer Miles Worth? One Cent, or Five").
        House system: navy field, gold serif figure, small-caps kicker, italic
-       payoff, wordmark at foot.
+       payoff, wordmark at foot. Companion to cover-which-card.svg.
 
-       This cover leads with a FIGURE rather than a question because, unlike the
-       gold taxonomy, this piece does have one hard number at its centre: the
-       1-cent exit Singapore Airlines offers across Miles+Cash, Kris+, KrisShop
-       and Pelago. Everything the article argues is measured against it.
+       REDRAWN 13 Aug 2026, alongside the article's plain-English rewrite. The
+       previous version led with "One cent, at best" over three panels carrying
+       award-chart multiples (2.07-2.48x and so on). Those multiples are facts,
+       but they are facts in the vocabulary of somebody who already knows what an
+       award chart is — the same failure the card cover had.
 
-       It reads "at best" rather than "guaranteed" deliberately. An earlier
-       version of this cover said guaranteed; that was wrong. The RATE is
-       guaranteed, the VALUE is not, because KrisShop prices can sit above the
-       market — so one cent is the ceiling on the lazy option, not a floor.
+       This version states the answer in the unit the reader actually holds:
+       dollars, on a round balance. 100,000 miles is a plausible balance for
+       somebody who has been collecting a while, S$1,000 is the cash-out value at
+       the published 1-cent rate, and S$5,000 is the upper end of the 3-5c band
+       reported for well-used Saver and Advantage redemptions. The article sources
+       both ends.
 
-       The three panels carry the published award-chart multiples (economy
-       indexed to 1.00x), which are facts about a chart, not estimates — so
-       they are safe to print on a cover. No fare, no valuation and no cents-
-       per-mile claim appears here, because every one of those depends on the
-       reader's own counterfactual.
-
-       Safe zone: kicker, figure and payoff sit inside x 300-900. The three
-       panels run x 244-956, so a square crop trims their outer edges only —
-       that crop is the 80px mobile thumbnail, where panel labels are illegible
-       anyway. The wordmark is centred and survives every crop. -->
+       Safe zone: kicker, figure and payoff sit inside x 300-900; the two panels
+       run x 240-960, so a square crop trims only their outer edges. -->
   <defs>
     <radialGradient id="bgMV" cx="50%" cy="40%" r="76%">
       <stop offset="0%" stop-color="#10233D"/>
@@ -32,43 +27,38 @@
 
   <rect width="1200" height="600" fill="url(#bgMV)"/>
 
-  <text x="600" y="92" text-anchor="middle"
+  <text x="600" y="90" text-anchor="middle"
         font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700"
-        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">WHAT A KRISFLYER MILE IS ACTUALLY WORTH</text>
+        letter-spacing="3.5" fill="#F6F4EF" opacity="0.55">WHAT ARE YOUR KRISFLYER MILES WORTH?</text>
 
-  <text x="600" y="216" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" font-size="104"
-        fill="#C89A3C">One cent, at best</text>
+  <text x="600" y="206" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="92"
+        fill="#C89A3C">S$1,000 or S$5,000</text>
 
-  <text x="600" y="256" text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600"
-        letter-spacing="0.4" fill="#F6F4EF" opacity="0.62">Miles+Cash &#183; Kris+ &#183; KrisShop &#183; Pelago &#8212; the rate is fixed, the value is not</text>
+  <text x="600" y="250" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="600"
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.62">the same 100,000 miles &#8212; and nothing about them changes between those two numbers</text>
 
-  <!-- The published Saver ladder, economy indexed to 1.00x. Facts about a chart. -->
-  <g font-family="Arial, Helvetica, sans-serif" font-weight="700" text-anchor="middle">
-    <rect x="244" y="310" width="216" height="104" rx="8" fill="#F6F4EF" fill-opacity="0.055" stroke="#C89A3C" stroke-opacity="0.40"/>
-    <line x1="272" y1="328" x2="432" y2="328" stroke="#C89A3C" stroke-width="2" opacity="0.45"/>
-    <text x="352" y="362" font-size="14" fill="#F6F4EF" opacity="0.9">ECONOMY</text>
-    <text x="352" y="394" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="400" fill="#F6F4EF" opacity="0.62">1.00&#215;</text>
+  <!-- the two ends of the range -->
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <rect x="240" y="306" width="330" height="118" rx="8" fill="#F6F4EF" fill-opacity="0.05" stroke="#F6F4EF" stroke-opacity="0.22"/>
+    <text x="405" y="342" font-size="13" font-weight="700" letter-spacing="1.4" fill="#F6F4EF" opacity="0.5">SPENT IN THE SHOP</text>
+    <text x="405" y="384" font-family="Georgia, 'Times New Roman', serif" font-size="38" fill="#F6F4EF" opacity="0.72">about 1&#162; each</text>
+    <text x="405" y="408" font-size="12" font-weight="600" fill="#F6F4EF" opacity="0.42">no planning, no seat to find</text>
 
-    <rect x="492" y="310" width="216" height="104" rx="8" fill="#F6F4EF" fill-opacity="0.055" stroke="#C89A3C" stroke-opacity="0.70"/>
-    <line x1="520" y1="328" x2="680" y2="328" stroke="#C89A3C" stroke-width="2" opacity="0.85"/>
-    <text x="600" y="362" font-size="14" fill="#F6F4EF" opacity="0.9">BUSINESS</text>
-    <text x="600" y="394" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="400" fill="#C89A3C">2.07&#8211;2.48&#215;</text>
-
-    <rect x="740" y="310" width="216" height="104" rx="8" fill="#F6F4EF" fill-opacity="0.055" stroke="#C89A3C" stroke-opacity="0.70"/>
-    <line x1="768" y1="328" x2="928" y2="328" stroke="#C89A3C" stroke-width="2" opacity="0.85"/>
-    <text x="848" y="362" font-size="14" fill="#F6F4EF" opacity="0.9">FIRST / SUITES</text>
-    <text x="848" y="394" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="400" fill="#C89A3C">2.95&#8211;3.38&#215;</text>
+    <rect x="630" y="306" width="330" height="118" rx="8" fill="#C89A3C" fill-opacity="0.12" stroke="#C89A3C" stroke-opacity="0.7"/>
+    <text x="795" y="342" font-size="13" font-weight="700" letter-spacing="1.4" fill="#C89A3C">SPENT ON A BUSINESS SEAT</text>
+    <text x="795" y="384" font-family="Georgia, 'Times New Roman', serif" font-size="38" fill="#C89A3C">several times that</text>
+    <text x="795" y="408" font-size="12" font-weight="600" fill="#F6F4EF" opacity="0.5">booked early, on the cheapest tier</text>
   </g>
 
-  <text x="600" y="456" text-anchor="middle"
+  <text x="600" y="462" text-anchor="middle"
         font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600"
-        letter-spacing="0.4" fill="#F6F4EF" opacity="0.55">what the published award chart charges &#8212; the cash fare table is nothing like this flat</text>
+        letter-spacing="0.4" fill="#F6F4EF" opacity="0.55">the airline charges a big premium in cash for the front cabin, and only a small one in miles</text>
 
-  <text x="600" y="522" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="25"
-        fill="#F6F4EF" opacity="0.8">That is what doing nothing pays. The rest is a decision.</text>
+  <text x="600" y="524" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="27"
+        fill="#F6F4EF" opacity="0.85">Same balance. Your decision.</text>
 
   <text x="600" y="572" text-anchor="middle"
         font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700"

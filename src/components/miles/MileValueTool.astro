@@ -58,7 +58,7 @@ import ToolBrand from '../ToolBrand.astro';
         <span class="mv-in"><i>S$</i><input type="text" id="mv-fr" value="24,000" inputmode="numeric" class="w-lg"></span>
       </label>
       <label class="mv-f">
-        <span>Cash fare you would actually have bought<em>illustrative &mdash; the honest counterfactual</em></span>
+        <span>Cash fare you would actually have bought<em>illustrative &mdash; what you would truly have booked</em></span>
         <span class="mv-in"><i>S$</i><input type="text" id="mv-fa" value="7,200" inputmode="numeric" class="w-lg"></span>
       </label>
     </div>
@@ -73,7 +73,7 @@ import ToolBrand from '../ToolBrand.astro';
         <span>0% &mdash; I would have flown the cheaper cabin</span>
         <span>100% &mdash; I would have bought this ticket outright</span>
       </div>
-      <p class="mv-hint">This is the haircut, and it is the whole argument. At <b>0%</b> the miles
+      <p class="mv-hint">This slider is the whole argument. At <b>0%</b> the miles
       saved you only the fare you would really have paid; the better seat was a gift you would
       never have bought, pleasant but not cash. At <b>100%</b> you were always going to buy the
       front cabin, so the miles saved you every dollar of it. Most honest answers are in between
@@ -83,7 +83,7 @@ import ToolBrand from '../ToolBrand.astro';
     <div class="mv-cards">
       <label class="mv-f">
         <span>Your card earns<em>miles per dollar of spending</em></span>
-        <span class="mv-in"><input type="text" id="mv-mpd" value="1.4" inputmode="decimal"><i>mpd</i></span>
+        <span class="mv-in"><input type="text" id="mv-mpd" value="1.4" inputmode="decimal"><i>miles/$</i></span>
       </label>
       <label class="mv-f">
         <span>Best flat cashback you could have taken instead<em>the hurdle</em></span>
@@ -104,7 +104,7 @@ import ToolBrand from '../ToolBrand.astro';
       <em id="mv-floor-s">&mdash;</em>
     </div>
     <div class="mv-stat">
-      <span class="mv-stat-k">Effective rebate on your spending</span>
+      <span class="mv-stat-k">Return on your spending</span>
       <b class="num" id="mv-reb">&mdash;</b>
       <em id="mv-reb-s">&mdash;</em>
     </div>
@@ -113,7 +113,7 @@ import ToolBrand from '../ToolBrand.astro';
   <div class="mv-tblwrap">
     <table class="mv-tbl">
       <thead>
-        <tr><th>What the card earns</th><th>Effective rebate</th><th>Beats 1.7% cashback?</th></tr>
+        <tr><th>What the card earns</th><th>Return on your spending</th><th>Beats 1.7% cashback?</th></tr>
       </thead>
       <tbody id="mv-tbody"></tbody>
     </table>
@@ -377,14 +377,14 @@ function update(fromUser){
   } else {
     say = 'On these inputs the miles returned <b>' + r.cpm.toFixed(2) + '¢</b> each — '
       + '<b>' + r.vsFloor.toFixed(1) + ' times</b> a plain 1&cent; cash-out — which turns a '
-      + mpd.toFixed(2).replace(/\.?0+$/,'') + ' mpd card into an effective rebate of <b>'
+      + mpd.toFixed(2).replace(/\.?0+$/,'') + ' miles-per-dollar card into a return of <b>'
       + reb.toFixed(2) + '%</b> on everything you charged to it. '
       + (reb >= cb
           ? 'That beats the ' + cb.toFixed(2).replace(/\.?0+$/,'') + '% cashback you could have taken instead.'
           : 'That still loses to the ' + cb.toFixed(2).replace(/\.?0+$/,'') + '% cashback you could have taken instead.')
       + ' Your card needs <b>' + (isFinite(beMine) ? r2(beMine) + '¢' : '—')
       + '</b> a mile just to draw level with cashback; everything above that line is what the '
-      + 'hunting was for. Now drag the haircut slider and watch how much of this answer was the '
+      + 'hunting was for. Now drag the slider above and watch how much of this answer was the '
       + 'seat you would never have bought.';
   }
   $('mv-say').innerHTML = say;
