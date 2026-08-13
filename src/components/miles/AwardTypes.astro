@@ -69,11 +69,11 @@ const TYPES = [
         {TYPES.map((t) => (
           <tr>
             <td class="at-name"><b>{t.name}</b><em>{t.note}</em></td>
-            <td>{t.price}</td>
-            <td>{t.avail}</td>
-            <td>{t.stop}</td>
-            <td>{t.flex}</td>
-            <td>{t.wait}</td>
+            <td data-label="What it costs">{t.price}</td>
+            <td data-label="When you can get it">{t.avail}</td>
+            <td data-label="Stopovers">{t.stop}</td>
+            <td data-label="Changes &amp; refunds">{t.flex}</td>
+            <td data-label="Waitlist">{t.wait}</td>
           </tr>
         ))}
       </tbody>
@@ -121,6 +121,30 @@ const TYPES = [
 .at-tbl .at-name{min-width:190px}
 .at-tbl .at-name b{font-size:14.5px;color:var(--at-t1)}
 .at-tbl .at-name em{display:block;font-style:normal;font-size:11.5px;color:var(--at-t3);margin-top:3px}
+/* Six columns of prose cannot fit a phone, and shrinking them only makes the
+   text unreadable. Below 720px the table stops being a table: each award
+   becomes a card, and every cell carries its own column heading via
+   data-label. The thead is visually hidden rather than removed so the table
+   still announces sensibly to assistive technology. */
+@media(max-width:720px){
+  /* Cell padding carried the horizontal gutter while this was a table; once the
+     cells go full-width the wrapper has to supply it, or the text sits on the
+     card edge. */
+  .at-tblwrap{overflow-x:visible;padding:0 18px}
+  .post-content .at-tbl{min-width:0;display:block}
+  .at-tbl thead{position:absolute;width:1px;height:1px;margin:-1px;
+    overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .at-tbl tbody,.at-tbl tr,.at-tbl td{display:block;width:auto}
+  .at-tbl tr{padding:14px 0;border-bottom:1px dashed var(--at-bd)}
+  .at-tbl tr:last-child{border-bottom:none}
+  .post-content .at-tbl td{border-bottom:none;padding:5px 0}
+  .at-tbl td.at-name{padding:0 0 9px;min-width:0}
+  .post-content .at-tbl td[data-label]::before{
+    content:attr(data-label);display:block;
+    font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--at-t3);margin-bottom:2px}
+}
+
 .at-out{background:var(--at-deep);color:#fff;padding:17px 22px}
 .at-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
 .at-out-s b{font-weight:600;color:#fff}

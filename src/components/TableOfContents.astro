@@ -40,11 +40,25 @@ const items = headings.filter((h) => h.depth === 2);
   margin:0;padding:0;list-style:none;counter-reset:toc;
 }
 .post-content .toc-list li{
-  counter-increment:toc;position:relative;padding:3px 0 3px 26px;margin:0;
+  counter-increment:toc;position:relative;padding:3px 0 3px 28px;margin:0;
 }
+/* This list wants quiet numerals, but the site's prose rule
+   (.post-content ol li::before, style.css) paints every ordered-list marker as
+   a filled 22px jade circle. Overriding only `content` and `color` left the
+   circle behind the number: grey #616C7A on jade #0E5A3F measures 1.54:1,
+   against the 4.5:1 minimum, so the digits were all but invisible — and the
+   22px circle ran to x=24 while the text began at x=26, leaving a 2px gutter.
+   Every circle property therefore has to be reset explicitly here. If a future
+   change to the prose list style adds another property, it will leak in the
+   same way. */
 .post-content .toc-list li::before{
-  content:counter(toc) '.';position:absolute;left:2px;top:3px;
-  font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--color-subtle);
+  content:counter(toc) '.';
+  position:absolute;left:0;top:3px;
+  width:20px;height:auto;min-width:0;
+  background:none;border-radius:0;
+  display:block;text-align:right;
+  font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;
+  color:var(--color-subtle);
 }
 .post-content .toc-list a{
   font-size:14.5px;line-height:1.5;color:var(--color-body);

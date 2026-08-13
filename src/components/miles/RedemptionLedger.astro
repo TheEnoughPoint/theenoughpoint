@@ -97,11 +97,11 @@ const sgd0 = (v: number) => 'S$' + Math.round(v).toLocaleString('en-SG');
             {t.legs.map((l) => (
               <tr>
                 <td>{l.route}{l.both ? ' and back' : ''}<em>{l.date}</em></td>
-                <td>{l.cabin}</td>
-                <td><span class={`rl-tier ${l.tier.toLowerCase()}`}>{l.tier}</span></td>
-                <td class="num">{l.pax}</td>
-                <td class={`num${l.flag ? ' hot' : ''}`}>{n(l.miles)}<em>{n(Math.round(l.miles / (l.pax * (l.both ? 2 : 1))))} each way</em></td>
-                <td class={`num${l.tax_flag ? ' hot' : ''}`}>{sgd(l.tax)}</td>
+                <td data-label="Cabin">{l.cabin}</td>
+                <td data-label="Tier"><span class={`rl-tier ${l.tier.toLowerCase()}`}>{l.tier}</span></td>
+                <td class="num" data-label="Passengers">{l.pax}</td>
+                <td class={`num${l.flag ? ' hot' : ''}`} data-label="Miles">{n(l.miles)}<em>{n(Math.round(l.miles / (l.pax * (l.both ? 2 : 1))))} each way</em></td>
+                <td class={`num${l.tax_flag ? ' hot' : ''}`} data-label="Tax paid">{sgd(l.tax)}</td>
               </tr>
             ))}
           </tbody>
@@ -197,6 +197,24 @@ const sgd0 = (v: number) => 'S$' + Math.round(v).toLocaleString('en-SG');
 .rl-notes b{color:var(--rl-t2)}
 
 @media(max-width:640px){
+  /* Same reflow as the award table: six columns become one card per sector,
+     rather than 200px of sideways scrolling to reach the tax figure. */
+  .rl-tblwrap{overflow-x:visible}
+  .post-content .rl-tbl{min-width:0;display:block;margin-bottom:0}
+  .rl-tbl thead{position:absolute;width:1px;height:1px;margin:-1px;
+    overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .rl-tbl tbody,.rl-tbl tr,.rl-tbl td{display:block;width:auto}
+  .rl-tbl tr{padding:12px 0;border-bottom:1px dashed var(--rl-bd)}
+  .rl-tbl tr:last-child{border-bottom:none}
+  .post-content .rl-tbl td{border-bottom:none;padding:3px 0;text-align:left}
+  .post-content .rl-tbl td:first-child{padding:0 0 7px;font-weight:600}
+  .post-content .rl-tbl td[data-label]{display:flex;justify-content:space-between;
+    align-items:baseline;gap:14px}
+  .post-content .rl-tbl td[data-label]::before{
+    content:attr(data-label);font-family:var(--font-body);
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+    color:var(--rl-t3);flex:none}
+  .rl-tbl td em{text-align:right}
   .rl-trip{padding:12px 16px 4px}
   .rl-tot{grid-template-columns:1fr 1fr}
   .rl-tot-i b{font-size:18px}
