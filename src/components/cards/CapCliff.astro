@@ -65,14 +65,14 @@ const sgd = (v: number) => 'S$' + (v / 1000) + 'k';
 
 <div class="cc">
   <div class="cc-head">
-    <span class="cc-lbl">A 4 mpd card, as you spend past its cap</span>
-    <span class="cc-lbl accent">S$1,000 cap &middot; 0.4 mpd above</span>
+    <span class="cc-lbl">What a 4-mile card really earns, as you spend more</span>
+    <span class="cc-lbl accent">bonus stops at S$1,000, then 0.4</span>
   </div>
 
-  <p class="cc-preset">The advertised rate is the rate on the first <b>S$1,000</b> a month. Above
-  that, spending drops to the <b>0.4 mpd</b> base rate every major issuer uses &mdash; so what you
-  actually earn is the weighted average, and it falls as you spend more. Each line is one more
-  card operated, each with its own cap.</p>
+  <p class="cc-preset">The advertised rate applies to the first <b>S$1,000</b> a month. After that,
+  spending earns the <b>0.4</b> base rate every major bank falls back to &mdash; roughly a tenth as
+  much. What you actually earn is the average of the two, and it gets worse the more you spend.
+  Each line is one more card in use, each with its own S$1,000 cap.</p>
 
   <div class="cc-wrap">
     <svg viewBox={`0 0 ${W} ${H}`} role="img" preserveAspectRatio="xMidYMid meet"
@@ -113,14 +113,14 @@ const sgd = (v: number) => 'S$' + (v / 1000) + 'k';
       <line x1={x(4000)} x2={x(4000)} y1={M.t} y2={M.t + PH} stroke="#0E2038" stroke-width="1" stroke-dasharray="3 3" opacity="0.35"/>
       {SERIES.map((s) => <circle cx={x(4000)} cy={y(s.at4k)} r="3.6" fill={s.colour}/>)}
 
-      <text x={M.l - 34} y={M.t - 8} class="cc-ax-t">mpd</text>
+      <text x={M.l - 40} y={M.t - 8} class="cc-ax-t">miles / $</text>
       <text x={M.l + PW} y={M.t + PH + 38} text-anchor="end" class="cc-ax-t">monthly spend</text>
     </svg>
   </div>
 
   <div class="cc-out">
-    <div class="cc-out-s">Read the vertical at <b>S$4,000 a month</b>. One card blends to
-    <b>{SERIES[0].at4k.toFixed(2)} mpd</b> &mdash; less than an ordinary 1.4 mpd general-spend card,
+    <div class="cc-out-s">Read the vertical at <b>S$4,000 a month</b>. One card averages
+    <b>{SERIES[0].at4k.toFixed(2)}</b> &mdash; less than an ordinary card paying 1.4 on everything,
     from a card advertised at 4. Four cards hold <b>{SERIES[3].at4k.toFixed(2)}</b>. But the dashed
     line is the one to believe: four cards with only <b>60%</b> of spending landing in a bonus
     category earn <b>{realAt4k.toFixed(2)}</b>. <b>The caps are not usually what limits you. Your
@@ -128,14 +128,14 @@ const sgd = (v: number) => 'S$' + (v / 1000) + 'k';
   </div>
 
   <div class="cc-notes">
-    <p><b>What this is.</b> Arithmetic on a 4 mpd bonus rate, a S$1,000 monthly cap and the 0.4 mpd
-    base rate that Citi, DBS and UOB all fall back to. No card is named: the shape is the same
+    <p><b>What this is.</b> Arithmetic on a 4 miles-per-dollar bonus, a S$1,000 monthly cap and the
+    0.4 base rate that Citi, DBS and UOB all fall back to. No card is named: the shape is the same
     whichever you hold, and only the cap and the rate move.</p>
-    <p><b>The two ceilings.</b> The solid lines assume every dollar up to the cap qualifies for a
+    <p><b>The second limit.</b> The solid lines assume every dollar up to the cap qualifies for a
     bonus category &mdash; the brochure case. Real spending does not arrive pre-sorted: groceries,
     insurance, school fees, tax and rent are largely excluded or carry an admin fee that exceeds
-    the reward. So a second ceiling binds, and the dashed line shows it. When categories are the
-    binding constraint rather than caps, <b>adding another card changes nothing.</b></p>
+    the reward. So a second limit bites, and the dashed line shows it. When you have run out of
+    eligible spending rather than run past the cap, <b>adding another card changes nothing.</b></p>
     <ToolBrand />
   </div>
 </div>

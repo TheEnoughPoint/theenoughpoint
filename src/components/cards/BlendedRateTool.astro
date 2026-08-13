@@ -24,12 +24,12 @@ import ToolBrand from '../ToolBrand.astro';
 
 <div class="br">
   <div class="br-head">
-    <span class="br-lbl">What your stack actually earns</span>
+    <span class="br-lbl">What you actually earn</span>
     <span class="br-lbl accent">Interactive</span>
   </div>
 
-  <p class="br-preset">Defaults are market-typical for August 2026 &mdash; a <b>4 mpd</b> bonus on a
-  <b>S$1,000</b> monthly cap, the <b>0.4 mpd</b> base rate every major issuer falls back to, and
+  <p class="br-preset">Defaults are market-typical for August 2026 &mdash; a <b>4 miles-per-dollar</b> bonus on the
+  first <b>S$1,000</b> each month, the <b>0.4</b> base rate every major bank falls back to after that, and
   <b>1.7%</b> as the best uncapped flat cashback. No card is named or assumed: terms move monthly,
   and these are yours to overwrite with the ones on your statement.</p>
 
@@ -44,16 +44,16 @@ import ToolBrand from '../ToolBrand.astro';
         <span class="br-in"><input type="text" id="br-cd" value="1" inputmode="numeric"></span>
       </label>
       <label class="br-f">
-        <span>Monthly bonus cap per card<em>the ceiling on the headline rate</em></span>
+        <span>Monthly bonus cap per card<em>where the bonus rate stops</em></span>
         <span class="br-in"><i>S$</i><input type="text" id="br-cap" value="1,000" inputmode="numeric" class="w-lg"></span>
       </label>
       <label class="br-f">
         <span>Headline rate inside the cap<em>miles per dollar</em></span>
-        <span class="br-in"><input type="text" id="br-bn" value="4.0" inputmode="decimal"><i>mpd</i></span>
+        <span class="br-in"><input type="text" id="br-bn" value="4.0" inputmode="decimal"><i>miles/$</i></span>
       </label>
       <label class="br-f">
         <span>Base rate above the cap<em>0.4 is the market standard</em></span>
-        <span class="br-in"><input type="text" id="br-bs" value="0.4" inputmode="decimal"><i>mpd</i></span>
+        <span class="br-in"><input type="text" id="br-bs" value="0.4" inputmode="decimal"><i>miles/$</i></span>
       </label>
       <label class="br-f">
         <span>Spending that lands in a bonus category<em>the share your cards actually cover</em></span>
@@ -76,17 +76,17 @@ import ToolBrand from '../ToolBrand.astro';
 
   <div class="br-res">
     <div class="br-stat">
-      <span class="br-stat-k">Blended earn rate</span>
+      <span class="br-stat-k">Your real average</span>
       <b class="num" id="br-mpd">&mdash;</b>
       <em id="br-mpd-s">&mdash;</em>
     </div>
     <div class="br-stat">
-      <span class="br-stat-k">Effective rebate, after fees</span>
+      <span class="br-stat-k">Your return, after fees</span>
       <b class="num" id="br-reb">&mdash;</b>
       <em id="br-reb-s">&mdash;</em>
     </div>
     <div class="br-stat">
-      <span class="br-stat-k">Value per mile you must achieve</span>
+      <span class="br-stat-k">Miles must be worth</span>
       <b class="num" id="br-be">&mdash;</b>
       <em id="br-be-s">&mdash;</em>
     </div>
@@ -95,7 +95,7 @@ import ToolBrand from '../ToolBrand.astro';
   <div class="br-tblwrap">
     <table class="br-tbl">
       <thead>
-        <tr><th>If you operate</th><th>Blended rate</th><th>Rebate after fees</th><th>Beats cashback?</th></tr>
+        <tr><th>If you run</th><th>Real average</th><th>Return after fees</th><th>Beats cashback?</th></tr>
       </thead>
       <tbody id="br-tbody"></tbody>
     </table>
@@ -113,7 +113,7 @@ import ToolBrand from '../ToolBrand.astro';
     <p><b>Why the category share matters more than the card count.</b> Bonus capacity is not a
     pool you can point anywhere. A card capped at S$1,000 of <em>online</em> spending does nothing
     for your contactless spending, and a second online card does nothing once your online spending
-    runs out. So two ceilings bind &mdash; the caps you hold and the spending that qualifies for
+    runs out. So two limits apply &mdash; the caps you hold and the spending that qualifies for
     them &mdash; and the tool tells you which one is actually costing you, because the remedies are
     opposite. If categories bind, another card changes nothing.</p>
     <p><b>What it still leaves out.</b> Minimum spends, which turn one missed month into the base
@@ -278,8 +278,8 @@ function update(fromUser){
 
   $('br-mpd').textContent = r2(r.blended);
   $('br-mpd').className = 'num ' + (r.blended >= v.cb / Math.max(v.cpm, 0.0001) ? 'hot' : 'cold');
-  $('br-mpd-s').innerHTML = Math.round(r.overflow*100) + '% earns only ' + r2(v.bs) + ' mpd &mdash; '
-    + (r.binding === 'categories' ? 'limited by categories' : r.binding === 'caps' ? 'limited by caps' : 'nothing wasted');
+  $('br-mpd-s').innerHTML = Math.round(r.overflow*100) + '% earns only ' + r2(v.bs) + ' miles per dollar &mdash; '
+    + (r.binding === 'categories' ? 'you have run out of eligible spending' : r.binding === 'caps' ? 'you have run past the cap' : 'nothing wasted');
 
   $('br-reb').textContent = r2(net) + '%';
   $('br-reb').className = 'num ' + (net >= v.cb ? 'hot' : 'cold');
@@ -308,21 +308,21 @@ function update(fromUser){
   const one = priceStack(v.sp, 1, v.cap, v.bn, v.bs, v.fit).blended;
   let say = 'At <b>' + sgd(v.sp) + '</b> a month across <b>' + v.cd + '</b> card'
     + (v.cd === 1 ? '' : 's') + ', a headline rate of <b>' + r2(v.bn)
-    + ' mpd</b> becomes a blended <b>' + r2(r.blended) + ' mpd</b>';
+    + '</b> averages out at <b>' + r2(r.blended) + ' miles per dollar</b>';
   if (r.overflow > 0) say += ' — <b>' + Math.round(r.overflow*100) + '%</b> of your spending never sees the bonus rate at all';
-  say += '. That is an effective rebate of <b>' + r2(net) + '%</b>'
+  say += '. That is a return of <b>' + r2(net) + '%</b> on everything you spend'
     + (v.fee > 0 ? ' after fees' : '')
     + ', against <b>' + r2(v.cb) + '%</b> from a flat cashback card you could carry without thinking about it. ';
   say += (net >= v.cb)
     ? 'The stack is ahead — and the table shows what the next card is worth before you add it.'
     : '<b>The cashback card wins on these numbers.</b> Either operate more cards, redeem better, or stop paying for complexity you are not using.';
   if (r.binding === 'categories'){
-    say += ' <b>Adding another card will not fix this.</b> Your caps are not the ceiling — your '
+    say += ' <b>Adding another card will not fix this.</b> The caps are not what is stopping you — your '
       + 'spending is. Only ' + Math.round(v.fit*100) + '% of it lands in a bonus category, so the '
       + 'unused capacity you already hold is the first thing to fill.';
   } else if (r.binding === 'caps' && v.cd === 1 && r.overflow > 0.4){
-    say += ' Here the caps are the binding constraint, so another card genuinely helps: one card '
-      + 'tops out at ' + r2(one) + ' mpd on this spending, whichever card it is.';
+    say += ' Here the cap is what is stopping you, so another card genuinely helps: one card '
+      + 'tops out at ' + r2(one) + ' on this spending, whichever card it is.';
   }
   $('br-say').innerHTML = say;
 
