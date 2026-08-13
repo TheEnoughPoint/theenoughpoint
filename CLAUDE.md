@@ -80,6 +80,15 @@ Use anonymous author identities:
 - Do not hardcode repeated article lists if they can be driven from frontmatter or data files.
 - Keep styling centralised in Tailwind/CSS variables.
 - Make all changes through branches and pull requests unless asked otherwise.
+- **Run `/preflight` before opening a PR for any new or rewritten article, and
+  again before merging.** It measures the rendered page at 390 / 768 / 1280 for
+  overflow, contrast, fused words and jargon, then walks the editorial checks a
+  script cannot make. The build passing and `check_page.py` passing have both
+  coexisted with defects that reached production; the assertions live in
+  `scripts/render-audit.js` and grow each time something gets through.
+- **Verify against the live DOM, not the built HTML.** Anything a component
+  renders with JavaScript does not exist in `dist/*.html`, so grepping the file
+  will clear a page that is visibly wrong on screen.
 - Deployment is automatic: merging a PR into `main` triggers GitHub Actions,
   which builds and deploys to Cloudflare Pages via `cloudflare/wrangler-action`
   (see `.github/workflows/deploy.yml`), authenticated with the

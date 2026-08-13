@@ -283,10 +283,10 @@ const PRESETS = [
 ];
 
 const TIERS = [
-  { mpd: 1.2, label: 'General spend, entry tier',  note: '1.2 mpd' },
-  { mpd: 1.4, label: 'General spend, higher tier', note: '1.4 mpd' },
-  { mpd: 2.4, label: 'Overseas spend',             note: '2.4 mpd' },
-  { mpd: 4.0, label: 'Bonus category, capped',     note: '4.0 mpd' },
+  { mpd: 1.2, label: 'General spend, entry tier',  note: '1.2 miles per dollar' },
+  { mpd: 1.4, label: 'General spend, higher tier', note: '1.4 miles per dollar' },
+  { mpd: 2.4, label: 'Overseas spend',             note: '2.4 miles per dollar' },
+  { mpd: 4.0, label: 'Bonus category, capped',     note: '4.0 miles per dollar' },
 ];
 
 function compute(){
@@ -356,7 +356,7 @@ function update(fromUser){
   const reb = r.cpm * mpd;
   $('mv-reb').textContent = reb.toFixed(2) + '%';
   $('mv-reb').className = 'num ' + (reb >= cb ? 'hot' : 'cold');
-  $('mv-reb-s').innerHTML = 'at ' + mpd.toFixed(2).replace(/\.?0+$/,'') + ' mpd, against '
+  $('mv-reb-s').innerHTML = 'at ' + mpd.toFixed(2).replace(/\.?0+$/,'') + ' miles per dollar, against '
     + cb.toFixed(2).replace(/\.?0+$/,'') + '% cashback';
 
   // The 2013 sheet's columns, rebuilt

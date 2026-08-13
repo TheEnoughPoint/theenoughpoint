@@ -12,7 +12,10 @@
 a.tool-brand, .post-content a.tool-brand{
   display:block;width:max-content;
   font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
-  color:var(--color-gold);opacity:.75;text-decoration:none;margin:0 0 0 auto
+  /* Was --color-gold at 75% opacity, which measured 2.35:1 — a link nobody
+     with low vision could read. The ink gold at full opacity measures 4.82:1
+     and still reads as a quiet badge at 11px. */
+  color:var(--color-gold-ink);text-decoration:none;margin:0 0 0 auto
 }
-a.tool-brand:hover, .post-content a.tool-brand:hover{opacity:1;color:var(--color-brand-700)}
+a.tool-brand:hover, .post-content a.tool-brand:hover{color:var(--color-brand-700)}
 </style>

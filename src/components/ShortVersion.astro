@@ -36,7 +36,9 @@ const { heading = 'If you read nothing else', label = 'The short version' } = As
   padding:18px 22px 16px;margin:26px 0;color:var(--sv-t1)
 }
 .sv-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
-  color:var(--sv-gold);margin-bottom:12px}
+  /* Not --sv-gold: #9C7526 on this cream measures 3.83:1 at 11px, under the
+     4.5 minimum. #8A6520 measures 4.82:1 and is indistinguishable at this size. */
+  color:#8A6520;margin-bottom:12px}
 .post-content ol.sv-list{margin:0;padding:0;list-style:none;counter-reset:sv}
 .post-content ol.sv-list li{
   counter-increment:sv;position:relative;padding:0 0 0 30px;margin:0 0 12px;
