@@ -1,0 +1,174 @@
+---
+// What a 4 mpd card actually earns as you spend more — by number of cards run.
+//
+// The single exhibit this article exists to show. Card marketing quotes the
+// rate inside the cap; your wallet earns the weighted average across
+// everything, and that average collapses as spending grows. One card is not a
+// strategy, it is a S$1,000-a-month strategy.
+//
+// Everything here is arithmetic on published rates — a 4 mpd bonus, a S$1,000
+// monthly cap and the 0.4 mpd base rate common to Citi, DBS and UOB. No card is
+// named, because the shape does not depend on which one you hold, and card
+// terms change faster than an article can.
+//
+// The 1.7 mpd reference line is the parity threshold at a one-cent redemption:
+// since 1 mpd x 1 cent = 1%, a stack blending below 1.7 mpd returns less than a
+// 1.7% cashback card if the miles are cashed out rather than flown.
+import ToolBrand from '../ToolBrand.astro';
+
+const BONUS = 4.0, BASE = 0.4, CAP = 1000;
+const CASHBACK = 1.7;
+const MAX_SPEND = 8000;
+
+// fit = share of spending that actually lands in a bonus category you hold.
+// At fit = 1 this is the brochure case, which assumes your spending arrives
+// pre-sorted into your cards' categories. It does not.
+const FIT = 0.6;
+const blended = (spend: number, cards: number, fit = 1): number => {
+  const bonusSpend = Math.min(spend * fit, cards * CAP);
+  return (bonusSpend * BONUS + (spend - bonusSpend) * BASE) / spend;
+};
+
+// Geometry
+const W = 720, H = 380;
+const M = { t: 24, r: 118, b: 46, l: 48 };
+const PW = W - M.l - M.r, PH = H - M.t - M.b;
+
+const x = (s: number) => M.l + (s / MAX_SPEND) * PW;
+const y = (m: number) => M.t + PH - (m / BONUS) * PH;
+
+const SERIES = [1, 2, 3, 4].map((cards) => {
+  const pts: string[] = [];
+  for (let s = 250; s <= MAX_SPEND; s += 50) pts.push(`${x(s).toFixed(1)},${y(blended(s, cards)).toFixed(1)}`);
+  return {
+    cards,
+    points: pts.join(' '),
+    endMpd: blended(MAX_SPEND, cards),
+    at4k: blended(4000, cards),
+    colour: ['#9A3B2E', '#9C7526', '#4A7C6F', '#146E5A'][cards - 1],
+  };
+});
+
+// The same four-card stack, with only 60% of spending landing in a bonus
+// category. The gap between this and the solid four-card line is the distance
+// between owning cards and using them.
+const REAL: string[] = [];
+for (let sp = 250; sp <= MAX_SPEND; sp += 50) REAL.push(`${x(sp).toFixed(1)},${y(blended(sp, 4, FIT)).toFixed(1)}`);
+const realPoints = REAL.join(' ');
+const realAt4k = blended(4000, 4, FIT);
+const realEnd = blended(MAX_SPEND, 4, FIT);
+
+const xTicks = [2000, 4000, 6000, 8000];
+const yTicks = [0, 1, 2, 3, 4];
+const sgd = (v: number) => 'S$' + (v / 1000) + 'k';
+---
+
+<div class="cc">
+  <div class="cc-head">
+    <span class="cc-lbl">A 4 mpd card, as you spend past its cap</span>
+    <span class="cc-lbl accent">S$1,000 cap &middot; 0.4 mpd above</span>
+  </div>
+
+  <p class="cc-preset">The advertised rate is the rate on the first <b>S$1,000</b> a month. Above
+  that, spending drops to the <b>0.4 mpd</b> base rate every major issuer uses &mdash; so what you
+  actually earn is the weighted average, and it falls as you spend more. Each line is one more
+  card operated, each with its own cap.</p>
+
+  <div class="cc-wrap">
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" preserveAspectRatio="xMidYMid meet"
+         aria-label={`Blended earn rate against monthly spend. With one card the rate falls from 4 miles per dollar at S$1,000 a month to ${SERIES[0].at4k.toFixed(2)} at S$4,000 and ${SERIES[0].endMpd.toFixed(2)} at S$8,000. With four cards it holds at 4.00 through S$4,000 and reaches ${SERIES[3].endMpd.toFixed(2)} at S$8,000. A dashed line shows the same four-card stack when only 60% of spending lands in a bonus category: it earns ${realAt4k.toFixed(2)} at S$4,000 a month, far below the four-card ideal. A reference line at 1.7 miles per dollar marks parity with a 1.7% cashback card when miles are cashed out at one cent.`}>
+      {yTicks.map((t) => (
+        <g>
+          <line x1={M.l} x2={M.l + PW} y1={y(t)} y2={y(t)} stroke="#E4DFD3" stroke-width="1"/>
+          <text x={M.l - 9} y={y(t) + 4} text-anchor="end" class="cc-ax">{t}</text>
+        </g>
+      ))}
+      {xTicks.map((t) => (
+        <text x={x(t)} y={M.t + PH + 20} text-anchor="middle" class="cc-ax">{sgd(t)}</text>
+      ))}
+
+      {/* Parity at a one-cent redemption */}
+      <line x1={M.l} x2={M.l + PW} y1={y(CASHBACK)} y2={y(CASHBACK)}
+            stroke="#9A3B2E" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.75"/>
+      <text x={M.l + 6} y={y(CASHBACK) - 7} class="cc-note">below here, a 1.7% cashback card pays more &mdash; if you redeem at 1&cent;</text>
+
+      {SERIES.map((s) => (
+        <g>
+          <polyline points={s.points} fill="none" stroke={s.colour} stroke-width="2.4"
+                    stroke-linejoin="round" stroke-linecap="round"/>
+          <text x={M.l + PW + 8} y={y(s.endMpd) + 4} class="cc-key" fill={s.colour}>
+            {s.cards} card{s.cards > 1 ? 's' : ''} &middot; {s.endMpd.toFixed(2)}
+          </text>
+        </g>
+      ))}
+
+      {/* Four cards, but only 60% of spending in a bonus category */}
+      <polyline points={realPoints} fill="none" stroke="#146E5A" stroke-width="2"
+                stroke-dasharray="6 4" opacity="0.75" stroke-linejoin="round"/>
+      <text x={M.l + PW + 8} y={y(realEnd) + 4} class="cc-key" fill="#146E5A" opacity="0.85">
+        4 at 60% fit &middot; {realEnd.toFixed(2)}
+      </text>
+
+      {/* The S$4,000 read-off */}
+      <line x1={x(4000)} x2={x(4000)} y1={M.t} y2={M.t + PH} stroke="#0E2038" stroke-width="1" stroke-dasharray="3 3" opacity="0.35"/>
+      {SERIES.map((s) => <circle cx={x(4000)} cy={y(s.at4k)} r="3.6" fill={s.colour}/>)}
+
+      <text x={M.l - 34} y={M.t - 8} class="cc-ax-t">mpd</text>
+      <text x={M.l + PW} y={M.t + PH + 38} text-anchor="end" class="cc-ax-t">monthly spend</text>
+    </svg>
+  </div>
+
+  <div class="cc-out">
+    <div class="cc-out-s">Read the vertical at <b>S$4,000 a month</b>. One card blends to
+    <b>{SERIES[0].at4k.toFixed(2)} mpd</b> &mdash; less than an ordinary 1.4 mpd general-spend card,
+    from a card advertised at 4. Four cards hold <b>{SERIES[3].at4k.toFixed(2)}</b>. But the dashed
+    line is the one to believe: four cards with only <b>60%</b> of spending landing in a bonus
+    category earn <b>{realAt4k.toFixed(2)}</b>. <b>The caps are not usually what limits you. Your
+    spending is.</b></div>
+  </div>
+
+  <div class="cc-notes">
+    <p><b>What this is.</b> Arithmetic on a 4 mpd bonus rate, a S$1,000 monthly cap and the 0.4 mpd
+    base rate that Citi, DBS and UOB all fall back to. No card is named: the shape is the same
+    whichever you hold, and only the cap and the rate move.</p>
+    <p><b>The two ceilings.</b> The solid lines assume every dollar up to the cap qualifies for a
+    bonus category &mdash; the brochure case. Real spending does not arrive pre-sorted: groceries,
+    insurance, school fees, tax and rent are largely excluded or carry an admin fee that exceeds
+    the reward. So a second ceiling binds, and the dashed line shows it. When categories are the
+    binding constraint rather than caps, <b>adding another card changes nothing.</b></p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.cc{
+  --cc-bd:var(--color-border); --cc-t1:var(--color-dark); --cc-t2:var(--color-body);
+  --cc-t3:var(--color-muted); --cc-deep:var(--color-navy);
+  --cc-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--cc-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--cc-t1)
+}
+.cc-head{padding:14px 22px;background:var(--color-surface);border-bottom:1px solid var(--cc-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cc-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cc-t3)}
+.cc-lbl.accent{color:var(--color-brand-700)}
+.post-content .cc-preset{font-size:12.5px;color:var(--cc-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--cc-bd)}
+.cc-preset b{color:var(--cc-t2);font-weight:600}
+.cc-wrap{padding:10px 14px 4px;overflow-x:auto}
+.cc-wrap svg{width:100%;height:auto;min-width:460px;display:block}
+.cc-ax{font-family:var(--cc-mono);font-size:11px;fill:var(--cc-t3)}
+.cc-ax-t{font-family:var(--font-body);font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;fill:var(--cc-t3)}
+.cc-key{font-family:var(--cc-mono);font-size:11.5px;font-weight:600}
+.cc-note{font-family:var(--font-body);font-size:10.5px;font-weight:600;fill:#9A3B2E}
+.cc-out{background:var(--cc-deep);color:#fff;padding:17px 22px}
+.cc-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.cc-out-s b{font-family:var(--cc-mono);font-weight:600;color:#fff}
+.cc-notes{padding:15px 22px 17px;border-top:1px solid var(--cc-bd);background:var(--color-surface)}
+.post-content .cc-notes p{font-size:12.5px;line-height:1.55;color:var(--cc-t3);margin:0 0 7px}
+.post-content .cc-notes p:last-child{margin-bottom:0}
+.cc-notes b{color:var(--cc-t2)}
+@media(max-width:640px){ .cc-wrap{padding:10px 10px 4px} }
+</style>

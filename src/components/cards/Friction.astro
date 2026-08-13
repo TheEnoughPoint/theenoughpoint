@@ -1,0 +1,138 @@
+---
+// What a multi-card stack costs to run, beyond the obvious.
+//
+// The blended-rate tool prices the upside. This prices the drag, because a
+// stack is a machine with running costs and failure modes, and the failure
+// modes are asymmetric: miss one minimum spend and the month earns base rate
+// on everything.
+//
+// Figures are market-typical for August 2026 and sourced from The MileLion's
+// currency comparison and card guide, where noted. Card terms in this market
+// change monthly — one widely held card is being withdrawn in October 2026 —
+// so treat every number as a shape to check rather than a fact to rely on.
+import ToolBrand from '../ToolBrand.astro';
+
+const ITEMS = [
+  {
+    name: 'Annual fees',
+    cost: 'S$196–262 a card',
+    detail:
+      'Four cards at around S$196 is roughly S$780 a year — about 1.6 percentage points of rebate on S$48,000 of spending, which is more than the entire advantage of a cashback card. Most are waivable on request; none should be assumed away.',
+    weight: 'heavy',
+  },
+  {
+    name: 'Conversion fees',
+    cost: '≈ S$27 a transfer',
+    detail:
+      'Charged per transfer, per currency, regardless of size. A four-currency stack converting once a year pays it four times. American Express and HSBC charge nothing, which is a real quality difference between two cards earning the same rate.',
+    weight: 'medium',
+  },
+  {
+    name: 'Minimum transfer blocks',
+    cost: 'Up to 10,000 miles stranded',
+    detail:
+      'Several programmes will not move points below a 10,000-mile block — 25,000 Citi ThankYou points, for instance. Spread thin across four currencies, the tail of each balance can sit permanently below its own threshold. Points you cannot move are points you do not have.',
+    weight: 'medium',
+  },
+  {
+    name: 'Points expiry',
+    cost: 'From never to 37 months',
+    detail:
+      'American Express points do not expire, HSBC points run 37 months, and Citi varies by card — no expiry on some, up to five years on others. Bank points expiring is a separate clock from KrisFlyer miles expiring at three years, and a stack runs several clocks at once.',
+    weight: 'medium',
+  },
+  {
+    name: 'Minimum spends',
+    cost: 'One missed month, base rate',
+    detail:
+      'Several bonus rates require a monthly floor — S$800 or S$1,000 is common — and missing it does not reduce the bonus, it removes it. This is the asymmetry that punishes a stack you are not actively operating, and it is why the honest input is how many cards you will run, not how many you hold.',
+    weight: 'heavy',
+  },
+  {
+    name: 'Big-ticket bills',
+    cost: '1.8–2.3% admin fee',
+    detail:
+      'Rent, tax, insurance and school fees mostly cannot be charged directly. Routing them through a bill-payment service costs an admin fee that, at ordinary earn rates, usually exceeds the value of the miles it generates. This is the single largest category most households cannot bring into the game at all.',
+    weight: 'heavy',
+  },
+];
+---
+
+<div class="fr">
+  <div class="fr-head">
+    <span class="fr-lbl">What the stack costs to run</span>
+    <span class="fr-lbl accent">Typical, August 2026</span>
+  </div>
+
+  <p class="fr-preset">None of these appear in an earn-rate comparison, and together they decide
+  whether the stack was worth assembling. The two marked <b>heavy</b> are the ones that most often
+  turn a winning calculation into a losing one.</p>
+
+  <div class="fr-list">
+    {ITEMS.map((i) => (
+      <div class={`fr-i ${i.weight}`}>
+        <div class="fr-i-h">
+          <b>{i.name}</b>
+          <span class="fr-cost">{i.cost}</span>
+        </div>
+        <p class="fr-d">{i.detail}</p>
+      </div>
+    ))}
+  </div>
+
+  <div class="fr-out">
+    <div class="fr-out-s">Every one of these is a reason the answer trends toward <b>fewer cards
+    than the optimum</b>. The stack that wins on a spreadsheet is not the stack that wins in a
+    household, because the spreadsheet never misses a minimum spend, never forgets which card is
+    for groceries, and never pays an annual fee it meant to have waived.</div>
+  </div>
+
+  <div class="fr-notes">
+    <p><b>Sources.</b> Currency mechanics — conversion fees, expiry and minimum transfer blocks —
+    from <a href="https://milelion.com/2026/02/25/which-bank-offers-the-best-points-currency/" rel="nofollow noopener" target="_blank">The MileLion&rsquo;s comparison of Singapore points currencies</a>;
+    category rates, caps and minimum spends from
+    his <a href="https://milelion.com/credit-cards/guide/" rel="nofollow noopener" target="_blank">card guide</a> and
+    <a href="https://milelion.com/2026/05/11/the-milelions-2026-credit-card-strategy/" rel="nofollow noopener" target="_blank">2026 strategy</a>.
+    Verified 13 August 2026. Confirm against your issuer&rsquo;s own terms before acting on any of it.</p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.fr{
+  --fr-bd:var(--color-border); --fr-t1:var(--color-dark); --fr-t2:var(--color-body);
+  --fr-t3:var(--color-muted); --fr-deep:var(--color-navy); --fr-warn:#9A3B2E;
+  --fr-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--fr-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--fr-t1)
+}
+.fr-head{padding:14px 22px;background:var(--color-surface);border-bottom:1px solid var(--fr-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.fr-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--fr-t3)}
+.fr-lbl.accent{color:var(--color-brand-700)}
+.post-content .fr-preset{font-size:12.5px;color:var(--fr-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--fr-bd)}
+.fr-preset b{color:var(--fr-t2);font-weight:600}
+
+.fr-list{padding:6px 22px 14px}
+.fr-i{padding:13px 0;border-bottom:1px dashed var(--fr-bd)}
+.fr-i:last-child{border-bottom:none}
+.fr-i-h{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:4px;flex-wrap:wrap}
+.fr-i-h b{font-size:14.5px;font-weight:700;color:var(--fr-t1)}
+.fr-i.heavy .fr-i-h b::after{content:'heavy';margin-left:8px;font-size:9.5px;font-weight:700;
+  letter-spacing:.7px;text-transform:uppercase;color:var(--fr-warn);
+  border:1px solid rgba(154,59,46,.3);border-radius:999px;padding:1px 6px;vertical-align:middle}
+.fr-cost{font-family:var(--fr-mono);font-size:13px;font-weight:600;color:var(--color-brand-700);flex:none}
+.post-content p.fr-d{font-size:13.5px;line-height:1.55;color:var(--fr-t2);margin:0}
+
+.fr-out{background:var(--fr-deep);color:#fff;padding:17px 22px}
+.fr-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.fr-out-s b{font-weight:600;color:#fff}
+
+.fr-notes{padding:15px 22px 17px;border-top:1px solid var(--fr-bd);background:var(--color-surface)}
+.post-content .fr-notes p{font-size:12.5px;line-height:1.55;color:var(--fr-t3);margin:0 0 7px}
+.post-content .fr-notes p:last-child{margin-bottom:0}
+.fr-notes b{color:var(--fr-t2)}
+@media(max-width:640px){ .fr-list{padding:6px 16px 12px} }
+</style>
