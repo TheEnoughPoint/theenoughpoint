@@ -24,3 +24,7 @@ npm-debug.log*
 # to travel with the repo rather than living on one machine.
 .claude/settings.local.json
 .claude/worktrees/
+
+# The render audit is copied here so the dev server can serve it to the page
+# under test (see .claude/skills/preflight). It must never ship to production.
+public/render-audit.js

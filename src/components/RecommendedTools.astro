@@ -27,7 +27,7 @@ const items = getPartners(ids);
           <p class:list={['font-bold text-sm', p.wordmarkClass]}>{p.name}</p>
           <p class="text-muted text-xs mt-1 leading-relaxed">{p.blurb}</p>
           <div class="flex items-center justify-between mt-3">
-            <a href={p.ctaHref} class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-colors">
+            <a href={p.ctaHref} class="cta-btn inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-colors">
               {p.ctaLabel}
             </a>
             <span class="text-subtle text-[11px]">T&amp;Cs apply</span>

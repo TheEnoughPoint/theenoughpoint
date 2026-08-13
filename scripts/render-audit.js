@@ -83,9 +83,19 @@
    *  then flatten them back down over white. */
   function effectiveBackground(el) {
     var layers = [], node = el;
+    var box = el.getBoundingClientRect();
     while (node && node !== document.documentElement) {
       var bg = getComputedStyle(node).backgroundColor;
-      if (!isTransparent(bg)) {
+      // An ancestor only counts if its paint is actually BEHIND this element.
+      // An absolutely-positioned label can sit wholly outside its parent's box,
+      // and treating the parent's fill as its backdrop reported eight false
+      // failures on a chart whose labels sit on white beside coloured dots —
+      // and very nearly turned that text white, which would have erased it.
+      var ar = node.getBoundingClientRect();
+      var covers = node === el || (
+        box.left >= ar.left - 1 && box.right <= ar.right + 1 &&
+        box.top >= ar.top - 1 && box.bottom <= ar.bottom + 1);
+      if (!isTransparent(bg) && covers) {
         layers.push(bg);
         if (alphaOf(bg) === 1) break;
       }
@@ -234,6 +244,8 @@
         if (!hasOwnText) return;
       }
       if (cs.visibility === 'hidden' || cs.display === 'none' || parseFloat(cs.opacity) === 0) return;
+      var box = el.getBoundingClientRect();
+      if (box.width === 0 && box.height === 0) return;
       var bg = effectiveBackground(el);
       if (!isTransparent(cs.backgroundColor) && alphaOf(cs.backgroundColor) === 1) bg = cs.backgroundColor;
       var ratio = contrast(cs.color, bg);
@@ -261,23 +273,61 @@
     }
 
     // ---- 5. fused words from .astro whitespace collapse ------------------
-    // Normalise non-breaking spaces explicitly, or "S$1,000 a month" can read
-    // as a single token to the fused-word test.
-    var text = (root.innerText || '').replace(/ /g, ' ');
-    var fused = (text.match(/[a-z][.,;:!?]?[A-Z][a-z]{2,}/g) || []).filter(function (hit) {
-      return !brandWords.some(function (w) { return w.indexOf(hit.replace(/[.,;:!?]/, '')) !== -1 || hit.indexOf(w) !== -1; });
-    });
-    fused = fused.filter(function (v, i, a) { return a.indexOf(v) === i; });
+    // Measured structurally, not lexically. The first version matched a
+    // lowercase letter followed by a capital and needed a brand allowlist to
+    // stay quiet — it still flagged CapitaLand, OneMap, iHerb, ShopFest,
+    // LionGlobal and VanEck as defects across the archive. Every one was a
+    // single text node and therefore never a fusion at all.
+    //
+    // The real bug has a shape: a line break between text and an element in a
+    // .astro template collapses the space, so two text nodes from DIFFERENT
+    // elements end up rendered on the same line with no gap between them. That
+    // is testable directly by measuring where the characters land, and it needs
+    // no vocabulary at all.
+    function charRect(node, atEnd) {
+      var t = node.textContent;
+      var i = atEnd ? t.length - 1 : 0;
+      while (i >= 0 && i < t.length && !/\S/.test(t.charAt(i))) i += atEnd ? -1 : 1;
+      if (i < 0 || i >= t.length) return null;
+      var range = document.createRange();
+      range.setStart(node, i);
+      range.setEnd(node, i + 1);
+      var r = range.getBoundingClientRect();
+      return r.width || r.height ? r : null;
+    }
+
+    var fused = [];
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var prev = null;
+    while (walker.nextNode()) {
+      var node = walker.currentNode;
+      var t = node.textContent;
+      if (!t || !t.trim()) continue;
+      if (prev && prev.node.parentElement !== node.parentElement) {
+        var endsWord = /[\w.,;:!?)]$/.test(prev.text.replace(/\s+$/, ''));
+        var startsWord = /^[\w(]/.test(t.replace(/^\s+/, ''));
+        var noGapInSource = !/\s$/.test(prev.text) && !/^\s/.test(t);
+        if (endsWord && startsWord && noGapInSource) {
+          var r1 = charRect(prev.node, true), r2 = charRect(node, false);
+          // Same line, and the ink actually touches.
+          if (r1 && r2 && Math.abs(r1.top - r2.top) < 4 && (r2.left - r1.right) < 1.5 && r2.left >= r1.left) {
+            fused.push(prev.text.replace(/\s+$/, '').slice(-16) + '|' + t.replace(/^\s+/, '').slice(0, 16));
+          }
+        }
+      }
+      prev = { node: node, text: t };
+    }
     if (fused.length) {
       failures.push({
         check: 'fused-words',
-        detail: 'Words run together — usually a line break between text and an element in a .astro template. Put a space on the same line or use {\' \'}.',
+        detail: "Words render with no space between them, across an element boundary. In .astro that is a line break sitting between text and a tag: put the space on the same line, or emit one explicitly.",
         elements: fused.slice(0, 10),
       });
     }
 
     // ---- 6. jargon the piece said it had removed -------------------------
     if (jargon.length) {
+      var text = (root.innerText || '').replace(/ /g, ' ');
       var found = {};
       jargon.forEach(function (w) {
         var re = new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
