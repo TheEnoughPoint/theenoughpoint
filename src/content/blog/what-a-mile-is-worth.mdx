@@ -25,7 +25,7 @@ excerpt: |
   Thirteen years ago we built a spreadsheet to answer one question: which credit card should we actually carry? It priced Singapore Airlines redemptions against cash fares, turned the answer into an effective rebate per card, and settled the matter. It also contained a flattering mistake that most miles comparisons still make today. This is that sheet rebuilt for 2026 — the one-cent exit that turns out to be a ceiling rather than a floor, the reason business class is where miles stop being a rounding error, the honest haircut for the seat you would never have bought with cash, and what nine months of devaluation says about holding a currency somebody else prices. With our own ledger opened: nine confirmed bookings, 1,504,500 miles, and what they actually bought.
 ---
 
-import ShortVersion from '@src/components/miles/ShortVersion.astro';
+import ShortVersion from '@src/components/ShortVersion.astro';
 import MileValueTool from '@src/components/miles/MileValueTool.astro';
 import RedemptionLedger from '@src/components/miles/RedemptionLedger.astro';
 import CabinLadder from '@src/components/miles/CabinLadder.astro';
@@ -42,7 +42,30 @@ The sheet worked. It picked the card, the card earned the miles, and the miles t
 
 It also contained a mistake. A flattering one, and the same one almost every miles comparison on the internet still makes. We will come to it, because correcting it is most of what this piece is for.
 
-<ShortVersion />
+<ShortVersion>
+  <li>
+    <b>One cent is what doing nothing pays.</b>{' '}
+    Every KrisFlyer mile can be cashed out at 100 miles = S$1 through Kris+, KrisShop,
+    Pelago or Miles+Cash. Treat it as a <em>ceiling</em> on the lazy option rather than a floor
+    beneath you &mdash; where the shop marks the price up, you get less than the cent.
+  </li>
+  <li>
+    <b>The cabin decides the value, not the airline.</b>{' '}
+    The award chart charges roughly <b>2.1&ndash;2.5&times;</b> for business and about
+    <b>3&times;</b> for a Suite. Cash fares separate those cabins by far more. Point a mile
+    where the two ladders diverge and it is worth multiples of what it is worth anywhere else.
+  </li>
+  <li>
+    <b>Your card has one number to beat.</b>{' '}
+    <span class="sv-eq">cashback rate &divide; miles per dollar</span>
+    is the value per mile you must actually achieve to have been right. At 1.7% cashback and a
+    1.4 mpd card, that is <b>1.21 cents</b>. Business class clears it comfortably. A cheap
+    economy seat does not.
+  </li>
+  <p slot="footer" class="sv-f">And one honest test before any of it: <b>would you have paid cash for that
+  seat?</b> If the answer is no, the miles saved you the cheaper fare you would really have
+  bought &mdash; not the expensive one you enjoyed.</p>
+</ShortVersion>
 
 ## The formula that has not changed
 

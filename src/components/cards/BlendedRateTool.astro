@@ -1,0 +1,341 @@
+---
+// Which card stack is worth running, on your own spending.
+//
+// The closing half of the 2013 spreadsheet. The miles piece priced a mile;
+// this prices the wallet that earns it — blended rate after the caps bite,
+// rebate after the annual fees, and the verdict against a flat cashback card.
+//
+// The arithmetic and its derivation live in src/utils/blendedRate.ts. The
+// script below mirrors that module; if you change one, change both.
+//
+// Every default is a market-typical figure as at August 2026, not a specific
+// card's terms: a 4 mpd bonus on a S$1,000 monthly cap, the 0.4 mpd base rate
+// common to Citi, DBS and UOB, and 1.7% as the best uncapped flat cashback.
+// Card terms change monthly — one card in this market is being withdrawn in
+// October 2026 — so nothing here is hardcoded to an issuer, and every input is
+// the reader's to replace.
+//
+// Deep-linkable: sp, cd, cap, bn, bs, cpm, cb, fee, fit.
+import { Font } from 'astro:assets';
+import ToolBrand from '../ToolBrand.astro';
+---
+
+<Font cssVariable="--font-mono" />
+
+<div class="br">
+  <div class="br-head">
+    <span class="br-lbl">What your stack actually earns</span>
+    <span class="br-lbl accent">Interactive</span>
+  </div>
+
+  <p class="br-preset">Defaults are market-typical for August 2026 &mdash; a <b>4 mpd</b> bonus on a
+  <b>S$1,000</b> monthly cap, the <b>0.4 mpd</b> base rate every major issuer falls back to, and
+  <b>1.7%</b> as the best uncapped flat cashback. No card is named or assumed: terms move monthly,
+  and these are yours to overwrite with the ones on your statement.</p>
+
+  <div class="br-body">
+    <div class="br-grid">
+      <label class="br-f">
+        <span>Monthly spend on cards<em>everything you could route through them</em></span>
+        <span class="br-in"><i>S$</i><input type="text" id="br-sp" value="4,000" inputmode="numeric" class="w-lg"></span>
+      </label>
+      <label class="br-f">
+        <span>Bonus cards you will actually operate<em>not own &mdash; operate, every month</em></span>
+        <span class="br-in"><input type="text" id="br-cd" value="1" inputmode="numeric"></span>
+      </label>
+      <label class="br-f">
+        <span>Monthly bonus cap per card<em>the ceiling on the headline rate</em></span>
+        <span class="br-in"><i>S$</i><input type="text" id="br-cap" value="1,000" inputmode="numeric" class="w-lg"></span>
+      </label>
+      <label class="br-f">
+        <span>Headline rate inside the cap<em>miles per dollar</em></span>
+        <span class="br-in"><input type="text" id="br-bn" value="4.0" inputmode="decimal"><i>mpd</i></span>
+      </label>
+      <label class="br-f">
+        <span>Base rate above the cap<em>0.4 is the market standard</em></span>
+        <span class="br-in"><input type="text" id="br-bs" value="0.4" inputmode="decimal"><i>mpd</i></span>
+      </label>
+      <label class="br-f">
+        <span>Spending that lands in a bonus category<em>the share your cards actually cover</em></span>
+        <span class="br-in"><input type="text" id="br-fit" value="60" inputmode="numeric"><i>%</i></span>
+      </label>
+      <label class="br-f">
+        <span>Annual fees you actually pay<em>total across the stack, after waivers</em></span>
+        <span class="br-in"><i>S$</i><input type="text" id="br-fee" value="0" inputmode="numeric" class="w-lg"></span>
+      </label>
+      <label class="br-f">
+        <span>Value you achieve per mile<em>from the redemption piece</em></span>
+        <span class="br-in"><input type="text" id="br-cpm" value="2.0" inputmode="decimal"><i>&cent;</i></span>
+      </label>
+      <label class="br-f">
+        <span>Flat cashback you could take instead<em>the hurdle</em></span>
+        <span class="br-in"><input type="text" id="br-cb" value="1.7" inputmode="decimal"><i>%</i></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="br-res">
+    <div class="br-stat">
+      <span class="br-stat-k">Blended earn rate</span>
+      <b class="num" id="br-mpd">&mdash;</b>
+      <em id="br-mpd-s">&mdash;</em>
+    </div>
+    <div class="br-stat">
+      <span class="br-stat-k">Effective rebate, after fees</span>
+      <b class="num" id="br-reb">&mdash;</b>
+      <em id="br-reb-s">&mdash;</em>
+    </div>
+    <div class="br-stat">
+      <span class="br-stat-k">Value per mile you must achieve</span>
+      <b class="num" id="br-be">&mdash;</b>
+      <em id="br-be-s">&mdash;</em>
+    </div>
+  </div>
+
+  <div class="br-tblwrap">
+    <table class="br-tbl">
+      <thead>
+        <tr><th>If you operate</th><th>Blended rate</th><th>Rebate after fees</th><th>Beats cashback?</th></tr>
+      </thead>
+      <tbody id="br-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="br-out">
+    <div class="br-out-s" id="br-say">&mdash;</div>
+  </div>
+
+  <div class="br-notes">
+    <p><b>What this is.</b> Your own spending run through the cap arithmetic, priced at the value
+    per mile you actually achieve, net of the fees you actually pay, against the cashback card you
+    could have carried instead. It is the comparison the marketing never runs, because the
+    marketing quotes the rate inside the cap.</p>
+    <p><b>Why the category share matters more than the card count.</b> Bonus capacity is not a
+    pool you can point anywhere. A card capped at S$1,000 of <em>online</em> spending does nothing
+    for your contactless spending, and a second online card does nothing once your online spending
+    runs out. So two ceilings bind &mdash; the caps you hold and the spending that qualifies for
+    them &mdash; and the tool tells you which one is actually costing you, because the remedies are
+    opposite. If categories bind, another card changes nothing.</p>
+    <p><b>What it still leaves out.</b> Minimum spends, which turn one missed month into the base
+    rate on everything. Conversion fees of roughly S$27 a transfer, and the points stranded below
+    each programme&rsquo;s minimum transfer block. Sign-up bonuses, which are real but one-off, and
+    which flatter any first-year comparison. And the time, which is the cost nobody prices and
+    everybody pays.</p>
+    <p><b>What this is not.</b> A recommendation of any card, bank or strategy, or a claim about
+    what any card currently offers. It is arithmetic on figures you supply. Verify every rate,
+    cap and fee against your issuer&rsquo;s own terms before deciding anything.</p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.br{
+  --br-bd:var(--color-border); --br-bd2:#D5CDBB;
+  --br-t1:var(--color-dark); --br-t2:var(--color-body); --br-t3:var(--color-muted);
+  --br-g:var(--color-brand-600); --br-g2:var(--color-brand-700);
+  --br-deep:var(--color-navy); --br-warn:#9A3B2E;
+  --br-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--br-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;font-size:16px;line-height:1.6;color:var(--br-t1)
+}
+.br .num{font-family:var(--br-mono);font-variant-numeric:tabular-nums}
+.br-head{padding:14px 22px;background:var(--color-surface);border-bottom:1px solid var(--br-bd);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.br-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--br-t3)}
+.br-lbl.accent{color:var(--br-g2)}
+.post-content .br-preset{font-size:12.5px;color:var(--br-t3);line-height:1.55;
+  margin:0;padding:12px 22px;border-bottom:1px dashed var(--br-bd)}
+.br-preset b{color:var(--br-t2);font-weight:600}
+
+.br-body{padding:16px 22px 12px}
+.br-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
+.br-f{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0}
+.br-f > span:first-child{font-size:13.5px;color:var(--br-t2);line-height:1.35}
+.br-f em{display:block;font-style:normal;font-size:11px;color:var(--br-t3);margin-top:2px}
+.br-in{display:inline-flex;align-items:baseline;font-family:var(--br-mono);font-size:15px;font-weight:600;flex:none}
+.br-in i{font-style:normal;color:var(--br-t3);font-size:13px;margin:0 3px}
+.br-in input{font-family:var(--br-mono);font-size:15px;font-weight:600;color:var(--br-t1);
+  background:none;border:none;border-bottom:1px dashed var(--br-bd2);text-align:right;
+  width:4.5ch;padding:0 0 1px}
+.br-in input.w-lg{width:7ch}
+.br-in input:focus{outline:none;border-bottom:1px solid var(--br-g);color:var(--br-g2);box-shadow:none}
+
+.br-res{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--br-bd);
+  border-top:1px solid var(--br-bd);border-bottom:1px solid var(--br-bd)}
+.br-stat{background:#fff;padding:15px 18px;text-align:center}
+.br-stat-k{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.9px;color:var(--br-t3);margin-bottom:5px;line-height:1.3}
+.br-stat b{display:block;font-size:26px;font-weight:600;color:var(--br-t1);line-height:1.15}
+.br-stat b.hot{color:var(--br-g2)}
+.br-stat b.cold{color:var(--br-warn)}
+.br-stat em{display:block;font-style:normal;font-size:11.5px;color:var(--br-t3);margin-top:4px;line-height:1.35}
+
+.br-tblwrap{overflow-x:auto}
+.post-content .br-tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:0;min-width:480px}
+.post-content .br-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;
+  color:#C9D3E0;font-weight:700;text-align:right;padding:8px 14px;border-bottom:1px solid var(--br-bd)}
+.post-content .br-tbl th:first-child{text-align:left;color:#fff}
+.post-content .br-tbl td{padding:8px 14px;border-bottom:1px dashed var(--br-bd);text-align:right}
+.post-content .br-tbl td:first-child{text-align:left;color:var(--br-t2)}
+.br-tbl tr.you td{background:rgba(200,154,60,.09);font-weight:600}
+.br-tbl td em{display:block;font-style:normal;font-size:11px;color:var(--br-t3);margin-top:1px}
+.br-tbl .yes{color:var(--br-g2);font-weight:700}
+.br-tbl .no{color:var(--br-warn);font-weight:700}
+
+.br-out{background:var(--br-deep);color:#fff;padding:17px 22px}
+.br-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
+.br-out-s b{font-family:var(--br-mono);font-weight:600;color:#fff}
+
+.br-notes{padding:15px 22px 17px;border-top:1px solid var(--br-bd);background:var(--color-surface)}
+.post-content .br-notes p{font-size:12.5px;line-height:1.55;color:var(--br-t3);margin:0 0 7px}
+.post-content .br-notes p:last-child{margin-bottom:0}
+.br-notes b{color:var(--br-t2)}
+
+@media(max-width:640px){
+  .br-grid{grid-template-columns:1fr;gap:12px}
+  .br-body{padding:14px 16px 10px}
+  .br-res{grid-template-columns:1fr}
+  .br-stat{padding:13px 16px}
+  .br-stat b{font-size:23px}
+}
+@media(prefers-reduced-motion:reduce){.br *{transition:none!important}}
+</style>
+
+<script is:inline>
+(function(){
+const $ = id => document.getElementById(id);
+const numOf = el => { const n = parseFloat(String(el.value).replace(/[^\d.\-]/g,'')); return isFinite(n) && n >= 0 ? n : 0; };
+const sgd = n => 'S$' + Math.round(n).toLocaleString('en-SG');
+/* Round half-up to 2dp: plain toFixed rounds x.xx5 down when the binary double
+   sits fractionally below it. Same helper as the redemption tool. */
+const r2 = v => isFinite(v) ? (Math.round(v*100 + 1e-9)/100).toFixed(2) : '—';
+
+/* Mirrors src/utils/blendedRate.ts — see that module for the derivation.
+   blended = (bonus spend x bonus rate + the rest x base rate) / total spend */
+function priceStack(spend, cards, cap, bonus, base, fit){
+  // Two ceilings bind, and the lower one wins: the caps you hold, and the
+  // spending that actually qualifies for them. Bonus capacity is category-
+  // shaped, not a pool — a second online card is worth nothing once your
+  // online spending is used up.
+  const capacity = cards * cap;
+  const eligible = spend * Math.min(1, Math.max(0, fit));
+  const bonusSpend = Math.min(eligible, capacity);
+  const baseSpend = Math.max(0, spend - bonusSpend);
+  const miles = bonusSpend*bonus + baseSpend*base;
+  return { bonusSpend, baseSpend, miles, blended: spend > 0 ? miles/spend : 0,
+           overflow: spend > 0 ? baseSpend/spend : 0,
+           binding: baseSpend <= 0 ? 'neither' : (capacity <= eligible ? 'caps' : 'categories') };
+}
+
+function readAll(){
+  return {
+    sp:  Math.max(0, numOf($('br-sp'))),
+    cd:  Math.max(0, Math.floor(numOf($('br-cd')))),
+    cap: Math.max(0, numOf($('br-cap'))),
+    bn:  Math.max(0, numOf($('br-bn'))),
+    bs:  Math.max(0, numOf($('br-bs'))),
+    fee: Math.max(0, numOf($('br-fee'))),
+    cpm: Math.max(0, numOf($('br-cpm'))),
+    cb:  Math.max(0, numOf($('br-cb'))),
+    fit: Math.min(100, Math.max(0, numOf($('br-fit')))) / 100,
+  };
+}
+
+function writeLink(){
+  try {
+    const p = new URLSearchParams(window.location.search);
+    [['sp','br-sp'],['cd','br-cd'],['cap','br-cap'],['bn','br-bn'],['bs','br-bs'],
+     ['fee','br-fee'],['cpm','br-cpm'],['cb','br-cb'],['fit','br-fit']].forEach(([k,id]) => p.set(k, $(id).value));
+    history.replaceState(null, '', window.location.pathname + '?' + p.toString() + window.location.hash);
+  } catch(err){}
+}
+function readLink(){
+  try {
+    const p = new URLSearchParams(window.location.search);
+    [['sp','br-sp'],['cd','br-cd'],['cap','br-cap'],['bn','br-bn'],['bs','br-bs'],
+     ['fee','br-fee'],['cpm','br-cpm'],['cb','br-cb'],['fit','br-fit']].forEach(([k,id]) => { if (p.has(k)) $(id).value = p.get(k); });
+  } catch(err){}
+}
+
+function update(fromUser){
+  const v = readAll();
+  const annualSpend = v.sp * 12;
+
+  if (v.sp <= 0){
+    ['br-mpd','br-reb','br-be'].forEach(id => { $(id).textContent = '—'; $(id).className = 'num'; });
+    ['br-mpd-s','br-reb-s','br-be-s'].forEach(id => $(id).textContent = '—');
+    $('br-tbody').innerHTML = '';
+    $('br-say').textContent = 'Enter your monthly spend to price the stack.';
+    return;
+  }
+
+  const r = priceStack(v.sp, v.cd, v.cap, v.bn, v.bs, v.fit);
+  const drag = annualSpend > 0 ? (v.fee/annualSpend)*100 : 0;
+  const gross = r.blended * v.cpm;
+  const net = gross - drag;
+  const be = r.blended > 0 ? v.cb / r.blended : Infinity;
+
+  $('br-mpd').textContent = r2(r.blended);
+  $('br-mpd').className = 'num ' + (r.blended >= v.cb / Math.max(v.cpm, 0.0001) ? 'hot' : 'cold');
+  $('br-mpd-s').innerHTML = Math.round(r.overflow*100) + '% earns only ' + r2(v.bs) + ' mpd &mdash; '
+    + (r.binding === 'categories' ? 'limited by categories' : r.binding === 'caps' ? 'limited by caps' : 'nothing wasted');
+
+  $('br-reb').textContent = r2(net) + '%';
+  $('br-reb').className = 'num ' + (net >= v.cb ? 'hot' : 'cold');
+  $('br-reb-s').innerHTML = v.fee > 0
+    ? r2(gross) + '% gross, less ' + r2(drag) + '% of fees'
+    : 'at ' + r2(v.cpm) + '&cent; a mile, no fees paid';
+
+  $('br-be').textContent = isFinite(be) ? r2(be) + '¢' : '—';
+  $('br-be').className = 'num ' + (v.cpm >= be ? 'hot' : 'cold');
+  $('br-be-s').innerHTML = 'you are achieving <b>' + r2(v.cpm) + '&cent;</b>';
+
+  // The ladder: what one more card is worth, on the same spending
+  let rows = '';
+  for (let n = 1; n <= 5; n++){
+    const s = priceStack(v.sp, n, v.cap, v.bn, v.bs, v.fit);
+    const nNet = s.blended * v.cpm - drag;
+    const ok = nNet >= v.cb;
+    rows += '<tr' + (n === v.cd ? ' class="you"' : '') + '><td>' + n + ' card' + (n>1?'s':'')
+      + (n === v.cd ? '<em>your answer</em>' : '') + '</td><td class="num">' + r2(s.blended)
+      + '</td><td class="num">' + r2(nNet) + '%</td><td class="' + (ok?'yes':'no') + '">'
+      + (ok ? 'Yes' : 'No') + '</td></tr>';
+  }
+  $('br-tbody').innerHTML = rows;
+
+  // The sentence
+  const one = priceStack(v.sp, 1, v.cap, v.bn, v.bs, v.fit).blended;
+  let say = 'At <b>' + sgd(v.sp) + '</b> a month across <b>' + v.cd + '</b> card'
+    + (v.cd === 1 ? '' : 's') + ', a headline rate of <b>' + r2(v.bn)
+    + ' mpd</b> becomes a blended <b>' + r2(r.blended) + ' mpd</b>';
+  if (r.overflow > 0) say += ' — <b>' + Math.round(r.overflow*100) + '%</b> of your spending never sees the bonus rate at all';
+  say += '. That is an effective rebate of <b>' + r2(net) + '%</b>'
+    + (v.fee > 0 ? ' after fees' : '')
+    + ', against <b>' + r2(v.cb) + '%</b> from a flat cashback card you could carry without thinking about it. ';
+  say += (net >= v.cb)
+    ? 'The stack is ahead — and the table shows what the next card is worth before you add it.'
+    : '<b>The cashback card wins on these numbers.</b> Either operate more cards, redeem better, or stop paying for complexity you are not using.';
+  if (r.binding === 'categories'){
+    say += ' <b>Adding another card will not fix this.</b> Your caps are not the ceiling — your '
+      + 'spending is. Only ' + Math.round(v.fit*100) + '% of it lands in a bonus category, so the '
+      + 'unused capacity you already hold is the first thing to fill.';
+  } else if (r.binding === 'caps' && v.cd === 1 && r.overflow > 0.4){
+    say += ' Here the caps are the binding constraint, so another card genuinely helps: one card '
+      + 'tops out at ' + r2(one) + ' mpd on this spending, whichever card it is.';
+  }
+  $('br-say').innerHTML = say;
+
+  if (fromUser) writeLink();
+}
+
+function init(){
+  readLink();
+  ['br-sp','br-cd','br-cap','br-bn','br-bs','br-fee','br-cpm','br-cb','br-fit']
+    .forEach(id => $(id).addEventListener('input', () => update(true)));
+  update(false);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+})();
+</script>

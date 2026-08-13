@@ -1,0 +1,61 @@
+---
+// "If you read nothing else" — a numbered summary box for long articles.
+//
+// Deliberately NOT a restatement of the frontmatter takeaways, which the
+// template already renders above the article. Takeaways carry the findings;
+// this carries the METHOD — the two or three things a reader needs in order to
+// apply the piece to their own numbers and then close the tab.
+//
+// Generalised from the miles article (2026-08-13) when the card article needed
+// the same box. Content comes in through slots so the styling lives in one
+// place: pass <li> elements as the default slot, and an optional closing note
+// as <p slot="footer" class="sv-f">.
+interface Props {
+  /** Small-caps label at the top. */
+  heading?: string;
+  /** Accessible name for the landmark. */
+  label?: string;
+}
+
+const { heading = 'If you read nothing else', label = 'The short version' } = Astro.props;
+---
+
+<aside class="sv" aria-label={label}>
+  <div class="sv-h">{heading}</div>
+  <ol class="sv-list"><slot /></ol>
+  <slot name="footer" />
+</aside>
+
+<style is:global>
+.sv{
+  --sv-bd:var(--color-border); --sv-t1:var(--color-dark); --sv-t2:var(--color-body);
+  --sv-t3:var(--color-muted); --sv-deep:var(--color-navy); --sv-gold:#9C7526;
+  --sv-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:var(--color-surface);border:1px solid var(--sv-bd);
+  border-left:3px solid var(--sv-gold);border-radius:10px;
+  padding:18px 22px 16px;margin:26px 0;color:var(--sv-t1)
+}
+.sv-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--sv-gold);margin-bottom:12px}
+.post-content ol.sv-list{margin:0;padding:0;list-style:none;counter-reset:sv}
+.post-content ol.sv-list li{
+  counter-increment:sv;position:relative;padding:0 0 0 30px;margin:0 0 12px;
+  font-size:14.5px;line-height:1.6;color:var(--sv-t2)}
+.post-content ol.sv-list li:last-child{margin-bottom:0}
+.post-content ol.sv-list li::before{
+  content:counter(sv);position:absolute;left:0;top:2px;
+  width:20px;height:20px;border-radius:50%;background:var(--sv-deep);color:#fff;
+  font-family:var(--sv-mono);font-size:11px;font-weight:600;
+  display:flex;align-items:center;justify-content:center}
+.sv-list b{color:var(--sv-t1);font-weight:700}
+.sv-eq{display:inline-block;font-family:var(--sv-mono);font-size:13px;font-weight:600;
+  color:var(--sv-deep);background:#fff;border:1px solid var(--sv-bd);border-radius:5px;
+  padding:1px 8px;margin:0 2px}
+.post-content p.sv-f{font-size:13.5px;line-height:1.6;color:var(--sv-t3);
+  margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--sv-bd)}
+.sv-f b{color:var(--sv-t2)}
+@media(max-width:640px){
+  .sv{padding:16px 16px 14px}
+  .post-content ol.sv-list li{font-size:14px}
+}
+</style>
