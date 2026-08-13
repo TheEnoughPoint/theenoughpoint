@@ -95,7 +95,7 @@ import ToolBrand from '../ToolBrand.astro';
   <div class="br-tblwrap">
     <table class="br-tbl">
       <thead>
-        <tr><th>If you run</th><th>Real average</th><th>Return after fees</th><th>Beats cashback?</th></tr>
+        <tr><th>If you run</th><th>Average</th><th>Return</th><th>Beats cashback?</th></tr>
       </thead>
       <tbody id="br-tbody"></tbody>
     </table>
@@ -172,7 +172,7 @@ import ToolBrand from '../ToolBrand.astro';
 .br-stat em{display:block;font-style:normal;font-size:11.5px;color:var(--br-t3);margin-top:4px;line-height:1.35}
 
 .br-tblwrap{overflow-x:auto}
-.post-content .br-tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:0;min-width:480px}
+.post-content .br-tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:0;min-width:360px}
 .post-content .br-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;
   color:#C9D3E0;font-weight:700;text-align:right;padding:8px 14px;border-bottom:1px solid var(--br-bd)}
 .post-content .br-tbl th:first-child{text-align:left;color:#fff}
@@ -193,6 +193,10 @@ import ToolBrand from '../ToolBrand.astro';
 .br-notes b{color:var(--br-t2)}
 
 @media(max-width:640px){
+  /* Same fix as the redemption tool: long headers, not the figures, were
+     forcing a horizontal scroll on a four-column table. */
+  .post-content .br-tbl{min-width:0;font-size:12.5px}
+  .post-content .br-tbl th,.post-content .br-tbl td{padding:7px 8px}
   .br-grid{grid-template-columns:1fr;gap:12px}
   .br-body{padding:14px 16px 10px}
   .br-res{grid-template-columns:1fr}

@@ -1,99 +1,122 @@
 ---
-// The published KrisFlyer Saver ladder, indexed to economy.
+// How many more miles the front of the aircraft costs.
 //
-// This is the single most load-bearing exhibit in the piece, and it is entirely
-// a fact about a published chart: no fare, no valuation, no forecast. Singapore
-// Airlines prices a business award at roughly two to two and a half times the
-// economy award, and a First/Suites award at about three times. Revenue
-// management does not price cash tickets on anything like that ladder, and the
-// gap between the two ladders is the whole reason premium-cabin redemptions
-// return more per mile.
+// REBUILT 13 Aug 2026. The first version drew five zones x three cabins as
+// fifteen bars, each scaled against the largest number in the whole chart. Two
+// faults, and the reader named the first:
+//
+//   1. Fifteen rows to deliver one claim. The claim is a ratio, and a ratio is
+//      a single number with a range around it.
+//   2. Worse, the bars encoded ABSOLUTE miles while the argument is about
+//      RATIOS. Scaled to a global maximum, Zone 5's bars looked short and Zone
+//      11's long — so the picture said "Europe costs more than Shanghai", which
+//      is true, irrelevant, and not what the surrounding text claims.
+//
+// Now: one zone drawn properly, with bars encoding the multiple so economy is
+// always one unit and the shape IS the argument. The consistency claim is
+// carried by a stated range, and the full table sits in a disclosure for anyone
+// who wants to check it.
+//
+// The featured zone is Zone 10, chosen deliberately. It is long-haul (where the
+// cash gap is widest and the argument strongest), it is a trip in our own
+// ledger, and at 2.13x its business multiple sits BELOW the median of the five
+// — so featuring it cannot be accused of cherry-picking the best case.
 //
 // Figures: one-way Saver awards from Singapore, chart effective 1 November 2025.
-// Cross-checked across two independent transcriptions of Singapore Airlines'
-// award chart, with the pre- and post-devaluation deltas reconciling against
-// The MileLion's separately reported percentage changes. Verified 12 Aug 2026.
-import { Font } from 'astro:assets';
+// Cross-checked across two independent transcriptions, with four cells since
+// corroborated to the mile by our own booking confirmations.
 import ToolBrand from '../ToolBrand.astro';
 
-// Miles are printed by SIA in thousands; stored here in full miles.
 const ZONES = [
-  { zone: 5,  label: 'Beijing, Shanghai',          y: 20500, j: 45000,  f: 61500  },
-  { zone: 8,  label: 'Perth, Darwin',              y: 20500, j: 42500,  f: 60500  },
-  { zone: 9,  label: 'Australia (others), NZ',     y: 29000, j: 72000,  f: 98000  },
-  { zone: 10, label: 'Africa, Middle East, Turkey',y: 32000, j: 68000,  f: 95000  },
-  { zone: 11, label: 'Europe',                     y: 44000, j: 108500, f: 148000 },
+  { zone: 5,  label: 'Beijing, Shanghai',           y: 20500, j: 45000,  f: 61500  },
+  { zone: 8,  label: 'Perth, Darwin',               y: 20500, j: 42500,  f: 60500  },
+  { zone: 9,  label: 'Australia (others), NZ',      y: 29000, j: 72000,  f: 98000  },
+  { zone: 10, label: 'Africa, Middle East, Turkey', y: 32000, j: 68000,  f: 95000  },
+  { zone: 11, label: 'Europe',                      y: 44000, j: 108500, f: 148000 },
 ];
 
-const rows = ZONES.map((z) => ({
-  ...z,
-  jx: z.j / z.y,
-  fx: z.f / z.y,
-}));
+const rows = ZONES.map((z) => ({ ...z, jx: z.j / z.y, fx: z.f / z.y }));
+const hero = rows.find((r) => r.zone === 10)!;
 
-const maxMiles = Math.max(...rows.map((r) => r.f));
 const jxLo = Math.min(...rows.map((r) => r.jx));
 const jxHi = Math.max(...rows.map((r) => r.jx));
 const fxLo = Math.min(...rows.map((r) => r.fx));
 const fxHi = Math.max(...rows.map((r) => r.fx));
 
+// Bars encode the MULTIPLE, not the mileage: economy is always one unit, and
+// the widest bar in the group fills the track. The shape is the claim.
+const scale = (mult: number) => (mult / hero.fx) * 100;
+
 const n = (v: number) => v.toLocaleString('en-SG');
 const x = (v: number) => v.toFixed(2) + '×';
----
 
-<Font cssVariable="--font-mono" />
+const CABINS = [
+  { key: 'Economy',       miles: hero.y, mult: 1,       cls: 'y' },
+  { key: 'Business',      miles: hero.j, mult: hero.jx, cls: 'j' },
+  { key: 'First / Suites',miles: hero.f, mult: hero.fx, cls: 'f' },
+];
+---
 
 <div class="cl">
   <div class="cl-head">
-    <span class="cl-lbl">The published ladder &mdash; one-way Saver awards from Singapore</span>
+    <span class="cl-lbl">What the front of the aircraft costs in miles</span>
     <span class="cl-lbl accent">Chart effective 1 Nov 2025</span>
   </div>
 
-  <p class="cl-preset">Every figure below is the award chart, not an estimate. The multiples are
-  the point: a business award costs <b>{x(jxLo)}&ndash;{x(jxHi)}</b> the economy award, and a
-  First or Suites award <b>{x(fxLo)}&ndash;{x(fxHi)}</b>. Hold that ladder in mind, then price
-  the same three cabins in cash on any long-haul route you like.</p>
+  <p class="cl-preset">One route, to make the point once. Singapore to Africa, one way, at the
+  cheapest award tier. The bars show <b>how many times the economy price</b> each cabin costs
+  &mdash; not the mileage, which is printed beside them.</p>
 
-  <div class="cl-rows">
-    {rows.map((r) => (
-      <div class="cl-row">
-        <div class="cl-zone">
-          <b>Zone {r.zone}</b><em>{r.label}</em>
+  <div class="cl-hero">
+    <div class="cl-zone"><b>Singapore &rarr; Africa, Middle East or Turkey</b><em>Zone {hero.zone} &middot; one-way Saver award</em></div>
+    {CABINS.map((c) => (
+      <div class="cl-bar">
+        <div class="cl-bar-l">
+          <span>{c.key}</span>
+          <b class="num">{n(c.miles)}{' '}<i>{x(c.mult)} the economy price</i></b>
         </div>
-        <div class="cl-bars">
-          <div class="cl-bar">
-            <div class="cl-bar-l"><span>Economy</span><b class="num">{n(r.y)}<i>1.00&times;</i></b></div>
-            <div class="cl-track"><div class="cl-fill y" style={`width:${(r.y / maxMiles) * 100}%`}></div></div>
-          </div>
-          <div class="cl-bar">
-            <div class="cl-bar-l"><span>Business</span><b class="num">{n(r.j)}<i>{x(r.jx)}</i></b></div>
-            <div class="cl-track"><div class="cl-fill j" style={`width:${(r.j / maxMiles) * 100}%`}></div></div>
-          </div>
-          <div class="cl-bar">
-            <div class="cl-bar-l"><span>First / Suites</span><b class="num">{n(r.f)}<i>{x(r.fx)}</i></b></div>
-            <div class="cl-track"><div class="cl-fill f" style={`width:${(r.f / maxMiles) * 100}%`}></div></div>
-          </div>
-        </div>
+        <div class="cl-track"><div class={`cl-fill ${c.cls}`} style={`width:${scale(c.mult)}%`}></div></div>
       </div>
     ))}
   </div>
 
   <div class="cl-out">
-    {/* Keep "a <b>" on one line: a line break between text and an element is
-        collapsed away in .astro templates, which fuses the two words. */}
-    <div class="cl-out-s">The award chart is a <b>published ladder</b>. The fare table is
-    a <b>revenue-management decision</b>, remade daily, and on long-haul it separates the cabins by
-    far more than these multiples do. A mile does not know which cabin it is buying &mdash; which
-    is precisely why the cabin you point it at decides what it is worth.</div>
+    <div class="cl-out-s">Business costs about <b>twice</b> the miles of economy. A Suite,
+    about <b>three times</b>. That is the whole point of this chart &mdash; and the reason it matters is
+    that <b>cash fares do not work that way</b>. On a long-haul route the business ticket is a far
+    bigger multiple of the economy fare than two.</div>
   </div>
 
+  <details class="cl-more">
+    <summary><b>The same pattern across five zones</b> &mdash; it is a rule, not a quirk of one route</summary>
+    <p class="cl-more-p">Business runs <b>{x(jxLo)}&ndash;{x(jxHi)}</b> the economy price across the
+    zones in this article, and First or Suites <b>{x(fxLo)}&ndash;{x(fxHi)}</b>. The route above
+    sits below the middle of that range, so it is not the flattering case.</p>
+    <div class="cl-tblwrap">
+      <table class="cl-tbl">
+        <thead>
+          <tr><th>Zone</th><th>Economy</th><th>Business</th><th>First / Suites</th></tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr class={r.zone === hero.zone ? 'hero' : ''}>
+              <td><b>{r.zone}</b><em>{r.label}</em></td>
+              <td class="num">{n(r.y)}<em>1.00×</em></td>
+              <td class="num">{n(r.j)}<em>{x(r.jx)}</em></td>
+              <td class="num">{n(r.f)}<em>{x(r.fx)}</em></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+
   <div class="cl-notes">
-    <p><b>What this is.</b> Singapore Airlines' own one-way Saver award pricing from Singapore,
-    for five zones chosen because they carry the redemptions discussed in this piece. Premium
-    economy is omitted from the ladder for legibility, not for judgement.</p>
-    <p><b>What it is not.</b> A claim about availability. Saver seats are the cheapest rung and
-    the scarcest &mdash; a published price you cannot book is worth nothing, and no chart shows
-    you how many seats sit behind each number.</p>
+    <p><b>What this is.</b> Singapore Airlines&rsquo; own one-way Saver award pricing, at the
+    cheapest tier. Premium economy is left out for legibility, not for judgement.</p>
+    <p><b>What it is not.</b> A claim about availability. Saver seats are the cheapest rung and the
+    scarcest &mdash; a published price you cannot book is worth nothing, and no chart shows how
+    many seats sit behind each number.</p>
     <ToolBrand />
   </div>
 </div>
@@ -116,20 +139,19 @@ const x = (v: number) => v.toFixed(2) + '×';
   margin:0;padding:12px 22px;border-bottom:1px dashed var(--cl-bd)}
 .cl-preset b{color:var(--cl-t2);font-weight:600}
 
-.cl-rows{padding:6px 22px 16px}
-.cl-row{padding:14px 0;border-bottom:1px dashed var(--cl-bd)}
-.cl-row:last-child{border-bottom:none}
-.cl-zone{margin-bottom:9px}
-.cl-zone b{font-size:13px;font-weight:700;color:var(--cl-t1)}
-.cl-zone em{font-style:normal;font-size:12.5px;color:var(--cl-t3);margin-left:8px}
-.cl-bars{display:flex;flex-direction:column;gap:9px}
-.cl-bar-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:4px}
-.cl-bar-l span{font-size:13px;color:var(--cl-t2)}
-.cl-bar-l b{font-family:var(--cl-mono);font-size:14px;font-weight:600;color:var(--cl-t1)}
-.cl-bar-l i{font-style:normal;font-family:var(--font-body);font-size:11px;font-weight:700;
-  color:var(--cl-t3);margin-left:8px}
-.cl-track{height:9px;background:var(--color-surface-alt);border-radius:999px;overflow:hidden}
-.cl-fill{height:100%;border-radius:999px;min-width:2px}
+.cl-hero{padding:16px 22px 18px}
+.cl-zone{margin-bottom:14px}
+.cl-zone b{font-size:14.5px;font-weight:700;color:var(--cl-t1)}
+.cl-zone em{display:block;font-style:normal;font-size:11.5px;color:var(--cl-t3);margin-top:1px}
+.cl-bar{margin-bottom:14px}
+.cl-bar:last-child{margin-bottom:0}
+.cl-bar-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:5px}
+.cl-bar-l span{font-size:14px;color:var(--cl-t2)}
+.cl-bar-l b{font-family:var(--cl-mono);font-size:15px;font-weight:600;color:var(--cl-t1)}
+.cl-bar-l i{font-style:normal;font-family:var(--font-body);font-size:11.5px;font-weight:600;
+  color:var(--cl-t3);margin-left:9px}
+.cl-track{height:13px;background:var(--color-surface-alt);border-radius:999px;overflow:hidden}
+.cl-fill{height:100%;border-radius:999px;min-width:3px}
 .cl-fill.y{background:#B9C4D2}
 .cl-fill.j{background:var(--color-brand-600)}
 .cl-fill.f{background:#9C7526}
@@ -138,13 +160,40 @@ const x = (v: number) => v.toFixed(2) + '×';
 .cl-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
 .cl-out-s b{font-weight:600;color:#fff}
 
+.cl-more{border-top:1px solid var(--cl-bd);background:var(--color-surface)}
+.cl-more > summary{cursor:pointer;padding:12px 22px;font-size:13px;color:var(--cl-t2);
+  list-style:none;display:flex;align-items:center;gap:7px}
+.cl-more > summary::-webkit-details-marker{display:none}
+.cl-more > summary::before{content:'+';font-family:var(--cl-mono);font-weight:700;
+  color:var(--color-brand-700);font-size:15px;line-height:1}
+.cl-more[open] > summary::before{content:'\2212'}
+.cl-more > summary b{color:var(--cl-t1);font-weight:700}
+.cl-more > summary:hover{color:var(--color-brand-700)}
+.post-content .cl-more-p{font-size:12.5px;color:var(--cl-t3);line-height:1.55;margin:0;padding:0 22px 10px}
+.cl-more-p b{color:var(--cl-t2);font-weight:600}
+.cl-tblwrap{overflow-x:auto;padding:0 22px 16px}
+.post-content .cl-tbl{width:100%;border-collapse:collapse;font-size:13px;margin:0;min-width:420px}
+.post-content .cl-tbl th{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;
+  color:#C9D3E0;font-weight:700;text-align:right;padding:7px 10px;border-bottom:1px solid var(--cl-bd)}
+.post-content .cl-tbl th:first-child{text-align:left;color:#fff}
+.post-content .cl-tbl td{padding:8px 10px;border-bottom:1px dashed var(--cl-bd);text-align:right;
+  color:var(--cl-t2);vertical-align:top}
+.post-content .cl-tbl td:first-child{text-align:left}
+.cl-tbl td b{font-size:13px;color:var(--cl-t1)}
+.cl-tbl td em{display:block;font-style:normal;font-size:10.5px;color:var(--cl-t3);margin-top:1px;
+  font-family:var(--font-body)}
+.cl-tbl tr.hero td{background:rgba(200,154,60,.10)}
+
 .cl-notes{padding:15px 22px 17px;border-top:1px solid var(--cl-bd);background:var(--color-surface)}
 .post-content .cl-notes p{font-size:12.5px;line-height:1.55;color:var(--cl-t3);margin:0 0 7px}
 .post-content .cl-notes p:last-child{margin-bottom:0}
 .cl-notes b{color:var(--cl-t2)}
 @media(max-width:640px){
-  .cl-head{gap:4px}
-  .cl-rows{padding:6px 16px 14px}
-  .cl-bar-l span{font-size:12.5px}
+  .post-content .cl-tbl{min-width:0;font-size:12px}
+  .post-content .cl-tbl th,.post-content .cl-tbl td{padding:6px 7px}
+  .cl-hero{padding:14px 16px 16px}
+  .cl-tblwrap{padding:0 16px 14px}
+  .cl-more > summary{padding:12px 16px}
+  .post-content .cl-more-p{padding:0 16px 10px}
 }
 </style>

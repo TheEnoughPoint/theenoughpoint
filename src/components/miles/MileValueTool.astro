@@ -113,7 +113,7 @@ import ToolBrand from '../ToolBrand.astro';
   <div class="mv-tblwrap">
     <table class="mv-tbl">
       <thead>
-        <tr><th>What the card earns</th><th>Return on your spending</th><th>Beats 1.7% cashback?</th></tr>
+        <tr><th>What the card earns</th><th>Return</th><th>Beats cashback?</th></tr>
       </thead>
       <tbody id="mv-tbody"></tbody>
     </table>
@@ -207,7 +207,7 @@ import ToolBrand from '../ToolBrand.astro';
 .mv-stat em{display:block;font-style:normal;font-size:11.5px;color:var(--mv-t3);margin-top:4px;line-height:1.35}
 
 .mv-tblwrap{overflow-x:auto}
-.post-content .mv-tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:0;min-width:440px}
+.post-content .mv-tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:0;min-width:340px}
 .post-content .mv-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;
   color:#C9D3E0;font-weight:700;text-align:right;padding:8px 14px;border-bottom:1px solid var(--mv-bd)}
 .post-content .mv-tbl th:first-child{text-align:left;color:#fff}
@@ -227,6 +227,11 @@ import ToolBrand from '../ToolBrand.astro';
 .mv-notes b{color:var(--mv-t2)}
 
 @media(max-width:640px){
+  /* The headers, not the data, were forcing this table to 440px inside a 356px
+     column. Shorter headers plus tighter cells let it fit without scrolling. */
+  .post-content .mv-tbl{min-width:0}
+  .post-content .mv-tbl th,.post-content .mv-tbl td{padding:7px 9px}
+  .post-content .mv-tbl{font-size:13px}
   .mv-grid,.mv-cards{grid-template-columns:1fr;gap:12px}
   .mv-body{padding:14px 16px 8px}
   .mv-chips{padding:10px 16px}
