@@ -1,0 +1,111 @@
+---
+// Why spreading slowly costs more than spreading fast.
+//
+// Was a bare markdown table. Two problems a reader found: the percentages did not
+// say what they measured — the answer sat in a caption BELOW, after the numbers —
+// and it looked nothing like the article's other exhibits.
+//
+// It also hid its own argument. Four instalment patterns read as four arbitrary
+// choices until you notice that what separates them is how long the money takes to
+// get invested. That column is now in the table, so the mechanism is visible rather
+// than asserted underneath: time out of the market rises, the penalty rises with it.
+//
+// Each column runs on its own history, so read DOWN a column and never across a row.
+// Our computation; cash earns nothing while it waits.
+import ToolBrand from '../ToolBrand.astro';
+
+const ROWS = [
+  { how: 'Three, a month apart', invested: '2 months', us: '64.2', dm: '64.1', sg: '58.0' },
+  { how: 'Four, a month apart', invested: '3 months', us: '65.4', dm: '65.9', sg: '57.6' },
+  { how: 'Three, a quarter apart', invested: '6 months', us: '69.2', dm: '68.7', sg: '60.8' },
+  { how: 'Four, a quarter apart', invested: '9 months', us: '71.6', dm: '71.7', sg: '62.5', worst: true },
+];
+---
+
+<div class="dip-s">
+  <div class="dip-s-head">
+    <span class="dip-s-lbl">The longer the money takes to get invested, the more it costs</span>
+    <span class="dip-s-sub">Each figure: how often <b>investing everything on day one came out ahead</b></span>
+  </div>
+
+  <div class="dip-s-tw">
+    <table>
+      <thead>
+        <tr>
+          <th>How you spread it</th>
+          <th>Fully invested<br />after</th>
+          <th>US<br />since 1871</th>
+          <th>Developed<br />since 1990</th>
+          <th>Singapore<br />since 1987</th>
+        </tr>
+      </thead>
+      <tbody>
+        {ROWS.map((r) => (
+          <tr class={r.worst ? 'worst' : undefined}>
+            <td>{r.how}</td>
+            <td class="dip-s-t">{r.invested}</td>
+            <td>{r.us}%</td>
+            <td>{r.dm}%</td>
+            <td>{r.sg}%</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dip-s-out">
+    <p class="dip-s-out-s">
+      Read any column downwards. Getting invested over <b>2 months</b> rather than
+      <b> 9</b> is worth roughly <b>7 percentage points</b> in the US and Developed columns.
+      It is the same four purchases either way &mdash; what changes is how long the money
+      sits out of the market.
+    </p>
+  </div>
+
+  <div class="dip-s-notes">
+    <p>
+      Each column runs on its own history, so read down a column and not across a row.
+      Cash earns nothing while it waits. The Singapore series is a price index plus an
+      assumed 2.6% dividend yield; these instalment figures barely move across a 0% to
+      3.5% assumption, unlike the dip figures elsewhere in this article. Our computation.
+    </p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.dip-s{
+  --ds-bd:var(--color-border); --ds-t1:var(--color-dark); --ds-t2:var(--color-body);
+  --ds-t3:var(--color-muted); --ds-deep:var(--color-navy);
+  --ds-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--ds-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--ds-t1)
+}
+.dip-s-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--ds-bd)}
+.dip-s-lbl{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.1px;
+  color:var(--ds-t1);line-height:1.4}
+/* 13.5px, not 12.5px. The line that tells the reader WHAT the numbers measure was
+   smaller than the numbers themselves (14.5px) - the explanation whispering under
+   the thing it explains. Size raised and the measure itself bolded, so a reader who
+   only scans the header still knows what they are looking at. */
+.dip-s-sub{display:block;margin-top:5px;font-size:13.5px;color:var(--ds-t2);line-height:1.45}
+.dip-s-sub b{color:var(--ds-t1);font-weight:700}
+.dip-s-tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.dip-s-tw table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px}
+.dip-s-tw th,.dip-s-tw td{padding:10px 12px;text-align:right;
+  border-bottom:1px solid var(--ds-bd);white-space:nowrap}
+.dip-s-tw th:first-child,.dip-s-tw td:first-child{text-align:left}
+.dip-s-tw th{background:#fff;font-weight:700;font-size:12px;color:var(--ds-t1);
+  line-height:1.3;vertical-align:bottom;border-bottom:2px solid var(--ds-bd)}
+.dip-s-tw td{font-family:var(--ds-mono);color:var(--ds-t1);font-variant-numeric:tabular-nums}
+.dip-s-tw td:first-child{font-family:inherit;color:var(--ds-t1)}
+.dip-s-tw td.dip-s-t{font-family:var(--ds-mono);color:var(--ds-t2)}
+.dip-s-tw tr.worst td{font-weight:700;background:var(--color-surface)}
+.dip-s-tw tbody tr:last-child td{border-bottom:0}
+.dip-s-out{background:var(--ds-deep);color:#fff;padding:16px 20px}
+.post-content .dip-s-out-s{font-size:15px;line-height:1.6;color:#D8DEE8;margin:0}
+.dip-s-out-s b{font-family:var(--ds-mono);font-weight:600;color:#fff}
+.dip-s-notes{padding:14px 20px 15px;border-top:1px solid var(--ds-bd);background:var(--color-surface)}
+.post-content .dip-s-notes p{font-size:12px;line-height:1.5;color:var(--ds-t3);margin:0 0 8px}
+</style>
