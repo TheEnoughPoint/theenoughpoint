@@ -1,0 +1,163 @@
+---
+// Reader-facing audit surface. Links alone are not auditability: a reader can open
+// Shiller's spreadsheet and still have no way to know whether they applied the same
+// rule we did, or whether they got the right answer.
+//
+// So this gives three things links cannot: the rule stated precisely enough to
+// re-implement, the exact figures to check against, and a script that downloads both
+// datasets and re-derives everything from scratch. Writing that script immediately
+// caught an error in our own reasoning — a shortcut that produced a 115.7%
+// probability — which is the argument for publishing it.
+import ToolBrand from '../ToolBrand.astro';
+
+const CHECKS = [
+  { rule: '5%', arrived: '81.1%', wait: '7', won: '42.5%', cash: '46.4%' },
+  { rule: '10%', arrived: '53.3%', wait: '10', won: '35.5%', cash: '37.8%' },
+  { rule: '15%', arrived: '35.5%', wait: '12', won: '32.2%', cash: '34.4%' },
+  { rule: '20%', arrived: '22.0%', wait: '13', won: '25.4%', cash: '29.6%' },
+];
+---
+
+<div class="dip-a">
+  <div class="dip-a-head">
+    <span class="dip-a-lbl">Check it yourself</span>
+    <span class="dip-a-sub">Everything here is free, public and re-runnable</span>
+  </div>
+
+  <div class="dip-a-body">
+    <p class="dip-a-lead">
+      We would rather you did not take our word for it. The rule is simple enough to
+      re-implement in an afternoon, both datasets are free, and the figures you should
+      get are printed below.
+    </p>
+
+    <p class="dip-a-h">The rule, stated exactly</p>
+    <ol class="dip-a-steps">
+      <li>Pick any month from 1871 onwards. You have a lump sum and you hold it in cash.</li>
+      <li>Track the market&rsquo;s highest close since that month.</li>
+      <li>The first month it closes <b>X% below that running peak</b>, invest the lot.</li>
+      <li>If that has not happened after <b>24 months</b>, invest anyway.</li>
+      <li>Compare where you stand <b>36 months</b> after the start against having invested
+        everything on day one.</li>
+      <li>Repeat for every starting month and count how often waiting came out ahead.</li>
+    </ol>
+    <p class="dip-a-warn">
+      The deadline in step 4 is the part that matters. Without it the rule has no answer
+      on the paths where the fall never arrives &mdash; and dropping those paths keeps only
+      the runs where waiting got its chance, which will prove whatever you like.
+    </p>
+
+    <p class="dip-a-h">What you should get</p>
+    <div class="dip-a-tw">
+      <table>
+        <thead>
+          <tr>
+            <th>Rule</th>
+            <th>Fall arrived</th>
+            <th>Median wait</th>
+            <th>Waiting won,<br />cash idle</th>
+            <th>Waiting won,<br />cash in T-bills</th>
+          </tr>
+        </thead>
+        <tbody>
+          {CHECKS.map((c) => (
+            <tr>
+              <td>{c.rule} fall</td><td>{c.arrived}</td><td>{c.wait} mo</td>
+              <td>{c.won}</td><td>{c.cash}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="dip-a-note">
+      <b>Cash idle</b> means the money you are holding back earns nothing while it waits, which
+      is what almost every published version of this comparison assumes. <b>Cash in T-bills</b>{' '}
+      gives it the actual one-month Treasury bill return of each month it sat there &mdash;
+      not an inflation-adjusted figure, just genuine interest instead of none.
+    </p>
+    <p class="dip-a-note">
+      First four columns run on US shares 1871&ndash;2023, 1,794 starting months. The T-bill
+      column runs 1926&ndash;2023, the years a bill rate exists, so it is not directly
+      comparable with the column beside it &mdash; on those same years the idle-cash figures
+      are 41.0, 32.5, 28.7 and 22.7%. Small differences are expected if you handle months with
+      no dividend figure differently from us.
+    </p>
+
+    <p class="dip-a-h">Or run ours</p>
+    <p class="dip-a-lead">
+      <a href="/data/waiting-for-a-dip.py" download>Download the script</a> &mdash; one file of
+      Python, about 150 lines, written to be read. It fetches both datasets itself, recomputes
+      every figure above and prints <b>OK</b> or <b>MISMATCH</b> against what we published. If
+      you get a mismatch, we would genuinely like to hear about it.
+    </p>
+    <p class="dip-a-note">
+      To be exact about what it is: a standalone re-implementation written for publication,
+      not the internal pipeline that produced the article. We checked it reproduces every
+      published figure before shipping it &mdash; and writing it caught a real error in our own
+      reasoning, a shortcut that returned a 115.7% probability. That is the argument for
+      publishing code rather than describing it. Provided as is; the datasets belong to their
+      authors.
+    </p>
+    <pre class="dip-a-code"><code>pip install pandas numpy requests xlrd
+python waiting-for-a-dip.py</code></pre>
+
+    <p class="dip-a-h">The data</p>
+    <ul class="dip-a-src">
+      <li><a href="http://www.econ.yale.edu/~shiller/data/ie_data.xls">Shiller, US prices and dividends from 1871</a> (Yale) &mdash; the <code>Data</code> sheet, columns <code>P</code> and <code>D</code></li>
+      <li><a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip">Kenneth French, research factors</a> (Dartmouth) &mdash; the <code>RF</code> column is the one-month bill rate</li>
+    </ul>
+  </div>
+
+  <div class="dip-a-foot"><ToolBrand /></div>
+</div>
+
+<style is:global>
+.dip-a{
+  --da-bd:var(--color-border); --da-t1:var(--color-dark); --da-t2:var(--color-body);
+  --da-t3:var(--color-muted);
+  --da-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--da-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--da-t1)
+}
+.dip-a-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--da-bd)}
+.dip-a-lbl{display:block;font-size:14.5px;font-weight:700;color:var(--da-t1)}
+.dip-a-sub{display:block;margin-top:3px;font-size:11.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--da-t2)}
+.dip-a-body{padding:16px 20px 6px}
+.post-content .dip-a-lead{font-size:14px;line-height:1.6;color:var(--da-t2);margin:0 0 14px}
+.post-content .dip-a-h{font-size:11.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.9px;color:var(--color-brand-700);margin:18px 0 8px}
+.post-content .dip-a-steps{margin:0 0 12px;padding-left:20px;font-size:13.5px;
+  line-height:1.55;color:var(--da-t2)}
+.post-content .dip-a-steps li{margin-bottom:5px}
+.post-content .dip-a-warn{font-size:13px;line-height:1.55;color:var(--da-t2);margin:0 0 6px;
+  padding:11px 13px;background:var(--color-surface);border-left:3px solid var(--color-brand-700);
+  border-radius:0 6px 6px 0}
+.dip-a-tw{overflow-x:auto;border:1px solid var(--da-bd);border-radius:7px;margin:0 0 8px}
+/* 14px. This is a checkpoint table - a reader compares their own output against it
+   line by line - so it is read carefully, not skimmed, and 12.5px against 16px body
+   was too small for that job. Five columns, so it scrolls inside its own container
+   on a phone rather than shrinking the type. */
+.dip-a-tw table{border-collapse:collapse;width:100%;font-size:14px}
+.dip-a-tw th,.dip-a-tw td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--da-bd);
+  white-space:nowrap}
+.dip-a-tw th:first-child,.dip-a-tw td:first-child{text-align:left}
+.dip-a-tw th{background:var(--color-surface);font-weight:700;font-size:12px;color:var(--da-t1)}
+.dip-a-tw td{font-family:var(--da-mono);color:var(--da-t1);font-variant-numeric:tabular-nums}
+.dip-a-tw tbody tr:last-child td{border-bottom:0}
+.post-content .dip-a-note{font-size:12px;line-height:1.5;color:var(--da-t2);margin:0 0 6px}
+.dip-a-code{margin:0 0 8px;padding:11px 13px;background:#f5f5f0;border:1px solid var(--da-bd);
+  border-radius:7px;overflow-x:auto;font-family:var(--da-mono);font-size:12.5px;
+  line-height:1.6;color:var(--da-t1)}
+.post-content .dip-a-src{margin:0 0 10px;padding-left:20px;font-size:13px;line-height:1.55;
+  color:var(--da-t2)}
+/* Specificity raised deliberately: a site-wide em-based rule on `code` compounded
+   against a declared 12px and rendered it at 10.625px, under the 11px floor.
+   check_page.py reads the DECLARED size and cannot see that, so it is pinned here
+   at a size that survives the cascade and measured in the browser. */
+.post-content .dip-a-src code, .post-content .dip-a-code code{font-family:var(--da-mono);
+  font-size:12.5px;background:#f5f5f0;padding:1px 4px;border-radius:3px}
+.post-content .dip-a-code code{background:none;padding:0}
+.dip-a-foot{padding:10px 20px 13px;border-top:1px solid var(--da-bd);background:var(--color-surface)}
+</style>

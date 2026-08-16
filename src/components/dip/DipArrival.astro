@@ -1,0 +1,210 @@
+---
+// One idea: how often waiting for a fall actually beat buying on day one.
+//
+// FOURTH VERSION, and the simplification is the point. v1 drew arrival and
+// day-one side by side, which forced the reader to invert every number. v2 and v3
+// added a stacked decomposition and a conditional column — analytically richer and
+// cognitively heavier, three figures per row with two moving in opposite
+// directions. One idea per surface is the rule, and the reader was doing the
+// combining work that the exhibit should have done.
+//
+// The combination is simply the product: P(fall arrives) x P(waiting wins | it
+// arrives). At -20% that is 22% x 90% = 20 in 100. So the decisive number was
+// always the plain one — waiting beat day one 42, 36, 32 and 25 times in 100 —
+// and it is the complement of the figure buried in v1. The mechanism (arrival
+// falls, but the payoff conditional on arrival RISES) is genuinely the most
+// interesting finding here and now lives in the prose, where a paragraph can
+// carry it and a column cannot.
+//
+// Our computation on Shiller's US dataset (Yale), monthly 1871-2023, price and
+// dividends, 1,794 starting months. Deploy in full the first month the market
+// falls X% from its running peak since entry, or at a 24-month deadline
+// regardless; outcome compared 36 months after entry, cash at 0%.
+import ToolBrand from '../ToolBrand.astro';
+
+// `waited` drives the bar geometry; `lab` is the printed figure and the day-one
+// figure is DERIVED from it as 100 - lab. Rounding both sides independently put
+// 42.5 and 57.5 each up, printing 43 and 58 in a bar captioned "out of 100".
+// Round once, subtract for the other, and the pair always sums to 100.
+const ROWS = [
+  { depth: 5, waited: 42.5, lab: 42, wait: 7 },
+  { depth: 10, waited: 35.5, lab: 36, wait: 10 },
+  { depth: 15, waited: 32.2, lab: 32, wait: 12 },
+  { depth: 20, waited: 25.4, lab: 25, wait: 13 },
+];
+---
+
+<div class="dip-x">
+  <div class="dip-x-head">
+    <span class="dip-x-lbl">The stricter your rule, the worse waiting did</span>
+    <span class="dip-x-sub">Out of 100 attempts. US shares, 1,794 starting months since 1871</span>
+    <span class="dip-x-assume">Assumes your waiting cash earns nothing &mdash; see below for what changes if it does not</span>
+  </div>
+
+  <div class="dip-x-key">
+    <span class="dip-x-k"><i class="sw waited"></i>waiting for the fall beat buying on day one</span>
+    <span class="dip-x-k"><i class="sw dayone"></i>buying on day one won</span>
+  </div>
+
+  <div class="dip-x-body">
+    {ROWS.map((r) => (
+      <div class="dip-x-grp">
+        <div class="dip-x-grp-h">
+          <span class="dip-x-depth">wait for a {r.depth}% fall</span>
+          <span class="dip-x-wait">typical wait {r.wait} months</span>
+        </div>
+
+        <div class="dip-x-stack" role="img"
+             aria-label={`Waiting for a ${r.depth} per cent fall beat buying on day one ${r.lab} times in 100`}>
+          <span class="dip-x-seg waited" style={`width:${r.waited}%`}>
+            <span class="dip-x-in">{r.lab}</span>
+          </span>
+          <span class="dip-x-seg dayone" style={`width:${100 - r.waited}%`}>
+            <span class="dip-x-in">{100 - r.lab}</span>
+          </span>
+          <span class="dip-x-half" aria-hidden="true"></span>
+        </div>
+
+        <p class="dip-x-foot">
+          waiting beat day one <b>{r.lab}</b> times in 100
+        </p>
+      </div>
+    ))}
+    <p class="dip-x-note-inline">
+      The hairline marks half. On the shallowest rule the margin is inside the
+      uncertainty of a 97-year sample &mdash; call that one a draw. From 10% down,
+      waiting clearly lost.
+    </p>
+  </div>
+
+  <div class="dip-x-sens">
+    <p class="dip-x-sens-h">But what if the waiting cash earned interest?</p>
+    <p class="dip-x-sens-intro">
+      Everything above gives it nothing. Here is the same question &mdash; how often
+      waiting beat buying on day one &mdash; with the cash earning the Treasury bill rate
+      of each month it actually sat there.
+    </p>
+    <div class="dip-x-sens-tw">
+      <table>
+        <thead>
+          <tr>
+            <th>Waiting beat day one</th>
+            <th>Cash sits idle</th>
+            <th>Cash in T-bills</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[[5, 41, 46], [10, 33, 38], [15, 29, 34], [20, 23, 30]].map(([d, z, v]) => (
+            <tr>
+              <td>waiting for a {d}% fall</td>
+              <td>{z}%</td>
+              <td><b>{v}%</b></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="dip-x-sens-f">
+      Both columns run 1926&ndash;2023, the years a bill rate exists. That is a shorter
+      stretch than the bars above, which is why the idle column reads 41 rather than 42
+      &mdash; same measure, fewer years. Interest helps everywhere and
+      <b> still never reaches half</b>. It changes the size of the gap, not the answer.
+    </p>
+  </div>
+
+  <div class="dip-x-out">
+    <p class="dip-x-out-s">
+      The stricter the rule, the worse it did &mdash; from <b>42 in 100</b> down to
+      <b> 25 in 100</b>. The reason is not that a bigger discount was a worse prize. It is
+      that you collected it far less often.
+    </p>
+  </div>
+
+  <div class="dip-x-notes">
+    <p>
+      Fall measured from the market&rsquo;s running peak since the money arrived. Deployed in
+      full on the first month the fall is reached, or at 24 months regardless. Outcome compared
+      36 months after the money arrived; cash earns nothing. Shiller US data (Yale), total
+      return, 1871&ndash;2023. Our computation.
+    </p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.dip-x{
+  --dx-bd:var(--color-border); --dx-t1:var(--color-dark); --dx-t2:var(--color-body);
+  --dx-t3:var(--color-muted); --dx-deep:var(--color-navy);
+  --dx-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--dx-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--dx-t1)
+}
+.dip-x-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--dx-bd)}
+.dip-x-lbl{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.1px;
+  color:var(--dx-t1);line-height:1.4}
+.dip-x-sub{display:block;margin-top:4px;font-size:11.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--dx-t2)}
+/* The load-bearing assumption sits in the header, not at the end of a note.
+   The article's own argument is that most versions of this advice quietly assume
+   cash earns nothing; an exhibit that did the same would refute itself. It is
+   also not cosmetic - at a 4% cash rate the 5% rule reaches a dead heat. */
+.dip-x-assume{display:block;margin-top:7px;font-size:12.5px;line-height:1.4;
+  color:var(--color-brand-700);font-weight:600}
+.dip-x-sens{padding:14px 20px 15px;border-top:1px solid var(--dx-bd);background:#fff}
+.post-content .dip-x-sens-h{margin:0 0 10px;font-size:12.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.7px;color:var(--dx-t2)}
+.post-content .dip-x-sens-intro{margin:0 0 11px;font-size:13.5px;line-height:1.55;
+  color:var(--dx-t2)}
+.dip-x-sens-tw{overflow-x:auto;border:1px solid var(--dx-bd);border-radius:7px;margin:0 0 9px}
+/* 14.5px, not 13px. Measured against 16px body prose, a 13px reference table is a
+   19% step down for something the reader is meant to study rather than skim. The
+   figures stay monospaced per the house rule so the column aligns - which only
+   works once the cells are purely numeric, which is why the unit moved to the
+   header rather than repeating "in 100" eight times. */
+.dip-x-sens-tw table{border-collapse:collapse;width:100%;font-size:14.5px}
+.dip-x-sens-tw th,.dip-x-sens-tw td{padding:10px 12px;text-align:right;
+  border-bottom:1px solid var(--dx-bd);white-space:nowrap}
+.dip-x-sens-tw th:first-child,.dip-x-sens-tw td:first-child{text-align:left}
+.dip-x-sens-tw th{background:var(--color-surface);font-weight:700;font-size:12px;
+  letter-spacing:.2px;color:var(--dx-t1)}
+.dip-x-sens-tw td{font-family:var(--dx-mono);color:var(--dx-t2);
+  font-variant-numeric:tabular-nums}
+.dip-x-sens-tw td:first-child{font-family:inherit;color:var(--dx-t1)}
+.dip-x-sens-tw td b{color:var(--color-brand-700);font-weight:700}
+.dip-x-sens-tw tbody tr:last-child td{border-bottom:0}
+.post-content .dip-x-sens-f{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--dx-t2)}
+.dip-x-sens-f b{color:var(--color-brand-700);font-weight:700}
+.dip-x-key{display:flex;flex-wrap:wrap;gap:7px 18px;padding:11px 20px;
+  border-bottom:1px dashed var(--dx-bd)}
+.dip-x-k{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dx-t2)}
+.dip-x-k .sw{width:13px;height:13px;border-radius:3px;flex:none;display:inline-block}
+/* Measured: white on #62625b is 6.14:1, clearing the 4.5 floor at 13px.
+   An earlier grey (#8e8e86) measured 3.3:1 and failed. */
+.sw.waited{background:var(--color-brand-700)}
+.sw.dayone{background:#62625b}
+.dip-x-body{padding:4px 20px 14px}
+.dip-x-grp{padding:15px 0 5px;border-bottom:1px dashed var(--dx-bd)}
+.dip-x-grp:last-child{border-bottom:0}
+.dip-x-grp-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  flex-wrap:wrap;margin-bottom:9px}
+.dip-x-depth{font-size:15px;font-weight:700;color:var(--dx-t1)}
+.dip-x-wait{font-family:var(--dx-mono);font-size:11.5px;color:var(--dx-t2)}
+.dip-x-stack{position:relative;display:flex;width:100%;height:34px;border-radius:5px;
+  overflow:hidden;border:1px solid var(--dx-bd)}
+.dip-x-seg{display:flex;align-items:center;justify-content:center;min-width:0}
+.dip-x-seg.waited{background:var(--color-brand-700)}
+.dip-x-seg.dayone{background:#62625b}
+.dip-x-in{font-family:var(--dx-mono);font-size:13.5px;font-weight:700;color:#fff;
+  padding:0 4px;white-space:nowrap}
+.dip-x-half{position:absolute;left:50%;top:0;bottom:0;width:2px;background:#fff;opacity:.85}
+.post-content .dip-x-foot{margin:9px 0 0;font-size:13.5px;line-height:1.4;color:var(--dx-t2)}
+.dip-x-foot b{font-family:var(--dx-mono);font-size:16px;font-weight:700;
+  color:var(--color-brand-700);font-variant-numeric:tabular-nums}
+.post-content .dip-x-note-inline{margin:14px 0 0;font-size:12px;color:var(--dx-t2)}
+.dip-x-out{background:var(--dx-deep);color:#fff;padding:17px 20px}
+.post-content .dip-x-out-s{font-size:15px;line-height:1.62;color:#D8DEE8;margin:0}
+.dip-x-out-s b{font-family:var(--dx-mono);font-weight:600;color:#fff}
+.dip-x-notes{padding:14px 20px 15px;border-top:1px solid var(--dx-bd);background:var(--color-surface)}
+.post-content .dip-x-notes p{font-size:12px;line-height:1.5;color:var(--dx-t3);margin:0 0 8px}
+</style>

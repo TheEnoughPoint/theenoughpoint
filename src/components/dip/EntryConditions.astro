@@ -1,0 +1,110 @@
+---
+// The counter-intuitive half: buying at a high did not favour phasing money in.
+// Includes the condition that cuts the other way, on the right, because the
+// exhibit should carry the counter-evidence rather than leaving it to prose.
+//
+// HTML/CSS bars, not SVG - see the note in DipArrival.astro for why.
+//
+// Our computation on Shiller US (Yale), 1871-2023. Starting months grouped by what
+// was visible AT ENTRY ONLY: distance from the market's own running peak to date,
+// and the trailing twelve-month return. Three equal monthly instalments against a
+// lump sum, outcome after one year, cash at 0%.
+import ToolBrand from '../ToolBrand.astro';
+
+const BARS = [
+  { label: 'at an all-time high', pct: 70.2, n: 689, tone: 'up' },
+  { label: 'after a year up more than 20%', pct: 71.1, n: 547, tone: 'up' },
+  { label: 'every starting month', pct: 64.3, n: 1818, tone: 'base' },
+  { label: 'more than 20% below the high', pct: 58.8, n: 272, tone: 'down' },
+];
+const r0 = (n: number) => Math.round(n);
+const nfmt = (n: number) => n.toLocaleString('en-SG');
+---
+
+<div class="dip-e">
+  <div class="dip-e-head">
+    <span class="dip-e-lbl">Buying at a high was better than average, not worse</span>
+    <span class="dip-e-sub">Each bar: how often <b>investing everything at once beat spreading it out</b></span>
+  </div>
+
+  <div class="dip-e-body">
+    {BARS.map((b) => (
+      <div class="dip-e-row">
+        <span class="dip-e-cap">
+          {b.label}{' '}
+          <span class="dip-e-n">n = {nfmt(b.n)}</span>
+        </span>
+        <span class="dip-e-track">
+          <span class={`dip-e-bar ${b.tone}`} style={`width:${b.pct}%`}></span>
+          <span class="dip-e-half" aria-hidden="true"></span>
+        </span>
+        <span class="dip-e-val">{r0(b.pct)}%</span>
+      </div>
+    ))}
+    <p class="dip-e-key">The hairline on each bar marks a coin flip.</p>
+  </div>
+
+  <div class="dip-e-out">
+    <p class="dip-e-out-s">
+      The one condition where spreading the money out did relatively well was buying{' '}
+      <b>after a large fall</b> &mdash; precisely the moment nobody feels like buying anything.
+    </p>
+  </div>
+
+  <div class="dip-e-notes">
+    <p>
+      Starting months grouped by what was visible at the time: distance from the market&rsquo;s
+      own running peak, and the prior twelve months. Three monthly instalments, outcome after
+      one year, cash earns nothing. Shiller US total return, 1871&ndash;2023. Our computation.
+    </p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.dip-e{
+  --de-bd:var(--color-border); --de-t1:var(--color-dark); --de-t2:var(--color-body);
+  --de-t3:var(--color-muted); --de-deep:var(--color-navy);
+  --de-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--de-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--de-t1)
+}
+/* Plain block, not flex. The flex row was for two side-by-side small-caps labels;
+   the header now stacks a finding over a measure, as in the other exhibits. */
+.dip-e-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--de-bd)}
+/* Brought into line with the article's other exhibits. This header used to set both
+   the finding AND the measure at 11px uppercase muted - so the line telling the
+   reader what the bars mean was at the legal size floor while the bars' own numbers
+   were 14px. Hierarchy now comes from size and weight, not from fading text. */
+.dip-e-lbl{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.1px;
+  color:var(--de-t1);line-height:1.4}
+.dip-e-sub{display:block;margin-top:5px;font-size:13.5px;color:var(--de-t2);line-height:1.45}
+.dip-e-sub b{color:var(--de-t1);font-weight:700}
+.dip-e-body{padding:16px 20px 12px}
+.dip-e-row{display:grid;grid-template-columns:1fr 46px;align-items:center;
+  column-gap:10px;row-gap:4px;margin-bottom:15px}
+.post-content .dip-e-cap{grid-column:1 / -1;font-size:13px;color:var(--de-t2);margin:0;line-height:1.35}
+.dip-e-n{font-family:var(--de-mono);font-size:11px;color:var(--de-t3);margin-left:7px}
+.dip-e-track{grid-column:1;position:relative;height:19px;background:var(--color-surface);
+  border:1px solid var(--de-bd);border-radius:4px;overflow:hidden;display:block}
+.dip-e-bar{display:block;height:100%;border-radius:3px 0 0 3px}
+.dip-e-bar.up{background:var(--color-brand-700)}
+.dip-e-bar.base{background:#9a9a92}
+.dip-e-bar.down{background:#93b4f5}
+.dip-e-half{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--de-t1);opacity:.55}
+.dip-e-val{grid-column:2;font-family:var(--de-mono);font-size:14px;font-weight:700;
+  text-align:right;color:var(--de-t1)}
+.post-content .dip-e-key{font-size:11.5px;color:var(--de-t3);margin:2px 0 0}
+.dip-e-out{background:var(--de-deep);color:#fff;padding:16px 20px}
+.post-content .dip-e-out-s{font-size:15px;line-height:1.6;color:#D8DEE8;margin:0}
+.dip-e-out-s b{color:#fff;font-weight:600}
+.dip-e-notes{padding:14px 20px 15px;border-top:1px solid var(--de-bd);background:var(--color-surface)}
+.post-content .dip-e-notes p{font-size:12px;line-height:1.5;color:var(--de-t3);margin:0 0 8px}
+@media (min-width:560px){
+  .dip-e-row{grid-template-columns:250px 1fr 48px}
+  .post-content .dip-e-cap{grid-column:1;margin:0}
+  .dip-e-track{grid-column:2}
+  .dip-e-val{grid-column:3}
+}
+</style>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="A rising market line with a dashed line marking the price you passed up while waiting for a dip. The dip, when it finally arrives, sits above that dashed line. The discount arrived on a higher number.">
+  <!-- Cover for the waiting-for-a-dip piece.
+       House system: navy field, gold serif figure, small-caps kicker, italic
+       payoff, wordmark at foot. Companion to cover-which-card.svg.
+
+       Draws the mechanism rather than naming it, per the lesson recorded on
+       cover-which-card.svg. The argument of the article is not "dips are rare"
+       — it is that a dip is a fall from wherever the market REACHED, not from
+       the price you declined. So the picture is a rising line, a dashed line at
+       the price you passed up, and the eventual dip landing ABOVE it. Anyone can
+       read that without knowing a single term.
+
+       Safe zone: kicker, headline and payoff sit inside x 300-900. The chart
+       runs x 150-1050, so a square crop trims its outer thirds without touching
+       the dashed line or the dip marker, which carry the argument. -->
+
+  <rect width="1200" height="600" fill="#081627"/>
+  <rect x="0" y="0" width="1200" height="600" fill="#0E2038" opacity="0.55"/>
+
+  <!-- kicker -->
+  <text x="600" y="86" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="18" letter-spacing="3.4" fill="#C89A3C" font-weight="700">THE PLAN THAT NEVER ASKS WHAT IF</text>
+
+  <!-- headline -->
+  <text x="600" y="168" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="72" fill="#F6F4EF">You waited for the dip.</text>
+
+  <text x="600" y="212" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="16" fill="#F6F4EF" opacity="0.72">it arrived — above the price you turned down</text>
+
+  <!-- chart panel -->
+  <rect x="150" y="262" width="900" height="212" rx="10" fill="#10233D"/>
+
+  <!-- the price passed up -->
+  <line x1="178" y1="430" x2="1022" y2="430" stroke="#F6F4EF" stroke-width="1.6"
+        stroke-dasharray="7 6" opacity="0.5"/>
+  <text x="178" y="418" font-family="Arial, Helvetica, sans-serif" font-size="13"
+        letter-spacing="1.4" fill="#F6F4EF" opacity="0.62">THE PRICE YOU PASSED UP</text>
+
+  <!-- the market: rises away, dips, and the dip still clears the dashed line -->
+  <polyline points="178,430 258,414 338,424 418,392 498,372 578,384 658,344 738,318 796,300 830,352 880,330 950,296 1022,286"
+            fill="none" stroke="#C89A3C" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- the dip itself -->
+  <circle cx="830" cy="352" r="9" fill="#0E2038" stroke="#C89A3C" stroke-width="4"/>
+  <line x1="830" y1="361" x2="830" y2="424" stroke="#C89A3C" stroke-width="1.4" opacity="0.6"/>
+  <text x="830" y="452" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="13" letter-spacing="1.4" fill="#C89A3C" font-weight="700">THE DIP, AT LAST</text>
+
+  <!-- start marker -->
+  <circle cx="178" cy="430" r="7" fill="#F6F4EF" opacity="0.8"/>
+  <text x="178" y="462" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="12" letter-spacing="1.3" fill="#F6F4EF" opacity="0.6">YOU DECIDE TO WAIT</text>
+
+  <!-- payoff -->
+  <text x="600" y="524" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="27" font-style="italic" fill="#F6F4EF">The discount was real. The starting point moved.</text>
+
+  <!-- wordmark -->
+  <text x="600" y="566" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="15" letter-spacing="4.2" fill="#C89A3C" opacity="0.85">THEENOUGHPOINT.COM</text>
+</svg>
