@@ -33,7 +33,18 @@ const SERIES = [
 // 760 units into 560px (scale 0.74) and turned 9.5px labels into 7px. The fix is
 // two-part — min-width == W in the CSS so the scale never drops below 1, and
 // enough bar pitch that 11px labels do not collide. See design.md.
-const W = 880, H = 372;
+//
+// Narrowed 880 -> 760 on 2026-08-17. The desktop article column is 824px
+// (span 2 of 3 in a 1280 container), which leaves 778px inside this card —
+// so at 880 the chart scrolled at EVERY width, and on desktop the scrollbar
+// existed to reveal a ~100px sliver: half the 2015 group, the cost side of
+// the exhibit. Label collision is set by within-group pitch (barW + gap),
+// which is unchanged; 760 only trims air between groups (centre-to-centre
+// across a group boundary 78.8 -> 54.8 units, against ~45 needed for two
+// 11px mono values). Tightest clearance is now the dashed divider vs its
+// neighbouring value labels, ~7px each side. Do not narrow further without
+// re-measuring those; do not widen past 778 or desktop scrolls again.
+const W = 760, H = 372;
 const PAD_L = 48, PAD_R = 18, PAD_T = 54, PAD_B = 64;
 const LO = -40, HI = 35;
 const plotW = W - PAD_L - PAD_R, plotH = H - PAD_T - PAD_B;
@@ -127,11 +138,31 @@ const splitX = PAD_L + 3 * groupW;
 .post-content .by-cap h4{margin:0 0 3px;font-size:16px;font-weight:700;color:var(--by-ink);
   font-family:var(--font-body);letter-spacing:0}
 .post-content .by-cap p{margin:0;font-size:12.5px;color:var(--by-muted);line-height:1.5}
-.by-wrap{overflow-x:auto}
+/* Fits the desktop column (778px inside the card at a 1280 container), so the
+   scroller engages only below that — phones and tablets, where the hidden share
+   is large enough that a scrollbar reads as intended rather than as an accident.
+   The thin styled bar replaces the stock Windows one for the same reason. */
+.by-wrap{overflow-x:auto;scrollbar-width:thin;scrollbar-color:#C9D1DB transparent}
+.by-wrap::-webkit-scrollbar{height:6px}
+.by-wrap::-webkit-scrollbar-track{background:transparent}
+.by-wrap::-webkit-scrollbar-thumb{background:#C9D1DB;border-radius:3px}
+.by-wrap::-webkit-scrollbar-thumb:hover{background:#AAB6C4}
 /* min-width == the viewBox width: below it the SVG scales its own text down.
-   Wide by design; .by-wrap scrolls. Never lower this without re-measuring the
-   effective label size at 390px. */
-.by-svg{width:100%;min-width:880px;height:auto;display:block}
+   Never lower this without re-measuring the effective label size at 390px,
+   and never raise it past 768px or the chart scrolls on desktop. */
+.by-svg{width:100%;min-width:760px;height:auto;display:block}
+/* Tablet band only (single column, container capped at 768): let the SVG
+   compress to fit instead of hiding a 70px sliver behind a 91% thumb. The
+   card interior here is 690px on overlay-scrollbar devices and ~675px when a
+   classic page scrollbar narrows the container, so the floor sits at 660 —
+   width:100% still renders at the container width whenever that is wider, so
+   the floor only extends scroll-free coverage, it does not shrink anything.
+   Measured label size in the band: 10.0px on iPad-class, 9.8px on Windows
+   (scale 0.89-0.91 on 11px nominal). Phones below the band keep
+   min-width == W so their labels never leave 11px. From 1024 the sidebar
+   returns and the column (607px inside the card) is too narrow for any
+   legible fit, so that band scrolls deliberately at full label size. */
+@media(min-width:768px) and (max-width:1023px){ .by-svg{min-width:660px} }
 .by-grid{stroke:var(--by-rule);stroke-width:1}
 .by-zero{stroke:var(--by-ink);stroke-width:1.5;opacity:.55}
 .by-split{stroke:var(--by-rule);stroke-width:1;stroke-dasharray:4 4}
