@@ -31,7 +31,7 @@ const blended = (spend: number, cards: number, fit = 1): number => {
 
 // Geometry
 const W = 720, H = 380;
-const M = { t: 24, r: 118, b: 46, l: 48 };
+const M = { t: 36, r: 132, b: 52, l: 48 };
 const PW = W - M.l - M.r, PH = H - M.t - M.b;
 
 const x = (s: number) => M.l + (s / MAX_SPEND) * PW;
@@ -57,6 +57,38 @@ for (let sp = 250; sp <= MAX_SPEND; sp += 50) REAL.push(`${x(sp).toFixed(1)},${y
 const realPoints = REAL.join(' ');
 const realAt4k = blended(4000, 4, FIT);
 const realEnd = blended(MAX_SPEND, 4, FIT);
+
+// End-of-line labels collide when two series finish on the same value, and at
+// S$8,000 the four-card line and the 60%-fit line are BOTH capacity-limited at
+// 2.20 — so they printed exactly on top of each other. Lay the labels out by
+// value, then push any that are closer than one line-height apart.
+const MIN_LABEL_GAP = 15;
+const endLabels = SERIES.map((sr) => ({
+  text: `${sr.cards} card${sr.cards > 1 ? 's' : ''} · ${sr.endMpd.toFixed(2)}`,
+  colour: sr.colour,
+  dashed: false,
+  yIdeal: y(sr.endMpd),
+})).concat([{
+  text: '4 cards, 60% fit',
+  colour: '#146E5A',
+  dashed: true,
+  yIdeal: y(blended(MAX_SPEND, 4, FIT)),
+}]).sort((a, b) => a.yIdeal - b.yIdeal);
+
+for (let i = 1; i < endLabels.length; i++) {
+  const gap = endLabels[i].yIdeal - endLabels[i - 1].yIdeal;
+  if (gap < MIN_LABEL_GAP) endLabels[i].yIdeal = endLabels[i - 1].yIdeal + MIN_LABEL_GAP;
+}
+
+// The dashed line's label joins the same right-hand column. Labelling it ON the
+// line was tried and abandoned: at ~130px wide against lines only 14-40px
+// apart, a neighbouring curve converges into one end of it wherever it is
+// placed. In the gutter the collision-avoidance above handles it, and the
+// result is objectively checkable rather than a judgement about halos.
+//
+// It carries no number because its end value is identical to the four-card
+// line's — at S$8,000 both are capacity-limited at 2.20, which is itself the
+// point: once you are capped out, category fit stops mattering.
 
 const xTicks = [2000, 4000, 6000, 8000];
 const yTicks = [0, 1, 2, 3, 4];
@@ -90,30 +122,27 @@ const sgd = (v: number) => 'S$' + (v / 1000) + 'k';
       {/* Parity at a one-cent redemption */}
       <line x1={M.l} x2={M.l + PW} y1={y(CASHBACK)} y2={y(CASHBACK)}
             stroke="#9A3B2E" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.75"/>
-      <text x={M.l + 6} y={y(CASHBACK) - 7} class="cc-note">below here, a 1.7% cashback card pays more &mdash; if you redeem at 1&cent;</text>
+      <text x={M.l + 6} y={y(CASHBACK) + 15} class="cc-note">1.7% cashback parity</text>
 
       {SERIES.map((s) => (
-        <g>
-          <polyline points={s.points} fill="none" stroke={s.colour} stroke-width="2.4"
-                    stroke-linejoin="round" stroke-linecap="round"/>
-          <text x={M.l + PW + 8} y={y(s.endMpd) + 4} class="cc-key" fill={s.colour}>
-            {s.cards} card{s.cards > 1 ? 's' : ''} &middot; {s.endMpd.toFixed(2)}
-          </text>
-        </g>
+        <polyline points={s.points} fill="none" stroke={s.colour} stroke-width="2.4"
+                  stroke-linejoin="round" stroke-linecap="round"/>
+      ))}
+      {endLabels.map((l) => (
+        <text x={M.l + PW + 9} y={l.yIdeal + 4} class={l.dashed ? 'cc-key cc-key-d' : 'cc-key'}
+              fill={l.colour}>{l.text}</text>
       ))}
 
       {/* Four cards, but only 60% of spending in a bonus category */}
       <polyline points={realPoints} fill="none" stroke="#146E5A" stroke-width="2"
-                stroke-dasharray="6 4" opacity="0.75" stroke-linejoin="round"/>
-      <text x={M.l + PW + 8} y={y(realEnd) + 4} class="cc-key" fill="#146E5A" opacity="0.85">
-        4 at 60% fit &middot; {realEnd.toFixed(2)}
-      </text>
+                stroke-dasharray="6 4" opacity="0.8" stroke-linejoin="round"/>
+
 
       {/* The S$4,000 read-off */}
       <line x1={x(4000)} x2={x(4000)} y1={M.t} y2={M.t + PH} stroke="#0E2038" stroke-width="1" stroke-dasharray="3 3" opacity="0.35"/>
       {SERIES.map((s) => <circle cx={x(4000)} cy={y(s.at4k)} r="3.6" fill={s.colour}/>)}
 
-      <text x={M.l - 40} y={M.t - 8} class="cc-ax-t">miles / $</text>
+      <text x={M.l - 40} y={M.t - 18} class="cc-ax-t">miles / $</text>
       <text x={M.l + PW} y={M.t + PH + 38} text-anchor="end" class="cc-ax-t">monthly spend</text>
     </svg>
   </div>
@@ -131,6 +160,10 @@ const sgd = (v: number) => 'S$' + (v / 1000) + 'k';
     <p><b>What this is.</b> Arithmetic on a 4 miles-per-dollar bonus, a S$1,000 monthly cap and the
     0.4 base rate that Citi, DBS and UOB all fall back to. No card is named: the shape is the same
     whichever you hold, and only the cap and the rate move.</p>
+    <p><b>The dashed red line.</b> It marks 1.7 miles per dollar, which is where a miles card
+    draws level with a 1.7% flat cashback card &mdash; because a mile cashed out is worth about a
+    cent, so miles per dollar and percent back are the same number. Anything below that line loses
+    to cashback unless the miles are redeemed for more than a cent.</p>
     <p><b>The second limit.</b> The solid lines assume every dollar up to the cap qualifies for a
     bonus category &mdash; the brochure case. Real spending does not arrive pre-sorted: groceries,
     insurance, school fees, tax and rent are largely excluded or carry an admin fee that exceeds
@@ -163,6 +196,7 @@ const sgd = (v: number) => 'S$' + (v / 1000) + 'k';
   text-transform:uppercase;letter-spacing:.8px;fill:var(--cc-t3)}
 .cc-key{font-family:var(--cc-mono);font-size:11.5px;font-weight:600}
 .cc-note{font-family:var(--font-body);font-size:10.5px;font-weight:600;fill:#9A3B2E}
+.cc-key-d{font-weight:600;opacity:.9}
 .cc-out{background:var(--cc-deep);color:#fff;padding:17px 22px}
 .cc-out-s{font-size:15px;line-height:1.6;color:#D8DEE8}
 .cc-out-s b{font-family:var(--cc-mono);font-weight:600;color:#fff}
