@@ -33,3 +33,33 @@ export const tools: ToolEntry[] = [
     icon: 'bi:house-door',
   },
 ];
+
+// ─── Homepage calculator cards ────────────────────────────────────────────────
+// Drives the "Tools to Calculate Your Enough Point" grid on the homepage.
+// Same underlying tools as above, with copy written for that placement.
+// href omitted (undefined) = a "Coming Soon" placeholder card with no link.
+
+export interface HomeToolCard {
+  name: string;
+  href?: string;
+  blurb: string;
+  icon: string;
+}
+
+export const homeToolCards: HomeToolCard[] = [
+  {
+    name: 'Condo Side By Side Compare',
+    href: '/condo-compare/',
+    blurb: 'Quickly compare 3 condominiums and we will let you know the pros and cons of each.',
+    icon: 'bi:house-door',
+  },
+  {
+    name: 'Singapore Cashback Calendar',
+    href: '/cashback-calendar/',
+    blurb: 'Shows you when to capture your next payment milestones to maximize cashback.',
+    icon: 'bi:calendar',
+  },
+  { name: 'Coming Soon', blurb: '', icon: 'bi:clock' },
+  { name: 'Coming Soon', blurb: '', icon: 'bi:clock' },
+  { name: 'Coming Soon', blurb: '', icon: 'bi:clock' },
+];

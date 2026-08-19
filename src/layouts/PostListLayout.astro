@@ -5,7 +5,7 @@ import PillarNav from '@src/components/PillarNav.astro';
 import PostCard from '@src/components/PostCard.astro';
 import BlockNewsScroll from '@src/components/BlockNewsScroll.astro';
 import RightSidebar from '@src/components/RightSidebar.astro';
-import RecommendedTools from '@src/components/RecommendedTools.astro';
+import EnoughPointTools from '@src/components/EnoughPointTools.astro';
 import Pagination from '@src/components/Pagination.astro';
 import CategoryWidget from '@src/components/CategoryWidget.astro';
 import TagsWidget from '@src/components/TagsWidget.astro';
@@ -86,7 +86,7 @@ if (showHero) {
           </div>
         )}
 
-        <RecommendedTools ids={['ibkr', 'syfe', 'endowus', 'tiger', 'singsaver']} layout="row" />
+        <EnoughPointTools />
 
         <BlockNewsScroll title="Editor's Picks" typePost="trending" limit={6} />
       </>

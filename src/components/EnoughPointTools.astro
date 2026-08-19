@@ -1,0 +1,37 @@
+---
+// Homepage "Tools to Calculate Your Enough Point" grid — replaces the old
+// affiliate "Recommended Platforms" strip in that spot. Free in-house tools
+// only (src/data/toolsData.ts), so no affiliate framing or "T&Cs apply".
+// A card with no href renders as a disabled "Coming Soon" placeholder.
+import { Icon } from 'astro-icon/components';
+import { url } from '@src/utils/path';
+import { homeToolCards } from '@src/data/toolsData';
+---
+
+<div>
+  <div class="flex items-center justify-between mb-1">
+    <h3 class="text-navy font-semibold text-base flex items-center gap-2">
+      <Icon name="bi:compass" class="text-gold size-4" />
+      Tools to Calculate Your Enough Point
+    </h3>
+  </div>
+  <p class="text-muted text-xs mb-4">Tools and calculators we built to help you arrive at your own enough point. Everybody's different.</p>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+    {homeToolCards.map((t) => (
+      t.href ? (
+        <a href={url(t.href)} class="group bg-white border border-cream-dark rounded-lg p-4 hover:border-brand-300 transition-colors">
+          <p class="font-bold text-sm text-navy group-hover:text-brand-700">{t.name}</p>
+          <p class="text-muted text-xs mt-1.5 leading-relaxed line-clamp-2">{t.blurb}</p>
+          <span class="inline-flex items-center gap-1 text-forest group-hover:text-forest-dark text-xs font-semibold mt-3">
+            Learn more <Icon name="bi:arrow-right" class="size-3" />
+          </span>
+        </a>
+      ) : (
+        <div class="bg-cream border border-dashed border-cream-dark rounded-lg p-4 flex flex-col items-center justify-center text-center gap-1.5 min-h-[104px]">
+          <Icon name={t.icon} class="text-subtle size-4" />
+          <p class="text-subtle text-xs font-semibold">{t.name}</p>
+        </div>
+      )
+    ))}
+  </div>
+</div>
