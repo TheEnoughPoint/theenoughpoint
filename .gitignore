@@ -30,5 +30,5 @@ npm-debug.log*
 public/render-audit.js
 
 # Raw article-image inbox: source uploads and the tracking sheet, not deploy assets
-public/img/Uploaded/
+public/img/Archive/
 public/img/Images to Update.xlsx
