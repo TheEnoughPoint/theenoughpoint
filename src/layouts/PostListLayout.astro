@@ -10,6 +10,8 @@ import Pagination from '@src/components/Pagination.astro';
 import CategoryWidget from '@src/components/CategoryWidget.astro';
 import TagsWidget from '@src/components/TagsWidget.astro';
 import NewsletterArea from '@src/components/NewsletterArea.astro';
+import NewsletterBox from '@src/components/NewsletterBox.astro';
+import AffiliateDisclosureBox from '@src/components/AffiliateDisclosureBox.astro';
 import { getCollection } from 'astro:content';
 import { pillars } from '@src/data/pillarsData';
 import type { CollectionEntry } from 'astro:content';
@@ -57,7 +59,7 @@ if (showHero) {
           </div>
           <aside class="lg:col-span-1 lg:ps-6 relative">
             <div class="flex flex-col gap-4 lg:gap-6 lg:pt-6">
-              <RightSidebar />
+              <RightSidebar showNewsletter={false} showDisclosure={false} />
             </div>
           </aside>
         </div>
@@ -130,5 +132,10 @@ if (showHero) {
       title="Get the insights that matter to your money."
       subtitle="Weekly, practical, Singapore-aware — no hype, no get-rich-quick language."
     />
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 pb-6">
+      <NewsletterBox />
+      <AffiliateDisclosureBox />
+    </div>
   </div>
 </MainLayout>
