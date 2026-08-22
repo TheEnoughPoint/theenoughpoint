@@ -119,6 +119,9 @@ rising-rates piece:*
 
 - `npm run build` clean.
 - `python C:/dev/scripts/check_page.py dist/<slug>/index.html` at 0 fail.
+- `python scripts/link-sweep.py` clean (site-wide: serialised undefined in
+  hrefs, internal links to unbuilt targets, share-link titles, host-form
+  drift). Add `--external` when the change touches sources or citations.
 - Confirm the og raster regenerated if the cover changed.
 - If the piece names figures that decay — card rates, award charts, fees —
   check whether the monthly routine's prompt still describes the article
