@@ -30,6 +30,7 @@ The question being asked
 """
 
 import io
+import zipfile
 
 import numpy as np
 import pandas as pd
@@ -37,6 +38,8 @@ import requests
 
 SHILLER = "http://www.econ.yale.edu/~shiller/data/ie_data.xls"
 FRED = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GS10"
+FRENCH = ("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
+          "F-F_Research_Data_Factors_CSV.zip")
 UA = {"User-Agent": "Mozilla/5.0 (reproduction script)"}
 
 
@@ -73,6 +76,41 @@ def fred_gs10():
     f["date"] = pd.to_datetime(f["date"]) + pd.offsets.MonthEnd(0)
     f["y"] = pd.to_numeric(f["y"], errors="coerce")
     return f.dropna().set_index("date")["y"]
+
+
+def bill_rate():
+    """Monthly one-month Treasury bill return, 1926 onward (Ken French)."""
+    z = zipfile.ZipFile(io.BytesIO(requests.get(FRENCH, headers=UA, timeout=180).content))
+    rows = []
+    for line in z.read(z.namelist()[0]).decode("utf-8", "replace").split("\n"):
+        p = [x.strip() for x in line.split(",")]
+        if len(p) >= 5 and p[0].isdigit() and len(p[0]) == 6:
+            try:
+                rows.append((p[0], float(p[4]) / 100))
+            except ValueError:
+                pass
+    f = pd.DataFrame(rows, columns=["ym", "rf"]).drop_duplicates("ym")
+    f["date"] = pd.to_datetime(f.ym, format="%Y%m") + pd.offsets.MonthEnd(0)
+    return f.set_index("date").rf.sort_index()
+
+
+def bond_total_return(yields):
+    """Monthly total return of a 10-year par Treasury rolled each month.
+
+    Hold this month's par bond (coupon = its own yield), sell it next month at
+    the new 10-year yield with 9 years 11 months remaining, collect one month
+    of coupon. A standard reconstruction — no investable 10-year fund existed
+    for most of this history — and one of several reasonable ones: Damodaran's
+    year-end version compounds a few dollars lower over 1966-1981.
+    """
+    y = yields / 100.0
+    out = {}
+    for i in range(len(y) - 1):
+        c, ynew = y.iloc[i], y.iloc[i + 1]
+        n = 10 - 1 / 12
+        price = c / ynew * (1 - (1 + ynew) ** -n) + (1 + ynew) ** -n
+        out[yields.index[i + 1]] = price - 1 + c / 12
+    return pd.Series(out)
 
 
 def check(label, got, want, tol=0.6):
@@ -153,6 +191,15 @@ if __name__ == "__main__":
     cpi = sh.loc[pd.Timestamp("1981-12-31"), "cpi"] / sh.loc[pd.Timestamp("1965-12-31"), "cpi"]
     ok &= check("nominal total return, %", tr * 100, 152.7, tol=2)
     ok &= check("real total return, %", ((1 + tr) / cpi - 1) * 100, -14.5, tol=1.5)
+
+    print("\n5b. WHERE COULD YOU HAVE HIDDEN, 1966-1981 ($100 after inflation)")
+    rf = bill_rate()
+    win = slice(pd.Timestamp("1966-01-31"), pd.Timestamp("1981-12-31"))
+    btr = bond_total_return(ys.loc[pd.Timestamp("1965-11-30"):pd.Timestamp("1982-01-31")])
+    cpi_ratio = sh.loc[pd.Timestamp("1981-12-31"), "cpi"] / sh.loc[pd.Timestamp("1965-12-31"), "cpi"]
+    ok &= check("shares, real end, $", (1 + window("1965-12-31", "1981-12-31") / 100) / cpi_ratio * 100, 85.5, tol=1)
+    ok &= check("rolled 10y Treasuries, real end, $", float((1 + btr.loc[win]).prod()) / cpi_ratio * 100, 63.1, tol=1)
+    ok &= check("rolled T-bills, real end, $", float((1 + rf.loc[win]).prod()) / cpi_ratio * 100, 97.5, tol=1)
 
     print("\n6. MONTHS MOST LIKE AUGUST 2026 (10-year at 4-5% and higher than a year earlier)")
     band = d[(d.y >= 4) & (d.y <= 5) & (d.dy12 > 0)]
