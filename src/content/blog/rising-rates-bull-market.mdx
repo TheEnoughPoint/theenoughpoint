@@ -13,50 +13,28 @@ readTime: 10
 inlineShare: true
 figuresAsOf: "Computed August 2026. US yields to 21 August 2026; US share history to June 2023 (Shiller); Singapore figures as dated in the text"
 takeaways:
-  - "In the <strong>434 months</strong> since 1954 where the US 10-year yield was higher than a year earlier, shares still returned a median <strong>+11.9%</strong> over the next twelve months and rose <strong>74 times in 100</strong> — against +13.6% and 80 in 100 after falls. Direction alone told you almost nothing."
-  - "The 10-year rose by half a point or more in <strong>21 calendar years</strong>; shares ended higher in <strong>15</strong>. Every losing year had inflation above 4% — and <strong>no rising-rate year with inflation under 4% ended down</strong>."
-  - "The catch is purchasing power: with inflation at 4% or above, the next twelve months beat inflation only <strong>56 times in 100</strong> — and falling yields did no better, at 54. It was never the rates. It was the inflation behind them."
-  - "1962 to 1968: the 10-year climbed from 3.9% to 6.0% and shares <strong>doubled</strong>, dividends included. Then 1966 to 1981 more than doubled again in nominal terms and <strong>lost 15% after inflation</strong>. The sequel is the honest half of the story."
-  - "In Singapore the scare arrives through your <strong>portfolio</strong>, not your borrowing: 3-month SORA is near <strong>1.14%</strong> and two-year fixed mortgages start around 1.35%, while S-REITs are down roughly 8% this year against a +22% STI."
+  - "After every 12-month rise in the US 10-year yield since 1954, shares still returned a median <strong>+11.9%</strong> over the next year — up 74 times in 100, barely different from after falls."
+  - "The 10-year rose by half a point or more in 21 calendar years. Shares ended higher in <strong>15 of the 21</strong>."
+  - "Every one of the six losing years had inflation <strong>above 4%</strong> — and no rising-rate year with inflation under 4% has ever ended down."
+  - "With inflation at 4% or above, beating it over the next year was a <strong>coin flip</strong> whichever way yields moved. Watch the inflation, not the yield. It prints <strong>3.4%</strong> today."
+  - "Singapore imports this fear through <strong>portfolios, not mortgages</strong>: S-REITs are down about 8% this year while SORA sits near 1.1% and two-year fixed home loans start around 1.35%."
 authorId: "fi"
 excerpt: |
   The 30-year US Treasury yield is back at levels last seen before the global financial crisis, and the headlines say the bond market is coming for shares. So we took every month since 1954 and asked what actually happened after the 10-year yield rose. The answer is calmer than the coverage — with one condition attached, and it is not the one the headlines are watching.
 ---
 
-import ShortVersion from '@src/components/ShortVersion.astro';
 import YieldNext from '@src/components/rates/YieldNext.astro';
 import RateYears from '@src/components/rates/RateYears.astro';
 import InflationSplit from '@src/components/rates/InflationSplit.astro';
 import RatesCheck from '@src/components/rates/RatesCheck.astro';
+import DoorCheck from '@src/components/rates/DoorCheck.astro';
 import SocialShare from '@src/components/SocialShare.astro';
 
 **The 30-year US Treasury yield touched 5.31% on 17 August, a level last seen in 2007. The 10-year closed the week at 4.74%, a hundredth of a point from its high for the year. Shares sit within 2% of the record they set the week before — and the coverage has decided these two facts cannot coexist for long.**
 
 "The bond market is signaling trouble ahead for stocks," ran one headline this month, and its sequels ask how big a stumbling block higher yields will prove. Three down sessions in a week get attributed to yields the way delays get attributed to weather. If you hold a portfolio that has done well, the question lands with some force: rates are rising — do I need to get out before they break something?
 
-It is a reasonable question. It also has an unusually checkable answer, because rates have risen many times before, and somebody wrote down what happened next. We went and computed it.
-
-<ShortVersion>
-  <li>
-    <b>We measured every month since April 1954</b> with a year of data behind it and a
-    year ahead — 819 of them. When the 10-year yield was higher than twelve months
-    earlier, US shares returned a median <b>+11.9%</b> over the next year, positive
-    <b> 74 times in 100</b>. After falls: +13.6% and 80. Direction barely mattered.
-  </li>
-  <li>
-    <b>What mattered was inflation.</b> With trailing inflation under 4%, the year after
-    a yield rise beat inflation three times in four, and no rising-rate calendar year
-    ended down. At 4% or above, real outcomes were near a coin flip — whichever way
-    yields moved.
-  </li>
-  <li>
-    <b>So watch the column, not the row.</b> US inflation printed <b>3.4%</b> for July
-    2026. The record's bad cell needs the other column — and that is the number that
-    would tell you the regime changed, not the yield itself.
-  </li>
-  <p slot="footer" class="sv-f">None of this forecasts the next twelve months. It prices
-  the fear — and the fear, on the record, is overpriced.</p>
-</ShortVersion>
+It is a reasonable question. It also has an unusually checkable answer, because rates have risen many times before, and somebody wrote down what happened next. We went and computed it. One promise before the numbers: nothing here forecasts the next twelve months. It prices the fear — and the fear, on the record, is overpriced.
 
 ## The fear, stated properly
 
@@ -82,7 +60,7 @@ The size of the rise did not rescue the fear either. Split the rising months by 
 
 History keeps specific examples if the aggregates feel bloodless. Between December 1962 and December 1968 the 10-year yield climbed from 3.9% to 6.0%, and US shares returned +105% with dividends reinvested — they doubled, through six years of rising rates. The same pattern is not confined to black-and-white footage. Across 2013, the taper-tantrum year, the yield jumped 1.2 points and shares returned +30%. From mid-2016 to late 2018 the yield doubled from 1.5% to 3.1%; shares returned +33%. And the very bull market the headlines now fear for was born inside the sharpest rise of all: between July 2020 and June 2023 the 10-year climbed more than three full points, and shares returned +42% over the same window.
 
-In plain English — if rising rates mechanically broke share markets, the last seventy years could not have happened.
+In plain English — if rising rates mechanically broke share markets, the last seven decades could not have happened.
 
 ## The six years it did go wrong
 
@@ -94,7 +72,7 @@ Since 1954 there have been 21 calendar years in which the 10-year yield rose by 
 
 Six losing years out of 21. Look at where they sit. 1969, 1974, 1977, 1981: the great inflation. 2022: inflation at 6.5%, the fastest hiking cycle in four decades, starting from a yield of 1.5% — an episode we would take seriously as the template for a repeat, if its ingredients were present. And 1987, the crash year, which for all its drama ended the calendar a tenth of a point from flat.
 
-Every losing year carries inflation above 4%. And the reverse reads even better: in seventy years, <strong>not one calendar year with rising yields and inflation under 4% ended down</strong>. Eleven such years, eleven positive outcomes, 1994 scraping through at +0.5% as the nearest thing to an exception.
+Every losing year carries inflation above 4%. And the reverse reads even better: since 1954, <strong>not one calendar year with rising yields and inflation under 4% has ended down</strong>. Eleven such years, eleven positive outcomes, 1994 scraping through at +0.5% as the nearest thing to an exception.
 
 ## It was never the rates
 
@@ -135,6 +113,8 @@ Everything above is US history, because that is where the long records live and 
 **Your safe layer — where the fear pays you.** The flip side of low local short rates: the 6-month T-bill cut-off has drifted down to 1.56%, a third of what it paid at the 2023 peak. But the global long-end sell-off has quietly improved the other end of the safe menu: the September Savings Bond issue's ten-year average return jumped to 2.25% from 2.06% in one month — the sell-off in bonds is, mechanically, an improvement in the deal offered to whoever holds safe money for longer. That is not a recommendation of any product. It is the same force the headlines fear, seen from the other side of the ledger.
 
 In plain English — before adopting an American fear, check which doors you actually own. A reader with a SORA mortgage, a CPF balance and a world index fund is living a very different rate story from the one on CNBC.
+
+<DoorCheck />
 
 ## So what do you do
 

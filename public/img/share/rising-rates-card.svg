@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" role="img" aria-label="A two-by-two table: whether the 10-year yield rose or fell, against inflation under or above 4 per cent. With inflation under 4 per cent, the next year beat inflation 74 and 81 per cent of the time; at 4 per cent or higher, 56 and 54. A jade NOW pin marks the rising-yields, cool-inflation cell, where August 2026 sits. Caption: since 1954, no rising-rate year with inflation under 4 per cent has ended down.">
+  <!-- Share card for the rising-rates piece — the article's single strongest
+       atom (the 2x2 plus the zero-losses line) as a self-contained 4:5
+       portrait for WhatsApp / Telegram / Instagram forwards.
+
+       Glance grammar, not prose grammar: percentages (the article's prose
+       keeps "times in 100"), a meter bar in every cell so the column pattern
+       reads before any text does, and a jade NOW pin locating August 2026 —
+       jade is the site's primary accent, and the pin marks a CONDITION (where
+       the present sits), never a verdict. All four condition cells stay one
+       neutral tint; the meters share one hue, width = the drawn value.
+       Provenance travels on the image: basis, sample, sources, URL. -->
+
+  <rect width="1080" height="1350" fill="#081627"/>
+  <rect width="1080" height="1350" fill="#0E2038" opacity="0.55"/>
+
+  <!-- kicker -->
+  <text x="540" y="96" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="26" letter-spacing="4" fill="#C89A3C" font-weight="700">RATES ARE RISING AGAIN</text>
+
+  <!-- headline -->
+  <text x="540" y="184" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="64" fill="#F6F4EF">It was never the rates.</text>
+  <text x="540" y="248" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="40" font-style="italic" fill="#F6F4EF" opacity="0.85">It was the inflation behind them.</text>
+
+  <!-- what the table shows -->
+  <text x="540" y="318" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="24" fill="#F6F4EF" opacity="0.7">How often US shares beat inflation over the following 12 months</text>
+
+  <!-- column headers -->
+  <text x="475" y="392" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="25" font-weight="700" letter-spacing="1.2" fill="#F6F4EF">INFLATION</text>
+  <text x="475" y="424" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="25" font-weight="700" letter-spacing="1.2" fill="#F6F4EF">UNDER 4%</text>
+  <text x="835" y="392" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="25" font-weight="700" letter-spacing="1.2" fill="#F6F4EF">INFLATION</text>
+  <text x="835" y="424" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="25" font-weight="700" letter-spacing="1.2" fill="#F6F4EF">4% OR HIGHER</text>
+
+  <!-- row 1: yields rose -->
+  <text x="60" y="540" font-family="Arial, Helvetica, sans-serif" font-size="25"
+        font-weight="700" letter-spacing="1.2" fill="#C89A3C">THE 10-YEAR</text>
+  <text x="60" y="572" font-family="Arial, Helvetica, sans-serif" font-size="25"
+        font-weight="700" letter-spacing="1.2" fill="#C89A3C">YIELD ROSE</text>
+
+  <!-- cell: rose + cool — carries the NOW pin and a jade edge (condition marker) -->
+  <rect x="305" y="452" width="340" height="220" rx="14" fill="#10233D" stroke="#3FA989" stroke-width="2.5"/>
+  <rect x="561" y="466" width="70" height="30" rx="15" fill="none" stroke="#3FA989" stroke-width="2"/>
+  <text x="596" y="487" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="17" font-weight="700" letter-spacing="2" fill="#3FA989">NOW</text>
+  <text x="475" y="590" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="118" font-weight="700" fill="#F6F4EF">74<tspan font-size="62">%</tspan></text>
+  <rect x="355" y="622" width="240" height="10" rx="5" fill="#0B1D33"/>
+  <rect x="355" y="622" width="178" height="10" rx="5" fill="#F6F4EF" opacity="0.7"/>
+
+  <!-- cell: rose + hot -->
+  <rect x="665" y="452" width="340" height="220" rx="14" fill="#10233D" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="835" y="590" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="118" font-weight="700" fill="#F6F4EF">56<tspan font-size="62">%</tspan></text>
+  <rect x="715" y="622" width="240" height="10" rx="5" fill="#0B1D33"/>
+  <rect x="715" y="622" width="134" height="10" rx="5" fill="#F6F4EF" opacity="0.7"/>
+
+  <!-- row 2: yields fell -->
+  <text x="60" y="790" font-family="Arial, Helvetica, sans-serif" font-size="25"
+        font-weight="700" letter-spacing="1.2" fill="#C89A3C">THE 10-YEAR</text>
+  <text x="60" y="822" font-family="Arial, Helvetica, sans-serif" font-size="25"
+        font-weight="700" letter-spacing="1.2" fill="#C89A3C">YIELD FELL</text>
+
+  <!-- cell: fell + cool -->
+  <rect x="305" y="702" width="340" height="220" rx="14" fill="#10233D" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="475" y="840" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="118" font-weight="700" fill="#F6F4EF">81<tspan font-size="62">%</tspan></text>
+  <rect x="355" y="872" width="240" height="10" rx="5" fill="#0B1D33"/>
+  <rect x="355" y="872" width="194" height="10" rx="5" fill="#F6F4EF" opacity="0.7"/>
+
+  <!-- cell: fell + hot -->
+  <rect x="665" y="702" width="340" height="220" rx="14" fill="#10233D" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="835" y="840" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="118" font-weight="700" fill="#F6F4EF">54<tspan font-size="62">%</tspan></text>
+  <rect x="715" y="872" width="240" height="10" rx="5" fill="#0B1D33"/>
+  <rect x="715" y="872" width="130" height="10" rx="5" fill="#F6F4EF" opacity="0.7"/>
+
+  <!-- the read -->
+  <text x="540" y="976" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="26" fill="#F6F4EF" opacity="0.75">The column decides. The row barely matters.</text>
+  <text x="540" y="1014" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="24" font-weight="700" fill="#3FA989">NOW: yields rising, US inflation 3.4% — the left column.</text>
+
+  <!-- killer line -->
+  <text x="540" y="1078" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="42" fill="#C89A3C">Since 1954, no rising-rate year with</text>
+  <text x="540" y="1132" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="42" fill="#C89A3C">inflation under 4% has ended down.</text>
+
+  <!-- provenance -->
+  <text x="540" y="1204" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="21" fill="#F6F4EF" opacity="0.55">US shares, real total return over the following 12 months &#183; 819 monthly readings, Apr 1954 &#8211; Jun 2022</text>
+  <text x="540" y="1236" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="21" fill="#F6F4EF" opacity="0.55">Shiller (Yale) + FRED GS10 &#183; inflation as at Jul 2026 (BLS) &#183; our computation &#183; script on the article</text>
+
+  <!-- url + wordmark -->
+  <text x="540" y="1292" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="26" font-weight="700" fill="#C89A3C">theenoughpoint.com/rising-rates-bull-market</text>
+  <text x="540" y="1330" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="17" letter-spacing="4.2" fill="#F6F4EF" opacity="0.6">THEENOUGHPOINT.COM</text>
+</svg>
