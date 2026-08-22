@@ -1,0 +1,142 @@
+---
+// Reader-facing audit surface, same contract as the dip piece's: the rule
+// stated precisely enough to re-implement, the exact figures to check against,
+// and a script that downloads both datasets and re-derives everything from
+// scratch. The script IS our pipeline for this piece — not a re-implementation
+// of it — and it printed ALL FIGURES REPRODUCED from a clean download before
+// this shipped.
+import ToolBrand from '../ToolBrand.astro';
+
+const CHECKS = [
+  { split: 'Yield higher than a year earlier', n: '434', med: '+11.9%', pos: '73.7%' },
+  { split: 'Yield lower than a year earlier', n: '381', med: '+13.6%', pos: '80.3%' },
+  { split: 'Rising yields, inflation under 4% (real)', n: '263', med: '+8.7%', pos: '74.5%' },
+  { split: 'Rising yields, inflation 4%+ (real)', n: '171', med: '+4.4%', pos: '56.1%' },
+];
+---
+
+<div class="rc-a">
+  <div class="rc-a-head">
+    <span class="rc-a-lbl">Check it yourself</span>
+    <span class="rc-a-sub">Everything here is free, public and re-runnable</span>
+  </div>
+
+  <div class="rc-a-body">
+    <p class="rc-a-lead">
+      We would rather you did not take our word for it. The rule takes an afternoon to
+      re-implement, both datasets are free, and the figures you should get are printed
+      below.
+    </p>
+
+    <p class="rc-a-h">The rule, stated exactly</p>
+    <ol class="rc-a-steps">
+      <li>Take every month from April 1954 that has a full year of data behind it and a
+        full year of share returns ahead of it &mdash; 819 of them, through June 2022.</li>
+      <li>Behind it, measure two things: did the 10-year Treasury yield <b>rise or fall</b> over
+        the trailing 12 months (FRED&rsquo;s monthly averages), and what was CPI
+        inflation over those same 12 months?</li>
+      <li>Ahead of it, measure the next 12 months of US share <b>total return</b>,
+        dividends reinvested &mdash; once as printed, once after inflation.</li>
+      <li>Sort the months by what was behind them, and compare what came next.</li>
+    </ol>
+    <p class="rc-a-warn">
+      Use total return, not the bare index. Dividends were a third of the sixties&rsquo;
+      story, and leaving them out is how the same history gets retold as a disaster.
+    </p>
+
+    <p class="rc-a-h">What you should get</p>
+    <div class="rc-a-tw">
+      <table>
+        <thead>
+          <tr><th>Sorted by</th><th>Months</th><th>Median next 12m</th><th>Positive</th></tr>
+        </thead>
+        <tbody>
+          {CHECKS.map((c) => (
+            <tr><td>{c.split}</td><td>{c.n}</td><td>{c.med}</td><td>{c.pos}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="rc-a-note">
+      First two rows are nominal; the inflation rows are real. Calendar-year check: the
+      10-year rose at least half a point Dec&ndash;Dec in <b>21</b> years; the S&amp;P 500&rsquo;s
+      total return was positive in <b>15</b>, and the losers were 1969, 1974, 1977, 1981,
+      1987 and 2022. Small differences are expected if you handle months with no dividend
+      figure differently from us.
+    </p>
+
+    <p class="rc-a-h">Or run ours</p>
+    <p class="rc-a-lead">
+      <a href="/data/rising-rates.py" download>Download the script</a> &mdash; one file of
+      Python, written to be read. It fetches both datasets itself, recomputes every figure
+      above plus the episodes and the 2&times;2, and prints <b>OK</b> or <b>MISMATCH</b> against
+      what we published. If you get a mismatch, we would genuinely like to hear
+      about it.
+    </p>
+    <pre class="rc-a-code"><code>pip install pandas numpy requests xlrd
+python rising-rates.py</code></pre>
+
+    <p class="rc-a-h">The data</p>
+    <ul class="rc-a-src">
+      <li><a href="http://www.econ.yale.edu/~shiller/data/ie_data.xls">Shiller, US prices, dividends and CPI from 1871</a> (Yale) &mdash; the <code>Data</code> sheet</li>
+      <li><a href="https://fred.stlouisfed.org/series/GS10">FRED series GS10</a> (St.&nbsp;Louis Fed) &mdash; monthly-average 10-year constant maturity yield from April 1953</li>
+    </ul>
+  </div>
+
+  <div class="rc-a-foot"><ToolBrand /></div>
+</div>
+
+<style is:global>
+.rc-a{
+  --rca-bd:var(--color-border); --rca-t1:var(--color-dark); --rca-t2:var(--color-body);
+  --rca-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--rca-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--rca-t1)
+}
+.rc-a-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--rca-bd)}
+.rc-a-lbl{display:block;font-size:14.5px;font-weight:700;color:var(--rca-t1)}
+.rc-a-sub{display:block;margin-top:3px;font-size:11.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--rca-t2)}
+.rc-a-body{padding:16px 20px 6px}
+.post-content .rc-a-lead{font-size:14px;line-height:1.6;color:var(--rca-t2);margin:0 0 14px}
+.post-content .rc-a-h{font-size:11.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.9px;color:var(--color-brand-700);margin:18px 0 8px}
+.post-content .rc-a-steps{margin:0 0 12px;padding-left:20px;font-size:13.5px;
+  line-height:1.55;color:var(--rca-t2)}
+.post-content .rc-a-steps li{margin-bottom:5px}
+.post-content .rc-a-warn{font-size:13px;line-height:1.55;color:var(--rca-t2);margin:0 0 6px;
+  padding:11px 13px;background:var(--color-surface);border-left:3px solid var(--color-brand-700);
+  border-radius:0 6px 6px 0}
+.rc-a-tw{overflow-x:auto;border:1px solid var(--rca-bd);border-radius:7px;margin:0 0 8px}
+/* 14px, matching the dip checkpoint table: this one is compared against line by
+   line, so it is read carefully, not skimmed. Four columns scroll inside their
+   own container on a phone rather than shrinking the type. */
+.rc-a-tw table{border-collapse:collapse;width:100%;font-size:14px}
+.rc-a-tw th,.rc-a-tw td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--rca-bd);
+  white-space:nowrap}
+.rc-a-tw th:first-child,.rc-a-tw td:first-child{text-align:left;white-space:normal;min-width:180px}
+.rc-a-tw th{background:var(--color-surface);font-weight:700;font-size:12px;color:var(--rca-t1)}
+.rc-a-tw td{font-family:var(--rca-mono);color:var(--rca-t1);font-variant-numeric:tabular-nums}
+.rc-a-tw td:first-child{font-family:inherit}
+.rc-a-tw tbody tr:last-child td{border-bottom:0}
+.post-content .rc-a-note{font-size:12px;line-height:1.5;color:var(--rca-t2);margin:0 0 6px}
+.rc-a-code{margin:0 0 8px;padding:11px 13px;background:#f5f5f0;border:1px solid var(--rca-bd);
+  border-radius:7px;overflow-x:auto;font-family:var(--rca-mono);font-size:12.5px;
+  line-height:1.6;color:var(--rca-t1)}
+.post-content .rc-a-src{margin:0 0 10px;padding-left:20px;font-size:13px;line-height:1.55;
+  color:var(--rca-t2)}
+/* Pinned against the site-wide em-based `code` rule, same as the dip piece:
+   declared sizes compound under .post-content and can land below the 11px floor. */
+.post-content .rc-a-src code{font-family:var(--rca-mono);
+  font-size:12.5px;background:#f5f5f0;padding:1px 4px;border-radius:3px;
+  /* The site-wide code style is written for dark blocks and leaves inline code
+     white; on this cream chip that measured 1.09:1 — pin the ink colour too.
+     The pin stays OFF the pre block below, whose site-supplied background is
+     dark and whose site-supplied ink is light; pinning both there measured
+     1.16:1. Scope narrowly and let the block keep the theme's pairing. */
+  color:var(--rca-t1)}
+.post-content .rc-a-code code{font-family:var(--rca-mono);font-size:12.5px;
+  background:none;padding:0}
+.rc-a-foot{padding:10px 20px 13px;border-top:1px solid var(--rca-bd);background:var(--color-surface)}
+</style>

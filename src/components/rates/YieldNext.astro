@@ -1,0 +1,116 @@
+---
+// One idea: after the 10-year yield had RISEN over the prior year, the next
+// twelve months were still usually fine — and barely different from the months
+// after falls. The exhibit's job is to make the two bars look almost the same,
+// because they are; the split that actually matters (inflation) gets its own
+// surface further down, one idea per surface.
+//
+// Our computation. FRED GS10 (monthly-average 10-year constant maturity yield,
+// from April 1953) joined with Shiller's US total-return series (Yale). Each
+// month needs a look-back year and a look-forward year, which gives 819 usable
+// start months, April 1954 to June 2022 — the series ends where Shiller's
+// dividend column does. Forward return is the next 12 months, dividends
+// reinvested, nominal.
+//
+// Identity colours, per the house rule: gold = months after a yield RISE,
+// jade = months after a fall. The same mapping is reused by the 2x2 exhibit
+// so the reader learns it once. Navy text on gold measures 6.6:1 at 13.5px,
+// white on jade (#0B4732) 10.7:1 — both clear the 4.5 floor.
+import ToolBrand from '../ToolBrand.astro';
+
+const ROWS = [
+  { key: 'up', label: 'the 10-year was higher than a year earlier', n: 434, median: 11.9, positive: 74 },
+  { key: 'down', label: 'the 10-year was lower than a year earlier', n: 381, median: 13.6, positive: 80 },
+];
+const SCALE_MAX = 16; // % — headroom above the larger median so neither bar hits the wall
+---
+
+<div class="yn">
+  <div class="yn-head">
+    <span class="yn-lbl">Shares mostly rose anyway</span>
+    <span class="yn-sub">What US shares returned over the next 12 months &middot; 819 monthly readings, Apr 1954 &ndash; Jun 2022</span>
+  </div>
+
+  <div class="yn-body">
+    {ROWS.map((r) => (
+      <div class="yn-grp">
+        <div class="yn-grp-h">
+          <span class="yn-cond"><i class={`yn-sw ${r.key}`}></i>{r.label}</span>
+          <span class="yn-n">{r.n} months</span>
+        </div>
+        <div class="yn-track" role="img"
+             aria-label={`After months where ${r.label}, the median next-12-month total return was ${r.median} per cent, and the return was positive ${r.positive} times in 100`}>
+          <span class={`yn-bar ${r.key}`} style={`width:${(r.median / SCALE_MAX) * 100}%`}>
+            <span class="yn-in">+{r.median}%</span>
+          </span>
+        </div>
+        <p class="yn-foot">median next 12 months <b>+{r.median}%</b> &middot; positive <b>{r.positive} times in 100</b></p>
+      </div>
+    ))}
+    <p class="yn-note-inline">
+      Resampling the sample in three-year blocks, the two groups&rsquo; ranges overlap
+      comfortably &mdash; the gap between them is inside the data&rsquo;s own uncertainty.
+      What is not in doubt is the level: both groups spent most of their time going up.
+    </p>
+  </div>
+
+  <div class="yn-out">
+    <p class="yn-out-s">
+      Whether the 10-year yield had <b>risen or fallen</b> over the past year told you
+      almost nothing about the year ahead. The split that mattered was hiding in a
+      different number.
+    </p>
+  </div>
+
+  <div class="yn-notes">
+    <p>
+      Yield change measured over the trailing 12 months, FRED GS10 monthly averages.
+      Forward return is the following 12 months, dividends reinvested, before inflation,
+      Shiller US data (Yale). Overlapping windows. Our computation.
+    </p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.yn{
+  --yn-bd:var(--color-border); --yn-t1:var(--color-dark); --yn-t2:var(--color-body);
+  --yn-gold:var(--color-gold); --yn-jade:var(--color-brand-700); --yn-deep:var(--color-navy);
+  --yn-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--yn-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--yn-t1)
+}
+.yn-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--yn-bd)}
+.yn-lbl{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.1px;color:var(--yn-t1)}
+.yn-sub{display:block;margin-top:4px;font-size:11.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--yn-t2)}
+.yn-body{padding:4px 20px 14px}
+.yn-grp{padding:15px 0 6px;border-bottom:1px dashed var(--yn-bd)}
+.yn-grp:last-of-type{border-bottom:0}
+.yn-grp-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  flex-wrap:wrap;margin-bottom:9px}
+.yn-cond{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:700;color:var(--yn-t1)}
+.yn-sw{width:13px;height:13px;border-radius:3px;flex:none;display:inline-block}
+.yn-sw.up{background:var(--yn-gold)}
+.yn-sw.down{background:var(--yn-jade)}
+.yn-n{font-family:var(--yn-mono);font-size:11.5px;color:var(--yn-t2)}
+.yn-track{position:relative;width:100%;height:34px;border-radius:5px;overflow:hidden;
+  border:1px solid var(--yn-bd);background:var(--color-surface)}
+.yn-bar{display:flex;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.yn-bar.up{background:var(--yn-gold)}
+.yn-bar.down{background:var(--yn-jade)}
+.yn-in{font-family:var(--yn-mono);font-size:13.5px;font-weight:700;padding:0 8px;white-space:nowrap}
+/* Navy on gold 6.6:1, white on jade 10.7:1 — measured, both clear 4.5. */
+.yn-bar.up .yn-in{color:var(--yn-deep)}
+.yn-bar.down .yn-in{color:#fff}
+.post-content .yn-foot{margin:9px 0 0;font-size:13.5px;line-height:1.4;color:var(--yn-t2)}
+.yn-foot b{font-family:var(--yn-mono);font-size:15px;font-weight:700;
+  color:var(--color-brand-700);font-variant-numeric:tabular-nums}
+.post-content .yn-note-inline{margin:14px 0 0;font-size:12px;line-height:1.5;color:var(--yn-t2)}
+.yn-out{background:var(--yn-deep);color:#fff;padding:17px 20px}
+.post-content .yn-out-s{font-size:15px;line-height:1.62;color:#D8DEE8;margin:0}
+.yn-out-s b{font-weight:600;color:#fff}
+.yn-notes{padding:14px 20px 15px;border-top:1px solid var(--yn-bd);background:var(--color-surface)}
+.post-content .yn-notes p{font-size:12px;line-height:1.5;color:var(--color-muted);margin:0 0 8px}
+</style>

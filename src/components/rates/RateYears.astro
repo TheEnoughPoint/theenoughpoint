@@ -1,0 +1,156 @@
+---
+// Every calendar year since 1954 in which the 10-year yield rose by half a
+// point or more, December to December — all 21 of them, sorted by the size of
+// the rise, with that year's S&P 500 total return and that year's CPI beside
+// it. The reader can run a finger down the list and find the pattern the
+// article claims: the six losing years all carry hot inflation, and no
+// cool-inflation year lost.
+//
+// Colour carries the SIGN of the drawn value only (the house colour rule): jade for a
+// positive return, brick for a negative one, with the sign also printed and the
+// bar direction doing the work — red/green is the deuteranopia pair, so meaning
+// never rides on hue alone. Inflation at 4%+ is a CONDITION, so it gets a
+// neutral navy dot, not a verdict colour. White on jade measures 10.7:1, and
+// the brick (#9B3B2E) is used only as bar fill — its value labels sit outside
+// the bar in body colour.
+//
+// Bars run on a symmetric ±40% scale (extremes: +38.0 in 1975, −26.1 in 1974)
+// so equal moves get equal pixels in both directions.
+import ToolBrand from '../ToolBrand.astro';
+
+const SCALE = 40; // % at each side of zero
+const YEARS = [
+  { y: 1980, dy: 2.45, tr: 30.2, cpi: 12.5 },
+  { y: 2022, dy: 2.15, tr: -15.0, cpi: 6.5 },
+  { y: 1994, dy: 2.04, tr: 0.5, cpi: 2.7 },
+  { y: 1987, dy: 1.88, tr: -0.1, cpi: 4.4 },
+  { y: 1999, dy: 1.63, tr: 21.6, cpi: 2.7 },
+  { y: 1969, dy: 1.62, tr: -11.7, cpi: 6.2 },
+  { y: 1979, dy: 1.38, tr: 18.2, cpi: 13.3 },
+  { y: 1978, dy: 1.32, tr: 7.8, cpi: 9.0 },
+  { y: 1983, dy: 1.29, tr: 23.2, cpi: 3.8 },
+  { y: 2013, dy: 1.18, tr: 29.7, cpi: 1.5 },
+  { y: 2009, dy: 1.17, tr: 30.0, cpi: 2.7 },
+  { y: 1981, dy: 0.88, tr: -2.5, cpi: 8.9 },
+  { y: 1967, dy: 0.86, tr: 20.9, cpi: 3.0 },
+  { y: 1959, dy: 0.83, tr: 13.9, cpi: 1.7 },
+  { y: 1977, dy: 0.82, tr: -6.3, cpi: 6.7 },
+  { y: 1974, dy: 0.69, tr: -26.1, cpi: 12.3 },
+  { y: 1958, dy: 0.65, tr: 37.8, cpi: 1.8 },
+  { y: 1956, dy: 0.63, tr: 6.3, cpi: 3.0 },
+  { y: 1996, dy: 0.59, tr: 23.6, cpi: 3.3 },
+  { y: 1975, dy: 0.57, tr: 38.0, cpi: 6.9 },
+  { y: 2021, dy: 0.54, tr: 28.3, cpi: 7.0 },
+];
+const fmt = (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}%`;
+---
+
+<div class="ry">
+  <div class="ry-head">
+    <span class="ry-lbl">All 21 rising-rate years, and the six that lost</span>
+    <span class="ry-sub">Calendar years since 1954 where the 10-year rose &ge; 0.5pp Dec&ndash;Dec &middot; sorted by size of rise</span>
+  </div>
+
+  <div class="ry-key">
+    <span class="ry-k"><i class="ry-sw pos"></i>S&amp;P 500 total return, year ended up</span>
+    <span class="ry-k"><i class="ry-sw neg"></i>year ended down</span>
+    <span class="ry-k"><i class="ry-dot"></i>CPI inflation 4%+ that year</span>
+  </div>
+
+  <div class="ry-body">
+    <div class="ry-cols" aria-hidden="true">
+      <span class="ry-c-year">year</span>
+      <span class="ry-c-dy">10y rise</span>
+      <span class="ry-c-bar"></span>
+      <span class="ry-c-tr">return</span>
+      <span class="ry-c-cpi">CPI</span>
+    </div>
+    {YEARS.map((r) => (
+      <div class="ry-row" role="img"
+           aria-label={`${r.y}: 10-year yield up ${r.dy.toFixed(2)} points, S&P 500 total return ${r.tr > 0 ? 'plus' : 'minus'} ${Math.abs(r.tr).toFixed(1)} per cent, CPI inflation ${r.cpi.toFixed(1)} per cent`}>
+        <span class="ry-year">{r.y}</span>
+        <span class="ry-dy">+{r.dy.toFixed(2)}</span>
+        <span class="ry-track">
+          <span class="ry-zero"></span>
+          <span
+            class={`ry-bar ${r.tr >= 0 ? 'pos' : 'neg'}`}
+            style={`left:${r.tr >= 0 ? 50 : 50 - (Math.abs(r.tr) / SCALE) * 50}%;width:${(Math.abs(r.tr) / SCALE) * 50}%`}>
+          </span>
+        </span>
+        <span class={`ry-tr ${r.tr < 0 ? 'is-neg' : ''}`}>{fmt(r.tr)}</span>
+        <span class="ry-cpi">{r.cpi >= 4 && <i class="ry-dot"></i>}{r.cpi.toFixed(1)}</span>
+      </div>
+    ))}
+  </div>
+
+  <div class="ry-out">
+    <p class="ry-out-s">
+      Shares rose in <b>15 of the 21</b>. Every one of the six losing years carries the
+      inflation dot &mdash; and <b>no rising-rate year with inflation under 4% ended
+      down</b>. 1987 is the nearest miss: inflation 4.4%, the crash in October, and the
+      year still closed a tenth of a point from flat.
+    </p>
+  </div>
+
+  <div class="ry-notes">
+    <p>
+      Yield change is FRED GS10, December-average to December-average. Return is the
+      calendar year&rsquo;s S&amp;P 500 total return on Shiller&rsquo;s monthly-average
+      basis, which smooths intra-month moves &mdash; 2022 prints &minus;15% here against
+      the &minus;18% you will see on a close-to-close basis. CPI is December on December.
+      Our computation.
+    </p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.ry{
+  --ry-bd:var(--color-border); --ry-t1:var(--color-dark); --ry-t2:var(--color-body);
+  --ry-pos:var(--color-brand-700); --ry-neg:#9B3B2E; --ry-deep:var(--color-navy);
+  --ry-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--ry-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--ry-t1)
+}
+.ry-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--ry-bd)}
+.ry-lbl{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.1px;color:var(--ry-t1)}
+.ry-sub{display:block;margin-top:4px;font-size:11.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--ry-t2)}
+.ry-key{display:flex;flex-wrap:wrap;gap:7px 16px;padding:11px 20px;border-bottom:1px dashed var(--ry-bd)}
+.ry-k{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ry-t2)}
+.ry-sw{width:13px;height:13px;border-radius:3px;flex:none;display:inline-block}
+.ry-sw.pos{background:var(--ry-pos)}
+.ry-sw.neg{background:var(--ry-neg)}
+.ry-dot{width:8px;height:8px;border-radius:50%;background:var(--ry-deep);flex:none;display:inline-block}
+.ry-body{padding:8px 20px 12px}
+.ry-cols,.ry-row{display:grid;grid-template-columns:38px 46px minmax(70px,1fr) 52px 46px;
+  gap:6px;align-items:center}
+.ry-cols{padding:2px 0 6px;border-bottom:1px solid var(--ry-bd);
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--color-muted)}
+.ry-c-dy,.ry-c-tr,.ry-c-cpi{text-align:right}
+.ry-row{padding:3px 0}
+.ry-year{font-family:var(--ry-mono);font-size:12.5px;font-weight:700;color:var(--ry-t1);
+  font-variant-numeric:tabular-nums}
+.ry-dy{font-family:var(--ry-mono);font-size:11.5px;color:var(--ry-t2);text-align:right;
+  font-variant-numeric:tabular-nums}
+.ry-track{position:relative;height:15px;border-radius:3px;background:var(--color-surface);
+  overflow:hidden}
+.ry-zero{position:absolute;left:50%;top:0;bottom:0;width:1.5px;background:var(--ry-bd)}
+.ry-bar{position:absolute;top:2px;bottom:2px;border-radius:2px}
+.ry-bar.pos{background:var(--ry-pos)}
+.ry-bar.neg{background:var(--ry-neg)}
+.ry-tr{font-family:var(--ry-mono);font-size:11.5px;font-weight:700;color:var(--ry-t2);
+  text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Brick as TEXT fails contrast at this size, so negative labels stay in body
+   colour; the minus sign and bar direction carry the sign. */
+.ry-tr.is-neg{color:var(--ry-t1)}
+.ry-cpi{display:flex;align-items:center;justify-content:flex-end;gap:4px;
+  font-family:var(--ry-mono);font-size:11.5px;color:var(--ry-t2);
+  font-variant-numeric:tabular-nums}
+.ry-out{background:var(--ry-deep);color:#fff;padding:17px 20px}
+.post-content .ry-out-s{font-size:15px;line-height:1.62;color:#D8DEE8;margin:0}
+.ry-out-s b{font-family:var(--ry-mono);font-weight:600;color:#fff}
+.ry-notes{padding:14px 20px 15px;border-top:1px solid var(--ry-bd);background:var(--color-surface)}
+.post-content .ry-notes p{font-size:12px;line-height:1.5;color:var(--color-muted);margin:0 0 8px}
+</style>
