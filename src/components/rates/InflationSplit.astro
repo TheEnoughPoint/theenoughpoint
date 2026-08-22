@@ -1,0 +1,146 @@
+---
+// The finding of the piece: sort the same 819 months by INFLATION instead of by
+// yield direction and the record splits cleanly. With trailing inflation under
+// 4%, the next twelve months beat inflation roughly three times in four
+// whichever way yields had moved; at 4% or above, both directions collapse
+// towards a coin flip. The columns decide, the rows barely matter.
+//
+// Real (after-inflation) basis throughout, because that is where the damage
+// actually shows: hot-inflation months often still LOOK fine in nominal terms.
+//
+// Encoding per the house colour rule: the four condition cells get
+// ONE neutral tint — no green/red verdicts, the numbers carry the story. The
+// small row swatches reuse the gold/jade identity established by the exhibit
+// above (gold = after a yield rise, jade = after a fall).
+//
+// The 2x2 stays a 2x2 on a phone: at 390px each cell is ~150px wide, which
+// holds a two-digit mono figure and two short lines comfortably. Verified in
+// the emulated viewport rather than assumed.
+import ToolBrand from '../ToolBrand.astro';
+
+const CELLS = [
+  { dir: 'up', infl: 'cool', n: 263, positive: 74, median: 8.7 },
+  { dir: 'up', infl: 'hot', n: 171, positive: 56, median: 4.4 },
+  { dir: 'down', infl: 'cool', n: 314, positive: 81, median: 13.5 },
+  { dir: 'down', infl: 'hot', n: 67, positive: 54, median: 5.2 },
+];
+const cell = (dir, infl) => CELLS.find((c) => c.dir === dir && c.infl === infl);
+---
+
+<div class="is2">
+  <div class="is2-head">
+    <span class="is2-lbl">It was the inflation, not the rates</span>
+    <span class="is2-sub">Same 819 months, next-12-month returns <em>after inflation</em>, sorted both ways</span>
+  </div>
+
+  <div class="is2-body">
+    <div class="is2-grid" role="table" aria-label="Real 12-month share returns split by yield direction and trailing inflation">
+      <div class="is2-corner" role="columnheader"></div>
+      <div class="is2-col" role="columnheader">inflation<br /><b>under 4%</b></div>
+      <div class="is2-col" role="columnheader">inflation<br /><b>4% or higher</b></div>
+
+      {['up', 'down'].map((dir) => (
+        <>
+          <div class="is2-row" role="rowheader">
+            <i class={`is2-sw ${dir}`}></i>
+            <span>10-year <b>yield {dir === 'up' ? 'higher' : 'lower'}</b> than a year earlier</span>
+          </div>
+          {['cool', 'hot'].map((infl) => {
+            const c = cell(dir, infl);
+            return (
+              <div class="is2-cell" role="cell">
+                <span class="is2-big">{c.positive}<i>/100</i></span>
+                <span class="is2-what">beat inflation</span>
+                <span class="is2-med">median {c.median >= 0 ? '+' : ''}{c.median}% real &middot; {c.n} mo</span>
+              </div>
+            );
+          })}
+        </>
+      ))}
+    </div>
+
+    <p class="is2-note-inline">
+      Moving the line to 3% or to 5% changes the sizes, not the shape: the cool cells
+      stay near three-in-four, the hot cells stay near a coin flip. And the hot cells
+      often still looked respectable <em>before</em> inflation &mdash; a median 13.8%
+      nominal in the rising-yield one &mdash; which is exactly how purchasing power
+      slips away without a headline.
+    </p>
+
+    <p class="is2-now">
+      Where is now? US inflation printed <b>3.4%</b> for July 2026 &mdash; the left
+      column, with the dividing line close enough to watch.
+    </p>
+  </div>
+
+  <div class="is2-out">
+    <p class="is2-out-s">
+      With inflation <b>under 4%</b>, the year after a yield rise beat inflation
+      <b> 74 times in 100</b>. At <b>4% or above</b>, it was <b>56</b> &mdash; and
+      falling yields did not save you either, at 54. Read the column, not the row.
+    </p>
+  </div>
+
+  <div class="is2-notes">
+    <p>
+      Trailing inflation is the prior 12 months of US CPI; real returns deflate the
+      next 12 months of Shiller total return by the CPI over the same window. FRED
+      GS10 for yields. Apr 1954 &ndash; Jun 2022 starts, overlapping windows. The July
+      2026 CPI reading is the US Bureau of Labor Statistics release of 12 Aug 2026.
+      Our computation.
+    </p>
+    <ToolBrand />
+  </div>
+</div>
+
+<style is:global>
+.is2{
+  --is2-bd:var(--color-border); --is2-t1:var(--color-dark); --is2-t2:var(--color-body);
+  --is2-deep:var(--color-navy);
+  --is2-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--is2-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--is2-t1)
+}
+.is2-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--is2-bd)}
+.is2-lbl{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.1px;color:var(--is2-t1)}
+.is2-sub{display:block;margin-top:4px;font-size:11.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--is2-t2)}
+.is2-body{padding:16px 20px 8px}
+.is2-grid{display:grid;grid-template-columns:minmax(96px,1.2fr) 1fr 1fr;gap:7px}
+.is2-col{align-self:end;font-size:12px;line-height:1.35;color:var(--is2-t2);
+  text-align:center;padding-bottom:2px}
+.is2-col b{color:var(--is2-t1)}
+.is2-row{display:flex;align-items:center;gap:7px;font-size:12.5px;line-height:1.35;
+  color:var(--is2-t2);padding-right:2px}
+.is2-row b{color:var(--is2-t1)}
+.is2-sw{width:11px;height:11px;border-radius:3px;flex:none;display:inline-block}
+.is2-sw.up{background:var(--color-gold)}
+.is2-sw.down{background:var(--color-brand-700)}
+/* One neutral tint for all four condition cells — the numbers carry the story. */
+.is2-cell{background:var(--color-surface);border:1px solid var(--is2-bd);border-radius:8px;
+  padding:11px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;
+  text-align:center}
+.is2-big{font-family:var(--is2-mono);font-size:24px;font-weight:700;color:var(--is2-t1);
+  font-variant-numeric:tabular-nums;line-height:1.1}
+.is2-big i{font-style:normal;font-size:13px;font-weight:600;color:var(--color-muted)}
+.is2-what{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--is2-t2)}
+.is2-med{font-family:var(--is2-mono);font-size:11px;color:var(--color-muted);
+  font-variant-numeric:tabular-nums}
+.post-content .is2-note-inline{margin:14px 0 0;font-size:12px;line-height:1.55;color:var(--is2-t2)}
+.post-content .is2-now{margin:10px 0 6px;font-size:13px;line-height:1.5;color:var(--is2-t2);
+  padding:10px 13px;background:var(--color-surface);border-left:3px solid var(--color-brand-700);
+  border-radius:0 6px 6px 0}
+.is2-now b{font-family:var(--is2-mono);color:var(--color-brand-700)}
+.is2-out{background:var(--is2-deep);color:#fff;padding:17px 20px}
+.post-content .is2-out-s{font-size:15px;line-height:1.62;color:#D8DEE8;margin:0}
+.is2-out-s b{font-family:var(--is2-mono);font-weight:600;color:#fff}
+.is2-notes{padding:14px 20px 15px;border-top:1px solid var(--is2-bd);background:var(--color-surface)}
+.post-content .is2-notes p{font-size:12px;line-height:1.5;color:var(--color-muted);margin:0 0 8px}
+@media (max-width:420px){
+  .is2-grid{grid-template-columns:minmax(84px,1fr) 1fr 1fr;gap:5px}
+  .is2-big{font-size:20px}
+  .is2-row{font-size:11.5px}
+}
+</style>

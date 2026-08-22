@@ -1,0 +1,137 @@
+---
+// "Which of the four doors do you actually own?" — the Singapore section's four
+// channels as a self-check. Tick what exists in your household and the panel
+// rearranges the article's own dated facts to your address. Nothing is computed
+// about the reader, nothing is stored, nothing leaves the page — it is a map,
+// not a verdict, which is what keeps it on the right side of the
+// publisher-not-adviser line. Every figure repeats a number already sourced in
+// the article body, so this surface introduces no new claims.
+//
+// Interactivity follows the house tool precedent (DipRuleTool): a plain inline
+// script with addEventListener. Alpine is reserved for site chrome.
+import ToolBrand from '../ToolBrand.astro';
+
+const DOORS = [
+  {
+    id: 'eq',
+    label: 'Global or US index funds',
+    panel: 'The whole history above is about this sleeve. On the record, the yield direction alone told you very little — the number that separated good years from bad was US inflation, printed monthly, now 3.4% against the 4% dividing line.',
+  },
+  {
+    id: 'reit',
+    label: 'Singapore REITs',
+    panel: 'Rate-sensitive through its pricing, not its borrowing: S-REIT funding costs are mostly local and easing, but the yields their distributions compete with are set by the long end — and that is what the market has priced, with the listed S-REIT tracker down roughly 8% this year against a +22% STI.',
+  },
+  {
+    id: 'mort',
+    label: 'A mortgage (floating, or fixing soon)',
+    panel: 'Priced off SORA, not off US yields — 3-month compounded SORA sat near 1.14% in late August 2026, with two-year fixed packages advertised from about 1.35%. The imported headline does not reprice this door at the moment.',
+  },
+  {
+    id: 'safe',
+    label: 'T-bills, Savings Bonds or spare cash',
+    panel: 'The short end has drifted down — the 6-month T-bill cut-off is 1.56% — while the same global sell-off lifted the September Savings Bond’s ten-year average to 2.25% from 2.06%. The force the headlines fear pays this door more for going longer.',
+  },
+];
+---
+
+<div class="dk" id="door-check">
+  <div class="dk-head">
+    <span class="dk-lbl">Which of the four doors do you actually own?</span>
+    <span class="dk-sub">Tick what exists in your household &middot; nothing is recorded, nothing leaves this page</span>
+  </div>
+
+  <div class="dk-body">
+    <div class="dk-opts">
+      {DOORS.map((d) => (
+        <label class="dk-opt" for={`dk-${d.id}`}>
+          <input type="checkbox" id={`dk-${d.id}`} data-door={d.id} />
+          <span>{d.label}</span>
+        </label>
+      ))}
+    </div>
+
+    <p class="dk-hint" data-dk-hint>
+      Tick any that apply, and this month&rsquo;s rate story is re-read from your side of it.
+    </p>
+
+    {DOORS.map((d) => (
+      <div class="dk-panel" data-dk-panel={d.id} hidden>
+        <span class="dk-panel-h">{d.label}</span>
+        <p>{d.panel}</p>
+      </div>
+    ))}
+
+    <p class="dk-always" data-dk-count hidden></p>
+
+    <p class="dk-note">
+      A map, not advice: which doors you hold is yours to weigh, and the figures carry
+      the as-at dates given in the text above &mdash; they will drift. The live numbers
+      are a click away whenever you read this: <a href="https://www.cashew.sg/interest-rates/sora">SORA</a>, <a href="https://growbeansprout.com/insights/bonds">the latest T-bill and Savings Bond issues</a>, <a href="https://growbeansprout.com/quote/SRT.SI">the S-REIT tracker</a> and <a href="https://fred.stlouisfed.org/series/GS10">the US 10-year yield</a>.
+    </p>
+  </div>
+
+  <div class="dk-foot"><ToolBrand /></div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('door-check');
+    if (!root) return;
+    var boxes = root.querySelectorAll('input[data-door]');
+    var hint = root.querySelector('[data-dk-hint]');
+    var count = root.querySelector('[data-dk-count]');
+
+    function refresh() {
+      var ticked = 0;
+      boxes.forEach(function (b) {
+        var panel = root.querySelector('[data-dk-panel="' + b.dataset.door + '"]');
+        if (panel) panel.hidden = !b.checked;
+        if (b.checked) ticked++;
+      });
+      hint.hidden = ticked > 0;
+      count.hidden = ticked === 0;
+      if (ticked > 0) {
+        count.textContent =
+          ticked + ' of the 4 doors are yours. Most households find their biggest rate ' +
+          'exposure is not the one in the headlines — now you know which of these ' +
+          'sections above were actually about you.';
+      }
+    }
+    boxes.forEach(function (b) { b.addEventListener('change', refresh); });
+  })();
+</script>
+
+<style is:global>
+.dk{
+  --dk-bd:var(--color-border); --dk-t1:var(--color-dark); --dk-t2:var(--color-body);
+  --dk-jade:var(--color-brand-700);
+  background:#fff;border:1px solid var(--dk-bd);border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:26px 0;color:var(--dk-t1)
+}
+.dk-head{padding:14px 20px;background:var(--color-surface);border-bottom:1px solid var(--dk-bd)}
+.dk-lbl{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.1px;color:var(--dk-t1)}
+.dk-sub{display:block;margin-top:4px;font-size:11.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--dk-t2)}
+.dk-body{padding:14px 20px 10px}
+.dk-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+@media (max-width:560px){.dk-opts{grid-template-columns:1fr}}
+.dk-opt{display:flex;align-items:center;gap:9px;padding:10px 12px;
+  border:1px solid var(--dk-bd);border-radius:8px;background:var(--color-surface);
+  font-size:13.5px;font-weight:600;color:var(--dk-t1);cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.dk-opt:has(input:checked){border-color:var(--dk-jade);
+  box-shadow:inset 0 0 0 1px var(--dk-jade)}
+.dk-opt input{width:16px;height:16px;flex:none;accent-color:var(--dk-jade);margin:0}
+.post-content .dk-hint{font-size:13px;line-height:1.55;color:var(--dk-t2);margin:0 0 6px}
+.dk-panel{padding:11px 13px;margin:0 0 8px;background:var(--color-surface);
+  border-left:3px solid var(--dk-jade);border-radius:0 6px 6px 0}
+.dk-panel-h{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--dk-jade);margin-bottom:4px}
+.dk-panel p{font-size:13.5px;line-height:1.6;color:var(--dk-t2);margin:0}
+.post-content .dk-always{font-size:13.5px;line-height:1.6;font-weight:600;
+  color:var(--dk-t1);margin:10px 0 6px}
+.post-content .dk-note{font-size:12px;line-height:1.5;color:var(--color-muted);margin:8px 0 6px}
+.dk-foot{padding:10px 20px 13px;border-top:1px solid var(--dk-bd);background:var(--color-surface)}
+</style>
