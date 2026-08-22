@@ -87,6 +87,18 @@ python rising-rates.py</code></pre>
 </div>
 
 <style is:global>
+/* The audit surface ships folded: it is the trust signature, not the read.
+   The one-line summary keeps the promise visible; opening it is opt-in. */
+.post-content details.rc-fold{margin:26px 0;border:1px solid var(--color-border);
+  border-radius:12px;background:#fff;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04)}
+.post-content .rc-fold>summary{cursor:pointer;padding:14px 20px;font-size:14.5px;
+  font-weight:700;color:var(--color-dark);background:var(--color-surface);
+  border-radius:12px;list-style-position:inside}
+.post-content .rc-fold>summary::marker{color:var(--color-brand-700)}
+.post-content .rc-fold[open]>summary{border-bottom:1px solid var(--color-border);
+  border-radius:12px 12px 0 0}
+.post-content .rc-fold .rc-a{margin:0;border:0;box-shadow:none;border-radius:0 0 12px 12px}
 .rc-a{
   --rca-bd:var(--color-border); --rca-t1:var(--color-dark); --rca-t2:var(--color-body);
   --rca-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
