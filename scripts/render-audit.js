@@ -379,7 +379,75 @@
       });
     }
 
-    // ---- 8. title length -------------------------------------------------
+    // ---- 8. no rendered link may carry a serialised undefined ------------
+    // Four articles shipped share links whose prefilled text began with the
+    // literal word "undefined" — a bare component call site, invisible to
+    // every static check and to this audit's other assertions, caught in a
+    // real WhatsApp compose box (22 Aug 2026). Inside an href, "undefined"
+    // or "null" is always a serialised bug, never content. Page-wide scan,
+    // deliberately wider than `root`: the defect lived in a share row that a
+    // template may render outside the article body.
+    var badHrefs = [];
+    Array.prototype.forEach.call(document.querySelectorAll('a[href]'), function (a) {
+      var h = a.getAttribute('href') || '';
+      if (/\bundefined\b|\bnull\b/.test(h)) {
+        badHrefs.push({ el: describe(a), href: h.slice(0, 90) });
+      }
+    });
+    if (badHrefs.length) {
+      failures.push({
+        check: 'href-undefined',
+        detail: badHrefs.length + ' link(s) contain a serialised undefined/null — a prop missing at some call site.',
+        elements: badHrefs.slice(0, 6),
+      });
+    }
+
+    // ---- 9. absolutely-positioned labels must not overlap ----------------
+    // Chart labels are HTML positioned over plots by percentage. Twice in one
+    // session two of them collided — six year ticks across a 200px phone plot,
+    // then two gutter values on a short plot — and both reached human review
+    // before anything caught them. Any two absolutely-positioned text labels
+    // whose rectangles genuinely intersect (beyond a 2px kiss) are a defect.
+    var absLabels = [];
+    Array.prototype.forEach.call(root.querySelectorAll('*'), function (el) {
+      var cs = getComputedStyle(el);
+      if (cs.position !== 'absolute') return;
+      if (cs.display === 'none' || cs.visibility === 'hidden') return;
+      var text = (el.innerText || '').trim();
+      if (!text) return;
+      // Leaf labels only: a positioned container holding other positioned
+      // labels is layout, and its box legitimately spans its children.
+      var holdsAbs = Array.prototype.some.call(el.querySelectorAll('*'), function (c) {
+        return getComputedStyle(c).position === 'absolute';
+      });
+      if (holdsAbs) return;
+      var r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) return;
+      absLabels.push({ d: describe(el), t: text.slice(0, 18), r: r });
+    });
+    var labelClashes = [];
+    for (var li = 0; li < absLabels.length; li++) {
+      for (var lj = li + 1; lj < absLabels.length; lj++) {
+        var LA = absLabels[li].r, LB = absLabels[lj].r;
+        var lox = Math.min(LA.right, LB.right) - Math.max(LA.left, LB.left);
+        var loy = Math.min(LA.bottom, LB.bottom) - Math.max(LA.top, LB.top);
+        if (lox > 2 && loy > 2) {
+          labelClashes.push({
+            a: absLabels[li].d + ' "' + absLabels[li].t + '"',
+            b: absLabels[lj].d + ' "' + absLabels[lj].t + '"',
+          });
+        }
+      }
+    }
+    if (labelClashes.length) {
+      failures.push({
+        check: 'label-overlap',
+        detail: labelClashes.length + ' pair(s) of absolutely-positioned labels overlap — reposition, thin, or hide one at this width.',
+        elements: labelClashes.slice(0, 6),
+      });
+    }
+
+    // ---- 10. title length ------------------------------------------------
     var title = (document.title || '').trim();
     measured.title = title;
     measured.titleLength = title.length;
