@@ -2,13 +2,18 @@
 import { Icon } from 'astro-icon/components';
 
 interface Props {
-  title: string;
+  title?: string;
   pageUrl?: string;
   prompt?: string;
 }
 
 const {
-  title,
+  // Optional with a safe default, deliberately. Four articles called this
+  // component bare and every share text began with the word "undefined" —
+  // caught in a real WhatsApp compose box, 22 Aug 2026. With no title the
+  // links now carry just the URL, and the script below upgrades them from
+  // document.title on load.
+  title = '',
   pageUrl = Astro.url.href,
   // A labelled ask, not a bare row of glyphs. Unlabelled icons in a corner read
   // as page furniture and get skipped; naming the action is the single biggest
@@ -18,6 +23,9 @@ const {
 
 const encoded = encodeURIComponent(pageUrl);
 const encodedTitle = encodeURIComponent(title);
+const waText = encodeURIComponent(title ? `${title} ${pageUrl}` : pageUrl);
+const mailSubject = encodeURIComponent(title || 'Worth a read');
+const mailBody = title ? `${encodedTitle}%0A%0A${encoded}` : encoded;
 
 // Ordered for a Singapore readership rather than alphabetically or by global
 // market share: WhatsApp and Telegram are how this audience actually forwards
@@ -36,12 +44,12 @@ const shares = [
   {
     icon:  'bi:whatsapp',
     label: 'Share on WhatsApp',
-    href:  `https://api.whatsapp.com/send?text=${encodedTitle}%20${encoded}`,
+    href:  `https://api.whatsapp.com/send?text=${waText}`,
   },
   {
     icon:  'bi:telegram',
     label: 'Share on Telegram',
-    href:  `https://t.me/share/url?url=${encoded}&text=${encodedTitle}`,
+    href:  `https://t.me/share/url?url=${encoded}${title ? `&text=${encodedTitle}` : ''}`,
   },
   {
     // share-offsite is LinkedIn's current endpoint; the older shareArticle one
@@ -53,7 +61,7 @@ const shares = [
   {
     icon:  'bi:twitter-x',
     label: 'Share on X',
-    href:  `https://x.com/intent/post?url=${encoded}&text=${encodedTitle}`,
+    href:  `https://x.com/intent/post?url=${encoded}${title ? `&text=${encodedTitle}` : ''}`,
   },
   {
     icon:  'bi:facebook',
@@ -65,7 +73,7 @@ const shares = [
     // everywhere and needs no third party.
     icon:  'bi:envelope-fill',
     label: 'Share by email',
-    href:  `mailto:?subject=${encodedTitle}&body=${encodedTitle}%0A%0A${encoded}`,
+    href:  `mailto:?subject=${mailSubject}&body=${mailBody}`,
   },
 ];
 ---
@@ -206,6 +214,20 @@ const shares = [
   document.querySelectorAll<HTMLElement>('[data-share]').forEach((root) => {
     const url = root.dataset.shareUrl || location.href;
     const title = root.dataset.shareTitle || document.title;
+
+    // A bare call site rendered these links with no title at build time;
+    // upgrade them from the page's own title so the share text reads properly.
+    if (!root.dataset.shareTitle && title) {
+      const u = encodeURIComponent(url);
+      const t = encodeURIComponent(title);
+      root.querySelectorAll<HTMLAnchorElement>('a.ts-btn').forEach((a) => {
+        const l = a.getAttribute('aria-label') || '';
+        if (l.includes('WhatsApp')) a.href = `https://api.whatsapp.com/send?text=${t}%20${u}`;
+        else if (l.includes('Telegram')) a.href = `https://t.me/share/url?url=${u}&text=${t}`;
+        else if (l.includes('on X')) a.href = `https://x.com/intent/post?url=${u}&text=${t}`;
+        else if (l.includes('email')) a.href = `mailto:?subject=${t}&body=${t}%0A%0A${u}`;
+      });
+    }
     const toast = root.querySelector<HTMLElement>('[data-share-toast]');
     let timer: ReturnType<typeof setTimeout>;
 
