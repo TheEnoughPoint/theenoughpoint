@@ -99,6 +99,10 @@ python rising-rates.py</code></pre>
 .post-content .rc-fold[open]>summary{border-bottom:1px solid var(--color-border);
   border-radius:12px 12px 0 0}
 .post-content .rc-fold .rc-a{margin:0;border:0;box-shadow:none;border-radius:0 0 12px 12px}
+/* Plain-markdown fold bodies (the Sources list) need their own padding, since
+   they arrive without a card component inside. */
+.post-content .rc-fold .rc-fold-body{padding:14px 20px 6px}
+.post-content .rc-fold .rc-fold-body>p:first-child{margin-top:0}
 .rc-a{
   --rca-bd:var(--color-border); --rca-t1:var(--color-dark); --rca-t2:var(--color-body);
   --rca-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
