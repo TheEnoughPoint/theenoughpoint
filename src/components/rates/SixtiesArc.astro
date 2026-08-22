@@ -69,7 +69,9 @@ const XT = [
           <polyline points={REAL} fill="none" stroke="#0B1D33" stroke-width="2.5"
                     stroke-linejoin="round" vector-effect="non-scaling-stroke" />
         </svg>
-        <span class="sa-trough" style="left:56.25%;top:89%">Dec 1974: $60</span>
+        <i class="sa-tr-dot" style="left:56.25%;top:95.37%" aria-hidden="true"></i>
+        <i class="sa-tr-lead" style="left:56.25%;top:86%;height:8%" aria-hidden="true"></i>
+        <span class="sa-trough" style="left:56.25%;top:85.5%">the 1974 low: $60</span>
       </div>
       <div class="sa-endcol" aria-hidden="true">
         <span class="sa-endv nom" style="top:9.89%"><b>$253</b>on paper</span>
@@ -143,9 +145,17 @@ const XT = [
   font-variant-numeric:tabular-nums}
 .sa-endv.nom{color:var(--sa-nom);border-color:var(--sa-nom)}
 .sa-endv.real{color:var(--sa-real);border-color:var(--sa-real)}
-/* The 1974 trough note is garnish; on narrow screens it crowds the plot, and
-   the aria narration already carries the $60 fact. */
-@media (max-width:520px){.sa-trough{display:none}}
+/* The 1974 annotation anchors to its point: a dot on the after-inflation
+   line's low, a hairline leader, and the label above — floating text with no
+   anchor read as a mystery caption. HTML dot, not SVG: a circle inside the
+   stretched viewBox would render as an ellipse. Hidden on narrow screens,
+   where it crowds the plot; the aria narration carries the $60 fact. */
+@media (max-width:520px){.sa-trough,.sa-tr-dot,.sa-tr-lead{display:none}}
+.sa-tr-dot{position:absolute;width:9px;height:9px;border-radius:50%;
+  background:var(--sa-real);border:2px solid #fff;transform:translate(-50%,-50%);
+  box-shadow:0 0 0 1px rgba(11,29,51,.25)}
+.sa-tr-lead{position:absolute;width:1.5px;background:var(--color-muted);
+  transform:translateX(-50%);opacity:.55}
 .sa-trough{position:absolute;transform:translate(-50%,-100%);font-size:11px;
   color:var(--color-muted);background:rgba(255,255,255,.85);padding:0 4px;
   border-radius:3px;white-space:nowrap}
