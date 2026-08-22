@@ -82,6 +82,39 @@ Read the rendered page as a stranger would. Ask these out loud.
 8. **Read the opening paragraph alone.** Does it describe a person or a
    situation the reader recognises, or does it start with mechanism?
 
+*Added 2026-08-22, each from a defect that reached owner review on the
+rising-rates piece:*
+
+9. **Could any label be read as a different variable than the one plotted?**
+   "10-year higher" reads as *price* to half the room, and with bonds a price
+   reading inverts the finding. Name the measured variable — yield, price,
+   nominal, real, level, change — on every exhibit surface, even where nearby
+   prose already has. An exhibit travels without its prose.
+
+10. **Does an exhibit that shows X failing answer "compared to what?" on the
+    same surface?** Shares losing purchasing power argued for hiding — until
+    the hiding places were drawn and turned out worse. An unfavourable fact
+    without its alternatives steers the reader to the wrong conclusion.
+
+11. **Does every paragraph hand the reader something they did not have** — a
+    number, a boundary, an action? Restating the thesis, or duplicating an
+    on-page component in prose, is furniture. Two section paragraphs and two
+    closing bullets fell to this question in a single review.
+
+12. **Would the sentence survive the reader not knowing the person named?**
+    Names the reader does not know live in Sources, not body prose — a
+    paragraph crediting an unfamiliar analyst's checklist needed its own
+    disclaimer and still read as an interruption.
+
+13. **Do any two sections contradict each other?** One section implied REIT
+    borrowing costs were rising while the next said local rates had fallen.
+    Read each section's claims against every other section's — the writer is
+    blindest here and the reader sharpest.
+
+14. **Does every figure that will decay carry a live source within reach?**
+    As-at dates alone strand the future reader; a "the live numbers are a
+    click away" line with verified links is the pattern.
+
 ## Part 3 — before the PR
 
 - `npm run build` clean.
