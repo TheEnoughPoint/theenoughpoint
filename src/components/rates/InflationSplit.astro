@@ -43,7 +43,7 @@ const cell = (dir, infl) => CELLS.find((c) => c.dir === dir && c.infl === infl);
         <>
           <div class="is2-row" role="rowheader">
             <i class={`is2-sw ${dir}`}></i>
-            <span>10-year <b>{dir === 'up' ? 'higher' : 'lower'}</b> than a year earlier</span>
+            <span>10-year <b>yield {dir === 'up' ? 'higher' : 'lower'}</b> than a year earlier</span>
           </div>
           {['cool', 'hot'].map((infl) => {
             const c = cell(dir, infl);
