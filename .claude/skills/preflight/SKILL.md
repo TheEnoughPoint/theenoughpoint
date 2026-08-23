@@ -117,6 +117,13 @@ rising-rates piece:*
 
 ## Part 3 — before the PR
 
+- `python scripts/prose-audit.py src/content/blog/<slug>.mdx` at 0 fail for a
+  new or materially rewritten article — run it first; it needs no build. It
+  gates prose density (sentence and paragraph load), with advisories for
+  plain-English lines and takeaway length. Thresholds and their calibration
+  doctrine live in the script's header: rising-rates passes, the pre-retrofit
+  gold piece fails, and on the day it was written every other substantive
+  article in the catalogue passed — treat a failure as signal, not noise.
 - `npm run build` clean.
 - `python C:/dev/scripts/check_page.py dist/<slug>/index.html` at 0 fail.
 - `python scripts/link-sweep.py` clean (site-wide: serialised undefined in

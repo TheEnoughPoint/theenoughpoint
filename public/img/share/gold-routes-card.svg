@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" role="img" aria-label="Five rows, one per way to own gold in Singapore. Physical bullion: the metal itself, GST-free since 2012, costs spread plus storage; your family must know where it is. Bank gold account: a claim on the bank at 0.25 per cent a year; converting to metal costs 100 dollars per 100 gram bar. SGX gold ETFs: trust units on allocated bars at 0.39 to 0.40 per cent; the US wrapper carries an unsettled US death-tax question, the Singapore wrapper never asks. Overseas funds: the same trusts plus Europe's ETCs, fund fee plus FX; the US estate question applies in full. Gold miners: businesses that multiply gold's moves both ways, 0.51 to 0.53 per cent; plus 155 per cent in 2025 against gold's 64, minus 77 per cent across 2011 to 2016 against gold's 43. Caption: they are five different assets, not five wrappers on one thing.">
+  <!-- Share card for the gold-routes piece — the piece's single strongest atom
+       (the five-route taxonomy itself) as a self-contained 4:5 portrait for
+       WhatsApp / Telegram / Instagram forwards.
+
+       Glance grammar: one row per route, the published running cost as the
+       big figure, one "what you own" line and one catch line each. All five
+       cells stay one neutral tint (C10: no colour grades a route as good or
+       bad); costs are the piece's honest column, stated, never ranked.
+       Provenance travels on the image: basis, as-at, sources, URL. -->
+
+  <rect width="1080" height="1350" fill="#081627"/>
+  <rect width="1080" height="1350" fill="#0E2038" opacity="0.55"/>
+
+  <!-- kicker -->
+  <text x="540" y="88" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="26" letter-spacing="4" fill="#C89A3C" font-weight="700">YOU WANT GOLD.</text>
+
+  <!-- headline -->
+  <text x="540" y="170" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="76" fill="#F6F4EF">Which gold?</text>
+  <text x="540" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="25" fill="#F6F4EF" opacity="0.7">Five ways to own it in Singapore — what you own, what it runs you, the catch</text>
+
+  <!-- row 1: physical -->
+  <rect x="60" y="252" width="960" height="140" rx="14" fill="#10233D" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="88" y="296" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        font-weight="700" letter-spacing="1.5" fill="#C89A3C">PHYSICAL BULLION</text>
+  <text x="992" y="298" text-anchor="end" font-family="Georgia, 'Times New Roman', serif"
+        font-size="30" font-weight="700" fill="#F6F4EF">spread + storage</text>
+  <text x="88" y="336" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        fill="#F6F4EF" opacity="0.9">The metal itself. GST-free since 2012 at 99.5% purity or higher.</text>
+  <text x="88" y="370" font-family="Arial, Helvetica, sans-serif" font-size="21"
+        fill="#F6F4EF" opacity="0.6">The catch: your family must know where it is, and how to reach it.</text>
+
+  <!-- row 2: bank account -->
+  <rect x="60" y="404" width="960" height="140" rx="14" fill="#10233D" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="88" y="448" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        font-weight="700" letter-spacing="1.5" fill="#C89A3C">BANK GOLD ACCOUNT</text>
+  <text x="992" y="450" text-anchor="end" font-family="Georgia, 'Times New Roman', serif"
+        font-size="30" font-weight="700" fill="#F6F4EF">0.25%/yr</text>
+  <text x="88" y="488" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        fill="#F6F4EF" opacity="0.9">A claim on the bank — grams on record, no bars in your name.</text>
+  <text x="88" y="522" font-family="Arial, Helvetica, sans-serif" font-size="21"
+        fill="#F6F4EF" opacity="0.6">The catch: converting to metal costs S$100 per 100 g bar.</text>
+
+  <!-- row 3: SGX ETFs -->
+  <rect x="60" y="556" width="960" height="140" rx="14" fill="#10233D" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="88" y="600" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        font-weight="700" letter-spacing="1.5" fill="#C89A3C">SGX GOLD ETFs</text>
+  <text x="992" y="602" text-anchor="end" font-family="Georgia, 'Times New Roman', serif"
+        font-size="30" font-weight="700" fill="#F6F4EF">0.39&#8211;0.40%/yr</text>
+  <text x="88" y="640" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        fill="#F6F4EF" opacity="0.9">Trust units on allocated bars — US trust (CPF-eligible) or SG (SRS).</text>
+  <text x="88" y="674" font-family="Arial, Helvetica, sans-serif" font-size="21"
+        fill="#F6F4EF" opacity="0.6">The catch: US wrapper, unsettled US death-tax question — SG never asks.</text>
+
+  <!-- row 4: overseas funds -->
+  <rect x="60" y="708" width="960" height="140" rx="14" fill="#10233D" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="88" y="752" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        font-weight="700" letter-spacing="1.5" fill="#C89A3C">OVERSEAS-LISTED FUNDS</text>
+  <text x="992" y="754" text-anchor="end" font-family="Georgia, 'Times New Roman', serif"
+        font-size="30" font-weight="700" fill="#F6F4EF">fund fee + FX</text>
+  <text x="88" y="792" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        fill="#F6F4EF" opacity="0.9">The same trusts in New York size, plus Europe&#8217;s gold ETCs.</text>
+  <text x="88" y="826" font-family="Arial, Helvetica, sans-serif" font-size="21"
+        fill="#F6F4EF" opacity="0.6">The catch: the US estate question in full — no clean Irish fix for gold.</text>
+
+  <!-- row 5: miners -->
+  <rect x="60" y="860" width="960" height="140" rx="14" fill="#10233D" stroke="#1E3A5F" stroke-width="2"/>
+  <text x="88" y="904" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        font-weight="700" letter-spacing="1.5" fill="#C89A3C">GOLD MINERS</text>
+  <text x="992" y="906" text-anchor="end" font-family="Georgia, 'Times New Roman', serif"
+        font-size="30" font-weight="700" fill="#F6F4EF">0.51&#8211;0.53%/yr</text>
+  <text x="88" y="944" font-family="Arial, Helvetica, sans-serif" font-size="24"
+        fill="#F6F4EF" opacity="0.9">Businesses, not metal — they multiply gold&#8217;s moves both ways.</text>
+  <text x="88" y="978" font-family="Arial, Helvetica, sans-serif" font-size="21"
+        fill="#F6F4EF" opacity="0.6">2025: +155% vs gold +64%. 2011&#8211;16: &#8722;77% vs &#8722;43%. Size as equities.</text>
+
+  <!-- killer line -->
+  <text x="540" y="1064" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="42" fill="#C89A3C">Five different assets —</text>
+  <text x="540" y="1118" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="42" fill="#C89A3C">not five wrappers on one thing.</text>
+  <text x="540" y="1168" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="24" fill="#F6F4EF" opacity="0.75">Pick by the job you are hiring it for, then price it.</text>
+
+  <!-- provenance -->
+  <text x="540" y="1218" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="21" fill="#F6F4EF" opacity="0.55">Published charges, as at 6 Aug 2026 &#183; IRAS, UOB, SSGA, Lion Global, VanEck, SGX, CPF Board</text>
+  <text x="540" y="1250" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="21" fill="#F6F4EF" opacity="0.55">Named products are checkable examples, not recommendations &#183; full sourcing and calculator on the article</text>
+
+  <!-- url + wordmark -->
+  <text x="540" y="1300" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="26" font-weight="700" fill="#C89A3C">theenoughpoint.com/ways-to-own-gold-singapore</text>
+  <text x="540" y="1336" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="17" letter-spacing="4.2" fill="#F6F4EF" opacity="0.6">THEENOUGHPOINT.COM</text>
+</svg>
