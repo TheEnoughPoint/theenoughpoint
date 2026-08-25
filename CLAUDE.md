@@ -95,6 +95,12 @@ Use anonymous author identities:
   `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` repo secrets. No manual step
   needed for normal publishing. Cloudflare's own "Automatic deployments" is
   paused on the project to avoid two systems deploying the same push.
+- The deploy workflow gates on `python scripts/seo-audit.py` and the offline
+  `python scripts/link-sweep.py` between build and deploy: titles,
+  descriptions, canonical ↔ sitemap agreement, alt text, structured data and
+  internal links. A red deploy keeps the previous version live — read the
+  Actions log, fix on a branch, merge again. Run both gates locally after
+  `npm run build` before merging; `/preflight` includes them.
 - Emergency fallback only, if the Actions deploy ever fails: run these two
   lines locally from an up-to-date `main` (needs `wrangler login` or a
   `CLOUDFLARE_API_TOKEN` env var with Cloudflare Pages: Edit permission):
