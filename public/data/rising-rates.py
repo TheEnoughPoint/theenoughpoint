@@ -1,6 +1,6 @@
 """
-Reproduce every computed figure in "Rates Are Rising Again. Does the Bull Market
-Have to Break?" — theenoughpoint.com/rising-rates-bull-market/
+Reproduce every computed figure in "Rates Are Rising Again. Is the Market About
+to Crash?" — theenoughpoint.com/rates-rising-market-about-to-crash/
 
 Run it and it will download the two public datasets itself, recompute the numbers
 from scratch, and check them against what the article published. If a line prints

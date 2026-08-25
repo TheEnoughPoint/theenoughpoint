@@ -14,8 +14,9 @@ sixth, average paragraph 83 words against 64, and zero plain-English
 translation lines against four.
 
 Calibration doctrine: thresholds are set from the worked pair, not from a
-readability formula. rising-rates-bull-market.mdx must PASS -- it is the
-engagement standard's worked example and holds full rigour at these levels.
+readability formula. rates-rising-market-about-to-crash.mdx must PASS --
+it is the engagement standard's worked example and holds full rigour at
+these levels.
 ways-to-own-gold-singapore.mdx (pre-retrofit) must FAIL -- it is the escape
 that created this gate. If you loosen or tighten a threshold, re-run with
 --all and say in the PR which articles changed side and why that is right.
