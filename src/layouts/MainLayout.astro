@@ -89,8 +89,11 @@ const schema = article
 // Breadcrumb markup mirrors the visible meta row (category link) so search
 // results can show the trail. The last item is the page itself, on the same
 // canonical URL the head declares — one URL form everywhere.
+// Directory-built pages canonicalise with a trailing slash; the breadcrumb
+// must use that same form or the schema argues with the canonical tags.
+const withSlash = (href) => (href.endsWith('/') ? href : href + '/');
 const crumbTail = article?.section && article?.sectionUrl
-  ? [{ name: article.section, item: new URL(article.sectionUrl, site).href }]
+  ? [{ name: article.section, item: withSlash(new URL(article.sectionUrl, site).href) }]
   : [];
 const breadcrumb = article
   ? {

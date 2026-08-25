@@ -361,8 +361,16 @@ def check_article_schema(rel, canon, nodes, types, failures):
             fail.append((rel, "breadcrumb positions not contiguous from 1: " + str(positions)))
         for c in items:
             item = c.get("item")
-            if isinstance(item, str) and item.startswith(SITE) and not resolves(item):
+            if not (isinstance(item, str) and item.startswith(SITE)):
+                continue
+            if not resolves(item):
                 fail.append((rel, "breadcrumb points at an unbuilt page: " + item[:70]))
+            elif not urlsplit(item).path.endswith("/") and (
+                    DIST / urlsplit(item).path.lstrip("/") / "index.html").exists():
+                # Directory-built pages canonicalise with a trailing slash; a
+                # breadcrumb on the slashless form is the schema disagreeing
+                # with the canonical tag. Caught live on the first build.
+                fail.append((rel, "breadcrumb URL not in canonical form: " + item[:70]))
 
 
 def load_sitemap(failures):
