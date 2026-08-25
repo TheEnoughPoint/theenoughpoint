@@ -1,0 +1,5 @@
+# Cloudflare Pages reads this file from the deploy output (public/ is copied
+# into dist/ at build). Add a line here whenever a published article's slug
+# changes — otherwise the old URL 404s for every link already shared.
+/rising-rates-bull-market/ /rates-rising-market-about-to-crash/ 301
+/rising-rates-bull-market /rates-rising-market-about-to-crash/ 301
