@@ -115,7 +115,28 @@ rising-rates piece:*
     As-at dates alone strand the future reader; a "the live numbers are a
     click away" line with verified links is the pattern.
 
-## Part 3 — before the PR
+## Part 3 — weave the piece into the catalogue
+
+Links are content, not plumbing. A page nothing links to is invisible to
+crawlers and to readers arriving anywhere else on the site. For a new or
+materially rewritten article:
+
+1. **Find 3–5 existing pages that should link TO the new piece, and add the
+   links.** Grep the catalogue for the topic's terms
+   (`rg -il "<topic terms>" src/content/blog`), then place each link where a
+   reader of that older piece would actually want it — beside the claim it
+   extends, not in a "see also" dump. Listing candidates without editing them
+   is not this step.
+2. **Give the new piece 3–5 links to older articles**, wherever one of its
+   claims touches ground an earlier piece already covered properly. The
+   related-articles block does not count; it is category-mechanical.
+3. **Read the seo-audit "possible keyword overlap" advisory for the new
+   slug** (it prints after the failures — the cannibalisation check). Two
+   pieces chasing the same query split its ranking between them; either
+   sharpen the titles until they target different phrases, or fold the weaker
+   piece into the stronger one.
+
+## Part 4 — before the PR
 
 - `python scripts/prose-audit.py src/content/blog/<slug>.mdx` at 0 fail for a
   new or materially rewritten article — run it first; it needs no build. It
@@ -125,6 +146,13 @@ rising-rates piece:*
   gold piece fails, and on the day it was written every other substantive
   article in the catalogue passed — treat a failure as signal, not noise.
 - `npm run build` clean.
+- `python scripts/seo-audit.py` at 0 failures (site-wide, needs the build):
+  title and description presence and uniqueness, canonical ↔ sitemap
+  agreement in the same URL form, alt text, and the BlogPosting /
+  BreadcrumbList / Organization structured data. Canonical consistency is
+  the point of the sitemap checks: Google picks the representative URL from
+  signals including redirects, sitemap membership and rel=canonical, and
+  those signals only help when they agree.
 - `python C:/dev/scripts/check_page.py dist/<slug>/index.html` at 0 fail.
 - `python scripts/link-sweep.py` clean (site-wide: serialised undefined in
   hrefs, internal links to unbuilt targets, share-link titles, host-form
@@ -135,10 +163,18 @@ rising-rates piece:*
   accurately. A rewrite can leave that prompt describing a page that no longer
   exists.
 
+The deploy workflow re-runs `seo-audit.py` and the offline `link-sweep.py`
+between build and deploy, so a defect that slips past this checklist stops the
+deploy rather than shipping — the previous version of the site stays live. A
+red deploy on main means one of those two gates found something: read the
+Actions log, fix on a branch, merge again.
+
 ## Adding a check
 
 When a defect gets through, add its assertion to `scripts/render-audit.js`
-rather than remembering it. The file is the accumulated list of everything this
-site has got wrong once. Verify any new check against a page you know is clean
+(defects only the rendered page shows) or `scripts/seo-audit.py` (defects in
+the built HTML's head, metadata or structured data) rather than remembering
+it. Those files are the accumulated list of everything this site has got
+wrong once. Verify any new check against a page you know is clean
 before trusting it — the audit itself shipped three false-positive classes on
 its first run, and a checker that cries wolf gets ignored.

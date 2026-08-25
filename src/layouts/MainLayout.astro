@@ -18,6 +18,9 @@ export interface ArticleMeta {
   authorUrl:  string;
   image?:     string;
   section?:   string;
+  /** Root-relative URL of the section's category page, e.g. "/invest-better".
+   *  Feeds the BreadcrumbList schema; omit and the trail is Home → article. */
+  sectionUrl?: string;
   tags?:      string[];
 }
 
@@ -82,6 +85,40 @@ const schema = article
       url: site.href,
       inLanguage: 'en-SG',
     };
+
+// Breadcrumb markup mirrors the visible meta row (category link) so search
+// results can show the trail. The last item is the page itself, on the same
+// canonical URL the head declares — one URL form everywhere.
+const crumbTail = article?.section && article?.sectionUrl
+  ? [{ name: article.section, item: new URL(article.sectionUrl, site).href }]
+  : [];
+const breadcrumb = article
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { name: 'Home', item: site.href },
+        ...crumbTail,
+        { name: article.headline, item: canonical },
+      ].map((c, i) => ({ '@type': 'ListItem', position: i + 1, ...c })),
+    }
+  : null;
+
+// A standalone Organization node belongs on one page only — the homepage —
+// so crawlers find a single authoritative record rather than one per page.
+// No sameAs: the footer's social links are placeholders, and schema pointing
+// at profiles that do not exist is worse than none.
+const organization = Astro.url.pathname === '/'
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'TheEnoughPoint',
+      url: site.href,
+      logo: { '@type': 'ImageObject', url: new URL('/img/brand/og-image.jpg', site).href },
+    }
+  : null;
+
+const schemaBlocks = [schema, breadcrumb, organization].filter(Boolean);
 ---
 
 <!DOCTYPE html>
@@ -117,7 +154,7 @@ const schema = article
     <meta name="twitter:image" content={shareImage} />
     <meta name="twitter:image:alt" content={shareImageAlt} />
 
-    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(schemaBlocks.length === 1 ? schemaBlocks[0] : schemaBlocks)} />
 
     <slot name="head" />
     <Font cssVariable="--font-heading" preload />

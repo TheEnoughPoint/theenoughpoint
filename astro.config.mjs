@@ -2,6 +2,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://theenoughpoint.com',
@@ -10,6 +11,11 @@ export default defineConfig({
   },
   integrations: [
     mdx(),
+    // Google treats redirects, sitemap membership and rel=canonical as one set
+    // of signals when choosing which duplicate URL represents a page — the
+    // sitemap must therefore carry the same URL forms the canonical tags use.
+    // scripts/seo-audit.py asserts that agreement on every build.
+    sitemap(),
     icon({
       include: {
         bi: [

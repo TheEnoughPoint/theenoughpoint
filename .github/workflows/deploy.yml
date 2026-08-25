@@ -30,6 +30,15 @@ jobs:
       - name: Build Astro site
         run: npm run build
 
+      # A red gate keeps the previous version of the site live instead of
+      # shipping the defect. Offline checks only — external-link probing
+      # stays in preflight, where a third party's outage cannot block a
+      # deploy. Both scripts are stdlib-only Python.
+      - name: Publish gate (SEO audit + link sweep)
+        run: |
+          python3 scripts/seo-audit.py
+          python3 scripts/link-sweep.py
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:

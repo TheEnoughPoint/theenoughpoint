@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.0",
+    "@astrojs/sitemap": "^3.7.3",
     "@iconify-json/bi": "^1.2.7",
     "@tailwindcss/vite": "^4.3.1",
     "alpinejs": "^3.15.8",
