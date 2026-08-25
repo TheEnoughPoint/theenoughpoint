@@ -7,6 +7,9 @@ dist/
 # Astro generated types and cache
 .astro/
 
+# Python bytecode cache (regenerated automatically by the interpreter)
+__pycache__/
+
 # OS files
 .DS_Store
 Thumbs.db
