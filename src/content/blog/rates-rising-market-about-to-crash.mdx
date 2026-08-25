@@ -30,6 +30,7 @@ import RatesCheck from '@src/components/rates/RatesCheck.astro';
 import DoorCheck from '@src/components/rates/DoorCheck.astro';
 import SixtiesArc from '@src/components/rates/SixtiesArc.astro';
 import SocialShare from '@src/components/SocialShare.astro';
+import ToolFrame from '@src/components/ToolFrame.astro';
 
 **The 30-year US Treasury yield touched 5.31% on 17 August, a level last seen in 2007. The 10-year closed the week at 4.74%, a hundredth of a point from its high for the year. Shares sit within 2% of the record they set the week before — and the coverage has decided these two facts cannot coexist for long.**
 
@@ -53,7 +54,7 @@ That is the strongest version. Now the record.
 
 The test is simple enough to state in one sentence. Take every month since April 1954 — the start of the Fed's modern 10-year yield series — look back twelve months to see whether the yield rose or fell, then look forward twelve months at what US shares actually returned, dividends reinvested. That gives 819 usable months, ending with the June 2022 start, which is where our share series runs out of forward room.
 
-<YieldNext />
+<ToolFrame><YieldNext /></ToolFrame>
 
 Read that again, because it is the whole first half of the argument. Months that followed a <em>rise</em> in the 10-year yield — the thing the headlines treat as a warning shot — went on to deliver a median +11.9% over the following year, and a positive outcome 74 times in 100. Months that followed a fall did a little better. The gap between them is small enough that resampling the data in blocks swallows it whole.
 
@@ -71,7 +72,7 @@ Now the concession, because it is large and it is the honest half of the piece. 
 
 Since 1954 there have been 21 calendar years in which the 10-year yield rose by half a point or more. Here are all of them — the size of the rise, what shares returned, and one more number the headlines rarely print beside them.
 
-<RateYears />
+<ToolFrame><RateYears /></ToolFrame>
 
 Six losing years out of 21. Look at where they sit. 1969, 1974, 1977, 1981: the great inflation. 2022: inflation at 6.5%, the fastest hiking cycle in four decades, starting from a yield of 1.5% — an episode we would take seriously as the template for a repeat, if its ingredients were present. And 1987, the crash year, which for all its drama ended the calendar a tenth of a point from flat.
 
@@ -81,13 +82,13 @@ Every losing year carries inflation above 4%. And the reverse reads even better:
 
 That pattern is not a coincidence of six data points. Sort all 819 months both ways at once — by yield direction and by the inflation behind it — and measure what the next year returned <em>after</em> inflation, which is the only basis your future spending cares about.
 
-<InflationSplit />
+<ToolFrame><InflationSplit /></ToolFrame>
 
 The columns decide; the rows barely matter. With inflation under 4%, the year after a yield rise beat inflation 74 times in 100. With inflation at 4% or above, that fell to 56 — and here is the part the rate-watchers miss — <em>falling</em> yields in a hot-inflation regime did no better, at 54. The villain was never the yield. It was the inflation the yield was reacting to.
 
 The sixties tell the whole story in one arc, which is why we put them on the cover. Rising rates did not stop shares doubling to 1968. Then inflation arrived in earnest, and from the end of 1965 to the end of 1981 shares returned +153% in nominal terms — a fine-looking brochure number — while losing 15% of their purchasing power. Nobody's statement showed a loss. Everybody got poorer. That is what a hot-inflation regime does: it ruins you politely, in nominal gains that trail the cost of living.
 
-<SixtiesArc />
+<ToolFrame><SixtiesArc /></ToolFrame>
 
 Note where the worst damage landed. Not on the shares everyone fears for — on the bond the fear recommends. Cash held its ground only because short rates kept being reset higher, which is cash's one trick. If a rising long yield ever tempts you to swap the top line for the dashed one, this is the chart to remember.
 
@@ -119,7 +120,7 @@ Everything above is US history, because that is where the long records live and 
 
 In plain English — before adopting an American fear, check which doors you actually own. A reader with a SORA mortgage, a CPF balance and a world index fund is living a very different rate story from the one on CNBC.
 
-<DoorCheck />
+<ToolFrame><DoorCheck /></ToolFrame>
 
 ## So what do you do
 

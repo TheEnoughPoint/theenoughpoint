@@ -1,0 +1,49 @@
+---
+// Decorative frame wrapped around FI's interactive tools (components that
+// self-identify via <ToolBrand />). The header and footer bands are the
+// actual "Your Enough Point Tool Frame.png" artwork, cropped to two raster
+// strips and displayed at width:100% so they scale uniformly with the
+// article column — never stretched to a different aspect ratio, so the
+// baked-in title text never distorts. The middle is live CSS (navy/gold
+// side rails matching the artwork's border colour) so it can hold a tool
+// of any height without the raster needing to stretch.
+import { url } from '@src/utils/path';
+---
+
+<div class="tf">
+  <img class="tf-band" src={url('/img/brand/tool-frame-header.png')} alt="" role="presentation" />
+  <div class="tf-body">
+    <slot />
+  </div>
+  <img class="tf-band" src={url('/img/brand/tool-frame-footer.png')} alt="" role="presentation" />
+</div>
+
+<style is:global>
+.tf{ margin:26px 0; }
+.tf-band{
+  display:block; width:100%; height:auto;
+  /* Sit flush against the middle band — no gap, no overlap. */
+  margin:0;
+}
+.tf-body{
+  border-left:14px solid var(--color-navy);
+  border-right:14px solid var(--color-navy);
+  /* Thin gold inset rails, echoing the artwork's navy+gold double trim. */
+  box-shadow:
+    inset 4px 0 0 var(--color-gold),
+    inset -4px 0 0 var(--color-gold);
+  background:var(--color-cream);
+  padding:22px clamp(14px, 3vw, 28px);
+}
+.tf-body > :first-child{ margin-top:0; }
+.tf-body > :last-child{ margin-bottom:0; }
+@media (max-width:640px){
+  .tf-body{
+    border-left-width:8px; border-right-width:8px;
+    box-shadow:
+      inset 3px 0 0 var(--color-gold),
+      inset -3px 0 0 var(--color-gold);
+    padding:16px 14px;
+  }
+}
+</style>
