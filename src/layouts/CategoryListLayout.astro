@@ -15,6 +15,9 @@ interface Props {
   categoryName: string;
   categorySlug: string;
   description?: string;
+  /** True for a category outside the official pillar taxonomy (see
+   *  src/data/pillarsData.ts) — orphaned, unreachable from any nav link. */
+  noindex?: boolean;
 }
 
 const {
@@ -25,6 +28,7 @@ const {
   categorySlug,
   description = `Explore the latest articles, insights, and resources in the ${categoryName} category.
 Stay informed with expert perspectives, trends, and practical guides.`,
+  noindex = false,
 } = Astro.props;
 
 const pageTitle = currentPage === 1
@@ -38,7 +42,7 @@ const pageDescription = currentPage === 1
 const basePath = `/${categorySlug}`;
 ---
 
-<MainLayout title={pageTitle} description={pageDescription}>
+<MainLayout title={pageTitle} description={pageDescription} noindex={noindex}>
   <HeroCategory title={categoryName} description={description} />
 
   <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">

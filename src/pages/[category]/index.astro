@@ -35,6 +35,10 @@ export async function getStaticPaths() {
         categoryName: known?.label ?? posts[0]?.data.category ?? slug,
         categorySlug: slug,
         description:  known?.description,
+        // Not one of the four official pillars — a leftover from before the
+        // nav restructure, or a future miscategorised article. No nav path
+        // leads here, so it should not show up as a search result either.
+        noindex:      !known,
       },
     };
   });
@@ -46,9 +50,10 @@ interface Props {
   categoryName: string;
   categorySlug: string;
   description?: string;
+  noindex:      boolean;
 }
 
-const { pagePosts, totalPages, categoryName, categorySlug, description } = Astro.props;
+const { pagePosts, totalPages, categoryName, categorySlug, description, noindex } = Astro.props;
 ---
 
 <CategoryListLayout
@@ -58,4 +63,5 @@ const { pagePosts, totalPages, categoryName, categorySlug, description } = Astro
   categoryName={categoryName}
   categorySlug={categorySlug}
   description={description}
+  noindex={noindex}
 />

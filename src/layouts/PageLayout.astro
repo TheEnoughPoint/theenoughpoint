@@ -6,18 +6,19 @@ import TagsWidget from '@src/components/TagsWidget.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
-  page:    CollectionEntry<'pages'>;
-  Content: any;
+  page:     CollectionEntry<'pages'>;
+  Content:  any;
+  noindex?: boolean;
 }
 
-const { page, Content } = Astro.props;
+const { page, Content, noindex = false } = Astro.props;
 const { title, description } = page.data;
 
 const metaTitle       = `${title}`;
 const metaDescription = description ?? title;
 ---
 
-<MainLayout title={metaTitle} description={metaDescription}>
+<MainLayout title={metaTitle} description={metaDescription} noindex={noindex}>
   <div class="container xl:max-w-7xl mx-auto px-4 flex flex-col gap-4 lg:gap-6">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 py-6">
       <!-- Main content -->

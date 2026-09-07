@@ -44,6 +44,7 @@ export async function getStaticPaths() {
           categoryName: known?.label ?? posts[0].data.category,
           categorySlug: slug,
           description:  known?.description,
+          noindex:      !known,
         },
       });
     }
@@ -59,9 +60,10 @@ interface Props {
   categoryName: string;
   categorySlug: string;
   description?: string;
+  noindex:      boolean;
 }
 
-const { pagePosts, totalPages, currentPage, categoryName, categorySlug, description } = Astro.props;
+const { pagePosts, totalPages, currentPage, categoryName, categorySlug, description, noindex } = Astro.props;
 ---
 
 <CategoryListLayout
@@ -71,4 +73,5 @@ const { pagePosts, totalPages, currentPage, categoryName, categorySlug, descript
   categoryName={categoryName}
   categorySlug={categorySlug}
   description={description}
+  noindex={noindex}
 />

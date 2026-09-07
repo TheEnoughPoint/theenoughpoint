@@ -9,4 +9,8 @@ if (!page) throw new Error('MDX page "docs" not found in src/content/pages/');
 const { Content } = await render(page);
 ---
 
-<PageLayout page={page} Content={Content} />
+<!-- Leftover Astromag "Portal theme" placeholder content, not real editorial
+     policy despite the footer label. Excluded from the sitemap and marked
+     noindex until it's rewritten or the footer link is fixed — see the
+     sitemap-readiness report for the full note. -->
+<PageLayout page={page} Content={Content} noindex={true} />

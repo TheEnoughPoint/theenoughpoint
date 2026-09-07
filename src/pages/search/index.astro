@@ -17,6 +17,7 @@ const tagsBase       = url('/tags/');
 <MainLayout
   title="Search"
   description="Search through all blog posts by title, excerpt, category, or tag."
+  noindex={true}
 >
   <div
     x-data={`searchPage(${JSON.stringify(initialQuery)})`}

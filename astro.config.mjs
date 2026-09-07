@@ -15,7 +15,24 @@ export default defineConfig({
     // of signals when choosing which duplicate URL represents a page — the
     // sitemap must therefore carry the same URL forms the canonical tags use.
     // scripts/seo-audit.py asserts that agreement on every build.
-    sitemap(),
+    sitemap({
+      filter: (page) => {
+        const path = new URL(page).pathname;
+        // /search/: a client-rendered results shell with no unique content
+        // per query — Google's own guidance is to keep internal search out
+        // of the index.
+        if (path === '/search/') return false;
+        // /docs/: leftover Astromag "Portal theme" placeholder content,
+        // mislabeled in the footer as Editorial Policy. Excluded from the
+        // sitemap pending a real content decision — not deleted here.
+        if (path === '/docs/') return false;
+        // /finance/: an orphaned category from before the 4-pillar nav
+        // restructure — one article, unreachable from any nav/footer link,
+        // superseded by the real pillar categories.
+        if (path === '/finance/') return false;
+        return true;
+      },
+    }),
     icon({
       include: {
         bi: [
