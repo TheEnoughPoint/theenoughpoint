@@ -1,0 +1,160 @@
+---
+const income = [
+  ['Salary / base work income',50000,false], ['Insurance cash payout received',5000,false],
+  ['Dividends',5000,true], ['Rental income',10000,true], ['Side-business income',5000,false], ['Gig / freelance income',5000,false]
+];
+const expenses = [['Food / groceries',10000],['Subscriptions',1000],['Housing rent / mortgage',10000],['Property maintenance',5000],['Child-related expenses',10000],['Entertainment',6000]];
+const extra = [['Utilities / phone / internet',2000],['Transport',5000],['Insurance premiums',5000],['Healthcare / medical',5000],['Family / dependant support',10000],['Other debt repayments',10000],['Tax / annual-bill provision',10000]];
+---
+<enough-point-check data-card="tool" data-nosnippet class="ep not-prose" aria-label="The Enough Point Check">
+  <header><p class="ep-kicker">RE'S INTERACTIVE NOTEBOOK</p><h2>The Enough Point Check</h2><p>What changes when the paycheque stops? Start with an example, then make the numbers your own.</p></header>
+  <noscript><p>Enable JavaScript to calculate. The basic check is monthly income minus monthly expenses; repeat using only income that continues without your work.</p></noscript>
+  <div class="ep-app" hidden>
+    <fieldset class="ep-scenarios"><legend><span class="ep-step">1</span> Choose the life you want to test</legend>
+      <label><input type="radio" name="ep-scenario" value="current" checked /> As things are</label>
+      <label><input type="radio" name="ep-scenario" value="stopped" /> If I stopped working</label>
+    </fieldset>
+    <p class="ep-help">Enter monthly amounts in SGD. Mark income that would continue without your work. That does not mean it is guaranteed or permanent.</p>
+    <div class="ep-actions"><button type="button" data-example>Load example</button><button type="button" data-reset>Reset</button><span data-example-label hidden>Illustrative example — not a suggested budget</span></div>
+    <section class="ep-results" aria-label="Results"><p class="ep-kicker" data-scenario-title>AS THINGS ARE</p>
+      <h3 data-verdict>Start with your household expenses.</h3><p data-context>Zero expenses isn't a useful enough-point test.</p>
+      <div data-chart hidden><div class="ep-bar-label">Monthly income <strong data-in-total></strong></div><div class="ep-track"><div class="ep-bar ep-income" data-in-bar></div></div>
+      <div class="ep-bar-label">Monthly expenses <strong data-out-total></strong></div><div class="ep-track"><div class="ep-bar ep-outgoing" data-out-bar></div></div><p data-coverage></p></div>
+      <div class="ep-balances"><p>Balance while working<strong data-current>—</strong></p><p>Balance without work income<strong data-stopped>—</strong></p></div>
+      <details class="ep-caveat"><summary>A snapshot, not a resignation letter.</summary><p>This does not model income reliability, inflation, investment losses, future expenses or how long savings last. It is not personalised financial advice.</p></details>
+    </section>
+    <p class="ep-edit-guide"><span>2</span> Fine-tune your monthly picture <small>Type an amount or drag a slider. The picture above updates as you go.</small></p>
+    <div class="ep-columns">
+      <section aria-label="Monthly income"><h3>Money coming in <strong data-income-summary>SGD 0.00</strong></h3><div data-income>
+        {income.map(([label,max,keep],i)=><div class="ep-row" data-kind="income">
+          <label for={`epi-${i}`}>{label}</label><div class="ep-amount"><span>S$</span><input id={`epi-${i}`} class="ep-number" type="text" inputmode="decimal" placeholder="0" autocomplete="off" /></div>
+          <input class="ep-slider" aria-label={`${label} slider`} type="range" min="0" max={max} step="1" value="0" />
+          <label class="ep-keep"><input type="checkbox" checked={keep} /> Continues without my work</label>
+        </div>)}
+      </div><button type="button" data-add="income">+ Add income</button></section>
+      <section aria-label="Monthly expenses"><h3>Money going out <strong data-expense-summary>SGD 0.00</strong></h3><div data-expenses>
+        {expenses.map(([label,max],i)=><div class="ep-row" data-kind="expense"><label for={`epe-${i}`}>{label}</label><div class="ep-amount"><span>S$</span><input id={`epe-${i}`} class="ep-number" type="text" inputmode="decimal" placeholder="0" autocomplete="off" /></div><input class="ep-slider" aria-label={`${label} slider`} type="range" min="0" max={max} step="1" value="0" /></div>)}
+      </div>
+      <details><summary>Don't forget these costs</summary>{extra.map(([label,max],i)=><div class="ep-row" data-kind="expense"><label for={`epex-${i}`}>{label}</label><div class="ep-amount"><span>S$</span><input id={`epex-${i}`} class="ep-number" type="text" inputmode="decimal" placeholder="0" autocomplete="off" /></div><input class="ep-slider" aria-label={`${label} slider`} type="range" min="0" max={max} step="1" value="0" /></div>)}</details>
+      <button type="button" data-add="expense">+ Add expense</button></section>
+    </div>
+    <details class="ep-notes"><summary>What should I count?</summary><ul>
+      <li>Insurance payouts mean recurring cash received, not policy coverage or the sum assured. Check the payout end date.</li>
+      <li>Use gross rent with costs under expenses, or net rent without counting those costs again.</li>
+      <li>Use income available after business costs. Account for tax once, not twice.</li>
+      <li>Divide annual bills by 12. Include costs for people who depend on you.</li>
+      <li>Withdrawals from savings are not recurring income here. This tool does not model assets running out.</li>
+    </ul></details>
+
+    <p class="ep-help">Calculated in this browser; entries are not saved by this tool.</p><p class="ep-sr" role="status" aria-live="polite" data-announcement></p>
+  </div>
+</enough-point-check>
+<script>
+import { calculate, cents } from '../utils/enough-point.mjs';
+class EnoughPointCheck extends HTMLElement {
+  connectedCallback() {
+    if (this.dataset.ready) return;
+    this.dataset.ready = 'true';
+    const app = this.querySelector<HTMLElement>('.ep-app')!; app.hidden = false;
+    const q = (selector:string) => this.querySelector<HTMLElement>(selector)!;
+    const money = (n:number) => new Intl.NumberFormat('en-SG',{style:'currency',currency:'SGD',currencyDisplay:'code',maximumFractionDigits:2}).format(n/100);
+    const rows = () => Array.from(this.querySelectorAll<HTMLElement>('.ep-row'));
+    let timer:ReturnType<typeof setTimeout>; let id=0;
+    const update = () => {
+      const stopped = (this.querySelector<HTMLInputElement>('input[name="ep-scenario"]:checked')!).value === 'stopped';
+      let invalid=false;
+      const read = (row:HTMLElement) => {
+        const input=row.querySelector<HTMLInputElement>('.ep-number')!;
+        try { cents(input.value); input.removeAttribute('aria-invalid'); input.setCustomValidity(''); }
+        catch { invalid=true; input.setAttribute('aria-invalid','true'); input.setCustomValidity('Use a non-negative amount with at most two decimal places, below S$1 billion.'); }
+        const keep = row.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked ?? false;
+        row.classList.toggle('ep-excluded',stopped && row.dataset.kind==='income' && !keep);
+        return {amount: input.value, continues:keep};
+      };
+      const incomes=rows().filter(r=>r.dataset.kind==='income').map(read);
+      const expenses=rows().filter(r=>r.dataset.kind==='expense').map(read);
+      q('[data-scenario-title]').textContent=stopped?'IF I STOPPED WORKING':'AS THINGS ARE';
+      let title='Check the highlighted amounts.'; let context='Use non-negative amounts with at most two decimal places, below S$1 billion.';
+      q('[data-chart]').hidden=true;
+      q('[data-current]').textContent='—'; q('[data-stopped]').textContent='—'; q('[data-income-summary]').textContent='—'; q('[data-expense-summary]').textContent='—'; this.dataset.balance='empty';
+      if (!invalid) {
+        const r=calculate(incomes,expenses); const selected=stopped?r.continuing:r.current; const balance=selected-r.outgoing;
+        q('[data-income-summary]').textContent=money(selected); q('[data-expense-summary]').textContent=money(r.outgoing); this.dataset.balance=r.outgoing ? (balance<0?'gap':balance===0?'even':'surplus'):'empty';
+        q('[data-current]').textContent=money(r.currentBalance); q('[data-stopped]').textContent=money(r.withoutWorkBalance);
+        if (!r.outgoing) { title='Start with your household expenses.'; context="Zero expenses isn't a useful enough-point test."; }
+        else {
+          q('[data-chart]').hidden=false;
+          const scale=Math.max(selected,r.outgoing,1);
+          q('[data-in-bar]').style.width=`${selected/scale*100}%`; q('[data-out-bar]').style.width=`${r.outgoing/scale*100}%`;
+          q('[data-in-total]').textContent=money(selected); q('[data-out-total]').textContent=money(r.outgoing);
+          q('[data-coverage]').textContent=`Income covers ${(selected/r.outgoing*100).toFixed(1)}% of entered monthly expenses. This is not a probability of success.`;
+          if (balance<0) {title=`A monthly gap of ${money(-balance)} in this scenario.`;context="These entered income sources don't cover the expenses shown.";}
+          else if (balance===0) {title='Balanced—but no monthly buffer in this snapshot.';context='There is no surplus for costs beyond those entered.';}
+          else if (r.withoutWorkBalance<0) {title='A surplus while working. A gap if work income stops.';context='Compare both balances below to see what changes.';}
+          else if (r.withoutWorkBalance===0) {title='A surplus today; break-even without work income.';context='There is no without-work buffer for unexpected costs.';}
+          else {title='Your entered continuing income covers these expenses.';context='A useful starting point—not confirmation that you can safely stop working.';}
+        }
+      }
+      q('[data-verdict]').textContent=title; q('[data-context]').textContent=context;
+      clearTimeout(timer); timer=setTimeout(()=>{q('[data-announcement]').textContent=title;},500);
+    };
+    this.addEventListener('input',event=>{
+      const target=event.target as HTMLInputElement; const row=target.closest('.ep-row');
+      if(row && target.matches('.ep-slider')) row.querySelector<HTMLInputElement>('.ep-number')!.value=target.value;
+      if(row && target.matches('.ep-number')) {try{const n=cents(target.value)/100; const slider=row.querySelector<HTMLInputElement>('.ep-slider')!; slider.max=String(Math.max(Number(slider.max),Math.ceil(n))); slider.value=String(n);}catch{}}
+      q('[data-example-label]').hidden=true; update();
+    });
+    const clear = () => {
+      this.querySelectorAll('[data-custom]').forEach(r=>r.remove());
+      rows().forEach(row=>{row.querySelector<HTMLInputElement>('.ep-number')!.value='';row.querySelector<HTMLInputElement>('.ep-slider')!.value='0'; const c=row.querySelector<HTMLInputElement>('input[type="checkbox"]');if(c)c.checked=c.defaultChecked;});
+      this.querySelector<HTMLInputElement>('input[value="current"]')!.checked=true;
+    };
+    this.addEventListener('click',event=>{
+      const button=(event.target as HTMLElement).closest<HTMLButtonElement>('button'); if(!button)return;
+      if(button.hasAttribute('data-reset') || button.hasAttribute('data-example')) {
+        if(rows().some(r=>r.querySelector<HTMLInputElement>('.ep-number')!.value) && !window.confirm('Replace the current entries?'))return;
+        clear(); q('[data-example-label]').hidden=true;
+        if(button.hasAttribute('data-example')) {
+          const set=(selector:string,value:string)=>{const input=this.querySelector<HTMLInputElement>(selector)!;input.value=value;input.closest('.ep-row')!.querySelector<HTMLInputElement>('.ep-slider')!.value=value;};
+          set('#epi-0','5000');set('#epi-2','300');set('#epi-3','1500');set('#epe-0','1000');set('#epe-2','2000');q('[data-example-label]').hidden=false;
+        } update();
+      }
+      if(button.dataset.add) {
+        const kind=button.dataset.add;const row=document.createElement('div');row.className='ep-row';row.dataset.kind=kind;row.dataset.custom='true';const key=`ep-custom-${++id}`;
+        row.innerHTML=`<label for="${key}-name">${kind==='income'?'Income':'Expense'} description</label><input id="${key}-name" class="ep-name" type="text" maxlength="80" placeholder="Describe this item" /><label for="${key}">Monthly amount (SGD)</label><div class="ep-amount"><span>S$</span><input id="${key}" class="ep-number" type="text" inputmode="decimal" placeholder="0" autocomplete="off" /></div><input class="ep-slider" aria-label="Custom ${kind} amount slider" type="range" min="0" max="10000" step="1" value="0" />${kind==='income'?'<label class="ep-keep"><input type="checkbox" /> Continues without my work</label>':''}<button type="button" data-remove>Remove this ${kind}</button>`;
+        q(kind==='income'?'[data-income]':'[data-expenses]').append(row);row.querySelector<HTMLInputElement>('.ep-name')!.focus();update();
+      }
+      if(button.hasAttribute('data-remove')) {const row=button.closest<HTMLElement>('.ep-row')!;const kind=row.dataset.kind;row.remove();this.querySelector<HTMLButtonElement>(`[data-add="${kind}"]`)!.focus();update();}
+    });
+    update();
+  }
+}
+if(!customElements.get('enough-point-check'))customElements.define('enough-point-check',EnoughPointCheck);
+</script>
+<style is:global>
+enough-point-check.ep{display:block; margin:2rem 0;padding:clamp(16px,3vw,28px);border:1px solid #a9c6bf;border-radius:20px;background:#f7faf8;color:#173c38;font:16px/1.6 system-ui,sans-serif;overflow-wrap:anywhere}
+.ep [hidden]{display:none!important}.ep h2{font-size:clamp(24px,4vw,32px);line-height:1.2;margin:8px 0 12px}.ep h3{font-size:21px;line-height:1.35;margin:14px 0}.ep p{margin:10px 0}.ep-kicker{font-size:12px;font-weight:800;letter-spacing:.1em}.ep-help{font-size:14px;color:#435a56}.ep-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.ep-row{padding:14px 0;border-bottom:1px solid #c6d5d0;min-width:0}.ep-row>label{display:block;font-weight:650;font-size:14px}.ep-amount{display:flex;align-items:center;gap:8px;margin-top:5px}.ep-number,.ep-name{min-width:0;width:100%;border:1px solid #879c96;border-radius:8px;padding:9px;background:white;color:#173c38;font:inherit}.ep-slider{width:100%;accent-color:#136c61;margin:12px 0}.ep-keep{display:flex!important;align-items:flex-start;gap:8px;font-weight:400!important;font-size:13px!important}.ep input[type=checkbox],.ep input[type=radio]{accent-color:#136c61;width:18px;height:18px;flex-shrink:0;margin-top:4px}.ep-excluded{background:#e9eeeb}.ep-excluded .ep-amount{opacity:.7}.ep-excluded:after{content:'Excluded from without-work income';font-size:12px;display:block;color:#435a56}.ep-scenarios{border:0;padding:0;margin:20px 0;display:flex;flex-wrap:wrap;gap:10px}.ep-scenarios legend{font-weight:700;margin-bottom:8px}.ep-scenarios label{display:flex;align-items:center;gap:8px;border:1px solid #879c96;background:white;border-radius:9px;padding:9px 12px}.ep-scenarios label:has(:checked){background:#e1f1eb;border-color:#136c61}.ep button{border:1px solid #136c61;background:#fff;color:#125b52;border-radius:8px;padding:10px 14px;font:600 14px/1.5 system-ui;cursor:pointer;min-height:44px;margin-top:12px}.ep button:hover{background:#e1f1eb}.ep :focus-visible{outline:3px solid #9b6500;outline-offset:3px}.ep input[aria-invalid=true]{border:2px solid #a32222}.ep summary{cursor:pointer;padding:12px 0;font-weight:650}.ep ul{padding-left:20px}.ep-notes{margin-top:18px}.ep-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.ep-actions span{font-size:13px}.ep-results{margin-top:24px;padding:20px;border-radius:14px;background:#fff;border:1px solid #c6d5d0}.ep-bar-label{display:flex;justify-content:space-between;gap:12px;font-size:14px;margin-top:15px;flex-wrap:wrap}.ep-track{height:18px;background:#edf1ef;border-radius:6px;overflow:hidden;margin-top:6px}.ep-bar{height:100%;transition:width .2s ease}.ep-income{background:#167565}.ep-outgoing{background:#9a650e}.ep-balances{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;font-size:14px}.ep-balances strong{display:block;font-size:20px}.ep-sr{position:absolute!important;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.ep-name{margin-bottom:8px}
+@media(max-width:640px){.ep-columns,.ep-balances{grid-template-columns:1fr}.ep-results{padding:14px}.ep-columns{gap:14px}}
+@media(prefers-reduced-motion:reduce){.ep-bar{transition:none}}
+
+/* V2 visual refinement: scoped to this tool; the original stays unchanged. */
+enough-point-check.ep{background:#faf8f2;border-color:#ddd8c8;border-radius:24px;padding:clamp(18px,3vw,32px);box-shadow:0 12px 34px #173c3808}
+.ep>header{padding-bottom:18px;border-bottom:1px solid #ddd8c8}.ep>header .ep-kicker{color:#775a21}.ep>header h2{font-size:clamp(26px,4vw,36px);letter-spacing:-.035em;color:#142e38}.ep>header>p:last-child{color:#536360;max-width:52ch}
+.ep-step,.ep-edit-guide>span{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#173c38;color:white;font-size:13px;margin-right:7px}
+.ep-scenarios{gap:8px}.ep-scenarios label{flex:1;min-width:160px;justify-content:center;border-radius:12px;min-height:52px;font-weight:600;font-size:14px;cursor:pointer;transition:background .15s,border-color .15s}
+.ep-scenarios label:has(:checked){background:#173c38;color:white;border-color:#173c38}.ep-scenarios input{accent-color:#d6b56a!important}
+.ep-actions{margin:8px 0 16px}.ep-actions button{margin-top:0}.ep-actions [data-example]{background:#173c38;color:white}.ep-actions [data-example]:hover{background:#26554f}.ep-actions [data-reset]{border-color:#a9b8b3}
+.ep-results{margin-top:0;border-radius:18px;padding:22px;border-top:4px solid #9b8a5c;box-shadow:0 4px 16px #173c3808}
+.ep[data-balance=gap] .ep-results{border-top-color:#9b552f}.ep[data-balance=surplus] .ep-results{border-top-color:#167565}
+.ep-results h3{font-size:clamp(21px,3vw,28px);letter-spacing:-.025em;line-height:1.25;margin:8px 0}.ep-results [data-context]{font-size:14px;color:#435a56}
+.ep-balances{margin-top:16px;gap:10px}.ep-balances p{padding:14px;border-radius:12px;background:#f1f5f2;margin:0}.ep-balances p:last-child{background:#f8f2e5}.ep-balances strong{font-size:clamp(20px,3vw,27px);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin-top:4px}
+.ep-track{height:12px;border-radius:12px}.ep-bar{border-radius:12px}.ep-results [data-coverage]{font-size:13px;color:#435a56;margin-top:14px}.ep-bar-label strong{font-variant-numeric:tabular-nums}
+.ep-caveat{margin-top:14px;border-top:1px solid #e0e5df;font-size:13px}.ep-caveat summary{padding:12px 0 0}.ep-caveat p{font-size:13px}
+.ep-edit-guide{font-weight:700;margin:26px 0 14px!important}.ep-edit-guide small{display:block;font-size:13px;font-weight:400;color:#435a56;margin-top:5px}
+.ep-columns{gap:14px}.ep-columns>section{background:white;border:1px solid #d9e2db;border-radius:16px;padding:16px;align-self:start}.ep-columns>section>h3{margin:0 0 12px;font-size:18px}.ep-columns>section>h3 strong{display:block;font-size:22px;font-variant-numeric:tabular-nums;margin-top:5px;color:#136c61}.ep-columns>section:last-child>h3 strong{color:#815816}
+.ep-row{padding:14px 0}.ep-row:last-child{border-bottom:0}.ep-number{font-weight:650;font-variant-numeric:tabular-nums;text-align:right;background:#fafcfb}.ep-number:focus{background:white}.ep-amount>span{font-size:14px;color:#536360}.ep-slider{height:8px;margin:15px 0;cursor:ew-resize}.ep-row:focus-within{border-bottom-color:#136c61}
+.ep-keep{font-size:12px!important;line-height:1.5}.ep-excluded{background:#f2f3ef;border-radius:8px;padding:12px 8px}.ep-excluded:after{font-size:11px;margin-top:5px}
+@media(max-width:640px){.ep-columns>section{padding:14px}.ep-results{padding:16px}.ep-balances{grid-template-columns:1fr}.ep-scenarios label{min-width:100%;justify-content:flex-start}.ep-results h3{font-size:23px}}
+@media(prefers-reduced-motion:reduce){.ep-scenarios label{transition:none}}
+.ep-scenarios label{transition:none}
+</style>
