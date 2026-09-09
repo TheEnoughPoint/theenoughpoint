@@ -1,0 +1,645 @@
+---
+// The Enough Point Check — a monthly cash-flow snapshot, not a retirement
+// verdict. Two scenarios ("As things are" / "If I stopped working"), income
+// rows the reader flags as work-dependent or not, expense rows, a shared-
+// scale bar chart and a small set of fixed, ungraded result messages.
+//
+// The arithmetic and its tests live in src/utils/enoughPointCheck.ts. This
+// file's inline script mirrors that module by hand, following this site's
+// convention for every interactive tool (see BlendedRateTool.astro,
+// AffordabilityTool.astro) — the runtime script stays a single dependency-
+// free file; the TS module is what's actually unit-tested. If you change
+// the arithmetic here, change it there too, and re-run
+// `node --test src/utils/enoughPointCheck.test.ts`.
+//
+// Not wrapped in ToolFrame.astro: that frame is paused pending a lighter
+// redesign (see project memory) and explicitly not meant for new rollout
+// until then.
+import ToolBrand from '../ToolBrand.astro';
+
+interface RowDef {
+  id: string;
+  label: string;
+  maxDollars: number;
+  helper?: string;
+}
+
+const sliderStep = (max: number) => (max <= 1000 ? 10 : max <= 6000 ? 25 : max <= 10000 ? 50 : 100);
+
+const INCOME_ROWS: (RowDef & { continuesDefault: boolean })[] = [
+  { id: 'salary', label: 'Salary / base work income', maxDollars: 25000, continuesDefault: false },
+  { id: 'insurance', label: 'Insurance cash payout received', maxDollars: 5000, continuesDefault: false,
+    helper: 'Actual recurring cash received, not insurance coverage or the sum assured. Check whether and for how long it continues.' },
+  { id: 'dividends', label: 'Dividends', maxDollars: 5000, continuesDefault: true },
+  { id: 'rental', label: 'Rental income', maxDollars: 10000, continuesDefault: true,
+    helper: 'Use one consistent approach: gross rent with associated costs in expenses, or net rent without counting the same costs again.' },
+  { id: 'side', label: 'Side-business income', maxDollars: 5000, continuesDefault: false,
+    helper: 'Use money available to the household after business costs. Account for tax consistently — do not deduct it here and count it again below.' },
+  { id: 'gig', label: 'Gig / freelance income', maxDollars: 5000, continuesDefault: false },
+];
+
+const EXPENSE_ROWS_PRIMARY: RowDef[] = [
+  { id: 'food', label: 'Food / groceries', maxDollars: 10000 },
+  { id: 'subs', label: 'Subscriptions', maxDollars: 1000 },
+  { id: 'housing', label: 'Housing rent / mortgage payment', maxDollars: 10000 },
+  { id: 'maint', label: 'Property maintenance', maxDollars: 5000 },
+  { id: 'child', label: 'Child-related expenses', maxDollars: 10000 },
+  { id: 'ent', label: 'Entertainment', maxDollars: 6000 },
+];
+
+const EXPENSE_ROWS_SECONDARY: RowDef[] = [
+  { id: 'util', label: 'Utilities / phone / internet', maxDollars: 2000 },
+  { id: 'transport', label: 'Transport', maxDollars: 5000 },
+  { id: 'insprem', label: 'Insurance premiums', maxDollars: 5000 },
+  { id: 'health', label: 'Healthcare / medical', maxDollars: 5000 },
+  { id: 'family', label: 'Family / dependant support', maxDollars: 10000 },
+  { id: 'debt', label: 'Other debt repayments', maxDollars: 10000 },
+  { id: 'tax', label: 'Tax / annual-bill provision', maxDollars: 10000,
+    helper: 'For a bill paid once a year, enter its annual amount divided by 12. Avoid counting it in two categories.' },
+];
+
+const CUSTOM_INCOME_HELPER = 'Withdrawals from savings are not recurring income in this model; it does not calculate depletion of assets.';
+const CONTINUES_HELPER = 'Not guaranteed, permanent or risk-free — your best honest answer.';
+---
+
+<div class="epc" id="epc">
+  <div class="epc-head">
+    <div>
+      <h4>The Enough Point Check</h4>
+      <p>Two columns. One honest look at what keeps your household going.</p>
+    </div>
+    <span class="epc-badge">Interactive</span>
+  </div>
+
+  <p class="epc-intro">Add approximate monthly amounts in SGD, then switch scenarios below to see
+  what remains if work income stopped. This is a cash-flow snapshot, not a retirement verdict — it
+  does not model how long savings last, investment losses, inflation or future changes in family
+  needs. Nothing is saved and nothing leaves your browser.</p>
+
+  <div class="epc-toolbar">
+    <button type="button" class="epc-btn" id="epc-example">Load example</button>
+    <button type="button" class="epc-btn ghost" id="epc-reset">Reset</button>
+  </div>
+
+  <div class="epc-tabs" role="tablist" aria-label="Which scenario to view">
+    <button type="button" role="tab" class="epc-tab" id="epc-tab-current" aria-selected="true" aria-controls="epc-results">As things are</button>
+    <button type="button" role="tab" class="epc-tab" id="epc-tab-without" aria-selected="false" aria-controls="epc-results">If I stopped working</button>
+  </div>
+
+  <div class="epc-cols">
+    <section class="epc-col" aria-labelledby="epc-income-h">
+      <h5 id="epc-income-h" class="epc-colh income">Monthly income</h5>
+      <div id="epc-income-rows">
+        {INCOME_ROWS.map((row) => (
+          <div class="epc-row" data-row-id={row.id} data-kind="income">
+            <div class="epc-row-top">
+              <label class="epc-row-label" for={`epc-amt-${row.id}`}>{row.label}</label>
+              <span class="epc-in"><i>S$</i><input
+                type="text" inputmode="decimal" class="epc-amt" id={`epc-amt-${row.id}`}
+                value="0" aria-describedby={row.helper ? `epc-help-${row.id}` : undefined}
+              /></span>
+            </div>
+            <input type="range" class="epc-slider" min="0" max={row.maxDollars} step={sliderStep(row.maxDollars)}
+              value="0" aria-label={`${row.label} slider`} data-for={`epc-amt-${row.id}`} />
+            <label class="epc-cw">
+              <input type="checkbox" class="epc-continues" checked={row.continuesDefault} />
+              <span>Continues without my work<em>{CONTINUES_HELPER}</em></span>
+            </label>
+            {row.helper && <p class="epc-helper" id={`epc-help-${row.id}`}>{row.helper}</p>}
+          </div>
+        ))}
+      </div>
+      <button type="button" class="epc-add" id="epc-add-income">+ Add income</button>
+    </section>
+
+    <section class="epc-col" aria-labelledby="epc-expense-h">
+      <h5 id="epc-expense-h" class="epc-colh expense">Monthly expenses</h5>
+      <div id="epc-expense-rows-primary">
+        {EXPENSE_ROWS_PRIMARY.map((row) => (
+          <div class="epc-row" data-row-id={row.id} data-kind="expense">
+            <div class="epc-row-top">
+              <label class="epc-row-label" for={`epc-amt-${row.id}`}>{row.label}</label>
+              <span class="epc-in"><i>S$</i><input
+                type="text" inputmode="decimal" class="epc-amt" id={`epc-amt-${row.id}`} value="0"
+              /></span>
+            </div>
+            <input type="range" class="epc-slider" min="0" max={row.maxDollars} step={sliderStep(row.maxDollars)}
+              value="0" aria-label={`${row.label} slider`} data-for={`epc-amt-${row.id}`} />
+          </div>
+        ))}
+      </div>
+
+      <details class="epc-more">
+        <summary>Don&rsquo;t forget these costs</summary>
+        <div id="epc-expense-rows-secondary">
+          {EXPENSE_ROWS_SECONDARY.map((row) => (
+            <div class="epc-row" data-row-id={row.id} data-kind="expense">
+              <div class="epc-row-top">
+                <label class="epc-row-label" for={`epc-amt-${row.id}`}>{row.label}</label>
+                <span class="epc-in"><i>S$</i><input
+                  type="text" inputmode="decimal" class="epc-amt" id={`epc-amt-${row.id}`} value="0"
+                  aria-describedby={row.helper ? `epc-help-${row.id}` : undefined}
+                /></span>
+              </div>
+              <input type="range" class="epc-slider" min="0" max={row.maxDollars} step={sliderStep(row.maxDollars)}
+                value="0" aria-label={`${row.label} slider`} data-for={`epc-amt-${row.id}`} />
+              {row.helper && <p class="epc-helper" id={`epc-help-${row.id}`}>{row.helper}</p>}
+            </div>
+          ))}
+        </div>
+      </details>
+      <button type="button" class="epc-add" id="epc-add-expense">+ Add expense</button>
+    </section>
+  </div>
+
+  <div class="epc-results" id="epc-results">
+    <div class="epc-chart" aria-hidden="true">
+      <div class="epc-bar-row">
+        <span class="epc-bar-label">Income</span>
+        <div class="epc-bar-track"><div class="epc-bar income" id="epc-bar-income"></div></div>
+        <b class="num" id="epc-bar-income-val">S$0</b>
+      </div>
+      <div class="epc-bar-row">
+        <span class="epc-bar-label">Expenses</span>
+        <div class="epc-bar-track"><div class="epc-bar expense" id="epc-bar-expense"></div></div>
+        <b class="num" id="epc-bar-expense-val">S$0</b>
+      </div>
+      <p class="epc-coverage" id="epc-coverage">&mdash;</p>
+    </div>
+
+    <div class="epc-headline" id="epc-headline" aria-live="polite">
+      <p class="epc-h-main" id="epc-h-main">Enter your household expenses to begin.</p>
+      <p class="epc-h-sub" id="epc-h-sub"></p>
+      <p class="epc-h-cross" id="epc-h-cross" hidden></p>
+    </div>
+
+    <div class="epc-both">
+      <div class="epc-both-row"><span>As things are</span><b class="num" id="epc-bal-current">S$0</b></div>
+      <div class="epc-both-row"><span>If I stopped working</span><b class="num" id="epc-bal-without">S$0</b></div>
+    </div>
+
+    <p class="epc-micro">A green number is not a resignation letter.</p>
+  </div>
+
+  <p class="epc-privacy">Calculated in this browser; entries are not saved by this tool.</p>
+
+  <noscript>
+    <p class="epc-noscript">This calculator needs JavaScript to run. With it enabled, you can list
+    your monthly income and expenses, mark which income would keep arriving if you stopped working,
+    and see a simple side-by-side comparison — entirely in your own browser, with nothing saved or
+    sent anywhere.</p>
+  </noscript>
+
+  <ToolBrand />
+</div>
+
+<template id="epc-tmpl-income">
+  <div class="epc-row epc-row-custom" data-kind="income">
+    <button type="button" class="epc-del" aria-label="Remove this income row">&times;</button>
+    <div class="epc-row-top">
+      <input type="text" class="epc-row-label epc-custom-label" placeholder="Describe this income" />
+      <span class="epc-in"><i>S$</i><input type="text" inputmode="decimal" class="epc-amt" value="0" /></span>
+    </div>
+    <input type="range" class="epc-slider" min="0" max="10000" step="50" value="0" aria-label="Custom income amount" />
+    <label class="epc-cw">
+      <input type="checkbox" class="epc-continues" />
+      <span>Continues without my work<em>{CONTINUES_HELPER}</em></span>
+    </label>
+    <p class="epc-helper">{CUSTOM_INCOME_HELPER}</p>
+  </div>
+</template>
+
+<template id="epc-tmpl-expense">
+  <div class="epc-row epc-row-custom" data-kind="expense">
+    <button type="button" class="epc-del" aria-label="Remove this expense row">&times;</button>
+    <div class="epc-row-top">
+      <input type="text" class="epc-row-label epc-custom-label" placeholder="Describe this expense" />
+      <span class="epc-in"><i>S$</i><input type="text" inputmode="decimal" class="epc-amt" value="0" /></span>
+    </div>
+    <input type="range" class="epc-slider" min="0" max="10000" step="50" value="0" aria-label="Custom expense amount" />
+  </div>
+</template>
+
+<style is:global>
+.epc{
+  --epc-bd:var(--color-border); --epc-t1:var(--color-dark); --epc-t2:var(--color-body);
+  --epc-t3:var(--color-muted); --epc-inc:var(--color-brand-700); --epc-exp:#9A3B2E;
+  --epc-deep:var(--color-navy); --epc-gold:var(--color-gold);
+  --epc-mono:var(--font-mono),'SF Mono',Menlo,Consolas,monospace;
+  background:#fff;border:1px solid var(--epc-bd);border-radius:14px;
+  box-shadow:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  overflow:hidden;margin:28px 0;color:var(--epc-t1);font-size:15px
+}
+.epc .num{font-family:var(--epc-mono);font-variant-numeric:tabular-nums}
+
+.epc-head{padding:18px 22px 14px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.epc-head h4{margin:0;font-size:18px;font-weight:700;color:var(--epc-t1);font-family:var(--font-heading)}
+.post-content .epc-head p{margin:3px 0 0;font-size:13px;color:var(--epc-t3)}
+.epc-badge{flex:none;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
+  color:var(--epc-inc);background:rgba(14,90,63,.08);border:1px solid rgba(14,90,63,.25);
+  border-radius:999px;padding:4px 10px;white-space:nowrap}
+
+.post-content .epc-intro{margin:0;padding:0 22px 14px;font-size:12.5px;line-height:1.55;color:var(--epc-t3)}
+
+.epc-toolbar{display:flex;gap:10px;padding:0 22px 14px;flex-wrap:wrap}
+.epc-btn{font-size:12.5px;font-weight:600;color:var(--epc-t2);background:var(--color-surface);
+  border:1px solid var(--epc-bd);border-radius:8px;padding:8px 14px;cursor:pointer;min-height:38px}
+.epc-btn:hover{border-color:var(--epc-t3)}
+.epc-btn.ghost{background:transparent}
+.epc-btn:focus-visible{outline:2px solid var(--epc-deep);outline-offset:2px}
+
+.epc-tabs{display:flex;gap:6px;padding:0 22px 16px;border-bottom:1px solid var(--epc-bd);margin-bottom:18px}
+.epc-tab{font-size:13px;font-weight:600;color:var(--epc-t3);background:var(--color-surface);
+  border:1px solid var(--epc-bd);border-radius:999px;padding:9px 16px;cursor:pointer;min-height:40px}
+.epc-tab[aria-selected="true"]{background:var(--epc-deep);border-color:var(--epc-deep);color:#fff}
+.epc-tab:focus-visible{outline:2px solid var(--epc-deep);outline-offset:2px}
+
+.epc-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:0 22px 20px}
+.epc-colh{margin:0 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.epc-colh.income{color:var(--epc-inc)}
+.epc-colh.expense{color:var(--epc-exp)}
+
+.epc-row{padding:12px 0;border-bottom:1px dashed var(--epc-bd)}
+.epc-row:first-child{padding-top:0}
+.epc-row-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.epc-row-label{font-size:13px;color:var(--epc-t2);flex:1;min-width:120px}
+input.epc-row-label{font:inherit;border:none;border-bottom:1px dashed var(--epc-bd);background:none;
+  padding:2px 0;width:100%}
+input.epc-row-label:focus-visible{outline:none;border-bottom-style:solid;border-bottom-color:var(--epc-deep)}
+.epc-in{display:inline-flex;align-items:baseline;font-family:var(--epc-mono);font-size:14px;font-weight:600;flex:none}
+.epc-in i{font-style:normal;color:var(--epc-t3);font-size:12.5px;margin-right:3px}
+.epc-in input.epc-amt{font-family:var(--epc-mono);font-size:14px;font-weight:600;color:var(--epc-t1);
+  background:none;border:none;border-bottom:1px dashed var(--epc-bd);text-align:right;
+  width:6.5ch;padding:0 0 1px;min-height:24px}
+.epc-in input.epc-amt:focus-visible{outline:none;border-bottom:1px solid var(--epc-deep)}
+.epc-in input.epc-amt.invalid{border-bottom:1px solid var(--epc-exp);color:var(--epc-exp)}
+
+.epc input[type=range].epc-slider{-webkit-appearance:none;appearance:none;width:100%;height:26px;
+  background:transparent;margin:6px 0 2px;display:block}
+.epc-slider::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:var(--epc-bd)}
+.epc-slider::-moz-range-track{height:5px;border-radius:3px;background:var(--epc-bd)}
+.epc-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;
+  border-radius:50%;background:var(--epc-deep);border:2.5px solid #fff;
+  box-shadow:0 0 0 1px var(--epc-bd);margin-top:-8px;cursor:pointer}
+.epc-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--epc-deep);
+  border:2.5px solid #fff;box-shadow:0 0 0 1px var(--epc-bd);cursor:pointer}
+.epc-slider:focus-visible{outline:2px solid var(--epc-deep);outline-offset:3px}
+
+.epc-cw{display:flex;align-items:flex-start;gap:8px;margin-top:6px;cursor:pointer}
+.epc-cw input{margin-top:3px;width:16px;height:16px;flex:none;accent-color:var(--epc-inc)}
+.epc-cw span{font-size:12px;color:var(--epc-t2);line-height:1.4}
+.epc-cw em{display:block;font-style:normal;font-size:11px;color:var(--epc-t3);margin-top:1px}
+
+.post-content .epc-helper{margin:6px 0 0;font-size:11px;line-height:1.5;color:var(--epc-t3)}
+
+.epc-row.dimmed{opacity:.45}
+
+.epc-del{position:relative;float:right;font-size:18px;line-height:1;color:var(--epc-t3);
+  background:none;border:none;cursor:pointer;padding:2px 4px;min-width:28px;min-height:28px}
+.epc-del:hover{color:var(--epc-exp)}
+.epc-del:focus-visible{outline:2px solid var(--epc-deep);outline-offset:1px}
+
+.epc-add{font-size:12.5px;font-weight:600;color:var(--epc-t2);background:none;
+  border:1px dashed var(--epc-bd);border-radius:8px;padding:8px 14px;margin-top:10px;
+  cursor:pointer;width:100%;min-height:38px}
+.epc-add:hover{border-color:var(--epc-t3);color:var(--epc-t1)}
+.epc-add:focus-visible{outline:2px solid var(--epc-deep);outline-offset:2px}
+
+.epc-more{margin-top:4px}
+.epc-more summary{font-size:12.5px;font-weight:600;color:var(--epc-t2);cursor:pointer;
+  padding:8px 0;list-style:none;display:flex;align-items:center;gap:6px}
+.epc-more summary::before{content:'▸';font-size:10px;color:var(--epc-t3);transition:transform .15s}
+.epc-more[open] summary::before{transform:rotate(90deg)}
+.epc-more summary::-webkit-details-marker{display:none}
+
+.epc-results{background:var(--color-surface);border-top:1px solid var(--epc-bd);padding:18px 22px 16px}
+.epc-chart{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.post-content .epc-coverage{margin:2px 0 0;font-size:11.5px;color:var(--epc-t3);text-align:right}
+.epc-coverage b{font-family:var(--epc-mono);color:var(--epc-t2);font-variant-numeric:tabular-nums}
+.epc-bar-row{display:grid;grid-template-columns:70px 1fr 80px;align-items:center;gap:10px}
+.epc-bar-label{font-size:11.5px;font-weight:600;color:var(--epc-t3)}
+.epc-bar-track{background:#fff;border:1px solid var(--epc-bd);border-radius:5px;height:16px;overflow:hidden}
+.epc-bar{height:100%;width:0%;transition:width .35s ease}
+.epc-bar.income{background:var(--epc-inc)}
+.epc-bar.expense{background:var(--epc-exp)}
+.epc-bar-row b{font-size:12.5px;text-align:right}
+
+.epc-headline{padding:14px 16px;background:#fff;border:1px solid var(--epc-bd);border-radius:10px;margin-bottom:14px}
+.post-content .epc-h-main{margin:0;font-size:15px;font-weight:700;color:var(--epc-t1)}
+.post-content .epc-h-sub{margin:4px 0 0;font-size:12.5px;color:var(--epc-t3);line-height:1.45}
+.post-content .epc-h-cross{margin:8px 0 0;padding-top:8px;border-top:1px dashed var(--epc-bd);
+  font-size:12.5px;color:var(--epc-t2);line-height:1.45}
+
+.epc-both{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--epc-bd);
+  border:1px solid var(--epc-bd);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.epc-both-row{background:#fff;padding:10px 14px;display:flex;flex-direction:column;gap:2px}
+.epc-both-row span{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--epc-t3)}
+.epc-both-row b{font-size:16px;font-weight:700;color:var(--epc-t1)}
+.epc-both-row b.neg{color:var(--epc-exp)}
+
+.post-content .epc-micro{margin:0;font-size:11px;font-style:italic;color:var(--epc-t3);text-align:center}
+
+.post-content .epc-privacy{margin:0;padding:10px 22px;font-size:11px;color:var(--epc-t3);
+  border-top:1px solid var(--epc-bd);text-align:center}
+.post-content .epc-noscript{margin:0;padding:14px 22px;font-size:12.5px;color:var(--epc-t2);
+  border-top:1px solid var(--epc-bd)}
+
+@media(max-width:640px){
+  .epc-cols{grid-template-columns:1fr;gap:20px;padding:0 16px 18px}
+  .epc-head{padding:16px 16px 12px}
+  .epc-toolbar,.epc-tabs{padding-left:16px;padding-right:16px}
+  .post-content .epc-intro{padding-left:16px;padding-right:16px}
+  .epc-results{padding:16px 16px 14px}
+  .epc-both{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.epc *{transition:none!important}}
+@media(prefers-color-scheme:dark){.epc-bar-track{background:#fff}}
+</style>
+
+<script is:inline>
+(function(){
+const root = document.getElementById('epc');
+if (!root) return;
+const $  = (sel, ctx) => (ctx || root).querySelector(sel);
+const $$ = (sel, ctx) => Array.from((ctx || root).querySelectorAll(sel));
+
+let scenario = 'current'; // 'current' | 'withoutWork'
+let customCounter = 0;
+let hasInteracted = false; // never show a result before expenses have been entered
+
+/* ---- Mirrors src/utils/enoughPointCheck.ts — see that module for the
+   derivation and the automated tests. If you change one, change both. ---- */
+function sumCents(rows){ return rows.reduce((t, r) => t + Math.round(r.cents), 0); }
+
+function calculate(income, expenses, scen){
+  const currentIncome = sumCents(income);
+  const continuingIncome = sumCents(income.filter(r => r.continuesWithoutWork));
+  const expensesTotal = sumCents(expenses);
+  const currentBalance = currentIncome - expensesTotal;
+  const withoutWorkBalance = continuingIncome - expensesTotal;
+  const selectedIncome = scen === 'current' ? currentIncome : continuingIncome;
+  const selectedBalance = selectedIncome - expensesTotal;
+  const coveragePercent = expensesTotal > 0 ? (selectedIncome / expensesTotal) * 100 : null;
+  return { currentIncome, continuingIncome, expenses: expensesTotal, currentBalance,
+           withoutWorkBalance, selectedIncome, selectedBalance, coveragePercent };
+}
+
+function classify(r, scen){
+  let headline;
+  if (r.expenses <= 0) headline = 'no-expenses';
+  else if (r.selectedBalance < 0) headline = 'gap';
+  else if (r.selectedBalance === 0) headline = 'breakeven';
+  else if (scen === 'withoutWork') headline = 'covers-without-work';
+  else headline = 'surplus-working';
+
+  let crossScenario = null;
+  if (r.expenses > 0 && r.currentBalance > 0){
+    if (r.withoutWorkBalance < 0) crossScenario = 'surplus-to-gap';
+    else if (r.withoutWorkBalance === 0) crossScenario = 'surplus-to-breakeven';
+  }
+  return { headline, crossScenario };
+}
+
+function formatSgd(cents){
+  const sign = cents < 0 ? '-' : '';
+  const dollars = Math.round(Math.abs(cents) / 100);
+  return sign + 'S$' + dollars.toLocaleString('en-SG');
+}
+
+function formatCoverage(percent){
+  if (percent === null) return '—';
+  // Coverage can run past 100% and is shown as-is — it is a ratio, not a
+  // grade, so there is no ceiling to clamp it against.
+  return (Math.round(percent * 10) / 10).toFixed(1) + '%';
+}
+
+function parseAmountToCents(raw){
+  const cleaned = String(raw).replace(/[,\s]/g, '').replace(/^S?\$/i, '');
+  if (cleaned === '') return 0;
+  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
+  const value = Number(cleaned);
+  if (!isFinite(value) || value < 0) return null;
+  return Math.round(value * 100);
+}
+/* ---- end mirror ---- */
+
+function rowEls(kind){
+  // Deliberately not filtered by visibility: rows inside the collapsed
+  // "Don't forget these costs" <details> must still count toward the total.
+  return $$('.epc-row[data-kind="' + kind + '"]');
+}
+
+function readRow(el){
+  const amtEl = $('.epc-amt', el);
+  const cents = parseAmountToCents(amtEl.value);
+  const invalid = cents === null;
+  amtEl.classList.toggle('invalid', invalid);
+  amtEl.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+  const labelEl = el.querySelector('.epc-custom-label');
+  const label = labelEl ? (labelEl.value.trim() || 'Untitled') : ($('.epc-row-label', el)?.textContent || '');
+  const cw = $('.epc-continues', el);
+  return { id: el.dataset.rowId || el.dataset.customId, label, cents: invalid ? 0 : cents, invalid,
+           continuesWithoutWork: cw ? cw.checked : false };
+}
+
+function readAll(){
+  const income = rowEls('income').map(readRow);
+  const expenses = rowEls('expense').map(readRow);
+  const hasInvalid = income.some(r => r.invalid) || expenses.some(r => r.invalid);
+  return { income, expenses, hasInvalid };
+}
+
+let announceTimer = null;
+function debounceAnnounce(fn){
+  clearTimeout(announceTimer);
+  announceTimer = setTimeout(fn, 400);
+}
+
+function render(){
+  const { income, expenses, hasInvalid } = readAll();
+  const anyExpenseEntered = expenses.some(r => r.cents > 0);
+  const anyEntered = anyExpenseEntered || income.some(r => r.cents > 0);
+  hasInteracted = hasInteracted || anyEntered;
+
+  // Dim income rows not flagged for the without-work scenario, so the reader
+  // can see at a glance what would vanish — values are kept either way.
+  rowEls('income').forEach(el => {
+    const cw = $('.epc-continues', el);
+    el.classList.toggle('dimmed', scenario === 'withoutWork' && cw && !cw.checked);
+  });
+
+  if (hasInvalid){
+    $('#epc-h-main').textContent = 'Check the highlighted amount above — it isn’t a valid figure.';
+    $('#epc-h-sub').textContent = '';
+    $('#epc-h-cross').hidden = true;
+    return; // pause the result rather than compute on bad data
+  }
+
+  const r = calculate(income, expenses, scenario);
+
+  // Bars: shared scale per the brief, so a 60% coverage reads as visibly
+  // short rather than as two independently-full bars.
+  const denom = Math.max(r.selectedIncome, r.expenses, 1);
+  $('#epc-bar-income').style.width = Math.min(100, (r.selectedIncome / denom) * 100) + '%';
+  $('#epc-bar-expense').style.width = Math.min(100, (r.expenses / denom) * 100) + '%';
+  $('#epc-bar-income-val').textContent = formatSgd(r.selectedIncome);
+  $('#epc-bar-expense-val').textContent = formatSgd(r.expenses);
+  $('#epc-coverage').innerHTML = r.expenses > 0
+    ? 'Selected income covers <b>' + formatCoverage(r.coveragePercent) + '</b> of expenses'
+    : '&mdash;';
+
+  $('#epc-bal-current').textContent = formatSgd(r.currentBalance);
+  $('#epc-bal-current').className = 'num ' + (r.currentBalance < 0 ? 'neg' : '');
+  $('#epc-bal-without').textContent = formatSgd(r.withoutWorkBalance);
+  $('#epc-bal-without').className = 'num ' + (r.withoutWorkBalance < 0 ? 'neg' : '');
+
+  if (!hasInteracted && !anyExpenseEntered){
+    $('#epc-h-main').textContent = 'Enter your household expenses to begin.';
+    $('#epc-h-sub').textContent = '';
+    $('#epc-h-cross').hidden = true;
+    return;
+  }
+
+  const tiers = classify(r, scenario);
+  const MAIN = {
+    'no-expenses': 'Start with your household expenses. Zero expenses isn’t a useful enough-point test.',
+    'gap': 'A monthly gap of ' + formatSgd(Math.abs(r.selectedBalance)) + ' in this scenario.',
+    'breakeven': 'Balanced—but no monthly buffer in this snapshot.',
+    'surplus-working': 'A surplus while working.',
+    'covers-without-work': 'Your entered continuing income covers these expenses.',
+  };
+  const SUB = {
+    'no-expenses': '',
+    'gap': 'These entered income sources don’t cover the expenses shown.',
+    'breakeven': '',
+    'surplus-working': 'This counts your work income. Switch to “If I stopped working” to see what continues without it.',
+    'covers-without-work': 'A useful starting point—not confirmation that you can safely stop working.',
+  };
+  const CROSS = {
+    'surplus-to-gap': 'A surplus while working. A gap if work income stops.',
+    'surplus-to-breakeven': 'A surplus today; break-even without work income.',
+  };
+
+  debounceAnnounce(() => {
+    $('#epc-h-main').textContent = MAIN[tiers.headline];
+    $('#epc-h-sub').textContent = SUB[tiers.headline];
+    if (tiers.crossScenario){
+      $('#epc-h-cross').textContent = CROSS[tiers.crossScenario];
+      $('#epc-h-cross').hidden = false;
+    } else {
+      $('#epc-h-cross').hidden = true;
+    }
+  });
+}
+
+function syncSliderToAmt(sliderEl, amtEl){
+  const dollars = parseFloat(sliderEl.value) || 0;
+  amtEl.value = dollars.toLocaleString('en-SG');
+  render();
+}
+function syncAmtToSlider(amtEl, sliderEl){
+  const cents = parseAmountToCents(amtEl.value);
+  if (cents === null) { render(); return; }
+  const dollars = cents / 100;
+  const max = parseFloat(sliderEl.max);
+  // Numeric entry is authoritative: widen the slider rather than clamp or
+  // silently discard a value bigger than the suggested range.
+  if (dollars > max) sliderEl.max = String(Math.ceil(dollars / 1000) * 1000 || dollars);
+  sliderEl.value = String(dollars);
+  render();
+}
+
+function wireRow(el){
+  const amt = $('.epc-amt', el);
+  const slider = $('.epc-slider', el);
+  slider.addEventListener('input', () => syncSliderToAmt(slider, amt));
+  amt.addEventListener('input', () => syncAmtToSlider(amt, slider));
+  const cw = $('.epc-continues', el);
+  if (cw) cw.addEventListener('change', render);
+  const label = $('.epc-custom-label', el);
+  if (label) label.addEventListener('input', render);
+  const del = $('.epc-del', el);
+  if (del) del.addEventListener('click', () => {
+    const addBtn = el.dataset.kind === 'income' ? $('#epc-add-income') : $('#epc-add-expense');
+    el.remove();
+    render();
+    if (addBtn) addBtn.focus();
+  });
+}
+
+function addCustomRow(kind){
+  customCounter += 1;
+  const tmplId = kind === 'income' ? 'epc-tmpl-income' : 'epc-tmpl-expense';
+  const tmpl = document.getElementById(tmplId);
+  const node = tmpl.content.firstElementChild.cloneNode(true);
+  const customId = kind + '-custom-' + customCounter;
+  node.dataset.customId = customId;
+  // Custom rows always land in the always-visible primary list, never inside
+  // the collapsed disclosure — a row the reader just added should be
+  // immediately visible, not hidden behind "Don't forget these costs".
+  const target = kind === 'income' ? $('#epc-income-rows') : $('#epc-expense-rows-primary');
+  target.appendChild(node);
+  wireRow(node);
+  $('.epc-custom-label', node).focus();
+  render();
+}
+
+function loadExample(){
+  const hasData = readAll().income.concat(readAll().expenses).some(r => r.cents > 0);
+  if (hasData && !window.confirm('Loading the example will replace your current entries. Continue?')) return;
+  clearCustomRows();
+  const set = (id, val) => { const el = document.getElementById('epc-amt-' + id); if (el){ el.value = String(val); syncAmtToSlider(el, $('.epc-slider', el.closest('.epc-row'))); } };
+  const setCw = (id, checked) => { const el = document.getElementById('epc-amt-' + id)?.closest('.epc-row'); const cw = el && $('.epc-continues', el); if (cw) cw.checked = checked; };
+  ['salary','insurance','dividends','rental','side','gig','food','subs','housing','maint','child','ent','util','transport','insprem','health','family','debt','tax']
+    .forEach(id => set(id, 0));
+  set('salary', 5000); setCw('salary', false);
+  set('rental', 1500); setCw('rental', true);
+  set('dividends', 300); setCw('dividends', true);
+  set('housing', 3000);
+  render();
+}
+
+function resetAll(){
+  const hasData = readAll().income.concat(readAll().expenses).some(r => r.cents > 0);
+  if (hasData && !window.confirm('Reset all entries to zero?')) return;
+  clearCustomRows();
+  $$('.epc-amt').forEach(el => { el.value = '0'; el.classList.remove('invalid'); });
+  $$('.epc-slider').forEach(el => { el.value = '0'; });
+  resetIncomeDefaults();
+  hasInteracted = false;
+  render();
+}
+function resetIncomeDefaults(){
+  // Only dividends and rental start pre-checked (see INCOME_ROWS above) —
+  // everything else, including any leftover custom row, resets to unchecked.
+  const defaults = { dividends: true, rental: true };
+  $$('.epc-row[data-kind="income"]').forEach(el => {
+    const cw = $('.epc-continues', el);
+    if (cw) cw.checked = !!defaults[el.dataset.rowId];
+  });
+}
+function clearCustomRows(){
+  $$('.epc-row-custom').forEach(el => el.remove());
+}
+
+function setScenario(next){
+  scenario = next;
+  $('#epc-tab-current').setAttribute('aria-selected', String(next === 'current'));
+  $('#epc-tab-without').setAttribute('aria-selected', String(next === 'withoutWork'));
+  render();
+}
+
+function init(){
+  $$('.epc-row[data-kind]').forEach(wireRow);
+  $('#epc-tab-current').addEventListener('click', () => setScenario('current'));
+  $('#epc-tab-without').addEventListener('click', () => setScenario('withoutWork'));
+  $('#epc-add-income').addEventListener('click', () => addCustomRow('income'));
+  $('#epc-add-expense').addEventListener('click', () => addCustomRow('expense'));
+  $('#epc-example').addEventListener('click', loadExample);
+  $('#epc-reset').addEventListener('click', resetAll);
+  render();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+})();
+</script>
