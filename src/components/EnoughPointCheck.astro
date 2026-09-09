@@ -16,14 +16,7 @@ const extra = [['Utilities / phone / internet',2000],['Transport',5000],['Insura
     </fieldset>
     <p class="ep-help">Enter monthly amounts in SGD. Mark income that would continue without your work. That does not mean it is guaranteed or permanent.</p>
     <div class="ep-actions"><button type="button" data-example>Load example</button><button type="button" data-reset>Reset</button><span data-example-label hidden>Illustrative example — not a suggested budget</span></div>
-    <section class="ep-results" aria-label="Results"><p class="ep-kicker" data-scenario-title>AS THINGS ARE</p>
-      <h3 data-verdict>Start with your household expenses.</h3><p data-context>Zero expenses isn't a useful enough-point test.</p>
-      <div data-chart hidden><div class="ep-bar-label">Monthly income <strong data-in-total></strong></div><div class="ep-track"><div class="ep-bar ep-income" data-in-bar></div></div>
-      <div class="ep-bar-label">Monthly expenses <strong data-out-total></strong></div><div class="ep-track"><div class="ep-bar ep-outgoing" data-out-bar></div></div><p data-coverage></p></div>
-      <div class="ep-balances"><p>Balance while working<strong data-current>—</strong></p><p>Balance without work income<strong data-stopped>—</strong></p></div>
-      <details class="ep-caveat"><summary>A snapshot, not a resignation letter.</summary><p>This does not model income reliability, inflation, investment losses, future expenses or how long savings last. It is not personalised financial advice.</p></details>
-    </section>
-    <p class="ep-edit-guide"><span>2</span> Fine-tune your monthly picture <small>Type an amount or drag a slider. The picture above updates as you go.</small></p>
+    <p class="ep-edit-guide"><span>2</span> Fine-tune your monthly picture <small>Type an amount or drag a slider. Your totals update as you go. Press the button below to reveal your result.</small></p>
     <div class="ep-columns">
       <section aria-label="Monthly income"><h3>Money coming in <strong data-income-summary>SGD 0.00</strong></h3><div data-income>
         {income.map(([label,max,keep],i)=><div class="ep-row" data-kind="income">
@@ -46,6 +39,14 @@ const extra = [['Utilities / phone / internet',2000],['Transport',5000],['Insura
       <li>Withdrawals from savings are not recurring income here. This tool does not model assets running out.</li>
     </ul></details>
 
+    <div class="ep-reveal-controls"><button type="button" data-reveal>Have I reached my enough point?</button><p role="status" aria-live="polite" data-progress>Enter your monthly amounts, then reveal both scenarios.</p><div class="ep-computing" aria-hidden="true" hidden><span></span></div></div>
+    <section class="ep-results" aria-label="Results" tabindex="-1" hidden><div class="ep-flags"><article class="ep-flag" data-working-flag><p>IF I CONTINUE TO WORK</p><h3 data-working-message></h3></article><article class="ep-flag" data-independent-flag><p>IF I STOP WORKING TODAY</p><h3 data-independent-message></h3></article></div><p class="ep-help">Based on your entered monthly amounts only—not confirmation that you can safely retire.</p><p class="ep-kicker" data-scenario-title>AS THINGS ARE</p>
+      <h3 data-verdict>Start with your household expenses.</h3><p data-context>Zero expenses isn't a useful enough-point test.</p>
+      <div data-chart hidden><div class="ep-bar-label">Monthly income <strong data-in-total></strong></div><div class="ep-track"><div class="ep-bar ep-income" data-in-bar></div></div>
+      <div class="ep-bar-label">Monthly expenses <strong data-out-total></strong></div><div class="ep-track"><div class="ep-bar ep-outgoing" data-out-bar></div></div><p data-coverage></p></div>
+      <div class="ep-balances"><p>Balance while working<strong data-current>—</strong></p><p>Balance without work income<strong data-stopped>—</strong></p></div>
+      <details class="ep-caveat"><summary>A snapshot, not a resignation letter.</summary><p>This does not model income reliability, inflation, investment losses, future expenses or how long savings last. It is not personalised financial advice.</p></details>
+    </section>
     <p class="ep-help">Calculated in this browser; entries are not saved by this tool.</p><p class="ep-sr" role="status" aria-live="polite" data-announcement></p>
   </div>
 </enough-point-check>
@@ -59,8 +60,12 @@ class EnoughPointCheck extends HTMLElement {
     const q = (selector:string) => this.querySelector<HTMLElement>(selector)!;
     const money = (n:number) => new Intl.NumberFormat('en-SG',{style:'currency',currency:'SGD',currencyDisplay:'code',maximumFractionDigits:2}).format(n/100);
     const rows = () => Array.from(this.querySelectorAll<HTMLElement>('.ep-row'));
-    let timer:ReturnType<typeof setTimeout>; let id=0;
+    let timer:ReturnType<typeof setTimeout>; let revealTimer:ReturnType<typeof setTimeout>; let id=0;
+    const revealButton=this.querySelector<HTMLButtonElement>("[data-reveal]")!;
+    let ready=false;
+    const invalidate=()=>{clearTimeout(revealTimer);q(".ep-results").hidden=true;q(".ep-computing").hidden=true;revealButton.disabled=false;q("[data-progress]").textContent="Numbers changed. Press the button to reveal your updated result.";};
     const update = () => {
+      invalidate(); ready=false;
       const stopped = (this.querySelector<HTMLInputElement>('input[name="ep-scenario"]:checked')!).value === 'stopped';
       let invalid=false;
       const read = (row:HTMLElement) => {
@@ -83,6 +88,9 @@ class EnoughPointCheck extends HTMLElement {
         q('[data-current]').textContent=money(r.currentBalance); q('[data-stopped]').textContent=money(r.withoutWorkBalance);
         if (!r.outgoing) { title='Start with your household expenses.'; context="Zero expenses isn't a useful enough-point test."; }
         else {
+          ready=true;
+          const flag=(selector:string,messageSelector:string,b:number,independent:boolean)=>{q(selector).dataset.state=b<0?'gap':b===0?'even':'win';q(messageSelector).textContent=b<0?(independent?`${money(-b)}/month to close your without-work gap.`:`You’re ${money(-b)}/month short of covering your expenses.`):b===0?'Balanced—but no buffer yet.':independent?'Your enough point exists without work—in this monthly snapshot!':'Congratulations! Your current lifestyle is covered!';};
+          flag('[data-working-flag]','[data-working-message]',r.currentBalance,false);flag('[data-independent-flag]','[data-independent-message]',r.withoutWorkBalance,true);
           q('[data-chart]').hidden=false;
           const scale=Math.max(selected,r.outgoing,1);
           q('[data-in-bar]').style.width=`${selected/scale*100}%`; q('[data-out-bar]').style.width=`${r.outgoing/scale*100}%`;
@@ -111,6 +119,14 @@ class EnoughPointCheck extends HTMLElement {
     };
     this.addEventListener('click',event=>{
       const button=(event.target as HTMLElement).closest<HTMLButtonElement>('button'); if(!button)return;
+      if(button.hasAttribute('data-reveal')) {
+        update();
+        if(!ready){q('[data-progress]').textContent=this.querySelector('[aria-invalid=true]')?'Check the highlighted amounts before revealing your result.':'Add your monthly expenses first. Zero expenses cannot establish an enough point.';const invalid=this.querySelector<HTMLInputElement>('[aria-invalid=true]');if(invalid){const details=invalid.closest('details');if(details)details.open=true;invalid.focus();}return;}
+        const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        revealButton.disabled=true;q('[data-progress]').textContent='Comparing your life with and without work income…';q('.ep-computing').hidden=false;
+        revealTimer=setTimeout(()=>{q('.ep-computing').hidden=true;revealButton.disabled=false;q('.ep-results').hidden=false;q('[data-progress]').textContent='Your two-scenario snapshot is ready.';q('.ep-results').focus({preventScroll:true});q('.ep-results').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});},reduced?0:900);
+        return;
+      }
       if(button.hasAttribute('data-reset') || button.hasAttribute('data-example')) {
         if(rows().some(r=>r.querySelector<HTMLInputElement>('.ep-number')!.value) && !window.confirm('Replace the current entries?'))return;
         clear(); q('[data-example-label]').hidden=true;
@@ -126,7 +142,7 @@ class EnoughPointCheck extends HTMLElement {
       }
       if(button.hasAttribute('data-remove')) {const row=button.closest<HTMLElement>('.ep-row')!;const kind=row.dataset.kind;row.remove();this.querySelector<HTMLButtonElement>(`[data-add="${kind}"]`)!.focus();update();}
     });
-    update();
+    update(); q("[data-progress]").textContent="Enter your monthly amounts, then reveal both scenarios.";
   }
 }
 if(!customElements.get('enough-point-check'))customElements.define('enough-point-check',EnoughPointCheck);
@@ -157,4 +173,10 @@ enough-point-check.ep{background:#faf8f2;border-color:#ddd8c8;border-radius:24px
 @media(max-width:640px){.ep-columns>section{padding:14px}.ep-results{padding:16px}.ep-balances{grid-template-columns:1fr}.ep-scenarios label{min-width:100%;justify-content:flex-start}.ep-results h3{font-size:23px}}
 @media(prefers-reduced-motion:reduce){.ep-scenarios label{transition:none}}
 .ep-scenarios label{transition:none}
+
+.ep-reveal-controls{margin:24px 0;text-align:center}.ep button[data-reveal]{width:100%;background:#173c38;color:white;font-size:clamp(18px,3vw,23px);padding:18px;border-radius:14px;box-shadow:0 6px 0 #0c2724}.ep button[data-reveal]:hover{background:#26554f}.ep button[data-reveal]:disabled{cursor:wait;background:#435a56;box-shadow:none}.ep [data-progress]{font-size:14px;color:#435a56}
+.ep-flags{display:grid;gap:14px;margin-bottom:20px}.ep-flag{padding:22px;border-radius:14px;border-left:6px solid #9b6500;background:#fff5dc;color:#533e15}.ep-flag>p{font-size:12px;font-weight:800;letter-spacing:.08em;margin:0 0 8px}.ep-flag h3{font-size:clamp(24px,4vw,34px);line-height:1.2;margin:0}.ep-flag[data-state=win]{background:#e7f4ec;border-color:#167565;color:#173c38}.ep-flag[data-state=gap]{background:#fff0e7;border-color:#a75024;color:#653318}.ep-flag[data-state=win]:before{content:'✦';display:block;font-size:28px;margin-bottom:6px}
+.ep-results{scroll-margin-top:90px}.ep-results:not([hidden]) .ep-flag{animation:ep-flag-in .45s ease-out both}.ep-results:not([hidden]) .ep-flag:nth-child(2){animation-delay:.12s}.ep-computing{height:8px;background:#e3e9e2;border-radius:8px;overflow:hidden}.ep-computing span{display:block;height:100%;width:100%;background:#167565;transform-origin:left;animation:ep-compute .9s ease-in-out both}
+@keyframes ep-compute{from{transform:scaleX(0)}to{transform:scaleX(1)}}@keyframes ep-flag-in{from{transform:translateY(12px)}to{transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.ep-results:not([hidden]) .ep-flag,.ep-computing span{animation:none}}
 </style>
