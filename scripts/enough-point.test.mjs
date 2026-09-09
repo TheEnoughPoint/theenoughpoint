@@ -1,0 +1,15 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {calculate,cents} from '../src/utils/enough-point.mjs';
+const row=(amount,continues=false)=>({amount,continues});
+test('empty',()=>assert.deepEqual(calculate([],[]),{current:0,continuing:0,outgoing:0,currentBalance:0,withoutWorkBalance:0}));
+test('salary excluded',()=>assert.equal(calculate([row('5000')],[row('3000')]).withoutWorkBalance,-300000));
+test('gig is work',()=>assert.equal(calculate([row('4000')],[row('2000')]).withoutWorkBalance,-200000));
+test('exact cents',()=>assert.equal(calculate([row('.10'),row('.20')],[row('.30')]).currentBalance,0));
+test('break even',()=>assert.equal(calculate([row('2000',true)],[row('2000')]).withoutWorkBalance,0));
+test('surplus',()=>assert.equal(calculate([row('2500',true)],[row('2000')]).withoutWorkBalance,50000));
+test('example',()=>assert.deepEqual(calculate([row('5000'),row('1500',true),row('300',true)],[row('3000')]),{current:680000,continuing:180000,outgoing:300000,currentBalance:380000,withoutWorkBalance:-120000}));
+test('invalid',()=>{for(const x of ['-1','NaN','Infinity','1.001','bad'])assert.throws(()=>cents(x));});
+test('above slider range',()=>assert.equal(cents('60000'),6000000));
+test('toggle',()=>assert.equal(calculate([row('1000',true)],[]).continuing-calculate([row('1000')],[]).continuing,100000));
+test('deletion',()=>assert.equal(calculate([],[]).currentBalance-calculate([],[row('100')]).currentBalance,10000));
