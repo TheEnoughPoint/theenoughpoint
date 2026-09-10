@@ -59,7 +59,12 @@ export const homeToolCards: HomeToolCard[] = [
     blurb: 'Shows you when to capture your next payment milestones to maximize cashback.',
     icon: 'bi:calendar',
   },
-  { name: 'Coming Soon', blurb: '', icon: 'bi:clock' },
+  {
+    name: 'The Enough Point Check',
+    href: '/where-is-your-enough-point/',
+    blurb: 'Two scenarios side by side — what covers your household today, and what still would if work income stopped.',
+    icon: 'bi:piggy-bank',
+  },
   { name: 'Coming Soon', blurb: '', icon: 'bi:clock' },
   { name: 'Coming Soon', blurb: '', icon: 'bi:clock' },
 ];
